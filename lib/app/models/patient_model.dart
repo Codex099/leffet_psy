@@ -1,7 +1,7 @@
 import '../utils/json_utils.dart';
 
 class PatientModel {
-  final int id;
+  final dynamic id;
   final String nom;
   final String prenom;
   final String? dateNaissance;
@@ -33,7 +33,7 @@ class PatientModel {
 
   factory PatientModel.fromJson(Map<String, dynamic> json) {
     return PatientModel(
-      id: parseInt(json['id']),
+      id: parseId(json['id']),
       nom: json['nom'] as String? ?? '',
       prenom: json['prenom'] as String? ?? '',
       dateNaissance: json['date_naissance'] as String?,
@@ -70,6 +70,44 @@ class PatientModel {
   }
 
   String get fullName => '$prenom $nom';
+
+  bool get isGarcon {
+    if (sexe == null || sexe!.trim().isEmpty) return false;
+    final s = sexe!.trim().toLowerCase();
+    return s == 'masculin' ||
+        s == 'garçon' ||
+        s == 'garcon' ||
+        s == 'm' ||
+        s == 'male' ||
+        s.startsWith('masc') ||
+        s.startsWith('garç') ||
+        s.startsWith('garc');
+  }
+
+  bool get isFille {
+    if (sexe == null || sexe!.trim().isEmpty) return false;
+    final s = sexe!.trim().toLowerCase();
+    return s == 'feminin' ||
+        s == 'féminin' ||
+        s == 'fille' ||
+        s == 'f' ||
+        s == 'female' ||
+        s.startsWith('fém') ||
+        s.startsWith('fem') ||
+        s.startsWith('fill');
+  }
+
+  String get sexeLabel {
+    if (isGarcon) return 'Garçon';
+    if (isFille) return 'Fille';
+    return sexe ?? '';
+  }
+
+  String get backendSexe {
+    if (isFille) return 'feminin';
+    if (isGarcon) return 'masculin';
+    return sexe ?? 'masculin';
+  }
 
   String get initials {
     final p = prenom.isNotEmpty ? prenom[0].toUpperCase() : '';

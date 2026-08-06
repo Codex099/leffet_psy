@@ -9,19 +9,25 @@ class PlanTherapeutiqueController extends GetxController {
   final Rx<PlanTherapeutiqueModel?> plan = Rx<PlanTherapeutiqueModel?>(null);
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  late int patientId;
+  int? patientId;
 
   @override
   void onInit() {
     super.onInit();
-    patientId = parseInt(Get.arguments, 1);
-    loadPlan();
+    patientId = extractIdParam(Get.arguments, Get.parameters);
+    if (patientId == null) {
+      status.value = 'error';
+      errorMessage.value = 'Identifiant du patient non spécifié.';
+    } else {
+      loadPlan();
+    }
   }
 
   Future<void> loadPlan() async {
+    if (patientId == null) return;
     try {
       status.value = 'loading';
-      final plans = await _planService.getPlansPatient(patientId);
+      final plans = await _planService.getPlansPatient(patientId!);
       if (plans.isNotEmpty) {
         plan.value = plans.first;
         status.value = 'success';
@@ -33,6 +39,7 @@ class PlanTherapeutiqueController extends GetxController {
       status.value = 'error';
     }
   }
+
 
   Future<void> convertEtapeToTache(int etapeId) async {
     if (plan.value == null) return;

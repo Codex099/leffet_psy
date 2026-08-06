@@ -6,6 +6,7 @@ class AppTextField extends StatelessWidget {
   final String label;
   final String hintText;
   final TextEditingController? controller;
+  final String? initialValue;
   final bool obscureText;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
@@ -19,6 +20,7 @@ class AppTextField extends StatelessWidget {
     required this.label,
     required this.hintText,
     this.controller,
+    this.initialValue,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
@@ -39,6 +41,7 @@ class AppTextField extends StatelessWidget {
         ],
         TextFormField(
           controller: controller,
+          initialValue: controller == null ? initialValue : null,
           obscureText: obscureText,
           keyboardType: keyboardType,
           maxLines: maxLines,

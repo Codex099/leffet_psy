@@ -19,17 +19,33 @@ class AccueilController extends GetxController {
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
 
+  /// Cache TTL : on ne re-fetch pas si les données ont moins de 5 minutes.
+  DateTime? _lastLoaded;
+  static const _cacheDuration = Duration(minutes: 5);
+
+  bool get _isFresh =>
+      _lastLoaded != null &&
+      DateTime.now().difference(_lastLoaded!) < _cacheDuration;
+
   @override
   void onInit() {
     super.onInit();
     loadDashboard();
   }
 
-  Future<void> loadDashboard() async {
+  /// Appelée à chaque retour sur l'onglet — ne charge que si cache expiré.
+  @override
+  void onReady() {
+    super.onReady();
+    if (!_isFresh) loadDashboard();
+  }
+
+  Future<void> loadDashboard({bool forceRefresh = false}) async {
+    if (_isFresh && !forceRefresh) return;
     try {
       status.value = 'loading';
       currentUser.value = await _authService.getMe();
-      
+
       final todayStr = DateTime.now().toIso8601String().split('T').first;
       final seances = await _seanceService.getSeances(date: todayStr);
       prochainesSeances.value = seances;
@@ -38,11 +54,15 @@ class AccueilController extends GetxController {
       final patients = await _patientService.getPatients(actif: true);
       totalPatients.value = patients.length;
 
-      alertesCount.value = 3;
+      alertesCount.value = 0;
+      _lastLoaded = DateTime.now();
       status.value = 'success';
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
     }
   }
+
+  /// Forcer un refresh (ex: pull-to-refresh)
+  Future<void> refreshData() => loadDashboard(forceRefresh: true);
 }

@@ -35,26 +35,26 @@ class PatientService {
   }
 
   /// GET /api/patients/{id} — Fiche patient
-  Future<PatientModel> getPatient(int id) async {
+  Future<PatientModel> getPatient(dynamic id) async {
     final response = await _dio.get(ApiConfig.patient(id));
     return PatientModel.fromJson(response.data as Map<String, dynamic>);
   }
 
-  /// PUT /api/patients/{id} — Mise à jour patient
-  Future<PatientModel> updatePatient(int id, Map<String, dynamic> data) async {
-    final response = await _dio.put(ApiConfig.patient(id), data: data);
+  /// PATCH /api/patients/{id} — Mise à jour patient
+  Future<PatientModel> updatePatient(dynamic id, Map<String, dynamic> data) async {
+    final response = await _dio.patch(ApiConfig.patient(id), data: data);
     return PatientModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// DELETE /api/patients/{id} — Suppression patient
-  Future<void> deletePatient(int id) async {
+  Future<void> deletePatient(dynamic id) async {
     await _dio.delete(ApiConfig.patient(id));
   }
 
   /// POST /api/patients/{id}/parents — Association parent au patient
   Future<void> addParentToPatient(
-    int patientId, {
-    required int parentId,
+    dynamic patientId, {
+    required dynamic parentId,
     required String role,
   }) async {
     await _dio.post(
@@ -64,7 +64,7 @@ class PatientService {
   }
 
   /// GET /api/patients/{id}/parents — Parents liés au patient
-  Future<List<PatientParentModel>> getPatientParents(int patientId) async {
+  Future<List<PatientParentModel>> getPatientParents(dynamic patientId) async {
     final response = await _dio.get(ApiConfig.patientParents(patientId));
     final list = response.data as List<dynamic>;
     return list
@@ -73,7 +73,7 @@ class PatientService {
   }
 
   /// PUT /api/patients/{id}/statut — Changer statut actif/inactif
-  Future<void> updateStatut(int id, {required bool estActif}) async {
+  Future<void> updateStatut(dynamic id, {required bool estActif}) async {
     await _dio.put(
       ApiConfig.patientStatut(id),
       data: {'est_actif': estActif},
@@ -82,7 +82,7 @@ class PatientService {
 
   /// GET /api/patients/{id}/statut-historique — Historique des statuts
   Future<List<PatientStatutHistoriqueModel>> getStatutHistorique(
-      int patientId) async {
+      dynamic patientId) async {
     final response =
         await _dio.get(ApiConfig.patientStatutHistorique(patientId));
     final list = response.data as List<dynamic>;
@@ -94,8 +94,8 @@ class PatientService {
 
   /// PUT /api/patients/{id}/statut-historique/{itemId} — Édition note_degradation
   Future<void> updateStatutHistoriqueNote(
-    int patientId,
-    int itemId, {
+    dynamic patientId,
+    dynamic itemId, {
     required String noteDegradation,
   }) async {
     await _dio.put(
@@ -105,19 +105,19 @@ class PatientService {
   }
 
   /// GET /api/patients/{id}/dossier-medical — Dossier médical
-  Future<DossierMedicalModel> getDossierMedical(int patientId) async {
+  Future<DossierMedicalModel> getDossierMedical(dynamic patientId) async {
     final response =
         await _dio.get(ApiConfig.patientDossierMedical(patientId));
     return DossierMedicalModel.fromJson(
         response.data as Map<String, dynamic>);
   }
 
-  /// PUT /api/patients/{id}/dossier-medical — Mise à jour dossier médical
+  /// PATCH /api/patients/{id}/dossier-medical — Mise à jour dossier médical
   Future<DossierMedicalModel> updateDossierMedical(
-    int patientId,
+    dynamic patientId,
     Map<String, dynamic> data,
   ) async {
-    final response = await _dio.put(
+    final response = await _dio.patch(
       ApiConfig.patientDossierMedical(patientId),
       data: data,
     );

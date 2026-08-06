@@ -16,21 +16,29 @@ class PatientInfoController extends GetxController {
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
 
-  late int patientId;
+  dynamic patientId;
 
   @override
   void onInit() {
     super.onInit();
-    patientId = parseInt(Get.arguments, 1);
-    loadPatientInfo();
+    patientId = extractIdParam(Get.arguments, Get.parameters);
+    if (patientId == null || patientId.toString().isEmpty) {
+      status.value = 'error';
+      errorMessage.value = 'Identifiant du patient non spécifié.';
+    } else {
+      loadPatientInfo();
+    }
   }
 
+
   Future<void> loadPatientInfo() async {
+    if (patientId == null) return;
+    final id = patientId!;
     try {
       status.value = 'loading';
-      patient.value = await _patientService.getPatient(patientId);
-      parents.value = await _patientService.getPatientParents(patientId);
-      plans.value = await _planService.getPlansPatient(patientId);
+      patient.value = await _patientService.getPatient(id);
+      parents.value = await _patientService.getPatientParents(id);
+      plans.value = await _planService.getPlansPatient(id);
       status.value = 'success';
     } catch (e) {
       errorMessage.value = e.toString();
@@ -39,10 +47,10 @@ class PatientInfoController extends GetxController {
   }
 
   Future<void> toggleStatut() async {
-    if (patient.value == null) return;
+    if (patient.value == null || patientId == null) return;
     try {
       final current = patient.value!.estActif;
-      await _patientService.updateStatut(patientId, estActif: !current);
+      await _patientService.updateStatut(patientId!, estActif: !current);
       loadPatientInfo();
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de modifier le statut');
@@ -50,12 +58,14 @@ class PatientInfoController extends GetxController {
   }
 
   Future<void> deletePatient() async {
+    if (patientId == null) return;
     try {
-      await _patientService.deletePatient(patientId);
+      await _patientService.deletePatient(patientId!);
       Get.back();
       Get.snackbar('Succès', 'Patient supprimé');
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer le patient');
     }
   }
+
 }

@@ -4,7 +4,8 @@ import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// Barre de navigation inférieure flottante style iOS, identique aux maquettes.
+/// Barre de navigation inférieure — navigation style grandes apps (no push animation).
+/// Les onglets principaux ne rechargent PAS leurs données si déjà fraîches (cache TTL).
 class AppBottomNav extends StatelessWidget {
   final int currentIndex;
 
@@ -12,6 +13,14 @@ class AppBottomNav extends StatelessWidget {
     super.key,
     required this.currentIndex,
   });
+
+  /// Routes principales liées aux onglets du nav bar.
+  static const _tabRoutes = [
+    AppRoutes.accueil,
+    AppRoutes.patientsListe,
+    AppRoutes.agenda,
+    AppRoutes.profil,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +77,20 @@ class AppBottomNav extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        if (!isSelected) {
-          Get.offNamed(route);
-        }
+        if (isSelected) return;
+
+        // ── Navigation style grandes applis ──
+        // On efface uniquement jusqu'à la dernière route "onglet" pour
+        // éviter d'empiler des onglets dans le stack.
+        // Transition.noTransition = pas d'animation push/slide.
+        Get.offNamedUntil(
+          route,
+          // Garder les écrans qui NE sont PAS des onglets (ex: patientInfo)
+          // mais détruire l'onglet précédent.
+          (r) => !_tabRoutes.contains(r.settings.name),
+          // ↑ Si vous souhaitez vider complètement le stack, utilisez:
+          // (r) => false
+        );
       },
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
@@ -92,7 +112,8 @@ class AppBottomNav extends StatelessWidget {
             Text(
               label,
               style: AppTextStyles.navLabel.copyWith(
-                color: isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
+                color:
+                    isSelected ? AppColors.textOnPrimary : AppColors.textSecondary,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),

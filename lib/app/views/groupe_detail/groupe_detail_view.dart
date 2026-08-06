@@ -43,21 +43,31 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                          onPressed: () => Get.back(),
-                        ),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
-                            Text('DÉTAIL SÉANCE', style: AppTextStyles.sectionKicker.copyWith(color: Colors.white.withValues(alpha: 0.8))),
-                            Text('Détail séance de groupe', style: AppTextStyles.screenTitleMedium.copyWith(color: Colors.white)),
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                              onPressed: () => Get.back(),
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('DÉTAIL SÉANCE', style: AppTextStyles.sectionKicker.copyWith(color: Colors.white.withValues(alpha: 0.8))),
+                                Text('Détail séance de groupe', style: AppTextStyles.screenTitleMedium.copyWith(color: Colors.white)),
+                              ],
+                            ),
                           ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit_rounded, color: Colors.white),
+                          onPressed: () => Get.toNamed(AppRoutes.editGroupe, arguments: controller.groupeId),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16),

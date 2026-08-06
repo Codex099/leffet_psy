@@ -5,7 +5,6 @@ import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
-import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
 
 class TachesView extends GetView<TachesController> {
@@ -94,16 +93,21 @@ class TachesView extends GetView<TachesController> {
                     );
                   }
 
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildCategorySection('À faire', controller.tachesAFaire, AppColors.primary),
-                        const SizedBox(height: 16),
-                        _buildCategorySection('En cours', controller.tachesEnCours, AppColors.secondary),
-                        const SizedBox(height: 16),
-                        _buildCategorySection('Fait', controller.tachesFait, AppColors.statusPresent),
-                      ],
+                  return RefreshIndicator(
+                    onRefresh: () => controller.refreshData(),
+                    color: AppColors.primary,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildCategorySection('À faire', controller.tachesAFaire, AppColors.primary),
+                          const SizedBox(height: 16),
+                          _buildCategorySection('En cours', controller.tachesEnCours, AppColors.secondary),
+                          const SizedBox(height: 16),
+                          _buildCategorySection('Fait', controller.tachesFait, AppColors.statusPresent),
+                        ],
+                      ),
                     ),
                   );
                 }),
@@ -164,8 +168,34 @@ class TachesView extends GetView<TachesController> {
   }
 
   Widget _buildTacheCard(dynamic t) {
+    final Color statutColor = t.statut == 'fait'
+        ? AppColors.statusPresent
+        : t.statut == 'en_cours'
+            ? AppColors.secondary
+            : AppColors.primary;
+
     return InkWell(
       onTap: () => Get.toNamed(AppRoutes.detailTache, arguments: t.id),
+      onLongPress: () async {
+        // Cycle rapide du statut sans ouvrir l'écran
+        final order = ['a_faire', 'en_cours', 'fait'];
+        final idx = order.indexOf(t.statut);
+        final next = order[(idx + 1) % order.length];
+        final labels = {'a_faire': 'À faire', 'en_cours': 'En cours', 'fait': 'Fait'};
+        final confirm = await Get.dialog<bool>(
+          AlertDialog(
+            title: const Text('Changer le statut'),
+            content: Text('Passer « ${t.titre} » en "${labels[next]}" ?'),
+            actions: [
+              TextButton(onPressed: () => Get.back(result: false), child: const Text('Annuler')),
+              ElevatedButton(onPressed: () => Get.back(result: true), child: const Text('Confirmer')),
+            ],
+          ),
+        );
+        if (confirm == true) {
+          await controller.updateStatutFromList(t.id, next);
+        }
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -180,17 +210,47 @@ class TachesView extends GetView<TachesController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(t.titre, style: AppTextStyles.cardName),
-                StatusBadge.custom(label: t.prioriteLabel, color: AppColors.primary),
+                Expanded(
+                  child: Text(t.titre,
+                      style: AppTextStyles.cardName,
+                      overflow: TextOverflow.ellipsis),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statutColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    t.prioriteLabel,
+                    style: AppTextStyles.badge.copyWith(color: statutColor),
+                  ),
+                ),
               ],
             ),
             if (t.description != null && t.description!.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text(t.description!, style: AppTextStyles.bodySmall),
+              Text(t.description!,
+                  style: AppTextStyles.bodySmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis),
             ],
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.touch_app_outlined,
+                    size: 12, color: AppColors.textSecondary),
+                const SizedBox(width: 4),
+                Text('Appui long pour changer le statut',
+                    style: AppTextStyles.bodySmall
+                        .copyWith(fontSize: 10, color: AppColors.textSecondary)),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 }
+

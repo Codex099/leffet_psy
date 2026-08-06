@@ -14,19 +14,25 @@ class CompteRenduSeanceController extends GetxController {
   final etapePlanId = RxnInt();
   final medias = <String>[].obs;
 
-  late int seanceId;
+  int? seanceId;
 
   @override
   void onInit() {
     super.onInit();
-    seanceId = parseInt(Get.arguments, 1);
-    loadSeance();
+    seanceId = extractIdParam(Get.arguments, Get.parameters);
+    if (seanceId == null) {
+      status.value = 'error';
+      errorMessage.value = 'Identifiant de séance non spécifié.';
+    } else {
+      loadSeance();
+    }
   }
 
   Future<void> loadSeance() async {
+    if (seanceId == null) return;
     try {
       status.value = 'loading';
-      seance.value = await _seanceService.getSeance(seanceId);
+      seance.value = await _seanceService.getSeance(seanceId!);
       descriptionEtat.value = seance.value?.descriptionEtat ?? '';
       medias.value = seance.value?.medias ?? [];
       status.value = 'success';
@@ -36,10 +42,13 @@ class CompteRenduSeanceController extends GetxController {
     }
   }
 
+
   Future<void> saveRapport() async {
+    if (seanceId == null) return;
     try {
       status.value = 'loading';
-      await _seanceService.updateSeance(seanceId, {
+      await _seanceService.updateSeance(seanceId!, {
+
         'description_etat': descriptionEtat.value,
         if (etapePlanId.value != null) 'etape_plan_id': etapePlanId.value,
         'medias': medias,

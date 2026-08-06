@@ -9,19 +9,25 @@ class StatutHistoriqueController extends GetxController {
   final RxList<PatientStatutHistoriqueModel> historique = <PatientStatutHistoriqueModel>[].obs;
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  late int patientId;
+  int? patientId;
 
   @override
   void onInit() {
     super.onInit();
-    patientId = parseInt(Get.arguments, 1);
-    loadHistorique();
+    patientId = extractIdParam(Get.arguments, Get.parameters);
+    if (patientId == null) {
+      status.value = 'error';
+      errorMessage.value = 'Identifiant du patient non spécifié.';
+    } else {
+      loadHistorique();
+    }
   }
 
   Future<void> loadHistorique() async {
+    if (patientId == null) return;
     try {
       status.value = 'loading';
-      final list = await _patientService.getStatutHistorique(patientId);
+      final list = await _patientService.getStatutHistorique(patientId!);
       historique.value = list;
       status.value = list.isEmpty ? 'empty' : 'success';
     } catch (e) {
@@ -31,12 +37,14 @@ class StatutHistoriqueController extends GetxController {
   }
 
   Future<void> updateNoteDegradation(int itemId, String note) async {
+    if (patientId == null) return;
     try {
-      await _patientService.updateStatutHistoriqueNote(patientId, itemId, noteDegradation: note);
+      await _patientService.updateStatutHistoriqueNote(patientId!, itemId, noteDegradation: note);
       loadHistorique();
       Get.snackbar('Succès', 'Note de dégradation mise à jour');
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de mettre à jour la note');
     }
   }
+
 }

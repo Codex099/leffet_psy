@@ -3,15 +3,18 @@ import 'package:get/get.dart';
 import '../../controllers/edit_groupe_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../utils/json_utils.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/state_placeholder.dart';
 
 class EditGroupeView extends GetView<EditGroupeController> {
   const EditGroupeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    final bool isEditMode = controller.groupeId != null;
 
     return Scaffold(
       backgroundColor: AppColors.scaffold,
@@ -22,7 +25,7 @@ class EditGroupeView extends GetView<EditGroupeController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // ── Header ──
               Row(
                 children: [
                   IconButton(
@@ -34,179 +37,310 @@ class EditGroupeView extends GetView<EditGroupeController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('DÉTAIL DU GROUPE', style: AppTextStyles.sectionKicker),
-                      Text('Ajout / Édition Groupe', style: AppTextStyles.screenTitleMedium),
+                      Text(
+                        isEditMode ? 'Édition Groupe' : 'Créer un groupe',
+                        style: AppTextStyles.screenTitleMedium,
+                      ),
                     ],
                   ),
                 ],
               ),
               const SizedBox(height: 16),
 
-              // Groupe info card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: AppColors.cardShadow,
+              // ── Infos générales ──
+              _card(children: [
+                Text('Informations générales', style: AppTextStyles.sectionTitle),
+                Text('Nom et description du groupe', style: AppTextStyles.bodySmall),
+                const SizedBox(height: 16),
+                AppTextField(
+                  label: 'Nom du groupe *',
+                  hintText: 'Ex: Groupe Compétences sociales',
+                  initialValue: controller.nom.value,
+                  onChanged: (v) => controller.nom.value = v,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Nom du groupe', style: AppTextStyles.sectionTitle),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryLight,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text('Admin', style: AppTextStyles.badge.copyWith(color: AppColors.primary)),
-                        ),
-                      ],
-                    ),
-                    Text('Description du groupe et paramètres de planification', style: AppTextStyles.bodySmall),
-                    const SizedBox(height: 16),
-                    AppTextField(
-                      label: 'Nom du groupe',
-                      hintText: 'Ex: Groupe Compétences sociales',
-                      onChanged: (v) => controller.nom.value = v,
-                    ),
-                    const SizedBox(height: 14),
-                    AppTextField(
-                      label: 'Description',
-                      hintText: 'Zone de texte pour la description...',
-                      maxLines: 3,
-                      onChanged: (v) => controller.description.value = v,
-                    ),
-                  ],
+                const SizedBox(height: 14),
+                AppTextField(
+                  label: 'Description',
+                  hintText: 'Description du groupe...',
+                  maxLines: 3,
+                  initialValue: controller.description.value,
+                  onChanged: (v) => controller.description.value = v,
                 ),
-              ),
+              ]),
               const SizedBox(height: 16),
 
-              // Type de groupe Selector Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: AppColors.cardShadow,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Type de groupe', style: AppTextStyles.sectionTitle),
-                    const SizedBox(height: 14),
-                    Obx(() => Row(
-                          children: [
-                            Expanded(child: _buildTypeTile('Fixe')),
-                            const SizedBox(width: 12),
-                            Expanded(child: _buildTypeTile('Ponctuel')),
-                          ],
-                        )),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Planning récurrent Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: AppColors.cardShadow,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              // ── Type de groupe ──
+              _card(children: [
+                Text('Type de groupe', style: AppTextStyles.sectionTitle),
+                const SizedBox(height: 14),
+                Obx(() => Row(
                       children: [
-                        const Icon(Icons.calendar_month_outlined, color: AppColors.primary, size: 20),
-                        const SizedBox(width: 8),
-                        Text('Planning récurrent', style: AppTextStyles.sectionTitle),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text('Jour de la semaine', style: AppTextStyles.fieldLabel),
-                    const SizedBox(height: 8),
-                    Obx(() => Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: days.map((d) => _buildDayChip(d)).toList(),
-                        )),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppTextField(
-                            label: 'Heure de début',
-                            hintText: '09:00',
-                            onChanged: (v) => controller.heureDebut.value = v,
-                          ),
-                        ),
+                        Expanded(child: _buildTypeTile('fixe', 'Fixe')),
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: AppTextField(
-                            label: 'Heure de fin',
-                            hintText: '09:45',
-                            onChanged: (v) => controller.heureFin.value = v,
-                          ),
-                        ),
+                        Expanded(child: _buildTypeTile('ponctuel', 'Ponctuel')),
                       ],
-                    ),
-                  ],
-                ),
-              ),
+                    )),
+              ]),
               const SizedBox(height: 16),
 
-              // Patients inscrits Card
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: AppColors.cardShadow,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // ── Planning récurrent multi-créneaux ──
+              _card(children: [
+                Row(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.people_outline, color: AppColors.primary, size: 20),
-                            const SizedBox(width: 8),
-                            Text('Patients inscrits', style: AppTextStyles.sectionTitle),
-                          ],
-                        ),
-                        TextButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(Icons.person_add_alt_outlined, size: 16),
-                          label: const Text('Ajouter un patient'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildPatientMemberTile('Camille Moreau', '8 ans'),
-                    const SizedBox(height: 8),
-                    _buildPatientMemberTile('Lucas Bernard', '10 ans'),
+                    const Icon(Icons.calendar_month_outlined,
+                        color: AppColors.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Planning récurrent', style: AppTextStyles.sectionTitle),
                   ],
                 ),
-              ),
+                const SizedBox(height: 4),
+                Text('Sélectionnez les jours, puis ajustez les créneaux horaires.',
+                    style: AppTextStyles.bodySmall),
+                const SizedBox(height: 12),
+
+                // Chips jours de la semaine
+                Obx(() => Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: List.generate(
+                        EditGroupeController.allDays.length,
+                        (i) => _buildDayChip(
+                          EditGroupeController.allDays[i],
+                          EditGroupeController.allDayLabels[i],
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 12),
+
+                // Créneaux par jour
+                Obx(() {
+                  if (controller.daySlots.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  // Grouper par jour dans l'ordre
+                  final activeDays = EditGroupeController.allDays
+                      .where((d) => controller.isDayActive(d))
+                      .toList();
+                  return Column(
+                    children: activeDays.map((day) {
+                      final label = EditGroupeController.allDayLabels[
+                          EditGroupeController.allDays.indexOf(day)];
+                      final slots = controller.slotsForDay(day);
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.fieldBackground,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(label,
+                                    style: AppTextStyles.bodyMedium
+                                        .copyWith(fontWeight: FontWeight.bold)),
+                                TextButton.icon(
+                                  onPressed: () => controller.addSlotForDay(day),
+                                  icon: const Icon(Icons.add, size: 16),
+                                  label: const Text('Créneau'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.primary,
+                                    padding: EdgeInsets.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            ...slots.map((slot) => _buildSlotRow(context, slot)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }),
+              ]),
+              const SizedBox(height: 16),
+
+              // ── Employés assignés (US-M20 — RxSet réactif) ──
+              _card(children: [
+                Row(
+                  children: [
+                    const Icon(Icons.badge_outlined, color: AppColors.primary, size: 20),
+                    const SizedBox(width: 8),
+                    Text('Professionnels assignés', style: AppTextStyles.sectionTitle),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text('Sélectionnez les intervenants pour ce groupe',
+                    style: AppTextStyles.bodySmall),
+                const SizedBox(height: 12),
+                Obx(() {
+                  if (controller.employeesStatus.value == 'loading') {
+                    return const SizedBox(
+                      height: 60,
+                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    );
+                  }
+                  if (controller.availableEmployees.isEmpty) {
+                    return Text('Aucun professionnel disponible',
+                        style: AppTextStyles.bodySmall);
+                  }
+                  // Lecture du RxSet à l'intérieur du Obx pour la réactivité correcte
+                  final selectedIds = controller.selectedEmployeeIds.toSet();
+                  return Column(
+                    children: controller.availableEmployees.map((emp) {
+                      final isSelected = selectedIds.contains(emp.id);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: InkWell(
+                          onTap: () => controller.toggleEmployee(emp.id),
+                          borderRadius: BorderRadius.circular(12),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary.withOpacity(0.08)
+                                  : AppColors.fieldBackground,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color:
+                                    isSelected ? AppColors.primary : Colors.transparent,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: AppColors.secondaryLight,
+                                  child: Text(
+                                    emp.initials,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(emp.fullName,
+                                          style: AppTextStyles.bodyMedium
+                                              .copyWith(fontWeight: FontWeight.w600)),
+                                      Text(emp.roleLabel, style: AppTextStyles.bodySmall),
+                                    ],
+                                  ),
+                                ),
+                                Checkbox(
+                                  value: isSelected,
+                                  onChanged: (_) => controller.toggleEmployee(emp.id),
+                                  activeColor: AppColors.primary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }),
+              ]),
+              const SizedBox(height: 16),
+
+              // ── Patients inscrits (US-M22) ──
+              _card(children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.people_outline, color: AppColors.primary, size: 20),
+                        const SizedBox(width: 8),
+                        Text('Patients inscrits', style: AppTextStyles.sectionTitle),
+                      ],
+                    ),
+                    TextButton.icon(
+                      onPressed: () => _showPatientPickerSheet(context),
+                      icon: const Icon(Icons.person_add_alt_outlined, size: 16),
+                      label: const Text('Ajouter'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Obx(() {
+                  if (controller.groupePatients.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          'Aucun patient dans ce groupe.',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ),
+                    );
+                  }
+                  return Column(
+                    children: controller.groupePatients.map((p) {
+                      final name =
+                          '${p['prenom'] ?? ''} ${p['nom'] ?? ''}'.trim();
+                      final id = parseInt(p['id'] ?? p['patient_id'] ?? 0);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.fieldBackground,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              const CircleAvatar(
+                                radius: 16,
+                                backgroundColor: AppColors.secondaryLight,
+                                child: Icon(Icons.person, size: 16),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(name.isEmpty ? 'Patient #$id' : name,
+                                    style: AppTextStyles.bodyMedium
+                                        .copyWith(fontWeight: FontWeight.w600)),
+                              ),
+                              if (controller.groupeId != null)
+                                IconButton(
+                                  icon: const Icon(Icons.close_rounded,
+                                      color: AppColors.error, size: 20),
+                                  onPressed: () =>
+                                      controller.removePatientFromGroupe(id),
+                                  tooltip: 'Retirer du groupe',
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }),
+              ]),
               const SizedBox(height: 24),
 
-              // Supprimer le groupe action button
-              ElevatedButton(
-                onPressed: () => controller.saveGroupe(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.error,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: const Text('Supprimer le groupe'),
-              ),
+              // ── Bouton Save ──
+              Obx(() => AppButton(
+                    label: controller.status.value == 'loading'
+                        ? 'Enregistrement...'
+                        : isEditMode
+                            ? 'Mettre à jour le groupe'
+                            : 'Créer le groupe',
+                    isLoading: controller.status.value == 'loading',
+                    onPressed: controller.status.value == 'loading'
+                        ? null
+                        : () => controller.saveGroupe(),
+                  )),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -214,22 +348,38 @@ class EditGroupeView extends GetView<EditGroupeController> {
     );
   }
 
-  Widget _buildTypeTile(String type) {
-    final isSelected = controller.typePlanning.value == type;
+  // ── Widgets helpers ──
+
+  Widget _card({required List<Widget> children}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: AppColors.cardShadow,
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+    );
+  }
+
+  Widget _buildTypeTile(String value, String label) {
+    final isSelected = controller.typePlanning.value == value;
     return InkWell(
-      onTap: () => controller.typePlanning.value = type,
+      onTap: () => controller.typePlanning.value = value,
       borderRadius: BorderRadius.circular(12),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.secondary,
+          color: isSelected ? AppColors.primary : AppColors.fieldBackground,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
         ),
         child: Center(
           child: Text(
-            type,
+            label,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: Colors.white,
+              color: isSelected ? Colors.white : AppColors.textPrimary,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -238,48 +388,201 @@ class EditGroupeView extends GetView<EditGroupeController> {
     );
   }
 
-  Widget _buildDayChip(String day) {
-    final isSelected = controller.selectedDays.contains(day);
+  Widget _buildDayChip(String value, String label) {
+    final isSelected = controller.isDayActive(value);
     return InkWell(
-      onTap: () => controller.toggleDay(day),
+      onTap: () => controller.toggleDay(value),
       borderRadius: BorderRadius.circular(20),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.secondary,
+          color: isSelected ? AppColors.primary : AppColors.fieldBackground,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
         ),
         child: Text(
-          day,
-          style: AppTextStyles.badge.copyWith(color: Colors.white),
+          label,
+          style: AppTextStyles.badge.copyWith(
+            color: isSelected ? Colors.white : AppColors.textPrimary,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPatientMemberTile(String name, String age) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.fieldBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
+  /// Ligne d'un créneau avec heure début, fin, et bouton supprimer
+  Widget _buildSlotRow(BuildContext context, DaySlot slot) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          const CircleAvatar(radius: 16, backgroundColor: AppColors.secondaryLight, child: Icon(Icons.person, size: 16)),
-          const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-                Text(age, style: AppTextStyles.bodySmall),
-              ],
+            child: _timePicker(
+              context,
+              label: 'Début',
+              value: slot.heureDebut,
+              onPicked: (v) => controller.updateSlotStart(slot, v),
             ),
           ),
-          const Icon(Icons.close_rounded, color: AppColors.error, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _timePicker(
+              context,
+              label: 'Fin',
+              value: slot.heureFin,
+              onPicked: (v) => controller.updateSlotEnd(slot, v),
+            ),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 20),
+            onPressed: () => controller.removeSlot(slot),
+            tooltip: 'Supprimer ce créneau',
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _timePicker(BuildContext context,
+      {required String label,
+      required String value,
+      required ValueChanged<String> onPicked}) {
+    final parts = value.split(':');
+    final initial = TimeOfDay(
+      hour: int.tryParse(parts[0]) ?? 9,
+      minute: int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0,
+    );
+    return InkWell(
+      onTap: () async {
+        final picked = await showTimePicker(
+          context: context,
+          initialTime: initial,
+          builder: (ctx, child) =>
+              MediaQuery(data: MediaQuery.of(ctx).copyWith(alwaysUse24HourFormat: true), child: child!),
+        );
+        if (picked != null) {
+          onPicked(
+            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}',
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppColors.border),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: AppTextStyles.fieldLabel.copyWith(fontSize: 10)),
+                const SizedBox(height: 2),
+                Text(value, style: AppTextStyles.bodyMedium),
+              ],
+            ),
+            const Icon(Icons.access_time_rounded,
+                size: 18, color: AppColors.primary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showPatientPickerSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          builder: (_, scrollCtrl) {
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.border,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Ajouter un patient au groupe',
+                      style: AppTextStyles.screenTitleMedium),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: Obx(() {
+                      if (controller.patientsStatus.value == 'loading') {
+                        return StatePlaceholder.loading();
+                      }
+                      final unassigned = controller.allPatients
+                          .where((p) => !controller.isPatientInGroupe(p.id))
+                          .toList();
+                      if (unassigned.isEmpty) {
+                        return StatePlaceholder.empty(
+                          title: 'Tous les patients actifs sont déjà dans ce groupe',
+                          message: '',
+                        );
+                      }
+                      return ListView.separated(
+                        controller: scrollCtrl,
+                        itemCount: unassigned.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (_, i) {
+                          final p = unassigned[i];
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: AppColors.secondaryLight,
+                              child: Text(
+                                p.initials,
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            title: Text(p.fullName, style: AppTextStyles.cardName),
+                            subtitle: Text(
+                                p.age != null ? '${p.age} ans' : '',
+                                style: AppTextStyles.bodySmall),
+                            trailing: const Icon(Icons.add_circle_outline,
+                                color: AppColors.primary),
+                            onTap: () {
+                              Navigator.pop(ctx);
+                              controller.addPatientToGroupe(p.id);
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            tileColor: AppColors.fieldBackground,
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

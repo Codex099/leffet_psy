@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../services/employee_service.dart';
@@ -10,10 +11,18 @@ class EmployesListeController extends GetxController {
   final RxString errorMessage = ''.obs;
   final RxString searchQuery = ''.obs;
 
+  Timer? _debounceTimer;
+
   @override
   void onInit() {
     super.onInit();
     loadEmployees();
+  }
+
+  @override
+  void onClose() {
+    _debounceTimer?.cancel();
+    super.onClose();
   }
 
   Future<void> loadEmployees() async {
@@ -32,6 +41,9 @@ class EmployesListeController extends GetxController {
 
   void search(String query) {
     searchQuery.value = query;
-    loadEmployees();
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      loadEmployees();
+    });
   }
 }

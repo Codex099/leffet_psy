@@ -52,10 +52,19 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           onPressed: () => Get.back(),
                         ),
                         Text('Détail patient', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
-                        IconButton(
-                          icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
-                          onPressed: () => Get.toNamed(AppRoutes.dossierMedical, arguments: controller.patientId),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit_rounded, color: Colors.white),
+                              onPressed: () => Get.toNamed(AppRoutes.editPatient, arguments: controller.patientId),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
+                              onPressed: () => Get.toNamed(AppRoutes.dossierMedical, arguments: controller.patientId),
+                            ),
+                          ],
                         ),
+
                       ],
                     ),
                     const SizedBox(height: 16),

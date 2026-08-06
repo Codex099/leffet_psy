@@ -35,7 +35,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                           Text('Patients', style: AppTextStyles.screenTitle),
                           const SizedBox(width: 8),
                           Obx(() => Text(
-                                '${controller.patients.length} résultats',
+                                '${controller.filteredPatients.length} résultats',
                                 style: AppTextStyles.bodySmall,
                               )),
                         ],
@@ -81,19 +81,30 @@ class PatientsListeView extends GetView<PatientsListeController> {
               ),
               const SizedBox(height: 12),
 
-              // Filters Row
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterChip('Professionnel assigné', isDropdown: true),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Statut', isDropdown: true, isSelected: true),
-                    const SizedBox(width: 8),
-                    _buildFilterChip('Âge', isDropdown: true),
-                  ],
-                ),
-              ),
+              // Active / Inactive / Sex Filter Chips
+              Obx(() => SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildChip('Tous', isSelected: controller.actifFilter.value == null && controller.sexeFilter.value == null, onTap: () {
+                          controller.setActifFilter(null);
+                          controller.setSexeFilter(null);
+                        }),
+                        const SizedBox(width: 8),
+                        _buildChip('Actifs', isSelected: controller.actifFilter.value == true, onTap: () => controller.setActifFilter(true)),
+                        const SizedBox(width: 8),
+                        _buildChip('Inactifs', isSelected: controller.actifFilter.value == false, onTap: () => controller.setActifFilter(false)),
+                        const SizedBox(width: 8),
+                        _buildChip('Garçons', isSelected: controller.sexeFilter.value == 'Garçon', onTap: () {
+                          controller.setSexeFilter(controller.sexeFilter.value == 'Garçon' ? null : 'Garçon');
+                        }),
+                        const SizedBox(width: 8),
+                        _buildChip('Filles', isSelected: controller.sexeFilter.value == 'Fille', onTap: () {
+                          controller.setSexeFilter(controller.sexeFilter.value == 'Fille' ? null : 'Fille');
+                        }),
+                      ],
+                    ),
+                  )),
               const SizedBox(height: 16),
 
               // List of Patients
@@ -108,20 +119,27 @@ class PatientsListeView extends GetView<PatientsListeController> {
                       onAction: () => controller.loadPatients(),
                     );
                   }
-                  if (controller.status.value == 'empty') {
+
+                  final list = controller.filteredPatients;
+                  if (list.isEmpty) {
                     return StatePlaceholder.empty(
                       title: 'Aucun patient trouvé',
-                      message: 'Essayez un autre terme de recherche ou ajoutez un nouveau patient.',
+                      message: 'Essayez un autre terme de recherche ou ajustez vos filtres.',
                     );
                   }
 
-                  return ListView.separated(
-                    itemCount: controller.patients.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final patient = controller.patients[index];
-                      return _buildPatientCard(patient);
-                    },
+                  return RefreshIndicator(
+                    onRefresh: () => controller.refreshData(),
+                    color: AppColors.primary,
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: list.length,
+                      separatorBuilder: (context, index) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final patient = list[index];
+                        return _buildPatientCard(patient);
+                      },
+                    ),
                   );
                 }),
               ),
@@ -132,37 +150,31 @@ class PatientsListeView extends GetView<PatientsListeController> {
     );
   }
 
-  Widget _buildFilterChip(String label, {bool isDropdown = false, bool isSelected = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.secondary : AppColors.surface,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: isSelected ? AppColors.secondary : AppColors.border,
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: isSelected ? Colors.white : AppColors.textPrimary,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            ),
+  Widget _buildChip(String label, {required bool isSelected, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : AppColors.border,
           ),
-          if (isDropdown) ...[
-            const SizedBox(width: 4),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              size: 18,
-              color: isSelected ? Colors.white : AppColors.textSecondary,
-            ),
-          ],
-        ],
+          boxShadow: isSelected ? AppColors.softShadow : null,
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.bodySmall.copyWith(
+            color: isSelected ? Colors.white : AppColors.textPrimary,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
+
 
   Widget _buildPatientCard(dynamic patient) {
     return InkWell(
@@ -190,28 +202,22 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(patient.fullName, style: AppTextStyles.cardName),
+                      Expanded(
+                        child: Text(patient.fullName, style: AppTextStyles.cardName, overflow: TextOverflow.ellipsis),
+                      ),
+                      const SizedBox(width: 8),
                       if (patient.estActif)
-                        StatusBadge.present(label: 'Assisté')
+                        StatusBadge.present(label: 'Actif')
                       else
                         StatusBadge.absent(label: 'Inactif'),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${patient.age ?? 7} ans · Dr. Legrand · Individuel/Groupe',
+                    patient.age != null
+                        ? '${patient.age} ans'
+                        : 'Âge inconnu',
                     style: AppTextStyles.bodySmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.phone_outlined, size: 14, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Parent: 06 12 34 56 78',
-                        style: AppTextStyles.bodySmall.copyWith(fontSize: 12),
-                      ),
-                    ],
                   ),
                 ],
               ),

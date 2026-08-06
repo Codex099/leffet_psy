@@ -9,7 +9,7 @@ class DossierMedicalController extends GetxController {
   final Rx<DossierMedicalModel?> dossier = Rx<DossierMedicalModel?>(null);
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  late int patientId;
+  int? patientId;
 
   final antecedents = ''.obs;
   final medicaments = ''.obs;
@@ -26,14 +26,20 @@ class DossierMedicalController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    patientId = parseInt(Get.arguments, 1);
-    loadDossier();
+    patientId = extractIdParam(Get.arguments, Get.parameters);
+    if (patientId == null) {
+      status.value = 'error';
+      errorMessage.value = 'Identifiant du patient non spécifié.';
+    } else {
+      loadDossier();
+    }
   }
 
   Future<void> loadDossier() async {
+    if (patientId == null) return;
     try {
       status.value = 'loading';
-      dossier.value = await _patientService.getDossierMedical(patientId);
+      dossier.value = await _patientService.getDossierMedical(patientId!);
       antecedents.value = dossier.value?.antecedentsMedicaux ?? '';
       medicaments.value = dossier.value?.medicamentsPris ?? '';
       dateCas.value = dossier.value?.dateCas ?? '';
@@ -53,9 +59,10 @@ class DossierMedicalController extends GetxController {
   }
 
   Future<void> saveDossier() async {
+    if (patientId == null) return;
     try {
       status.value = 'loading';
-      await _patientService.updateDossierMedical(patientId, {
+      await _patientService.updateDossierMedical(patientId!, {
         'antecedents_medicaux': antecedents.value,
         'medicaments_pris': medicaments.value,
         'date_cas': dateCas.value,
@@ -75,4 +82,5 @@ class DossierMedicalController extends GetxController {
       status.value = 'error';
     }
   }
+
 }

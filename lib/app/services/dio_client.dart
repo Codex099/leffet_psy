@@ -34,6 +34,7 @@ class DioClient {
     );
 
     dio.interceptors.addAll([
+      _PutToPatchInterceptor(),
       _AuthInterceptor(_storage),
       _ErrorInterceptor(),
       if (const bool.fromEnvironment('dart.vm.product') == false)
@@ -50,6 +51,18 @@ class DioClient {
   /// Réinitialise l'instance (après logout)
   static void reset() {
     _instance = null;
+  }
+}
+
+/// Intercepteur qui convertit toutes les requêtes PUT en PATCH.
+/// Nécessaire pour contourner les proxys/tunnels (Cloudflare) qui bloquent PUT.
+class _PutToPatchInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.method.toUpperCase() == 'PUT') {
+      options.method = 'PATCH';
+    }
+    handler.next(options);
   }
 }
 

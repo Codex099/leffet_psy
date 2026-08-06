@@ -7,6 +7,7 @@ class GroupeModel {
   final String? description;
   final List<Map<String, dynamic>>? patients;
   final List<Map<String, dynamic>>? planningRecurrent;
+  final List<int>? employeeIds;
 
   GroupeModel({
     required this.id,
@@ -15,6 +16,7 @@ class GroupeModel {
     this.description,
     this.patients,
     this.planningRecurrent,
+    this.employeeIds,
   });
 
   factory GroupeModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,9 @@ class GroupeModel {
           .toList(),
       planningRecurrent: (json['planning_recurrent'] as List<dynamic>?)
           ?.map((e) => e as Map<String, dynamic>)
+          .toList(),
+      employeeIds: (json['employees'] as List<dynamic>?)
+          ?.map((e) => parseInt(e is Map ? e['id'] : e))
           .toList(),
     );
   }

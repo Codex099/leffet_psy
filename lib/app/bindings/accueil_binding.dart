@@ -4,6 +4,6 @@ import '../controllers/accueil_controller.dart';
 class AccueilBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<AccueilController>(() => AccueilController());
+    Get.lazyPut<AccueilController>(() => AccueilController(), fenix: true);
   }
 }

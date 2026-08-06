@@ -61,14 +61,34 @@ class AgendaView extends GetView<AgendaController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Icon(Icons.chevron_left_rounded, color: AppColors.textSecondary),
-                        Column(
-                          children: [
-                            Text('MARDI 24 JUIN', style: AppTextStyles.sectionKicker),
-                            Text('Jour', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-                          ],
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left_rounded, color: AppColors.textSecondary),
+                          onPressed: () => controller.previousDay(),
                         ),
-                        const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                        InkWell(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: controller.selectedDate.value,
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2030),
+                            );
+                            if (picked != null) {
+                              controller.selectedDate.value = picked;
+                              controller.loadAgenda();
+                            }
+                          },
+                          child: Column(
+                            children: [
+                              Obx(() => Text(controller.formattedDate, style: AppTextStyles.sectionKicker)),
+                              Obx(() => Text(controller.activeMode.value, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold))),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                          onPressed: () => controller.nextDay(),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -198,7 +218,7 @@ class AgendaView extends GetView<AgendaController> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    seance.patientFullName.isNotEmpty ? seance.patientFullName : 'Lucas Bernard',
+                    seance.patientFullName.isNotEmpty ? seance.patientFullName : 'Patient #${seance.patientId}',
                     style: AppTextStyles.cardName,
                   ),
                   const SizedBox(height: 2),

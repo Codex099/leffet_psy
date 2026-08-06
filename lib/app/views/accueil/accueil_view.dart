@@ -30,11 +30,16 @@ class AccueilView extends GetView<AccueilController> {
 
           final user = controller.currentUser.value;
 
-          return SingleChildScrollView(
+          return RefreshIndicator(
+            onRefresh: () => controller.refreshData(),
+            color: AppColors.primary,
+            child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 // Top Header Profile
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -257,7 +262,8 @@ class AccueilView extends GetView<AccueilController> {
                 ),
               ],
             ),
-          );
+          ), // SingleChildScrollView
+          ); // RefreshIndicator
         }),
       ),
     );

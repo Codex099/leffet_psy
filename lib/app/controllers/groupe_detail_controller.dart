@@ -9,19 +9,25 @@ class GroupeDetailController extends GetxController {
   final Rx<GroupeModel?> groupe = Rx<GroupeModel?>(null);
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  late int groupeId;
+  int? groupeId;
 
   @override
   void onInit() {
     super.onInit();
-    groupeId = parseInt(Get.arguments, 1);
-    loadGroupe();
+    groupeId = extractIdParam(Get.arguments, Get.parameters);
+    if (groupeId == null) {
+      status.value = 'error';
+      errorMessage.value = 'Identifiant du groupe non spécifié.';
+    } else {
+      loadGroupe();
+    }
   }
 
   Future<void> loadGroupe() async {
+    if (groupeId == null) return;
     try {
       status.value = 'loading';
-      groupe.value = await _groupeService.getGroupe(groupeId);
+      groupe.value = await _groupeService.getGroupe(groupeId!);
       status.value = 'success';
     } catch (e) {
       errorMessage.value = e.toString();
@@ -30,12 +36,14 @@ class GroupeDetailController extends GetxController {
   }
 
   Future<void> deleteGroupe() async {
+    if (groupeId == null) return;
     try {
-      await _groupeService.deleteGroupe(groupeId);
+      await _groupeService.deleteGroupe(groupeId!);
       Get.back();
       Get.snackbar('Succès', 'Groupe supprimé');
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer le groupe');
     }
   }
+
 }

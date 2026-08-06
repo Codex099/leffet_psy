@@ -77,25 +77,27 @@ class ParentsListeView extends GetView<ParentsListeController> {
                       onAction: () => controller.loadParents(),
                     );
                   }
-                  if (controller.status.value == 'empty') {
+                  final list = controller.filteredParents;
+                  if (list.isEmpty) {
                     return StatePlaceholder.empty(
-                      title: 'Aucun parent enregistré',
-                      message: 'Ajoutez un parent pour le lier à un patient.',
+                      title: 'Aucun parent trouvé',
+                      message: 'Ajoutez un parent ou ajustez votre recherche.',
                       actionLabel: '+ Ajouter un parent',
                       onAction: () => Get.toNamed(AppRoutes.editParent),
                     );
                   }
 
                   return ListView.separated(
-                    itemCount: controller.parents.length,
+                    itemCount: list.length,
                     separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
-                      final parent = controller.parents[index];
+                      final parent = list[index];
                       return _buildParentCard(parent);
                     },
                   );
                 }),
               ),
+
             ],
           ),
         ),
