@@ -7,7 +7,7 @@ class EditParentController extends GetxController {
   final ParentService _parentService = ParentService();
 
   // Mode: création (null) ou édition (id fourni)
-  int? parentId;
+  dynamic parentId;
 
   final nom = ''.obs;
   final prenom = ''.obs;
@@ -42,7 +42,7 @@ class EditParentController extends GetxController {
     }
   }
 
-  Future<void> _loadParent(int id) async {
+  Future<void> _loadParent(dynamic id) async {
     try {
       status.value = 'loading';
       final parent = await _parentService.getParent(id);

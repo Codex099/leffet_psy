@@ -104,31 +104,59 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     _buildSectionCard(
                       title: 'Parent lié',
                       icon: Icons.phone_outlined,
-                      actionLabel: 'Modifier',
-                      onActionTap: () => Get.toNamed(AppRoutes.editParent),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldBackground,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const PatientAvatar(initials: 'SM', radius: 20),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Sophie Martin (Mère)', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-                                  Text('+21366665846', style: AppTextStyles.bodySmall),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
-                          ],
-                        ),
+                      actionLabel: controller.parents.isEmpty ? 'Ajouter' : 'Modifier',
+                      onActionTap: () => Get.toNamed(
+                        AppRoutes.editParent,
+                        arguments: controller.parents.isEmpty
+                            ? null
+                            : controller.parents.first.parentId,
                       ),
+                      child: controller.parents.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'Aucun parent associé à ce patient.',
+                                style: AppTextStyles.bodySmall,
+                              ),
+                            )
+                          : Column(
+                              children: controller.parents.map((pParent) {
+                                final parent = pParent.parent;
+                                final name = parent != null ? parent.fullName : 'Parent inconnu';
+                                final phone = parent != null ? (parent.telephone ?? 'Pas de numéro') : 'Pas de numéro';
+                                final initials = parent != null ? parent.initials : 'P';
+                                final role = pParent.roleLabel;
+                                return Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.fieldBackground,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      PatientAvatar(
+                                        initials: initials,
+                                        radius: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '$name ($role)',
+                                              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                                            ),
+                                            Text(phone, style: AppTextStyles.bodySmall),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                     ),
                     const SizedBox(height: 16),
 

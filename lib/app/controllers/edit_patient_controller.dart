@@ -118,6 +118,18 @@ class EditPatientController extends GetxController {
         // Dossier médical non existant encore
       }
 
+      // Charger le parent/tuteur si disponible
+      try {
+        final linked = await _patientService.getPatientParents(id);
+        if (linked.isNotEmpty) {
+          final first = linked.first;
+          selectedParentId.value = first.parentId;
+          roleParent.value = first.role;
+        }
+      } catch (_) {
+        // Aucun parent associé pour le moment
+      }
+
       status.value = 'success';
     } catch (e) {
       errorMessage.value = e.toString();

@@ -1,7 +1,7 @@
 import '../utils/json_utils.dart';
 
 class ParentModel {
-  final int id;
+  final dynamic id;
   final String nom;
   final String prenom;
   final String? telephone;
@@ -19,7 +19,7 @@ class ParentModel {
 
   factory ParentModel.fromJson(Map<String, dynamic> json) {
     return ParentModel(
-      id: parseInt(json['id']),
+      id: parseId(json['id']),
       nom: json['nom'] as String? ?? '',
       prenom: json['prenom'] as String? ?? '',
       telephone: json['telephone'] as String?,
@@ -66,8 +66,8 @@ class ParentModel {
 }
 
 class PatientParentModel {
-  final int patientId;
-  final int parentId;
+  final dynamic patientId;
+  final dynamic parentId;
   final String role; // 'pere' | 'mere' | 'tuteur'
   final ParentModel? parent;
 
@@ -80,8 +80,8 @@ class PatientParentModel {
 
   factory PatientParentModel.fromJson(Map<String, dynamic> json) {
     return PatientParentModel(
-      patientId: parseInt(json['patient_id']),
-      parentId: parseInt(json['parent_id']),
+      patientId: parseId(json['patient_id']),
+      parentId: parseId(json['parent_id']),
       role: json['role'] as String? ?? 'tuteur',
       parent: json['parent'] != null
           ? ParentModel.fromJson(json['parent'] as Map<String, dynamic>)

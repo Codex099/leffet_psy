@@ -28,19 +28,19 @@ class ParentService {
   }
 
   /// GET /api/parents/{id} — Fiche parent
-  Future<ParentModel> getParent(int id) async {
+  Future<ParentModel> getParent(dynamic id) async {
     final response = await _dio.get(ApiConfig.parentById(id));
     return ParentModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// PUT /api/parents/{id} — Mise à jour parent
-  Future<ParentModel> updateParent(int id, Map<String, dynamic> data) async {
+  Future<ParentModel> updateParent(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.parentById(id), data: data);
     return ParentModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// DELETE /api/parents/{id} — Suppression parent
-  Future<void> deleteParent(int id) async {
+  Future<void> deleteParent(dynamic id) async {
     await _dio.delete(ApiConfig.parentById(id));
   }
 }

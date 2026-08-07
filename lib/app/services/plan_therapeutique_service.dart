@@ -7,7 +7,7 @@ class PlanTherapeutiqueService {
   final Dio _dio = DioClient.instance;
 
   /// GET /api/patients/{id}/plans-therapeutiques
-  Future<List<PlanTherapeutiqueModel>> getPlansPatient(int patientId) async {
+  Future<List<PlanTherapeutiqueModel>> getPlansPatient(dynamic patientId) async {
     final response =
         await _dio.get(ApiConfig.patientPlansTherapeutiques(patientId));
     final list = response.data as List<dynamic>;
@@ -19,7 +19,7 @@ class PlanTherapeutiqueService {
 
   /// POST /api/patients/{id}/plans-therapeutiques
   Future<PlanTherapeutiqueModel> createPlan(
-    int patientId,
+    dynamic patientId,
     Map<String, dynamic> data,
   ) async {
     final response = await _dio.post(
@@ -31,7 +31,7 @@ class PlanTherapeutiqueService {
   }
 
   /// GET /api/plans-therapeutiques/{plan_id}
-  Future<PlanTherapeutiqueModel> getPlan(int planId) async {
+  Future<PlanTherapeutiqueModel> getPlan(dynamic planId) async {
     final response =
         await _dio.get(ApiConfig.planTherapeutique(planId));
     return PlanTherapeutiqueModel.fromJson(
@@ -40,7 +40,7 @@ class PlanTherapeutiqueService {
 
   /// PUT /api/plans-therapeutiques/{plan_id}
   Future<PlanTherapeutiqueModel> updatePlan(
-    int planId,
+    dynamic planId,
     Map<String, dynamic> data,
   ) async {
     final response = await _dio.put(
@@ -52,13 +52,13 @@ class PlanTherapeutiqueService {
   }
 
   /// DELETE /api/plans-therapeutiques/{plan_id}
-  Future<void> deletePlan(int planId) async {
+  Future<void> deletePlan(dynamic planId) async {
     await _dio.delete(ApiConfig.planTherapeutique(planId));
   }
 
   /// POST /api/plans-therapeutiques/{plan_id}/etapes
   Future<EtapePlanTherapeutiqueModel> createEtape(
-    int planId,
+    dynamic planId,
     Map<String, dynamic> data,
   ) async {
     final response =
@@ -69,8 +69,8 @@ class PlanTherapeutiqueService {
 
   /// PUT /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}
   Future<EtapePlanTherapeutiqueModel> updateEtape(
-    int planId,
-    int etapeId,
+    dynamic planId,
+    dynamic etapeId,
     Map<String, dynamic> data,
   ) async {
     final response = await _dio.put(
@@ -82,14 +82,14 @@ class PlanTherapeutiqueService {
   }
 
   /// DELETE /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}
-  Future<void> deleteEtape(int planId, int etapeId) async {
+  Future<void> deleteEtape(dynamic planId, dynamic etapeId) async {
     await _dio.delete(ApiConfig.planEtape(planId, etapeId));
   }
 
   /// POST /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/creer-tache
   Future<Map<String, dynamic>> creerTacheDepuisEtape(
-    int planId,
-    int etapeId,
+    dynamic planId,
+    dynamic etapeId,
   ) async {
     final response =
         await _dio.post(ApiConfig.planEtapeCreerTache(planId, etapeId));
