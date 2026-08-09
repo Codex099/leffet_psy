@@ -58,7 +58,7 @@ class NoteService {
   final Dio _dio = DioClient.instance;
 
   /// GET /api/patients/{id}/notes
-  Future<List<Map<String, dynamic>>> getNotes(int patientId) async {
+  Future<List<Map<String, dynamic>>> getNotes(dynamic patientId) async {
     final response =
         await _dio.get(ApiConfig.patientNotes(patientId));
     return (response.data as List<dynamic>)
@@ -68,7 +68,7 @@ class NoteService {
 
   /// POST /api/patients/{id}/notes
   Future<Map<String, dynamic>> createNote(
-    int patientId,
+    dynamic patientId,
     Map<String, dynamic> data,
   ) async {
     final response =
@@ -77,7 +77,7 @@ class NoteService {
   }
 
   /// DELETE /api/notes/{id}
-  Future<void> deleteNote(int noteId) async {
+  Future<void> deleteNote(dynamic noteId) async {
     await _dio.delete(ApiConfig.noteById(noteId));
   }
 }

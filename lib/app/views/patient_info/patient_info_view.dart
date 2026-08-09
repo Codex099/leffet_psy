@@ -104,34 +104,35 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     _buildSectionCard(
                       title: 'Parent lié',
                       icon: Icons.phone_outlined,
-                      actionLabel: controller.parents.isEmpty ? 'Ajouter' : 'Modifier',
-                      onActionTap: () => Get.toNamed(
-                        AppRoutes.editParent,
-                        arguments: controller.parents.isEmpty
-                            ? null
-                            : controller.parents.first.parentId,
-                      ),
-                      child: controller.parents.isEmpty
-                          ? Padding(
+                      actionLabel: 'Créer nouveau',
+                      onActionTap: () => Get.toNamed(AppRoutes.editParent),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (controller.parents.isEmpty)
+                            Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8.0),
                               child: Text(
                                 'Aucun parent associé à ce patient.',
                                 style: AppTextStyles.bodySmall,
                               ),
                             )
-                          : Column(
-                              children: controller.parents.map((pParent) {
-                                final parent = pParent.parent;
-                                final name = parent != null ? parent.fullName : 'Parent inconnu';
-                                final phone = parent != null ? (parent.telephone ?? 'Pas de numéro') : 'Pas de numéro';
-                                final initials = parent != null ? parent.initials : 'P';
-                                final role = pParent.roleLabel;
-                                return Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.fieldBackground,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                          else
+                            ...controller.parents.map((pParent) {
+                              final parent = pParent.parent;
+                              final name = parent != null ? parent.fullName : 'Parent inconnu';
+                              final phone = parent != null ? (parent.telephone ?? 'Pas de numéro') : 'Pas de numéro';
+                              final initials = parent != null ? parent.initials : 'P';
+                              final role = pParent.roleLabel;
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.fieldBackground,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: InkWell(
+                                  onTap: () => Get.toNamed(AppRoutes.editParent, arguments: pParent.parentId),
                                   child: Row(
                                     children: [
                                       PatientAvatar(
@@ -151,12 +152,25 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                           ],
                                         ),
                                       ),
-                                      const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                                      const Icon(Icons.edit_rounded, color: AppColors.primary, size: 16),
                                     ],
                                   ),
-                                );
-                              }).toList(),
+                                ),
+                              );
+                            }).toList(),
+                          const SizedBox(height: 8),
+                          OutlinedButton.icon(
+                            onPressed: () => _showAssociateParentDialog(context),
+                            icon: const Icon(Icons.link_rounded, size: 16),
+                            label: const Text('Associer un parent existant'),
+                            style: OutlinedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 38),
+                              side: const BorderSide(color: AppColors.primary),
+                              foregroundColor: AppColors.primary,
                             ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
 
@@ -237,13 +251,22 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          _buildNoteCard('Bonne progression sur les exercices de motricité fine.', '12 mars 2025'),
-                          const SizedBox(height: 8),
-                          _buildNoteCard('Séance annulée par le parent, à reprogrammer.', '12 mars 2025'),
-                        ],
-                      ),
+                      child: controller.notes.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'Aucune note pour ce patient.',
+                                style: AppTextStyles.bodySmall,
+                              ),
+                            )
+                          : Column(
+                              children: controller.notes.map((note) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: _buildNoteCard(note),
+                                );
+                              }).toList(),
+                            ),
                     ),
                     const SizedBox(height: 16),
 
@@ -420,7 +443,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
     );
   }
 
-  Widget _buildNoteCard(String content, String date) {
+  Widget _buildNoteCard(NotePatientModel note) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -434,13 +457,88 @@ class PatientInfoView extends GetView<PatientInfoController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(content, style: AppTextStyles.body),
+                Text(note.contenu, style: AppTextStyles.body),
                 const SizedBox(height: 4),
-                Text('nom_d\'auteur | $date', style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
+                Text(
+                  '${note.auteurNom} | ${note.dateCreation ?? ""}',
+                  style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                ),
               ],
             ),
           ),
-          const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+            onPressed: () => controller.deleteNote(note.id),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAssociateParentDialog(BuildContext context) {
+    dynamic selectedParentIdValue;
+    String selectedRole = 'tuteur';
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Associer un parent existant'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Obx(() {
+              if (controller.availableParents.isEmpty) {
+                return const Text('Aucun parent enregistré sur le système.');
+              }
+              return DropdownButtonFormField<dynamic>(
+                decoration: const InputDecoration(labelText: 'Sélectionner le parent'),
+                value: selectedParentIdValue,
+                items: controller.availableParents.map((p) {
+                  return DropdownMenuItem<dynamic>(
+                    value: p.id,
+                    child: Text('${p.prenom} ${p.nom}'),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  selectedParentIdValue = val;
+                },
+              );
+            }),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              decoration: const InputDecoration(labelText: 'Rôle familial'),
+              value: selectedRole,
+              items: const [
+                DropdownMenuItem(value: 'pere', child: Text('Père')),
+                DropdownMenuItem(value: 'mere', child: Text('Mère')),
+                DropdownMenuItem(value: 'tuteur', child: Text('Tuteur légal')),
+                DropdownMenuItem(value: 'grand_pere', child: Text('Grand-père')),
+                DropdownMenuItem(value: 'grand_mere', child: Text('Grand-mère')),
+                DropdownMenuItem(value: 'oncle', child: Text('Oncle')),
+                DropdownMenuItem(value: 'tante', child: Text('Tante')),
+                DropdownMenuItem(value: 'autre', child: Text('Autre')),
+              ],
+              onChanged: (val) {
+                if (val != null) selectedRole = val;
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (selectedParentIdValue != null) {
+                Get.back();
+                controller.associateParent(selectedParentIdValue, selectedRole);
+              } else {
+                Get.snackbar('Erreur', 'Veuillez sélectionner un parent', snackPosition: SnackPosition.BOTTOM);
+              }
+            },
+            child: const Text('Associer'),
+          ),
         ],
       ),
     );

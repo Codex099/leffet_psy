@@ -1,8 +1,8 @@
 import '../utils/json_utils.dart';
 
 class PlanTherapeutiqueModel {
-  final int id;
-  final int patientId;
+  final dynamic id;
+  final dynamic patientId;
   final String titre;
   final String statut; // 'actif' | 'archive' | 'termine'
   final String? dateDebut;
@@ -23,8 +23,8 @@ class PlanTherapeutiqueModel {
 
   factory PlanTherapeutiqueModel.fromJson(Map<String, dynamic> json) {
     return PlanTherapeutiqueModel(
-      id: parseInt(json['id']),
-      patientId: parseInt(json['patient_id']),
+      id: parseId(json['id']),
+      patientId: parseId(json['patient_id']),
       titre: json['titre'] as String? ?? '',
       statut: json['statut'] as String? ?? 'actif',
       dateDebut: json['date_debut'] as String?,
@@ -56,8 +56,8 @@ class PlanTherapeutiqueModel {
 }
 
 class EtapePlanTherapeutiqueModel {
-  final int id;
-  final int planId;
+  final dynamic id;
+  final dynamic planId;
   final String titre;
   final String? description;
   final String statut; // 'a_faire' | 'en_cours' | 'termine'
@@ -76,8 +76,8 @@ class EtapePlanTherapeutiqueModel {
 
   factory EtapePlanTherapeutiqueModel.fromJson(Map<String, dynamic> json) {
     return EtapePlanTherapeutiqueModel(
-      id: parseInt(json['id']),
-      planId: parseInt(json['plan_id']),
+      id: parseId(json['id']),
+      planId: parseId(json['plan_id']),
       titre: json['titre'] as String? ?? '',
       description: json['description'] as String?,
       statut: json['statut'] as String? ?? 'a_faire',
@@ -114,11 +114,11 @@ class EtapePlanTherapeutiqueModel {
 }
 
 class NotePatientModel {
-  final int id;
-  final int patientId;
-  final int? employeId;
-  final int? seanceId;
-  final int? seanceGroupeId;
+  final dynamic id;
+  final dynamic patientId;
+  final dynamic employeId;
+  final dynamic seanceId;
+  final dynamic seanceGroupeId;
   final String contenu;
   final List<String>? medias;
   final String? dateCreation;
@@ -138,11 +138,11 @@ class NotePatientModel {
 
   factory NotePatientModel.fromJson(Map<String, dynamic> json) {
     return NotePatientModel(
-      id: parseInt(json['id']),
-      patientId: parseInt(json['patient_id']),
-      employeId: parseNullableInt(json['employe_id']),
-      seanceId: parseNullableInt(json['seance_id']),
-      seanceGroupeId: parseNullableInt(json['seance_groupe_id']),
+      id: parseId(json['id']),
+      patientId: parseId(json['patient_id']),
+      employeId: parseId(json['employe_id']),
+      seanceId: parseId(json['seance_id']),
+      seanceGroupeId: parseId(json['seance_groupe_id']),
       contenu: json['contenu'] as String? ?? '',
       medias: (json['medias'] as List<dynamic>?)
           ?.map((e) => e as String)
