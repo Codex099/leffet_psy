@@ -122,7 +122,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
-                              onPressed: () => controller.deleteNote(note['id'] as int? ?? 0),
+                              onPressed: () => controller.deleteNote(note['id']),
                             ),
                           ],
                         ),

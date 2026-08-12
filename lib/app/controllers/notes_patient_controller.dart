@@ -9,7 +9,7 @@ class NotesPatientController extends GetxController {
   final RxList<Map<String, dynamic>> notes = <Map<String, dynamic>>[].obs;
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  int? patientId;
+  dynamic patientId;
 
   final contenu = ''.obs;
 
@@ -52,8 +52,7 @@ class NotesPatientController extends GetxController {
     }
   }
 
-
-  Future<void> deleteNote(int noteId) async {
+  Future<void> deleteNote(dynamic noteId) async {
     try {
       await _noteService.deleteNote(noteId);
       loadNotes();

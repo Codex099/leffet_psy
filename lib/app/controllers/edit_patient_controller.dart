@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/parent_model.dart';
@@ -21,33 +22,31 @@ class EditPatientController extends GetxController {
   final RxInt currentStep = 1.obs;
 
   // ──── Step 1 — Infos perso ────
-  final nom = ''.obs;
-  final prenom = ''.obs;
+  final nomController = TextEditingController();
+  final prenomController = TextEditingController();
   final dateNaissance = ''.obs;
   final sexe = 'Garçon'.obs;
-  final nombreFreresSoeurs = ''.obs;
-  final ordreNaissance = ''.obs;
+  final nombreFreresSoeursController = TextEditingController();
+  final ordreNaissanceController = TextEditingController();
 
   // Photo
   final Rx<File?> pickedPhoto = Rx<File?>(null);
   final RxString photoUrl = ''.obs;
   final RxBool photoUploading = false.obs;
 
-  // ──── Step 2 — Dossier médical (Toutes les informations médicales) ────
-  // Avant le titre
-  final antecedentsMedicaux = ''.obs; // Antécédents médicaux / السوابق المرضية
-  final medicamentsPris = ''.obs;     // Médicaments pris / الأدوية المتناولة
+  // ──── Step 2 — Dossier médical ────
+  final antecedentsMedicauxController = TextEditingController();
+  final medicamentsPrisController = TextEditingController();
 
-  // Historique du cas
-  final dateCas = ''.obs;                    // Date de la case (historique) / تاريخ الحالة
-  final naissance = ''.obs;                  // Naissance / الولادة
-  final developpementPsychomoteur = ''.obs; // Développement psychomoteur / النمو النفسي الحركي
-  final comportementAuditif = ''.obs;       // Comportement auditif / السلوك السمعي
-  final developpementLangagier = ''.obs;    // Développement langagier / النمو اللغوي
-  final adaptationSociale = ''.obs;         // Adaptation sociale / التكيف الاجتماعي
-  final autonomie = ''.obs;                 // Autonomie / الاستقلالية
-  final aspectSanitaire = ''.obs;           // Aspect sanitaire / médical / الجانب الصحي
-  final stadeScolarisation = ''.obs;        // Stade de scolarisation / مرحلة التمدرس
+  final dateCas = ''.obs;
+  final naissanceController = TextEditingController();
+  final developpementPsychomoteurController = TextEditingController();
+  final comportementAuditifController = TextEditingController();
+  final developpementLangagierController = TextEditingController();
+  final adaptationSocialeController = TextEditingController();
+  final autonomieController = TextEditingController();
+  final aspectSanitaireController = TextEditingController();
+  final stadeScolarisationController = TextEditingController();
 
   // ──── Step 3 — Tuteur ────
   final RxList<ParentModel> availableParents = <ParentModel>[].obs;
@@ -87,33 +86,52 @@ class EditPatientController extends GetxController {
     }
   }
 
+  @override
+  void onClose() {
+    nomController.dispose();
+    prenomController.dispose();
+    nombreFreresSoeursController.dispose();
+    ordreNaissanceController.dispose();
+    antecedentsMedicauxController.dispose();
+    medicamentsPrisController.dispose();
+    naissanceController.dispose();
+    developpementPsychomoteurController.dispose();
+    comportementAuditifController.dispose();
+    developpementLangagierController.dispose();
+    adaptationSocialeController.dispose();
+    autonomieController.dispose();
+    aspectSanitaireController.dispose();
+    stadeScolarisationController.dispose();
+    super.onClose();
+  }
+
   Future<void> _loadPatient(dynamic id) async {
     try {
       status.value = 'loading';
       final p = await _patientService.getPatient(id);
-      nom.value = p.nom;
-      prenom.value = p.prenom;
+      nomController.text = p.nom;
+      prenomController.text = p.prenom;
       dateNaissance.value = p.dateNaissance ?? '';
       sexe.value = p.isFille ? 'Fille' : 'Garçon';
       photoUrl.value = p.photo ?? '';
-      nombreFreresSoeurs.value = p.nombreFreresSoeurs?.toString() ?? '';
-      ordreNaissance.value = p.ordreNaissance?.toString() ?? '';
+      nombreFreresSoeursController.text = p.nombreFreresSoeurs?.toString() ?? '';
+      ordreNaissanceController.text = p.ordreNaissance?.toString() ?? '';
       _savedPatientId = id;
 
       // Charger le dossier médical si disponible
       try {
         final dm = await _patientService.getDossierMedical(id);
-        antecedentsMedicaux.value = dm.antecedentsMedicaux ?? '';
-        medicamentsPris.value = dm.medicamentsPris ?? '';
+        antecedentsMedicauxController.text = dm.antecedentsMedicaux ?? '';
+        medicamentsPrisController.text = dm.medicamentsPris ?? '';
         dateCas.value = dm.dateCas ?? '';
-        naissance.value = dm.naissance ?? '';
-        developpementPsychomoteur.value = dm.developpementPsychomoteur ?? '';
-        comportementAuditif.value = dm.comportementAuditif ?? '';
-        developpementLangagier.value = dm.developpementLangagier ?? '';
-        adaptationSociale.value = dm.adaptationSociale ?? '';
-        autonomie.value = dm.autonomie ?? '';
-        aspectSanitaire.value = dm.aspectSanitaire ?? '';
-        stadeScolarisation.value = dm.stadeScolarisation ?? '';
+        naissanceController.text = dm.naissance ?? '';
+        developpementPsychomoteurController.text = dm.developpementPsychomoteur ?? '';
+        comportementAuditifController.text = dm.comportementAuditif ?? '';
+        developpementLangagierController.text = dm.developpementLangagier ?? '';
+        adaptationSocialeController.text = dm.adaptationSociale ?? '';
+        autonomieController.text = dm.autonomie ?? '';
+        aspectSanitaireController.text = dm.aspectSanitaire ?? '';
+        stadeScolarisationController.text = dm.stadeScolarisation ?? '';
       } catch (_) {
         // Dossier médical non existant encore
       }
@@ -223,7 +241,9 @@ class EditPatientController extends GetxController {
 
   // Step 1: Create or update patient basic info
   Future<void> _saveStep1() async {
-    if (prenom.value.trim().isEmpty || nom.value.trim().isEmpty) {
+    final prenomText = prenomController.text.trim();
+    final nomText = nomController.text.trim();
+    if (prenomText.isEmpty || nomText.isEmpty) {
       Get.snackbar('Champs requis', 'Prénom et nom sont obligatoires.',
           snackPosition: SnackPosition.BOTTOM);
       return;
@@ -238,15 +258,15 @@ class EditPatientController extends GetxController {
       }
 
       final data = <String, dynamic>{
-        'nom': nom.value.trim(),
-        'prenom': prenom.value.trim(),
+        'nom': nomText,
+        'prenom': prenomText,
         if (dateNaissance.value.isNotEmpty) 'date_naissance': dateNaissance.value,
         'sexe': sexe.value == 'Fille' ? 'feminin' : 'masculin',
         if (photoUrl.value.isNotEmpty) 'photo': photoUrl.value,
-        if (nombreFreresSoeurs.value.isNotEmpty)
-          'nombre_freres_soeurs': int.tryParse(nombreFreresSoeurs.value),
-        if (ordreNaissance.value.isNotEmpty)
-          'ordre_naissance': int.tryParse(ordreNaissance.value),
+        if (nombreFreresSoeursController.text.trim().isNotEmpty)
+          'nombre_freres_soeurs': int.tryParse(nombreFreresSoeursController.text.trim()),
+        if (ordreNaissanceController.text.trim().isNotEmpty)
+          'ordre_naissance': int.tryParse(ordreNaissanceController.text.trim()),
       };
 
       PatientModel saved;
@@ -274,28 +294,28 @@ class EditPatientController extends GetxController {
     try {
       status.value = 'loading';
       final payload = <String, dynamic>{
-        if (antecedentsMedicaux.value.trim().isNotEmpty)
-          'antecedents_medicaux': antecedentsMedicaux.value.trim(),
-        if (medicamentsPris.value.trim().isNotEmpty)
-          'medicaments_pris': medicamentsPris.value.trim(),
+        if (antecedentsMedicauxController.text.trim().isNotEmpty)
+          'antecedents_medicaux': antecedentsMedicauxController.text.trim(),
+        if (medicamentsPrisController.text.trim().isNotEmpty)
+          'medicaments_pris': medicamentsPrisController.text.trim(),
         if (dateCas.value.trim().isNotEmpty)
           'date_cas': dateCas.value.trim(),
-        if (naissance.value.trim().isNotEmpty)
-          'naissance': naissance.value.trim(),
-        if (developpementPsychomoteur.value.trim().isNotEmpty)
-          'developpement_psychomoteur': developpementPsychomoteur.value.trim(),
-        if (comportementAuditif.value.trim().isNotEmpty)
-          'comportement_auditif': comportementAuditif.value.trim(),
-        if (developpementLangagier.value.trim().isNotEmpty)
-          'developpement_langagier': developpementLangagier.value.trim(),
-        if (adaptationSociale.value.trim().isNotEmpty)
-          'adaptation_sociale': adaptationSociale.value.trim(),
-        if (autonomie.value.trim().isNotEmpty)
-          'autonomie': autonomie.value.trim(),
-        if (aspectSanitaire.value.trim().isNotEmpty)
-          'aspect_sanitaire': aspectSanitaire.value.trim(),
-        if (stadeScolarisation.value.trim().isNotEmpty)
-          'stade_scolarisation': stadeScolarisation.value.trim(),
+        if (naissanceController.text.trim().isNotEmpty)
+          'naissance': naissanceController.text.trim(),
+        if (developpementPsychomoteurController.text.trim().isNotEmpty)
+          'developpement_psychomoteur': developpementPsychomoteurController.text.trim(),
+        if (comportementAuditifController.text.trim().isNotEmpty)
+          'comportement_auditif': comportementAuditifController.text.trim(),
+        if (developpementLangagierController.text.trim().isNotEmpty)
+          'developpement_langagier': developpementLangagierController.text.trim(),
+        if (adaptationSocialeController.text.trim().isNotEmpty)
+          'adaptation_sociale': adaptationSocialeController.text.trim(),
+        if (autonomieController.text.trim().isNotEmpty)
+          'autonomie': autonomieController.text.trim(),
+        if (aspectSanitaireController.text.trim().isNotEmpty)
+          'aspect_sanitaire': aspectSanitaireController.text.trim(),
+        if (stadeScolarisationController.text.trim().isNotEmpty)
+          'stade_scolarisation': stadeScolarisationController.text.trim(),
       };
 
       if (payload.isNotEmpty) {

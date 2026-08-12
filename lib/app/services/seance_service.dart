@@ -9,8 +9,8 @@ class SeanceService {
   /// GET /api/seances — Liste des séances (avec filtres optionnels)
   Future<List<SeanceModel>> getSeances({
     String? date,
-    int? patientId,
-    int? employeId,
+    dynamic patientId,
+    dynamic employeId,
   }) async {
     final queryParams = <String, dynamic>{};
     if (date != null) queryParams['date'] = date;

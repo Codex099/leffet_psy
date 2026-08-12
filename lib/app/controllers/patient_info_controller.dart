@@ -35,11 +35,7 @@ class PatientInfoController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    Get.delete<PatientInfoController>();
-    super.onClose();
-  }
+
 
   Future<void> loadPatientInfo() async {
     if (patientId == null) return;

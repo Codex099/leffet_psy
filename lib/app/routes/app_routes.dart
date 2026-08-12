@@ -17,6 +17,7 @@ abstract class AppRoutes {
   static const statutHistorique = '/patients/statut-historique';
   static const notesPatient = '/patients/notes';
   static const planningRecurrent = '/patients/planning-recurrent';
+  static const historiqueSeancesPatient = '/patients/historique-seances';
 
   // ─── Parents ───────────────────────────────────────────────────────────────
   static const parentsListe = '/parents';

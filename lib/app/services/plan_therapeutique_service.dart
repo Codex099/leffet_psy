@@ -56,6 +56,15 @@ class PlanTherapeutiqueService {
     await _dio.delete(ApiConfig.planTherapeutique(planId));
   }
 
+  /// GET /api/plans-therapeutiques/{plan_id}/etapes
+  Future<List<EtapePlanTherapeutiqueModel>> getEtapes(dynamic planId) async {
+    final response = await _dio.get(ApiConfig.planEtapes(planId));
+    final list = response.data as List<dynamic>;
+    return list
+        .map((e) => EtapePlanTherapeutiqueModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   /// POST /api/plans-therapeutiques/{plan_id}/etapes
   Future<EtapePlanTherapeutiqueModel> createEtape(
     dynamic planId,

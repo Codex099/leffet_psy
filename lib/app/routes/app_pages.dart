@@ -17,6 +17,7 @@ import '../bindings/edit_patient_binding.dart';
 import '../bindings/employes_liste_binding.dart';
 import '../bindings/groupe_detail_binding.dart';
 import '../bindings/groupes_liste_binding.dart';
+import '../bindings/historique_seances_patient_binding.dart';
 import '../bindings/notes_patient_binding.dart';
 import '../bindings/parents_liste_binding.dart';
 import '../bindings/patient_info_binding.dart';
@@ -42,6 +43,7 @@ import '../views/edit_patient/edit_patient_view.dart';
 import '../views/employes/employes_liste_view.dart';
 import '../views/groupe_detail/groupe_detail_view.dart';
 import '../views/groupes/groupes_liste_view.dart';
+import '../views/historique_seances_patient/historique_seances_patient_view.dart';
 import '../views/login/login_view.dart';
 import '../views/notes_patient/notes_patient_view.dart';
 import '../views/parents/parents_liste_view.dart';
@@ -191,6 +193,11 @@ class AppPages {
       name: AppRoutes.calendrier,
       page: () => const CalendrierView(),
       binding: CalendrierBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.historiqueSeancesPatient,
+      page: () => const HistoriqueSeancesPatientView(),
+      binding: HistoriqueSeancesPatientBinding(),
     ),
   ];
 }

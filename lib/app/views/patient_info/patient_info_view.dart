@@ -8,6 +8,7 @@ import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../models/plan_therapeutique_model.dart';
 
 class PatientInfoView extends GetView<PatientInfoController> {
   const PatientInfoView({super.key});
@@ -177,39 +178,49 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // Plan Thérapeutique preview card
                     _buildSectionCard(
                       title: 'Plan thérapeutique',
-                      subtitle: 'Vue Admin · progression complète',
-                      actionLabel: 'Modifier',
+                      icon: Icons.assignment_rounded,
+                      actionLabel: 'Voir tout',
                       onActionTap: () => Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId),
-                      child: Column(
-                        children: [
-                          _buildStepTile(
-                            number: '1',
-                            title: 'Évaluation initiale',
-                            subtitle: 'Entretien, contexte familial, objectifs.',
-                            statusLabel: 'Terminé',
-                            statusColor: AppColors.statusPresent,
-                            progress: 1.0,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildStepTile(
-                            number: '2',
-                            title: 'Suivi émotionnel',
-                            subtitle: 'Régulation, repérage des déclencheurs.',
-                            statusLabel: 'En cours',
-                            statusColor: AppColors.primary,
-                            progress: 0.5,
-                          ),
-                          const SizedBox(height: 10),
-                          _buildStepTile(
-                            number: '3',
-                            title: 'Consolidation',
-                            subtitle: 'Autonomie, prévention des rechutes.',
-                            statusLabel: 'À venir',
-                            statusColor: AppColors.textSecondary,
-                            progress: 0.1,
-                          ),
-                        ],
-                      ),
+                      child: controller.plans.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Column(
+                                children: [
+                                  Text('Aucun plan thérapeutique.', style: AppTextStyles.bodySmall),
+                                  const SizedBox(height: 8),
+                                  OutlinedButton.icon(
+                                    onPressed: () => Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId),
+                                    icon: const Icon(Icons.add, size: 14),
+                                    label: const Text('Créer un plan'),
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size(double.infinity, 36),
+                                      foregroundColor: AppColors.primary,
+                                      side: const BorderSide(color: AppColors.primary),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Column(
+                              children: controller.plans.map((plan) {
+                                final Color statColor = plan.statut == 'actif'
+                                    ? AppColors.statusPresent
+                                    : plan.statut == 'termine'
+                                        ? AppColors.primary
+                                        : AppColors.textSecondary;
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 10.0),
+                                  child: _buildStepTile(
+                                    number: plan.statut == 'actif' ? '▶' : '✓',
+                                    title: plan.titre,
+                                    subtitle: '${plan.etapesTerminees}/${plan.totalEtapes} étapes',
+                                    statusLabel: plan.statut == 'actif' ? 'Actif' : plan.statut == 'termine' ? 'Terminé' : 'Archivé',
+                                    statusColor: statColor,
+                                    progress: plan.progression,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                     ),
                     const SizedBox(height: 16),
 
@@ -218,19 +229,25 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       title: 'Historique des séances',
                       icon: Icons.access_time_rounded,
                       actionLabel: 'Tout voir',
-                      onActionTap: () => Get.toNamed(AppRoutes.agenda),
+                      onActionTap: () => Get.toNamed(AppRoutes.historiqueSeancesPatient, arguments: controller.patientId),
                       child: Column(
                         children: [
                           _buildSeanceTypeItem(
                             icon: Icons.calendar_month_rounded,
                             label: 'Séances individuelles',
-                            onTap: () => Get.toNamed(AppRoutes.agenda),
+                            onTap: () => Get.toNamed(
+                              AppRoutes.historiqueSeancesPatient,
+                              arguments: {'id': controller.patientId, 'type': 'individuel'},
+                            ),
                           ),
                           const SizedBox(height: 8),
                           _buildSeanceTypeItem(
                             icon: Icons.groups_rounded,
                             label: 'Séances groupe',
-                            onTap: () => Get.toNamed(AppRoutes.groupesListe),
+                            onTap: () => Get.toNamed(
+                              AppRoutes.historiqueSeancesPatient,
+                              arguments: {'id': controller.patientId, 'type': 'groupe'},
+                            ),
                           ),
                         ],
                       ),

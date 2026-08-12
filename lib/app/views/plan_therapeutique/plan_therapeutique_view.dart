@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/plan_therapeutique_controller.dart';
+import '../../models/plan_therapeutique_model.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
@@ -44,107 +45,83 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('PLAN THÉRAPEUTIQUE', style: AppTextStyles.sectionKicker),
-                        Text('Plan thérapeutique', style: AppTextStyles.screenTitleMedium),
-                        Text('Lucas Bernard · 9 ans', style: AppTextStyles.bodySmall),
+                        Text('Plans thérapeutiques', style: AppTextStyles.screenTitleMedium),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
 
-                // Progress Card
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: AppColors.cardShadow,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Overall progress', style: AppTextStyles.sectionTitle),
-                              Text('6 of 8 steps completed', style: AppTextStyles.bodySmall),
-                            ],
+                // Empty state: propose creating a plan
+                if (controller.status.value == 'empty') ...[
+                  Center(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.assignment_outlined, size: 56, color: AppColors.textHint),
+                        const SizedBox(height: 12),
+                        Text('Aucun plan thérapeutique.', style: AppTextStyles.bodyMedium),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => _showCreatePlanDialog(context),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Créer un plan'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(200, 48),
                           ),
-                          StatusBadge.active(label: '75%'),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      LinearProgressIndicator(
-                        value: 0.75,
-                        backgroundColor: AppColors.border,
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('To do', style: AppTextStyles.bodySmall),
-                          Text('In progress', style: AppTextStyles.bodySmall),
-                          Text('Done', style: AppTextStyles.bodySmall),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-
-                // Étapes du plan header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Étapes du plan', style: AppTextStyles.sectionTitle),
-                    Text('3 étapes', style: AppTextStyles.bodySmall),
+                ] else ...[
+                  // Plan selector if multiple plans
+                  if (controller.plans.length > 1) ...[
+                    Text('Sélectionner un plan', style: AppTextStyles.sectionTitle),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 40,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.plans.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (context, i) {
+                          final plan = controller.plans[i];
+                          final isSelected = controller.selectedPlan.value?.id == plan.id;
+                          return ChoiceChip(
+                            label: Text(plan.titre, style: AppTextStyles.bodySmall),
+                            selected: isSelected,
+                            onSelected: (_) => controller.selectPlan(plan),
+                            selectedColor: AppColors.primary,
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : AppColors.textPrimary,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
-                ),
-                const SizedBox(height: 12),
 
-                // Step cards
-                _buildEtapeCard(
-                  title: 'Renforcer l\'attention soutenue',
-                  desc: 'Exercices courts de concentration avec pauses guidées.',
-                  status: 'Terminé',
-                  statusColor: AppColors.statusPresent,
-                  etapeId: 1,
-                  isValidated: true,
-                ),
-                const SizedBox(height: 12),
-                _buildEtapeCard(
-                  title: 'Développer la communication fonctionnelle',
-                  desc: 'Utiliser des supports visuels pour formuler une demande simple.',
-                  status: 'En cours',
-                  statusColor: AppColors.primary,
-                  etapeId: 2,
-                  inProgress: true,
-                ),
-                const SizedBox(height: 12),
-                _buildEtapeCard(
-                  title: 'Réduire les comportements d\'évitement',
-                  desc: 'Mettre en place un renforcement positif sur les transitions.',
-                  status: 'À faire',
-                  statusColor: AppColors.error,
-                  etapeId: 3,
-                  toPlan: true,
-                ),
-                const SizedBox(height: 20),
+                  // Selected plan
+                  if (controller.selectedPlan.value != null) ...[
+                    _buildPlanCard(context, controller.selectedPlan.value!),
+                  ],
 
-                // Add step button
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add),
-                  label: const Text('Ajouter une étape'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 48),
+                  const SizedBox(height: 20),
+
+                  // Create new plan button
+                  OutlinedButton.icon(
+                    onPressed: () => _showCreatePlanDialog(context),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Nouveau plan'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 44),
+                      side: const BorderSide(color: AppColors.primary),
+                      foregroundColor: AppColors.primary,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           );
@@ -153,22 +130,145 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
     );
   }
 
-  Widget _buildEtapeCard({
-    required String title,
-    required String desc,
-    required String status,
-    required Color statusColor,
-    required int etapeId,
-    bool isValidated = false,
-    bool inProgress = false,
-    bool toPlan = false,
-  }) {
+  Widget _buildPlanCard(BuildContext context, PlanTherapeutiqueModel plan) {
+    final etapes = plan.etapes ?? [];
+    final Color statutColor = plan.statut == 'actif'
+        ? AppColors.statusPresent
+        : plan.statut == 'archive'
+            ? AppColors.textSecondary
+            : AppColors.primary;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Progress Card
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: AppColors.cardShadow,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(plan.titre, style: AppTextStyles.sectionTitle),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${plan.etapesTerminees} / ${plan.totalEtapes} étapes complétées',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (val) => controller.updatePlanStatut(plan.id, val),
+                    itemBuilder: (_) => [
+                      const PopupMenuItem(value: 'actif', child: Text('Actif')),
+                      const PopupMenuItem(value: 'suspendu', child: Text('Suspendu')),
+                      const PopupMenuItem(value: 'archive', child: Text('Archivé')),
+                    ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        StatusBadge.custom(
+                          label: plan.statut == 'actif' ? 'Actif' : plan.statut == 'archive' ? 'Archivé' : 'Suspendu',
+                          color: statutColor,
+                        ),
+                        const Icon(Icons.arrow_drop_down, size: 18, color: AppColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              LinearProgressIndicator(
+                value: plan.progression,
+                backgroundColor: AppColors.border,
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${(plan.progression * 100).toInt()}% accompli',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Étapes header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Étapes du plan', style: AppTextStyles.sectionTitle),
+            Text('${etapes.length} étapes', style: AppTextStyles.bodySmall),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // Step cards
+        if (etapes.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: Text('Aucune étape définie.', style: AppTextStyles.bodySmall),
+          )
+        else
+          ...etapes.map((etape) => Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _buildEtapeCard(context, plan, etape),
+              )),
+
+        // Add step button
+        OutlinedButton.icon(
+          onPressed: () => _showAddEtapeDialog(context),
+          icon: const Icon(Icons.add),
+          label: const Text('Ajouter une étape'),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 48),
+            side: const BorderSide(color: AppColors.primary),
+            foregroundColor: AppColors.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEtapeCard(BuildContext context, PlanTherapeutiqueModel plan, EtapePlanTherapeutiqueModel etape) {
+    Color statusColor;
+    IconData statusIcon;
+    switch (etape.statut) {
+      case 'fait':
+      case 'termine':
+        statusColor = AppColors.statusPresent;
+        statusIcon = Icons.check_circle_outline_rounded;
+        break;
+      case 'en_cours':
+        statusColor = AppColors.primary;
+        statusIcon = Icons.sync_rounded;
+        break;
+      default:
+        statusColor = AppColors.textHint;
+        statusIcon = Icons.access_time_rounded;
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.cardShadow,
+        border: etape.statut == 'en_cours'
+            ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1.5)
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,62 +276,182 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.drag_indicator_rounded, color: AppColors.textHint),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(title, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-              StatusBadge.custom(label: status, color: statusColor),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(desc, style: AppTextStyles.bodySmall),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                onTap: () => controller.convertEtapeToTache(etapeId),
+              Expanded(
                 child: Row(
                   children: [
-                    const Icon(Icons.arrow_forward_rounded, size: 16, color: AppColors.primary),
-                    const SizedBox(width: 6),
                     Text(
-                      'Convertir en tâche',
-                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+                      '${etape.ordre}.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        etape.titre,
+                        style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (isValidated)
-                Row(
-                  children: [
-                    const Icon(Icons.check_circle_outline_rounded, size: 16, color: AppColors.statusPresent),
-                    const SizedBox(width: 4),
-                    Text('Validée', style: AppTextStyles.bodySmall.copyWith(color: AppColors.statusPresent)),
-                  ],
-                ),
-              if (inProgress)
-                Row(
-                  children: [
-                    const Icon(Icons.sync_rounded, size: 16, color: AppColors.primary),
-                    const SizedBox(width: 4),
-                    Text('En progression', style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary)),
-                  ],
-                ),
-              if (toPlan)
-                Row(
-                  children: [
-                    const Icon(Icons.access_time_rounded, size: 16, color: AppColors.error),
-                    const SizedBox(width: 4),
-                    Text('À planifier', style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
-                  ],
-                ),
+              StatusBadge.custom(label: etape.statutLabel, color: statusColor),
             ],
+          ),
+          if (etape.description != null && etape.description!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(etape.description!, style: AppTextStyles.bodySmall),
+          ],
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Change statut dropdown
+              PopupMenuButton<String>(
+                onSelected: (val) => controller.updateEtapeStatut(plan.id, etape.id, val),
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 'a_faire', child: Text('À faire')),
+                  const PopupMenuItem(value: 'en_cours', child: Text('En cours')),
+                  const PopupMenuItem(value: 'fait', child: Text('Terminé')),
+                ],
+                child: Row(
+                  children: [
+                    Icon(statusIcon, size: 14, color: statusColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Changer statut',
+                      style: AppTextStyles.bodySmall.copyWith(color: statusColor, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                children: [
+                  InkWell(
+                    onTap: () => controller.convertEtapeToTache(plan.id, etape.id),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.primary),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Tâche',
+                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  InkWell(
+                    onTap: () => controller.deleteEtape(plan.id, etape.id),
+                    child: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.error),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCreatePlanDialog(BuildContext context) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Créer un plan thérapeutique'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller.titreController,
+              decoration: const InputDecoration(
+                labelText: 'Titre du plan *',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Obx(() => DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Statut'),
+                  initialValue: controller.statutPlan.value,
+                  items: const [
+                    DropdownMenuItem(value: 'actif', child: Text('Actif')),
+                    DropdownMenuItem(value: 'suspendu', child: Text('Suspendu')),
+                    DropdownMenuItem(value: 'archive', child: Text('Archivé')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) controller.statutPlan.value = val;
+                  },
+                )),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              controller.createPlan();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+            child: const Text('Créer'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddEtapeDialog(BuildContext context) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Ajouter une étape'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller.etapeTitreController,
+              decoration: const InputDecoration(
+                labelText: 'Titre *',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller.etapeDescController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Obx(() => DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: 'Statut'),
+                  initialValue: controller.statutEtape.value,
+                  items: const [
+                    DropdownMenuItem(value: 'a_faire', child: Text('À faire')),
+                    DropdownMenuItem(value: 'en_cours', child: Text('En cours')),
+                    DropdownMenuItem(value: 'fait', child: Text('Terminé')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) controller.statutEtape.value = val;
+                  },
+                )),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              controller.addEtape();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+            child: const Text('Ajouter'),
           ),
         ],
       ),

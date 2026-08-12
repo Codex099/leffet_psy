@@ -49,7 +49,7 @@ class PlanTherapeutiqueModel {
   int get totalEtapes => etapes?.length ?? 0;
 
   int get etapesTerminees =>
-      etapes?.where((e) => e.statut == 'termine').length ?? 0;
+      etapes?.where((e) => e.statut == 'fait' || e.statut == 'termine').length ?? 0;
 
   double get progression =>
       totalEtapes == 0 ? 0.0 : etapesTerminees / totalEtapes;
@@ -60,7 +60,7 @@ class EtapePlanTherapeutiqueModel {
   final dynamic planId;
   final String titre;
   final String? description;
-  final String statut; // 'a_faire' | 'en_cours' | 'termine'
+  final String statut; // 'a_faire' | 'en_cours' | 'fait' | 'termine'
   final int ordre;
   final int? creePar;
 
@@ -101,6 +101,7 @@ class EtapePlanTherapeutiqueModel {
         return 'À faire';
       case 'en_cours':
         return 'En cours';
+      case 'fait':
       case 'termine':
         return 'Terminé';
       default:
@@ -108,7 +109,7 @@ class EtapePlanTherapeutiqueModel {
     }
   }
 
-  bool get isTermine => statut == 'termine';
+  bool get isTermine => statut == 'fait' || statut == 'termine';
   bool get isEnCours => statut == 'en_cours';
   bool get isAFaire => statut == 'a_faire';
 }

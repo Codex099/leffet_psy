@@ -1,9 +1,9 @@
 import '../utils/json_utils.dart';
 
 class SeanceModel {
-  final int id;
-  final int patientId;
-  final List<int> employeIds;
+  final dynamic id;
+  final dynamic patientId;
+  final List<dynamic> employeIds;
   final String date;
   final String heureDebut;
   final String heureFin;
@@ -35,10 +35,10 @@ class SeanceModel {
 
   factory SeanceModel.fromJson(Map<String, dynamic> json) {
     return SeanceModel(
-      id: parseInt(json['id']),
-      patientId: parseInt(json['patient_id']),
+      id: parseId(json['id']),
+      patientId: parseId(json['patient_id']),
       employeIds: (json['employe_ids'] as List<dynamic>?)
-              ?.map((e) => parseInt(e))
+              ?.map((e) => parseId(e))
               .toList() ??
           [],
       date: json['date'] as String? ?? '',
@@ -101,14 +101,14 @@ class SeanceModel {
 }
 
 class PatientPlanningRecurrentModel {
-  final int id;
-  final int patientId;
+  final dynamic id;
+  final dynamic patientId;
   final List<String> joursSemaine;
   final String heureDebut;
   final String heureFin;
   final String? dateDebut;
   final String? dateFin;
-  final int? employeId;
+  final dynamic employeId;
   final String? modeGeneration; // 'auto' | 'manuel'
   final int? horizonJours;
 
@@ -127,8 +127,8 @@ class PatientPlanningRecurrentModel {
 
   factory PatientPlanningRecurrentModel.fromJson(Map<String, dynamic> json) {
     return PatientPlanningRecurrentModel(
-      id: parseInt(json['id']),
-      patientId: parseInt(json['patient_id']),
+      id: parseId(json['id']),
+      patientId: parseId(json['patient_id']),
       joursSemaine: (json['jours_semaine'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??

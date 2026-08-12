@@ -71,4 +71,14 @@ class GroupeService {
       '${ApiConfig.groupePatients(groupeId)}/$patientId',
     );
   }
+
+  /// GET /api/seances-groupe?patient_id=X — Séances groupe d'un patient
+  Future<List<Map<String, dynamic>>> getSeancesGroupePatient(dynamic patientId) async {
+    final response = await _dio.get(
+      ApiConfig.seancesGroupe,
+      queryParameters: {'patient_id': patientId},
+    );
+    final list = response.data as List<dynamic>;
+    return list.map((e) => e as Map<String, dynamic>).toList();
+  }
 }

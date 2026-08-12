@@ -4,6 +4,7 @@ import '../controllers/plan_therapeutique_controller.dart';
 class PlanTherapeutiqueBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<PlanTherapeutiqueController>(() => PlanTherapeutiqueController());
+    Get.delete<PlanTherapeutiqueController>(force: true);
+    Get.put<PlanTherapeutiqueController>(PlanTherapeutiqueController());
   }
 }

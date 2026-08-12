@@ -6,6 +6,7 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/state_placeholder.dart';
 
 class EditPatientView extends GetView<EditPatientController> {
   const EditPatientView({super.key});
@@ -70,6 +71,9 @@ class EditPatientView extends GetView<EditPatientController> {
             // ── Step Content ──
             Expanded(
               child: Obx(() {
+                if (controller.status.value == 'loading' && controller.patientId != null && controller.prenomController.text.isEmpty) {
+                  return const StatePlaceholder(type: StatePlaceholderType.loading);
+                }
                 switch (controller.currentStep.value) {
                   case 1:
                     return _buildStep1(context);
@@ -125,7 +129,6 @@ class EditPatientView extends GetView<EditPatientController> {
 
   // ── STEP 1 — Informations personnelles ──
   Widget _buildStep1(BuildContext context) {
-
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -193,15 +196,13 @@ class EditPatientView extends GetView<EditPatientController> {
             AppTextField(
               label: 'Prénom *',
               hintText: 'Ex. Léa',
-              initialValue: controller.prenom.value,
-              onChanged: (v) => controller.prenom.value = v,
+              controller: controller.prenomController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Nom *',
               hintText: 'Ex. Dupont',
-              initialValue: controller.nom.value,
-              onChanged: (v) => controller.nom.value = v,
+              controller: controller.nomController,
             ),
             const SizedBox(height: 14),
             Text('Date de naissance', style: AppTextStyles.fieldLabel),
@@ -256,16 +257,14 @@ class EditPatientView extends GetView<EditPatientController> {
               label: 'Nombre de frères/sœurs',
               hintText: '0',
               keyboardType: TextInputType.number,
-              initialValue: controller.nombreFreresSoeurs.value,
-              onChanged: (v) => controller.nombreFreresSoeurs.value = v,
+              controller: controller.nombreFreresSoeursController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Rang dans la fratrie',
               hintText: '1',
               keyboardType: TextInputType.number,
-              initialValue: controller.ordreNaissance.value,
-              onChanged: (v) => controller.ordreNaissance.value = v,
+              controller: controller.ordreNaissanceController,
             ),
           ]),
           const SizedBox(height: 20),
@@ -298,20 +297,19 @@ class EditPatientView extends GetView<EditPatientController> {
               style: AppTextStyles.bodySmall,
             ),
             const SizedBox(height: 16),
+
             AppTextField(
               label: 'Antécédents médicaux (السوابق المرضية)',
               hintText: 'Ex. Pathologies, chirurgies, hospitalisations...',
               maxLines: 3,
-              initialValue: controller.antecedentsMedicaux.value,
-              onChanged: (v) => controller.antecedentsMedicaux.value = v,
+              controller: controller.antecedentsMedicauxController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Médicaments pris (الأدوية المتناولة)',
               hintText: 'Ex. Liste des traitements actuels et posologie...',
               maxLines: 3,
-              initialValue: controller.medicamentsPris.value,
-              onChanged: (v) => controller.medicamentsPris.value = v,
+              controller: controller.medicamentsPrisController,
             ),
           ]),
           const SizedBox(height: 16),
@@ -385,64 +383,56 @@ class EditPatientView extends GetView<EditPatientController> {
               label: 'Naissance (الولادة)',
               hintText: 'Conditions de naissance, déroulement...',
               maxLines: 2,
-              initialValue: controller.naissance.value,
-              onChanged: (v) => controller.naissance.value = v,
+              controller: controller.naissanceController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Développement psychomoteur (النمو النفسي الحركي)',
               hintText: 'Marche, motricité fine et globale...',
               maxLines: 2,
-              initialValue: controller.developpementPsychomoteur.value,
-              onChanged: (v) => controller.developpementPsychomoteur.value = v,
+              controller: controller.developpementPsychomoteurController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Comportement auditif (السلوك السمعي)',
               hintText: 'Réaction aux sons, écoute...',
               maxLines: 2,
-              initialValue: controller.comportementAuditif.value,
-              onChanged: (v) => controller.comportementAuditif.value = v,
+              controller: controller.comportementAuditifController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Développement langagier (النمو اللغوي)',
               hintText: 'Premiers mots, niveau de langage...',
               maxLines: 2,
-              initialValue: controller.developpementLangagier.value,
-              onChanged: (v) => controller.developpementLangagier.value = v,
+              controller: controller.developpementLangagierController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Adaptation sociale (التكيف الاجتماعي)',
               hintText: 'Relations sociales, comportements en groupe...',
               maxLines: 2,
-              initialValue: controller.adaptationSociale.value,
-              onChanged: (v) => controller.adaptationSociale.value = v,
+              controller: controller.adaptationSocialeController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Autonomie (الاستقلالية)',
               hintText: 'Habillage, hygiène, alimentation...',
               maxLines: 2,
-              initialValue: controller.autonomie.value,
-              onChanged: (v) => controller.autonomie.value = v,
+              controller: controller.autonomieController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Aspect sanitaire / médical (الجانب الصحي)',
               hintText: 'Bilan de santé général...',
               maxLines: 2,
-              initialValue: controller.aspectSanitaire.value,
-              onChanged: (v) => controller.aspectSanitaire.value = v,
+              controller: controller.aspectSanitaireController,
             ),
             const SizedBox(height: 14),
             AppTextField(
               label: 'Stade de scolarisation (مرحلة التمدرس)',
               hintText: 'Niveau d\'études, intégration scolaire...',
               maxLines: 2,
-              initialValue: controller.stadeScolarisation.value,
-              onChanged: (v) => controller.stadeScolarisation.value = v,
+              controller: controller.stadeScolarisationController,
             ),
           ]),
           const SizedBox(height: 20),
@@ -574,11 +564,11 @@ class EditPatientView extends GetView<EditPatientController> {
             Obx(() => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _recapRow('Prénom', controller.prenom.value.isNotEmpty
-                        ? controller.prenom.value : '—'),
+                    _recapRow('Prénom', controller.prenomController.text.isNotEmpty
+                        ? controller.prenomController.text : '—'),
                     const Divider(),
-                    _recapRow('Nom', controller.nom.value.isNotEmpty
-                        ? controller.nom.value : '—'),
+                    _recapRow('Nom', controller.nomController.text.isNotEmpty
+                        ? controller.nomController.text : '—'),
                     const Divider(),
                     _recapRow('Date de naissance',
                         controller.dateNaissance.value.isNotEmpty
@@ -590,7 +580,7 @@ class EditPatientView extends GetView<EditPatientController> {
                         controller.photoUrl.value.isNotEmpty ? '✓ Ajoutée' : '—'),
                     const Divider(),
                     _recapRow('Dossier médical',
-                        controller.antecedentsMedicaux.value.isNotEmpty || controller.dateCas.value.isNotEmpty ? '✓ Renseigné' : '—'),
+                        controller.antecedentsMedicauxController.text.isNotEmpty || controller.dateCas.value.isNotEmpty ? '✓ Renseigné' : '—'),
                     const Divider(),
                     _recapRow('Parent lié',
                         controller.selectedParentId.value != null
