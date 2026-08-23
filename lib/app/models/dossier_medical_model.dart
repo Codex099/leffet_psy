@@ -1,5 +1,3 @@
-/// Modèle pour le dossier médical structuré d'un patient.
-/// Correspond à la section 7.2 du PRD avec 11 champs structurés.
 import '../utils/json_utils.dart';
 
 class DossierMedicalModel {
@@ -9,6 +7,9 @@ class DossierMedicalModel {
   final String? medicamentsPris;
   final String? dateCas;
   final String? naissance;
+  final String? dateNaissance;
+  final int? nombreFreresSoeurs;
+  final int? rangFratrie;
   final String? developpementPsychomoteur;
   final String? comportementAuditif;
   final String? developpementLangagier;
@@ -26,6 +27,9 @@ class DossierMedicalModel {
     this.medicamentsPris,
     this.dateCas,
     this.naissance,
+    this.dateNaissance,
+    this.nombreFreresSoeurs,
+    this.rangFratrie,
     this.developpementPsychomoteur,
     this.comportementAuditif,
     this.developpementLangagier,
@@ -45,6 +49,9 @@ class DossierMedicalModel {
       medicamentsPris: json['medicaments_pris'] as String?,
       dateCas: json['date_cas'] as String?,
       naissance: json['naissance'] as String?,
+      dateNaissance: json['date_naissance'] as String?,
+      nombreFreresSoeurs: parseNullableInt(json['nombre_freres_soeurs']),
+      rangFratrie: parseNullableInt(json['rang_fratrie']),
       developpementPsychomoteur: json['developpement_psychomoteur'] as String?,
       comportementAuditif: json['comportement_auditif'] as String?,
       developpementLangagier: json['developpement_langagier'] as String?,
@@ -64,6 +71,9 @@ class DossierMedicalModel {
         'medicaments_pris': medicamentsPris,
         'date_cas': dateCas,
         'naissance': naissance,
+        'date_naissance': dateNaissance,
+        'nombre_freres_soeurs': nombreFreresSoeurs,
+        'rang_fratrie': rangFratrie,
         'developpement_psychomoteur': developpementPsychomoteur,
         'comportement_auditif': comportementAuditif,
         'developpement_langagier': developpementLangagier,
