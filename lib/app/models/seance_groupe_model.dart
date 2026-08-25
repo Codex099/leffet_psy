@@ -1,9 +1,9 @@
 import '../utils/json_utils.dart';
 
 class SeanceGroupeModel {
-  final int id;
-  final int groupeId;
-  final int? employeId;
+  final dynamic id;
+  final dynamic groupeId;
+  final dynamic employeId;
   final String date;
   final String heureDebut;
   final String heureFin;
@@ -27,9 +27,9 @@ class SeanceGroupeModel {
 
   factory SeanceGroupeModel.fromJson(Map<String, dynamic> json) {
     return SeanceGroupeModel(
-      id: parseInt(json['id']),
-      groupeId: parseInt(json['groupe_id']),
-      employeId: parseNullableInt(json['employe_id']),
+      id: parseId(json['id']),
+      groupeId: parseId(json['groupe_id']),
+      employeId: parseId(json['employe_id']),
       date: json['date'] as String? ?? '',
       heureDebut: json['heure_debut'] as String? ?? '',
       heureFin: json['heure_fin'] as String? ?? '',
@@ -60,8 +60,8 @@ class SeanceGroupeModel {
 }
 
 class SeanceGroupeParticipantModel {
-  final int seanceGroupeId;
-  final int patientId;
+  final dynamic seanceGroupeId;
+  final dynamic patientId;
   final String? statutPresence; // 'present' | 'absent'
   final String? descriptionEtat;
   final Map<String, dynamic>? reponsesQuestionnaire;
@@ -82,8 +82,8 @@ class SeanceGroupeParticipantModel {
 
   factory SeanceGroupeParticipantModel.fromJson(Map<String, dynamic> json) {
     return SeanceGroupeParticipantModel(
-      seanceGroupeId: parseInt(json['seance_groupe_id']),
-      patientId: parseInt(json['patient_id']),
+      seanceGroupeId: parseId(json['seance_groupe_id']),
+      patientId: parseId(json['patient_id']),
       statutPresence: json['statut_presence'] as String?,
       descriptionEtat: json['description_etat'] as String?,
       reponsesQuestionnaire:

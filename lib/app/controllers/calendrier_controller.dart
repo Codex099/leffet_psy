@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import '../models/evenement_calendrier_model.dart';
-import '../services/tache_service.dart';
+import '../services/calendrier_service.dart';
 
 class CalendrierController extends GetxController {
   final CalendrierService _calendrierService = CalendrierService();
@@ -10,7 +10,7 @@ class CalendrierController extends GetxController {
   final RxString errorMessage = ''.obs;
   final RxString activeTab = 'Liste'.obs;
 
-  int? editingEventId;
+  dynamic editingEventId;
   final titre = ''.obs;
   final description = ''.obs;
   final date = ''.obs;
@@ -88,7 +88,7 @@ class CalendrierController extends GetxController {
     }
   }
 
-  Future<void> deleteEvenement(int id) async {
+  Future<void> deleteEvenement(dynamic id) async {
     try {
       await _calendrierService.deleteEvenement(id);
       loadEvenements();

@@ -288,7 +288,7 @@ class EditGroupeView extends GetView<EditGroupeController> {
                     children: controller.groupePatients.map((p) {
                       final name =
                           '${p['prenom'] ?? ''} ${p['nom'] ?? ''}'.trim();
-                      final id = parseInt(p['id'] ?? p['patient_id'] ?? 0);
+                      final id = parseId(p['id'] ?? p['patient_id']);
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Container(

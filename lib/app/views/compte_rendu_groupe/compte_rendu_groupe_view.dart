@@ -163,7 +163,7 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
     );
   }
 
-  Widget _buildParticipantPresenceCard(String name, {required bool isPresent, required int patientId}) {
+  Widget _buildParticipantPresenceCard(String name, {required bool isPresent, required dynamic patientId}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

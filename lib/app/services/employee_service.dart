@@ -28,56 +28,28 @@ class EmployeeService {
   }
 
   /// GET /api/employees/{id}
-  Future<EmployeeModel> getEmployee(int id) async {
+  Future<EmployeeModel> getEmployee(dynamic id) async {
     final response = await _dio.get(ApiConfig.employee(id));
     return EmployeeModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// PUT /api/employees/{id}
   Future<EmployeeModel> updateEmployee(
-      int id, Map<String, dynamic> data) async {
+      dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.employee(id), data: data);
     return EmployeeModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// DELETE /api/employees/{id}
-  Future<void> deleteEmployee(int id) async {
+  Future<void> deleteEmployee(dynamic id) async {
     await _dio.delete(ApiConfig.employee(id));
   }
 
   /// POST /api/employees/{id}/patients — Assignation de patients
-  Future<void> assignPatients(int employeeId, List<int> patientIds) async {
+  Future<void> assignPatients(dynamic employeeId, List<dynamic> patientIds) async {
     await _dio.post(
       ApiConfig.employeePatients(employeeId),
       data: {'patient_ids': patientIds},
     );
-  }
-}
-
-class NoteService {
-  final Dio _dio = DioClient.instance;
-
-  /// GET /api/patients/{id}/notes
-  Future<List<Map<String, dynamic>>> getNotes(dynamic patientId) async {
-    final response =
-        await _dio.get(ApiConfig.patientNotes(patientId));
-    return (response.data as List<dynamic>)
-        .map((e) => e as Map<String, dynamic>)
-        .toList();
-  }
-
-  /// POST /api/patients/{id}/notes
-  Future<Map<String, dynamic>> createNote(
-    dynamic patientId,
-    Map<String, dynamic> data,
-  ) async {
-    final response =
-        await _dio.post(ApiConfig.patientNotes(patientId), data: data);
-    return response.data as Map<String, dynamic>;
-  }
-
-  /// DELETE /api/notes/{id}
-  Future<void> deleteNote(dynamic noteId) async {
-    await _dio.delete(ApiConfig.noteById(noteId));
   }
 }

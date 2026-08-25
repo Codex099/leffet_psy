@@ -1,13 +1,13 @@
 import '../utils/json_utils.dart';
 
 class EmployeeModel {
-  final int id;
+  final dynamic id;
   final String nom;
   final String prenom;
   final String? telephone;
   final String username;
   final String role; // 'admin' | 'psychologue' | 'educatrice'
-  final List<int>? patientsAssignesIds;
+  final List<dynamic>? patientsAssignesIds;
 
   EmployeeModel({
     required this.id,
@@ -21,14 +21,14 @@ class EmployeeModel {
 
   factory EmployeeModel.fromJson(Map<String, dynamic> json) {
     return EmployeeModel(
-      id: parseInt(json['id']),
+      id: parseId(json['id']),
       nom: json['nom'] as String? ?? '',
       prenom: json['prenom'] as String? ?? '',
       telephone: json['telephone'] as String?,
       username: json['username'] as String? ?? '',
       role: json['role'] as String? ?? 'psychologue',
       patientsAssignesIds: (json['patients_assignes_ids'] as List<dynamic>?)
-          ?.map((e) => parseInt(e))
+          ?.map((e) => parseId(e))
           .toList(),
     );
   }

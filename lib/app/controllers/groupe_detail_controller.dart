@@ -9,7 +9,7 @@ class GroupeDetailController extends GetxController {
   final Rx<GroupeModel?> groupe = Rx<GroupeModel?>(null);
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  int? groupeId;
+  dynamic groupeId;
 
   @override
   void onInit() {

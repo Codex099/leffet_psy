@@ -7,7 +7,7 @@ class ApiConfig {
   // ─── Base URL ──────────────────────────────────────────────────────────────
   /// URL de base du backend FastAPI.
   /// Modifier cette valeur pour pointer vers staging/production.
-  static const String baseUrl = 'https://began-city-buyer-permitted.trycloudflare.com';
+  static const String baseUrl = 'https://ferry-documents-spy-automatically.trycloudflare.com';
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────
   static const int connectTimeoutMs = 10000;

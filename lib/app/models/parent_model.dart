@@ -47,7 +47,7 @@ class ParentModel {
   }
 
   ParentModel copyWith({
-    int? id,
+    dynamic id,
     String? nom,
     String? prenom,
     String? telephone,

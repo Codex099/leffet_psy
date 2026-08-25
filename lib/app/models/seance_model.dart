@@ -137,7 +137,7 @@ class PatientPlanningRecurrentModel {
       heureFin: json['heure_fin'] as String? ?? '',
       dateDebut: json['date_debut'] as String?,
       dateFin: json['date_fin'] as String?,
-      employeId: parseNullableInt(json['employe_id']),
+      employeId: parseId(json['employe_id']),
       modeGeneration: json['mode_generation'] as String?,
       horizonJours: parseNullableInt(json['horizon_jours']),
     );

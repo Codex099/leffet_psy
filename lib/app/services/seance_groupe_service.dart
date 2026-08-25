@@ -9,8 +9,8 @@ class SeanceGroupeService {
   /// GET /api/seances-groupe — Liste des séances de groupe
   Future<List<SeanceGroupeModel>> getSeancesGroupe({
     String? date,
-    int? groupeId,
-    int? employeId,
+    dynamic groupeId,
+    dynamic employeId,
   }) async {
     final queryParams = <String, dynamic>{};
     if (date != null) queryParams['date'] = date;
@@ -35,29 +35,29 @@ class SeanceGroupeService {
   }
 
   /// GET /api/seances-groupe/{id} — Détail
-  Future<SeanceGroupeModel> getSeanceGroupe(int id) async {
+  Future<SeanceGroupeModel> getSeanceGroupe(dynamic id) async {
     final response = await _dio.get(ApiConfig.seanceGroupe(id));
     return SeanceGroupeModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// PUT /api/seances-groupe/{id} — Mise à jour
   Future<SeanceGroupeModel> updateSeanceGroupe(
-      int id, Map<String, dynamic> data) async {
+      dynamic id, Map<String, dynamic> data) async {
     final response =
         await _dio.put(ApiConfig.seanceGroupe(id), data: data);
     return SeanceGroupeModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// DELETE /api/seances-groupe/{id}
-  Future<void> deleteSeanceGroupe(int id) async {
+  Future<void> deleteSeanceGroupe(dynamic id) async {
     await _dio.delete(ApiConfig.seanceGroupe(id));
   }
 
   /// PUT /api/seances-groupe/{id}/participants/{patient_id}
   /// Mise à jour de la présence/note d'un participant
   Future<SeanceGroupeParticipantModel> updateParticipant(
-    int seanceId,
-    int patientId,
+    dynamic seanceId,
+    dynamic patientId,
     Map<String, dynamic> data,
   ) async {
     final response = await _dio.put(

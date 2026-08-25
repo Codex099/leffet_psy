@@ -5,6 +5,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/media_picker_widget.dart';
 import '../../widgets/state_placeholder.dart';
 
 class NotesPatientView extends GetView<NotesPatientController> {
@@ -55,18 +56,32 @@ class NotesPatientView extends GetView<NotesPatientController> {
                       label: '',
                       hintText: 'Saisir une observation clinique...',
                       maxLines: 3,
-                      onChanged: (v) => controller.contenu.value = v,
+                      controller: controller.contenuController,
                     ),
                     const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      onPressed: () => controller.addNote(),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Enregistrer'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        minimumSize: const Size(double.infinity, 44),
-                      ),
-                    ),
+                    // Médias de la note (PRD §7.6) : la clé force la
+                    // reconstruction du picker après un enregistrement.
+                    Obx(() => MediaPickerWidget(
+                          key: ValueKey(controller.formResetToken.value),
+                          initialMediaUrls: controller.medias,
+                          onMediasChanged: (urls) => controller.medias.value = urls,
+                        )),
+                    const SizedBox(height: 12),
+                    Obx(() => ElevatedButton.icon(
+                          onPressed: controller.isSaving.value ? null : () => controller.addNote(),
+                          icon: controller.isSaving.value
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.add),
+                          label: Text(controller.isSaving.value ? 'Enregistrement...' : 'Enregistrer'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            minimumSize: const Size(double.infinity, 44),
+                          ),
+                        )),
                   ],
                 ),
               ),
@@ -95,6 +110,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                     separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final note = controller.notes[index];
+                      final medias = controller.mediasDe(note);
                       return Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
@@ -103,6 +119,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                           boxShadow: AppColors.softShadow,
                         ),
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Column(
@@ -114,9 +131,39 @@ class NotesPatientView extends GetView<NotesPatientController> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${note['auteur'] ?? 'Auteur'} | ${note['date'] ?? ''}',
+                                    '${controller.auteurDe(note)} | ${controller.dateDe(note)}',
                                     style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                                   ),
+                                  if (medias.isNotEmpty) ...[
+                                    const SizedBox(height: 10),
+                                    SizedBox(
+                                      height: 64,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: medias.length,
+                                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                                        itemBuilder: (_, i) => ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.network(
+                                            medias[i],
+                                            width: 64,
+                                            height: 64,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, _, _) => Container(
+                                              width: 64,
+                                              height: 64,
+                                              color: AppColors.fieldBackground,
+                                              child: const Icon(
+                                                Icons.broken_image_outlined,
+                                                size: 20,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),

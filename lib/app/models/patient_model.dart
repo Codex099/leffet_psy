@@ -132,7 +132,7 @@ class PatientModel {
   }
 
   PatientModel copyWith({
-    int? id,
+    dynamic id,
     String? nom,
     String? prenom,
     String? dateNaissance,

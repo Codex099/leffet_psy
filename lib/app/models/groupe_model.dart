@@ -1,13 +1,13 @@
 import '../utils/json_utils.dart';
 
 class GroupeModel {
-  final int id;
+  final dynamic id;
   final String nom;
   final String typePlanning; // 'fixe' | 'ponctuel'
   final String? description;
   final List<Map<String, dynamic>>? patients;
   final List<Map<String, dynamic>>? planningRecurrent;
-  final List<int>? employeeIds;
+  final List<dynamic>? employeeIds;
 
   GroupeModel({
     required this.id,
@@ -21,7 +21,7 @@ class GroupeModel {
 
   factory GroupeModel.fromJson(Map<String, dynamic> json) {
     return GroupeModel(
-      id: parseInt(json['id']),
+      id: parseId(json['id']),
       nom: json['nom'] as String? ?? '',
       typePlanning: json['type_planning'] as String? ?? 'ponctuel',
       description: json['description'] as String?,
@@ -32,7 +32,7 @@ class GroupeModel {
           ?.map((e) => e as Map<String, dynamic>)
           .toList(),
       employeeIds: (json['employees'] as List<dynamic>?)
-          ?.map((e) => parseInt(e is Map ? e['id'] : e))
+          ?.map((e) => parseId(e is Map ? e['id'] : e))
           .toList(),
     );
   }
@@ -57,8 +57,8 @@ class GroupeModel {
 }
 
 class GroupePlanningRecurrentModel {
-  final int id;
-  final int groupeId;
+  final dynamic id;
+  final dynamic groupeId;
   final String jourSemaine;
   final String heureDebut;
   final String heureFin;
@@ -73,8 +73,8 @@ class GroupePlanningRecurrentModel {
 
   factory GroupePlanningRecurrentModel.fromJson(Map<String, dynamic> json) {
     return GroupePlanningRecurrentModel(
-      id: parseInt(json['id']),
-      groupeId: parseInt(json['groupe_id']),
+      id: parseId(json['id']),
+      groupeId: parseId(json['groupe_id']),
       jourSemaine: json['jour_semaine'] as String? ?? '',
       heureDebut: json['heure_debut'] as String? ?? '',
       heureFin: json['heure_fin'] as String? ?? '',

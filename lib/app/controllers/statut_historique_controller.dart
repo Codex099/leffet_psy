@@ -9,7 +9,7 @@ class StatutHistoriqueController extends GetxController {
   final RxList<PatientStatutHistoriqueModel> historique = <PatientStatutHistoriqueModel>[].obs;
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  int? patientId;
+  dynamic patientId;
 
   @override
   void onInit() {
@@ -36,7 +36,7 @@ class StatutHistoriqueController extends GetxController {
     }
   }
 
-  Future<void> updateNoteDegradation(int itemId, String note) async {
+  Future<void> updateNoteDegradation(dynamic itemId, String note) async {
     if (patientId == null) return;
     try {
       await _patientService.updateStatutHistoriqueNote(patientId!, itemId, noteDegradation: note);

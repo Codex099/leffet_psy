@@ -1,8 +1,8 @@
 import '../utils/json_utils.dart';
 
 class PatientStatutHistoriqueModel {
-  final int id;
-  final int patientId;
+  final dynamic id;
+  final dynamic patientId;
   final String statut; // 'actif' | 'inactif'
   final String dateChangement;
   final String? changePar;
@@ -19,8 +19,8 @@ class PatientStatutHistoriqueModel {
 
   factory PatientStatutHistoriqueModel.fromJson(Map<String, dynamic> json) {
     return PatientStatutHistoriqueModel(
-      id: parseInt(json['id']),
-      patientId: parseInt(json['patient_id']),
+      id: parseId(json['id']),
+      patientId: parseId(json['patient_id']),
       statut: json['statut'] as String? ?? 'actif',
       dateChangement: json['date_changement'] as String? ?? '',
       changePar: json['change_par'] as String?,

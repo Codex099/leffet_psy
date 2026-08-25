@@ -1,13 +1,13 @@
 import '../utils/json_utils.dart';
 
 class TacheModel {
-  final int id;
+  final dynamic id;
   final String titre;
   final String? description;
-  final int? assigneA;
-  final int? creePar;
-  final int? patientId;
-  final int? etapePlanId;
+  final dynamic assigneA;
+  final dynamic creePar;
+  final dynamic patientId;
+  final dynamic etapePlanId;
   final String statut; // 'a_faire' | 'en_cours' | 'terminee'
   final String priorite; // 'haute' | 'normale' | 'basse'
   final String? dateEcheance;
@@ -31,13 +31,13 @@ class TacheModel {
 
   factory TacheModel.fromJson(Map<String, dynamic> json) {
     return TacheModel(
-      id: parseInt(json['id']),
+      id: parseId(json['id']),
       titre: json['titre'] as String? ?? '',
       description: json['description'] as String?,
-      assigneA: parseNullableInt(json['assigne_a']),
-      creePar: parseNullableInt(json['cree_par']),
-      patientId: parseNullableInt(json['patient_id']),
-      etapePlanId: parseNullableInt(json['etape_plan_id']),
+      assigneA: parseId(json['assigne_a']),
+      creePar: parseId(json['cree_par']),
+      patientId: parseId(json['patient_id']),
+      etapePlanId: parseId(json['etape_plan_id']),
       statut: json['statut'] as String? ?? 'a_faire',
       priorite: json['priorite'] as String? ?? 'normale',
       dateEcheance: json['date_echeance'] as String?,

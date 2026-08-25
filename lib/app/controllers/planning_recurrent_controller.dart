@@ -14,7 +14,7 @@ class PlanningRecurrentController extends GetxController {
   final heureDebut = '09:00'.obs;
   final heureFin = '09:45'.obs;
 
-  int? patientId;
+  dynamic patientId;
 
   @override
   void onInit() {

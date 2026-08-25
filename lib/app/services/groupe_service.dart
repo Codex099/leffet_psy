@@ -28,25 +28,25 @@ class GroupeService {
   }
 
   /// GET /api/groupes/{id} — Détail groupe
-  Future<GroupeModel> getGroupe(int id) async {
+  Future<GroupeModel> getGroupe(dynamic id) async {
     final response = await _dio.get(ApiConfig.groupe(id));
     return GroupeModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// PUT /api/groupes/{id} — Mise à jour groupe
-  Future<GroupeModel> updateGroupe(int id, Map<String, dynamic> data) async {
+  Future<GroupeModel> updateGroupe(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.groupe(id), data: data);
     return GroupeModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// DELETE /api/groupes/{id} — Suppression groupe
-  Future<void> deleteGroupe(int id) async {
+  Future<void> deleteGroupe(dynamic id) async {
     await _dio.delete(ApiConfig.groupe(id));
   }
 
   /// POST /api/groupes/{id}/planning-recurrent — Définir le planning fixe
   Future<GroupePlanningRecurrentModel> setPlanningRecurrent(
-    int groupeId,
+    dynamic groupeId,
     Map<String, dynamic> data,
   ) async {
     final response = await _dio.post(
@@ -58,7 +58,7 @@ class GroupeService {
   }
 
   /// POST /api/groupes/{id}/patients — Ajouter un patient au groupe
-  Future<void> addPatientToGroupe(int groupeId, int patientId) async {
+  Future<void> addPatientToGroupe(dynamic groupeId, dynamic patientId) async {
     await _dio.post(
       ApiConfig.groupePatients(groupeId),
       data: {'patient_id': patientId},
@@ -66,7 +66,7 @@ class GroupeService {
   }
 
   /// DELETE patient from groupe
-  Future<void> removePatientFromGroupe(int groupeId, int patientId) async {
+  Future<void> removePatientFromGroupe(dynamic groupeId, dynamic patientId) async {
     await _dio.delete(
       '${ApiConfig.groupePatients(groupeId)}/$patientId',
     );

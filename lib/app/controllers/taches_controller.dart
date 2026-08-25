@@ -57,7 +57,7 @@ class TachesController extends GetxController {
   List<TacheModel> get tachesFait => taches.where((t) => t.statut == 'fait').toList();
 
   /// Met à jour le statut d'une tâche depuis la liste (US-M38)
-  Future<void> updateStatutFromList(int tacheId, String newStatut) async {
+  Future<void> updateStatutFromList(dynamic tacheId, String newStatut) async {
     try {
       await _tacheService.updateTache(tacheId, {'statut': newStatut});
       // Mettre à jour localement pour éviter un reload complet

@@ -14,7 +14,7 @@ class CompteRenduSeanceController extends GetxController {
   final etapePlanId = RxnInt();
   final medias = <String>[].obs;
 
-  int? seanceId;
+  dynamic seanceId;
 
   @override
   void onInit() {

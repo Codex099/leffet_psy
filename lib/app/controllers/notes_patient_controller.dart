@@ -1,5 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../services/employee_service.dart';
+import '../services/note_patient_service.dart';
 
 import '../utils/json_utils.dart';
 
@@ -11,7 +12,18 @@ class NotesPatientController extends GetxController {
   final RxString errorMessage = ''.obs;
   dynamic patientId;
 
-  final contenu = ''.obs;
+  /// Source de vérité du champ de saisie : un TextEditingController permet de
+  /// vider réellement le champ après l'enregistrement (un simple RxString ne
+  /// remet pas à zéro le TextFormField).
+  final TextEditingController contenuController = TextEditingController();
+
+  final RxList<String> medias = <String>[].obs;
+
+  /// Incrémenté après chaque enregistrement pour reconstruire le
+  /// MediaPickerWidget (stateful, il conserve sinon ses vignettes).
+  final RxInt formResetToken = 0.obs;
+
+  final RxBool isSaving = false.obs;
 
   @override
   void onInit() {
@@ -23,6 +35,12 @@ class NotesPatientController extends GetxController {
     } else {
       loadNotes();
     }
+  }
+
+  @override
+  void onClose() {
+    contenuController.dispose();
+    super.onClose();
   }
 
   Future<void> loadNotes() async {
@@ -38,17 +56,27 @@ class NotesPatientController extends GetxController {
   }
 
   Future<void> addNote() async {
-    if (patientId == null) return;
-    if (contenu.value.trim().isEmpty) {
+    if (patientId == null || isSaving.value) return;
+    final contenu = contenuController.text.trim();
+    if (contenu.isEmpty) {
       Get.snackbar('Erreur', 'Le contenu de la note est requis');
       return;
     }
     try {
-      await _noteService.createNote(patientId!, {'contenu': contenu.value.trim()});
-      contenu.value = '';
-      loadNotes();
+      isSaving.value = true;
+      await _noteService.createNote(patientId!, {
+        'contenu': contenu,
+        if (medias.isNotEmpty) 'medias': medias.toList(),
+      });
+      contenuController.clear();
+      medias.clear();
+      formResetToken.value++;
+      await loadNotes();
+      Get.snackbar('Note enregistrée', 'L\'observation a été ajoutée au dossier');
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'ajouter la note');
+    } finally {
+      isSaving.value = false;
     }
   }
 
@@ -59,5 +87,41 @@ class NotesPatientController extends GetxController {
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer la note');
     }
+  }
+
+  /// Nom lisible du rédacteur : le backend renvoie `auteur` (objet employé
+  /// imbriqué). Repli sur « Auteur inconnu » pour les notes anciennes.
+  String auteurDe(Map<String, dynamic> note) {
+    final auteur = note['auteur'];
+    if (auteur is Map) {
+      final nomComplet = [auteur['prenom'], auteur['nom']]
+          .whereType<String>()
+          .where((p) => p.trim().isNotEmpty)
+          .join(' ');
+      if (nomComplet.isNotEmpty) return nomComplet;
+    }
+    return 'Auteur inconnu';
+  }
+
+  /// Date de rédaction formatée JJ/MM/AAAA à HH:MM depuis `date_creation`.
+  String dateDe(Map<String, dynamic> note) {
+    final brut = note['date_creation'];
+    if (brut is! String || brut.isEmpty) return '';
+    final d = DateTime.tryParse(brut);
+    if (d == null) return brut;
+    final jj = d.day.toString().padLeft(2, '0');
+    final mm = d.month.toString().padLeft(2, '0');
+    final hh = d.hour.toString().padLeft(2, '0');
+    final mi = d.minute.toString().padLeft(2, '0');
+    return '$jj/$mm/${d.year} à $hh:$mi';
+  }
+
+  /// URLs des médias attachés à une note (le backend stocke une liste JSON).
+  List<String> mediasDe(Map<String, dynamic> note) {
+    final brut = note['medias'];
+    if (brut is List) {
+      return brut.whereType<String>().where((u) => u.trim().isNotEmpty).toList();
+    }
+    return const [];
   }
 }

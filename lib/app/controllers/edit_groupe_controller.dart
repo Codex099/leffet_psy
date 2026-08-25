@@ -28,7 +28,7 @@ class EditGroupeController extends GetxController {
   final PatientService _patientService = PatientService();
 
   // Current groupe being edited (null = create mode)
-  int? groupeId;
+  dynamic groupeId;
 
   // Form fields
   final nom = ''.obs;
@@ -40,7 +40,7 @@ class EditGroupeController extends GetxController {
 
   // Employees — RxSet pour une réactivité correcte des checkboxes
   final RxList<EmployeeModel> availableEmployees = <EmployeeModel>[].obs;
-  final RxSet<int> selectedEmployeeIds = <int>{}.obs;
+  final RxSet<dynamic> selectedEmployeeIds = <dynamic>{}.obs;
   final RxString employeesStatus = 'loading'.obs;
 
   // Patients in group (from API)
@@ -72,7 +72,7 @@ class EditGroupeController extends GetxController {
   // LOAD
   // ──────────────────────────────────────────
 
-  Future<void> _loadGroupe(int id) async {
+  Future<void> _loadGroupe(dynamic id) async {
     try {
       status.value = 'loading';
       final groupe = await _groupeService.getGroupe(id);
@@ -117,7 +117,7 @@ class EditGroupeController extends GetxController {
   // EMPLOYEE SELECTION (RxSet — réactivité correcte)
   // ──────────────────────────────────────────
 
-  void toggleEmployee(int employeeId) {
+  void toggleEmployee(dynamic employeeId) {
     if (selectedEmployeeIds.contains(employeeId)) {
       selectedEmployeeIds.remove(employeeId);
     } else {
@@ -127,7 +127,7 @@ class EditGroupeController extends GetxController {
     selectedEmployeeIds.refresh();
   }
 
-  bool isEmployeeSelected(int id) => selectedEmployeeIds.contains(id);
+  bool isEmployeeSelected(dynamic id) => selectedEmployeeIds.contains(id);
 
   // ──────────────────────────────────────────
   // PLANNING RÉCURRENT — MULTI-CRÉNEAUX
@@ -177,11 +177,11 @@ class EditGroupeController extends GetxController {
   // PATIENTS
   // ──────────────────────────────────────────
 
-  bool isPatientInGroupe(int patientId) {
-    return groupePatients.any((p) => parseInt(p['id'] ?? p['patient_id']) == patientId);
+  bool isPatientInGroupe(dynamic patientId) {
+    return groupePatients.any((p) => parseId(p['id'] ?? p['patient_id']) == patientId);
   }
 
-  Future<void> addPatientToGroupe(int patientId) async {
+  Future<void> addPatientToGroupe(dynamic patientId) async {
     if (groupeId == null) {
       Get.snackbar('Info', 'Enregistrez le groupe d\'abord avant d\'ajouter des patients.',
           snackPosition: SnackPosition.BOTTOM);
@@ -196,7 +196,7 @@ class EditGroupeController extends GetxController {
     }
   }
 
-  Future<void> removePatientFromGroupe(int patientId) async {
+  Future<void> removePatientFromGroupe(dynamic patientId) async {
     if (groupeId == null) return;
     try {
       await _groupeService.removePatientFromGroupe(groupeId!, patientId);

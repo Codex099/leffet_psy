@@ -1,8 +1,8 @@
 import '../utils/json_utils.dart';
 
 class DossierMedicalModel {
-  final int id;
-  final int patientId;
+  final dynamic id;
+  final dynamic patientId;
   final String? antecedentsMedicaux;
   final String? medicamentsPris;
   final String? dateCas;
@@ -43,8 +43,8 @@ class DossierMedicalModel {
 
   factory DossierMedicalModel.fromJson(Map<String, dynamic> json) {
     return DossierMedicalModel(
-      id: parseInt(json['id']),
-      patientId: parseInt(json['patient_id']),
+      id: parseId(json['id']),
+      patientId: parseId(json['patient_id']),
       antecedentsMedicaux: json['antecedents_medicaux'] as String?,
       medicamentsPris: json['medicaments_pris'] as String?,
       dateCas: json['date_cas'] as String?,

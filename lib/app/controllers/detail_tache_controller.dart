@@ -55,7 +55,7 @@ class DetailTacheController extends GetxController {
     }
   }
 
-  Future<void> loadTache(int id) async {
+  Future<void> loadTache(dynamic id) async {
     try {
       status.value = 'loading';
       final t = await _tacheService.getTache(id);
@@ -91,7 +91,7 @@ class DetailTacheController extends GetxController {
     await _patchStatut(tache.value!.id, newStatut);
   }
 
-  Future<void> _patchStatut(int id, String newStatut) async {
+  Future<void> _patchStatut(dynamic id, String newStatut) async {
     try {
       final updated = await _tacheService.updateTache(id, {'statut': newStatut});
       tache.value = updated;

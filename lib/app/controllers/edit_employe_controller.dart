@@ -10,7 +10,7 @@ class EditEmployeController extends GetxController {
   final PatientService _patientService = PatientService();
 
   // Edit mode: non-null means edit an existing employee
-  int? employeId;
+  dynamic employeId;
 
   // Form fields
   final nom = ''.obs;
@@ -22,7 +22,7 @@ class EditEmployeController extends GetxController {
 
   // Patient assignment
   final RxList<PatientModel> allPatients = <PatientModel>[].obs;
-  final RxList<int> selectedPatientIds = <int>[].obs;
+  final RxList<dynamic> selectedPatientIds = <dynamic>[].obs;
   final RxString patientsStatus = 'loading'.obs;
   final RxString patientSearch = ''.obs;
 
@@ -43,7 +43,7 @@ class EditEmployeController extends GetxController {
   }
 
 
-  Future<void> _loadEmployee(int id) async {
+  Future<void> _loadEmployee(dynamic id) async {
     try {
       status.value = 'loading';
       final emp = await _employeeService.getEmployee(id);
@@ -53,7 +53,7 @@ class EditEmployeController extends GetxController {
       username.value = emp.username;
       role.value = emp.role;
       if (emp.patientsAssignesIds != null) {
-        selectedPatientIds.value = List<int>.from(emp.patientsAssignesIds!);
+        selectedPatientIds.value = List<dynamic>.from(emp.patientsAssignesIds!);
       }
       status.value = 'success';
     } catch (e) {
@@ -79,7 +79,7 @@ class EditEmployeController extends GetxController {
     return allPatients.where((p) => p.fullName.toLowerCase().contains(q)).toList();
   }
 
-  void togglePatient(int patientId) {
+  void togglePatient(dynamic patientId) {
     if (selectedPatientIds.contains(patientId)) {
       selectedPatientIds.remove(patientId);
     } else {

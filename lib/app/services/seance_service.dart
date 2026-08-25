@@ -34,19 +34,19 @@ class SeanceService {
   }
 
   /// GET /api/seances/{id} — Détail séance
-  Future<SeanceModel> getSeance(int id) async {
+  Future<SeanceModel> getSeance(dynamic id) async {
     final response = await _dio.get(ApiConfig.seance(id));
     return SeanceModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// PUT /api/seances/{id} — Mise à jour séance (compte-rendu)
-  Future<SeanceModel> updateSeance(int id, Map<String, dynamic> data) async {
+  Future<SeanceModel> updateSeance(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.seance(id), data: data);
     return SeanceModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// DELETE /api/seances/{id}
-  Future<void> deleteSeance(int id) async {
+  Future<void> deleteSeance(dynamic id) async {
     await _dio.delete(ApiConfig.seance(id));
   }
 }
@@ -56,7 +56,7 @@ class PlanningRecurrentService {
 
   /// GET /api/patients/{id}/planning-recurrent
   Future<PatientPlanningRecurrentModel?> getPlanningRecurrent(
-      int patientId) async {
+      dynamic patientId) async {
     final response =
         await _dio.get(ApiConfig.patientPlanningRecurrent(patientId));
     if (response.data == null) return null;
@@ -66,7 +66,7 @@ class PlanningRecurrentService {
 
   /// POST /api/patients/{id}/planning-recurrent — Créer/modifier planning
   Future<PatientPlanningRecurrentModel> setPlanningRecurrent(
-    int patientId,
+    dynamic patientId,
     Map<String, dynamic> data,
   ) async {
     final response = await _dio.post(
@@ -78,7 +78,7 @@ class PlanningRecurrentService {
   }
 
   /// POST /api/patients/{id}/planning-recurrent/generer — Génération manuelle
-  Future<void> genererSeances(int patientId) async {
+  Future<void> genererSeances(dynamic patientId) async {
     await _dio.post(ApiConfig.patientPlanningRecurrentGenerer(patientId));
   }
 }

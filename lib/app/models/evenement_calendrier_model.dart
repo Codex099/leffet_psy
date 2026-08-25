@@ -1,8 +1,8 @@
-/// Modèle pour un événement du calendrier administratif.
+// Modèle pour un événement du calendrier administratif.
 import '../utils/json_utils.dart';
 
 class EvenementCalendrierModel {
-  final int id;
+  final dynamic id;
   final String titre;
   final String? description;
   final String date;
@@ -20,7 +20,7 @@ class EvenementCalendrierModel {
 
   factory EvenementCalendrierModel.fromJson(Map<String, dynamic> json) {
     return EvenementCalendrierModel(
-      id: parseInt(json['id']),
+      id: parseId(json['id']),
       titre: json['titre'] as String? ?? '',
       description: json['description'] as String?,
       date: json['date'] as String? ?? '',

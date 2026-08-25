@@ -6,6 +6,7 @@ import '../services/patient_service.dart';
 import '../services/parent_service.dart';
 import '../services/plan_therapeutique_service.dart';
 import '../services/employee_service.dart';
+import '../services/note_patient_service.dart';
 import '../utils/json_utils.dart';
 
 class PatientInfoController extends GetxController {

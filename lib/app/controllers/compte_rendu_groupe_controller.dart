@@ -12,7 +12,7 @@ class CompteRenduGroupeController extends GetxController {
   final RxString errorMessage = ''.obs;
   final medias = <String>[].obs;
 
-  int? seanceId;
+  dynamic seanceId;
 
   @override
   void onInit() {
@@ -38,7 +38,7 @@ class CompteRenduGroupeController extends GetxController {
     }
   }
 
-  Future<void> togglePresence(int patientId, bool isPresent) async {
+  Future<void> togglePresence(dynamic patientId, bool isPresent) async {
     if (seanceId == null) return;
     try {
       await _seanceService.updateParticipant(seanceId!, patientId, {
