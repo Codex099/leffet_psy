@@ -1,242 +1,231 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/detail_tache_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/ios_card.dart';
+import '../../widgets/ios_segmented_control.dart';
+import '../../widgets/searchable_picker.dart';
 import '../../widgets/state_placeholder.dart';
 
-class DetailTacheView extends GetView<DetailTacheController> {
+class DetailTacheView extends StatefulWidget {
   const DetailTacheView({super.key});
+
+  @override
+  State<DetailTacheView> createState() => _DetailTacheViewState();
+}
+
+class _DetailTacheViewState extends State<DetailTacheView> {
+  final controller = Get.find<DetailTacheController>();
+  late final TextEditingController _titreCtrl;
+  late final TextEditingController _descCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _titreCtrl = TextEditingController(text: controller.titre.value);
+    _descCtrl = TextEditingController(text: controller.description.value);
+
+    ever(controller.titre, (v) {
+      if (_titreCtrl.text != v) _titreCtrl.text = v;
+    });
+    ever(controller.description, (v) {
+      if (_descCtrl.text != v) _descCtrl.text = v;
+    });
+  }
+
+  @override
+  void dispose() {
+    _titreCtrl.dispose();
+    _descCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
+      appBar: CreativeAppBar(
+        title: controller.isNew ? 'Nouvelle Tâche' : 'Détail de la Tâche',
+        subtitle: 'Action Clinique',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Obx(() {
-          if (controller.status.value == 'loading') {
-            return const StatePlaceholder(type: StatePlaceholderType.loading);
+          if (controller.status.value == 'loading' && !controller.isNew && controller.titre.value.isEmpty) {
+            return StatePlaceholder.loading(message: 'Chargement de la tâche...');
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-            );
+            return StatePlaceholder.error(message: controller.errorMessage.value);
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Header ──
-                Row(
+                // ── Statut de la tâche (Segmented Control iOS) ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Text('STATUT DE LA TÂCHE', style: AppTextStyles.iosCaption2),
+                ),
+                Obx(() => IosSegmentedControl<String>(
+                      segments: const {
+                        'a_faire': 'À faire',
+                        'en_cours': 'En cours',
+                        'fait': 'Terminée',
+                      },
+                      selectedValue: controller.statut.value,
+                      onValueChanged: (s) => controller.statut.value = s,
+                    )),
+                const SizedBox(height: 12),
+
+                // ── Priorité Segmented Control iOS ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Text('PRIORITÉ', style: AppTextStyles.iosCaption2),
+                ),
+                Obx(() => IosSegmentedControl<String>(
+                      segments: const {
+                        'haute': 'Haute',
+                        'normale': 'Normale',
+                        'basse': 'Basse',
+                      },
+                      selectedValue: controller.priorite.value,
+                      onValueChanged: (p) => controller.priorite.value = p,
+                    )),
+                const SizedBox(height: 12),
+
+                // ── Détails principaux ──
+                IosCard(
+                  title: 'Informations',
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('TÂCHE', style: AppTextStyles.sectionKicker),
-                        Obx(() => Text(
-                              controller.isNew ? 'Nouvelle tâche' : 'Modifier la tâche',
-                              style: AppTextStyles.screenTitleMedium,
-                            )),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          AppTextField(
+                            label: 'Titre de la tâche *',
+                            hintText: 'Ex: Rédiger le bilan psychologique',
+                            controller: _titreCtrl,
+                            onChanged: (v) => controller.titre.value = v,
+                          ),
+                          const SizedBox(height: 14),
+                          AppTextField(
+                            label: 'Description',
+                            hintText: 'Préciser les consignes ou observations...',
+                            maxLines: 4,
+                            controller: _descCtrl,
+                            onChanged: (v) => controller.description.value = v,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
 
-                // ── Infos principales ──
-                _card(children: [
-                  AppTextField(
-                    label: 'Titre de la tâche *',
-                    hintText: 'Ex: Contacter le parent de Lucas',
-                    initialValue: controller.titre.value,
-                    onChanged: (v) => controller.titre.value = v,
-                  ),
-                  const SizedBox(height: 14),
-                  AppTextField(
-                    label: 'Description',
-                    hintText: 'Détails supplémentaires...',
-                    maxLines: 4,
-                    initialValue: controller.description.value,
-                    onChanged: (v) => controller.description.value = v,
-                  ),
-                  const SizedBox(height: 14),
-
-                  // ── Priorité ──
-                  Text('Priorité', style: AppTextStyles.fieldLabel),
-                  const SizedBox(height: 8),
-                  Obx(() => Wrap(
-                        spacing: 8,
-                        children: [
-                          _buildPriorityChip('haute', 'Haute', AppColors.error),
-                          _buildPriorityChip('normale', 'Normale', AppColors.secondary),
-                          _buildPriorityChip('basse', 'Basse', AppColors.statusPresent),
-                        ],
-                      )),
-                  const SizedBox(height: 14),
-
-                  // ── Statut ──
-                  Text('Statut', style: AppTextStyles.fieldLabel),
-                  const SizedBox(height: 8),
-                  Obx(() => Wrap(
-                        spacing: 8,
-                        children: [
-                          _buildStatusChip('a_faire', 'À faire', AppColors.primary),
-                          _buildStatusChip('en_cours', 'En cours', AppColors.secondary),
-                          _buildStatusChip('fait', 'Fait', AppColors.statusPresent),
-                        ],
-                      )),
-                ]),
-                const SizedBox(height: 16),
-
-                // ── Assignation employé (US-M37) ──
-                _card(children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.person_pin_outlined,
-                          color: AppColors.primary, size: 20),
-                      const SizedBox(width: 8),
-                      Text('Assigné à', style: AppTextStyles.sectionTitle),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Obx(() {
-                    if (controller.employeesStatus.value == 'loading') {
-                      return const SizedBox(
-                        height: 40,
-                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                      );
-                    }
-                    if (controller.availableEmployees.isEmpty) {
-                      return Text('Aucun professionnel disponible.',
-                          style: AppTextStyles.bodySmall);
-                    }
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: AppColors.fieldBackground,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<int?>(
-                          value: controller.assigneA.value,
-                          isExpanded: true,
-                          hint: Text('Sélectionner un intervenant',
-                              style: AppTextStyles.fieldHint),
-                          dropdownColor: AppColors.surface,
-                          borderRadius: BorderRadius.circular(14),
-                          items: [
-                            const DropdownMenuItem<int?>(
-                              value: null,
-                              child: Text('— Non assigné —'),
-                            ),
-                            ...controller.availableEmployees.map(
-                              (emp) => DropdownMenuItem<int?>(
-                                value: emp.id,
-                                child: Text(emp.fullName),
-                              ),
-                            ),
-                          ],
-                          onChanged: (val) => controller.assigneA.value = val,
-                        ),
-                      ),
-                    );
-                  }),
-                ]),
-                const SizedBox(height: 16),
-
-                // ── Date d'échéance (US-M38) ──
-                _card(children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.event_outlined,
-                          color: AppColors.primary, size: 20),
-                      const SizedBox(width: 8),
-                      Text('Date d\'échéance', style: AppTextStyles.sectionTitle),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Obx(() => InkWell(
-                        onTap: () async {
-                          final initial = controller.dateEcheance.value.isNotEmpty
-                              ? DateTime.tryParse(controller.dateEcheance.value) ?? DateTime.now()
-                              : DateTime.now().add(const Duration(days: 7));
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: initial,
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-                          );
-                          if (picked != null) {
-                            controller.dateEcheance.value =
-                                '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.fieldBackground,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                controller.dateEcheance.value.isEmpty
-                                    ? 'Aucune échéance définie'
-                                    : controller.dateEcheance.value,
-                                style: AppTextStyles.bodyMedium.copyWith(
-                                  color: controller.dateEcheance.value.isEmpty
-                                      ? AppColors.textSecondary
-                                      : AppColors.textPrimary,
-                                ),
-                              ),
-                              const Icon(Icons.calendar_today_outlined,
-                                  color: AppColors.primary, size: 18),
-                            ],
-                          ),
-                        ),
-                      )),
-                  if (controller.dateEcheance.value.isNotEmpty)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => controller.dateEcheance.value = '',
-                        child: Text('Effacer',
-                            style: TextStyle(color: AppColors.error)),
-                      ),
+                // ── Assignation Employé (US-M37) ──
+                IosCard(
+                  title: 'Assignation',
+                  subtitle: 'Professionnel en charge de cette action',
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Obx(() {
+                        if (controller.employeesStatus.value == 'loading') {
+                          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                        }
+                        return SearchablePickerField<dynamic>(
+                          label: 'Assigner à',
+                          hintText: 'Sélectionner un praticien...',
+                          title: 'Assigner la tâche à',
+                          leadingIcon: Icons.badge_outlined,
+                          selectedValue: controller.assigneA.value,
+                          items: controller.availableEmployees.map((emp) {
+                            return SearchableItem<dynamic>(
+                              value: emp.id,
+                              label: emp.fullName,
+                              subtitle: emp.roleLabel,
+                              initials: emp.initials,
+                            );
+                          }).toList(),
+                          onSingleChanged: (val) => controller.assigneA.value = val,
+                        );
+                      }),
                     ),
-                ]),
-                const SizedBox(height: 24),
+                  ],
+                ),
 
-                // ── Actions ──
-                Obx(() => AppButton(
-                      label: controller.isNew ? 'Créer la tâche' : 'Enregistrer',
-                      isLoading: controller.status.value == 'loading',
-                      onPressed: () => controller.saveTache(),
-                    )),
-                if (!controller.isNew) ...[
-                  const SizedBox(height: 12),
-                  AppButton(
-                    label: 'Supprimer la tâche',
-                    isDestructive: true,
-                    onPressed: () => controller.deleteTache(),
+                // ── Lien Patient Optionnel ──
+                IosCard(
+                  title: 'Patient Lié (Optionnel)',
+                  subtitle: 'Associer cette tâche à un suivi clinique',
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Obx(() {
+                        return SearchablePickerField<dynamic>(
+                          label: 'Patient concerné',
+                          hintText: 'Rechercher et associer un patient...',
+                          title: 'Associer un patient',
+                          leadingIcon: Icons.person_search_rounded,
+                          selectedValue: controller.patientId.value,
+                          items: controller.availablePatients.map((p) {
+                            return SearchableItem<dynamic>(
+                              value: p.id,
+                              label: p.fullName,
+                              subtitle: '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}',
+                              initials: p.initials,
+                            );
+                          }).toList(),
+                          onSingleChanged: (val) => controller.patientId.value = val,
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+
+                // ── Échéance ──
+                IosCard(
+                  title: 'Échéance',
+                  children: [
+                    IosCardTile(
+                      leading: const Icon(Icons.event_outlined, color: AppColors.primary, size: 20),
+                      title: 'Date d\'échéance',
+                      subtitle: controller.dateEcheance.value.isEmpty
+                          ? 'Aucune date fixée'
+                          : controller.dateEcheance.value,
+                      showChevron: true,
+                      onTap: () => _pickDate(context),
+                    ),
+                  ],
+                ),
+
+                // ── Bouton Enregistrer & Supprimer ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Column(
+                    children: [
+                      AppButton(
+                        label: controller.isNew ? 'Créer la tâche' : 'Mettre à jour la tâche',
+                        icon: Icons.check_circle_outline_rounded,
+                        onPressed: () => controller.saveTache(),
+                      ),
+                      if (!controller.isNew) ...[
+                        const SizedBox(height: 12),
+                        TextButton.icon(
+                          onPressed: () => _confirmDelete(context),
+                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+                          label: Text('Supprimer cette tâche', style: AppTextStyles.buttonDestructive),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-                const SizedBox(height: 20),
+                ),
               ],
             ),
           );
@@ -245,60 +234,43 @@ class DetailTacheView extends GetView<DetailTacheController> {
     );
   }
 
-  Widget _card({required List<Widget> children}) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+  Future<void> _pickDate(BuildContext context) async {
+    final initial = controller.dateEcheance.value.isNotEmpty
+        ? DateTime.tryParse(controller.dateEcheance.value) ?? DateTime.now()
+        : DateTime.now().add(const Duration(days: 7));
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
     );
+    if (picked != null) {
+      controller.dateEcheance.value =
+          '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+    }
   }
 
-  Widget _buildPriorityChip(String value, String label, Color color) {
-    final isSelected = controller.priorite.value == value;
-    return InkWell(
-      onTap: () => controller.priorite.value = value,
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? color : AppColors.fieldBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? color : AppColors.border),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.badge.copyWith(
-            color: isSelected ? Colors.white : AppColors.textPrimary,
+  void _confirmDelete(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('Supprimer la tâche'),
+        content: const Text('Êtes-vous sûr de vouloir supprimer cette tâche ?'),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusChip(String value, String label, Color color) {
-    final isSelected = controller.statut.value == value;
-    return InkWell(
-      onTap: () => controller.statut.value = value,
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? color : AppColors.fieldBackground,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isSelected ? color : AppColors.border),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.badge.copyWith(
-            color: isSelected ? Colors.white : AppColors.textPrimary,
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.deleteTache();
+            },
+            child: const Text('Supprimer'),
           ),
-        ),
+        ],
       ),
     );
   }

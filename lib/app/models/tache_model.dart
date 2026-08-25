@@ -41,8 +41,8 @@ class TacheModel {
       statut: json['statut'] as String? ?? 'a_faire',
       priorite: json['priorite'] as String? ?? 'normale',
       dateEcheance: json['date_echeance'] as String?,
-      patient: json['patient'] as Map<String, dynamic>?,
-      assigneEmployee: json['assigne_employee'] as Map<String, dynamic>?,
+      patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
+      assigneEmployee: json['assigne_employee'] is Map ? Map<String, dynamic>.from(json['assigne_employee'] as Map) : null,
     );
   }
 

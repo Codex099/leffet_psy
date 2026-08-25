@@ -84,7 +84,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: controller.plans.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        separatorBuilder: (ctx, idx) => const SizedBox(width: 8),
                         itemBuilder: (context, i) {
                           final plan = controller.plans[i];
                           final isSelected = controller.selectedPlan.value?.id == plan.id;
@@ -372,7 +372,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             const SizedBox(height: 12),
             Obx(() => DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Statut'),
-                  initialValue: controller.statutPlan.value,
+                  value: controller.statutPlan.value,
                   items: const [
                     DropdownMenuItem(value: 'actif', child: Text('Actif')),
                     DropdownMenuItem(value: 'suspendu', child: Text('Suspendu')),
@@ -428,7 +428,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             const SizedBox(height: 12),
             Obx(() => DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Statut'),
-                  initialValue: controller.statutEtape.value,
+                  value: controller.statutEtape.value,
                   items: const [
                     DropdownMenuItem(value: 'a_faire', child: Text('À faire')),
                     DropdownMenuItem(value: 'en_cours', child: Text('En cours')),

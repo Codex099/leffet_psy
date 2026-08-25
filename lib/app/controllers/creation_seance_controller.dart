@@ -1,52 +1,77 @@
 import 'package:get/get.dart';
 import '../models/patient_model.dart';
 import '../models/groupe_model.dart';
+import '../models/employee_model.dart';
 import '../services/patient_service.dart';
 import '../services/groupe_service.dart';
+import '../services/employee_service.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
+import '../utils/json_utils.dart';
 
 class CreationSeanceController extends GetxController {
   final SeanceService _seanceService = SeanceService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
   final PatientService _patientService = PatientService();
   final GroupeService _groupeService = GroupeService();
+  final EmployeeService _employeeService = EmployeeService();
 
   final typeSeance = 'individuelle'.obs; // 'individuelle' | 'groupe'
   final patients = <PatientModel>[].obs;
   final groupes = <GroupeModel>[].obs;
+  final employees = <EmployeeModel>[].obs;
 
-  final selectedPatientId = RxnInt();
-  final selectedGroupeId = RxnInt();
+  final selectedPatientId = Rx<dynamic>(null);
+  final selectedGroupeId = Rx<dynamic>(null);
+  final selectedEmployeeIds = <dynamic>[].obs;
+
   final date = ''.obs;
   final heureDebut = '10:00'.obs;
   final heureFin = '10:45'.obs;
 
   final RxString status = 'loading'.obs;
+  final RxString errorMessage = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    date.value = DateTime.now().toIso8601String().split('T').first;
+    final now = DateTime.now();
+    date.value = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
     loadOptions();
   }
 
   Future<void> loadOptions() async {
     try {
       status.value = 'loading';
-      patients.value = await _patientService.getPatients(actif: true);
-      groupes.value = await _groupeService.getGroupes();
+      final fetchedPatients = await _patientService.getPatients(actif: true);
+      final fetchedGroupes = await _groupeService.getGroupes();
+      final fetchedEmployees = await _employeeService.getEmployees();
+
+      patients.value = fetchedPatients;
+      groupes.value = fetchedGroupes;
+      employees.value = fetchedEmployees;
+
       if (patients.isNotEmpty) selectedPatientId.value = patients.first.id;
       if (groupes.isNotEmpty) selectedGroupeId.value = groupes.first.id;
       status.value = 'success';
     } catch (e) {
+      errorMessage.value = e.toString();
       status.value = 'error';
     }
   }
 
+  void toggleEmployee(dynamic employeeId) {
+    final parsed = parseId(employeeId);
+    if (selectedEmployeeIds.contains(parsed)) {
+      selectedEmployeeIds.remove(parsed);
+    } else {
+      selectedEmployeeIds.add(parsed);
+    }
+  }
+
   Future<void> createSeance() async {
-    if (date.value.isEmpty || heureDebut.value.isEmpty) {
-      Get.snackbar('Erreur', 'Veuillez remplir tous les champs obligatoires');
+    if (date.value.isEmpty || heureDebut.value.isEmpty || heureFin.value.isEmpty) {
+      Get.snackbar('Champs requis', 'Veuillez renseigner la date et les horaires de la séance.', snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -54,36 +79,46 @@ class CreationSeanceController extends GetxController {
       status.value = 'loading';
       if (typeSeance.value == 'individuelle') {
         if (selectedPatientId.value == null) {
-          Get.snackbar('Erreur', 'Veuillez sélectionner un patient');
+          Get.snackbar('Sélection requise', 'Veuillez sélectionner un patient.', snackPosition: SnackPosition.BOTTOM);
           status.value = 'success';
           return;
         }
-        await _seanceService.createSeance({
+
+        final payload = {
           'patient_id': selectedPatientId.value,
           'date': date.value,
           'heure_debut': heureDebut.value,
           'heure_fin': heureFin.value,
-          'statut': 'planifiee',
-        });
+          'statut': 'prevue',
+          if (selectedEmployeeIds.isNotEmpty) 'employee_ids': selectedEmployeeIds.toList(),
+        };
+
+        await _seanceService.createSeance(payload);
       } else {
         if (selectedGroupeId.value == null) {
-          Get.snackbar('Erreur', 'Veuillez sélectionner un groupe');
+          Get.snackbar('Sélection requise', 'Veuillez sélectionner un groupe.', snackPosition: SnackPosition.BOTTOM);
           status.value = 'success';
           return;
         }
-        await _seanceGroupeService.createSeanceGroupe({
+
+        final payload = {
           'groupe_id': selectedGroupeId.value,
           'date': date.value,
           'heure_debut': heureDebut.value,
           'heure_fin': heureFin.value,
-          'statut': 'planifiee',
-        });
+          'statut': 'prevue',
+          if (selectedEmployeeIds.isNotEmpty) 'employe_id': selectedEmployeeIds.first,
+        };
+
+        await _seanceGroupeService.createSeanceGroupe(payload);
       }
-      Get.back();
-      Get.snackbar('Succès', 'Séance planifiée avec succès');
+
+      status.value = 'success';
+      Get.back(result: true);
+      Get.snackbar('Succès', 'Séance planifiée avec succès', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       status.value = 'success';
-      Get.snackbar('Erreur', 'Impossible de planifier la séance');
+      Get.snackbar('Erreur', 'Impossible de planifier la séance : $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

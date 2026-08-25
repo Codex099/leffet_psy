@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import '../../controllers/planning_recurrent_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
 import '../../widgets/state_placeholder.dart';
 
 class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
@@ -17,7 +17,11 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
 
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+      appBar: const CreativeAppBar(
+        title: 'Planning Récurrent',
+        subtitle: 'Créneaux & Périodicité',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {
@@ -31,30 +35,10 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('PLANNING RÉCURRENT', style: AppTextStyles.sectionKicker),
-                        Text('Planning récurrent', style: AppTextStyles.screenTitleMedium),
-                        Text('Lucas Martin · 7 ans', style: AppTextStyles.bodySmall),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
                 // Jours de la semaine card
                 Container(
                   padding: const EdgeInsets.all(20),

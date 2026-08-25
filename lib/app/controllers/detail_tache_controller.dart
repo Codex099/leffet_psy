@@ -1,13 +1,16 @@
 import 'package:get/get.dart';
 import '../models/employee_model.dart';
+import '../models/patient_model.dart';
 import '../models/tache_model.dart';
 import '../services/employee_service.dart';
+import '../services/patient_service.dart';
 import '../services/tache_service.dart';
 import '../utils/json_utils.dart';
 
 class DetailTacheController extends GetxController {
   final TacheService _tacheService = TacheService();
   final EmployeeService _employeeService = EmployeeService();
+  final PatientService _patientService = PatientService();
 
   final Rx<TacheModel?> tache = Rx<TacheModel?>(null);
   final RxString status = 'loading'.obs;
@@ -20,13 +23,13 @@ class DetailTacheController extends GetxController {
   final statut = 'a_faire'.obs;
   final dateEcheance = ''.obs;
 
-  // Assignee (maps to TacheModel.assigneA / backend key 'assigne_a')
-  final RxnInt assigneA = RxnInt();
+  // Assignee & Patient
+  final Rx<dynamic> assigneA = Rx<dynamic>(null);
   final RxList<EmployeeModel> availableEmployees = <EmployeeModel>[].obs;
   final RxString employeesStatus = 'loading'.obs;
 
-  // Patient context (optionnel — passé si tâche liée à un patient)
-  final RxnInt patientId = RxnInt();
+  final Rx<dynamic> patientId = Rx<dynamic>(null);
+  final RxList<PatientModel> availablePatients = <PatientModel>[].obs;
 
   bool get isNew => tache.value == null;
 
@@ -34,6 +37,7 @@ class DetailTacheController extends GetxController {
   void onInit() {
     super.onInit();
     _loadEmployees();
+    _loadPatients();
     final id = extractIdParam(Get.arguments, Get.parameters);
     if (id != null) {
       loadTache(id);
@@ -41,8 +45,6 @@ class DetailTacheController extends GetxController {
       status.value = 'success';
     }
   }
-
-  // ── Load ──
 
   Future<void> _loadEmployees() async {
     try {
@@ -53,6 +55,13 @@ class DetailTacheController extends GetxController {
     } catch (_) {
       employeesStatus.value = 'error';
     }
+  }
+
+  Future<void> _loadPatients() async {
+    try {
+      final list = await _patientService.getPatients(actif: true);
+      availablePatients.value = list;
+    } catch (_) {}
   }
 
   Future<void> loadTache(dynamic id) async {
@@ -74,7 +83,7 @@ class DetailTacheController extends GetxController {
     }
   }
 
-  // ── Quick status cycle (depuis la liste de tâches) ──
+  // Quick status cycle
   static const _statutOrder = ['a_faire', 'en_cours', 'fait'];
 
   Future<void> cycleStatut() async {
@@ -111,8 +120,6 @@ class DetailTacheController extends GetxController {
       default: return s;
     }
   }
-
-  // ── Save ──
 
   Future<void> saveTache() async {
     if (titre.value.trim().isEmpty) {
@@ -156,13 +163,11 @@ class DetailTacheController extends GetxController {
     }
   }
 
-  // ── Helpers pour la vue ──
-
   String get employeeName {
-    if (assigneA.value == null) return '—';
+    if (assigneA.value == null) return 'Non assignée';
     return availableEmployees
             .firstWhereOrNull((e) => e.id == assigneA.value)
             ?.fullName ??
-        '—';
+        'Non assignée';
   }
 }

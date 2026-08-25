@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import '../../controllers/compte_rendu_seance_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
 import '../../widgets/media_picker_widget.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
@@ -17,7 +17,11 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
+      appBar: const CreativeAppBar(
+        title: 'Compte-rendu Séance',
+        subtitle: 'Bilan Clinique',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {
@@ -31,38 +35,10 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Rapport de séance', style: AppTextStyles.screenTitleMedium),
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textSecondary),
-                            const SizedBox(width: 4),
-                            Text('Jeudi 18 juillet 2026', style: AppTextStyles.bodySmall),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.access_time_rounded, size: 14, color: AppColors.textSecondary),
-                            const SizedBox(width: 4),
-                            Text('14:30 — 15:15', style: AppTextStyles.bodySmall),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
                 StatusBadge.active(label: 'Séance individuelle'),
                 const SizedBox(height: 16),
 
@@ -107,13 +83,14 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: DropdownButtonHideUnderline(
-                          child: DropdownButton<int>(
+                          child: DropdownButton<dynamic>(
                             hint: Text('Sélectionner une étape (optionnel)', style: AppTextStyles.fieldHint),
                             isExpanded: true,
                             value: controller.etapePlanId.value,
                             items: const [
-                              DropdownMenuItem(value: 1, child: Text('Étape 1 : Évaluation initiale')),
-                              DropdownMenuItem(value: 2, child: Text('Étape 2 : Suivi émotionnel')),
+                              DropdownMenuItem<dynamic>(value: null, child: Text('-- Aucune étape --')),
+                              DropdownMenuItem<dynamic>(value: 1, child: Text('Étape 1 : Évaluation initiale')),
+                              DropdownMenuItem<dynamic>(value: 2, child: Text('Étape 2 : Suivi émotionnel')),
                             ],
                             onChanged: (val) => controller.etapePlanId.value = val,
                           ),

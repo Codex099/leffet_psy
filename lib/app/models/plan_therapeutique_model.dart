@@ -32,7 +32,7 @@ class PlanTherapeutiqueModel {
       creePar: parseNullableInt(json['cree_par']),
       etapes: (json['etapes'] as List<dynamic>?)
           ?.map((e) => EtapePlanTherapeutiqueModel.fromJson(
-              e as Map<String, dynamic>))
+              e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{}))
           .toList(),
     );
   }
@@ -45,6 +45,10 @@ class PlanTherapeutiqueModel {
       if (dateFin != null) 'date_fin': dateFin,
     };
   }
+
+  bool get isActif => statut == 'actif';
+  bool get isSuspendu => statut == 'suspendu';
+  bool get isArchive => statut == 'archive';
 
   int get totalEtapes => etapes?.length ?? 0;
 
@@ -60,18 +64,18 @@ class EtapePlanTherapeutiqueModel {
   final dynamic planId;
   final String titre;
   final String? description;
-  final String statut; // 'a_faire' | 'en_cours' | 'fait' | 'termine'
   final int ordre;
-  final int? creePar;
+  final String statut; // 'a_faire' | 'en_cours' | 'fait'
+  final String? dateFin;
 
   EtapePlanTherapeutiqueModel({
     required this.id,
     required this.planId,
     required this.titre,
     this.description,
-    required this.statut,
-    required this.ordre,
-    this.creePar,
+    this.ordre = 0,
+    this.statut = 'a_faire',
+    this.dateFin,
   });
 
   factory EtapePlanTherapeutiqueModel.fromJson(Map<String, dynamic> json) {
@@ -80,9 +84,9 @@ class EtapePlanTherapeutiqueModel {
       planId: parseId(json['plan_id']),
       titre: json['titre'] as String? ?? '',
       description: json['description'] as String?,
-      statut: json['statut'] as String? ?? 'a_faire',
       ordre: parseInt(json['ordre']),
-      creePar: parseNullableInt(json['cree_par']),
+      statut: json['statut'] as String? ?? 'a_faire',
+      dateFin: json['date_fin'] as String?,
     );
   }
 
@@ -90,10 +94,16 @@ class EtapePlanTherapeutiqueModel {
     return {
       'titre': titre,
       if (description != null) 'description': description,
-      'statut': statut,
       'ordre': ordre,
+      'statut': statut,
+      if (dateFin != null) 'date_fin': dateFin,
     };
   }
+
+  bool get isFait => statut == 'fait' || statut == 'termine';
+  bool get isTermine => isFait;
+  bool get isEnCours => statut == 'en_cours';
+  bool get isAFaire => statut == 'a_faire';
 
   String get statutLabel {
     switch (statut) {
@@ -108,10 +118,36 @@ class EtapePlanTherapeutiqueModel {
         return statut;
     }
   }
+}
 
-  bool get isTermine => statut == 'fait' || statut == 'termine';
-  bool get isEnCours => statut == 'en_cours';
-  bool get isAFaire => statut == 'a_faire';
+class ObjectifEtapeModel {
+  final dynamic id;
+  final dynamic etapeId;
+  final String description;
+  final bool atteint;
+
+  ObjectifEtapeModel({
+    required this.id,
+    required this.etapeId,
+    required this.description,
+    this.atteint = false,
+  });
+
+  factory ObjectifEtapeModel.fromJson(Map<String, dynamic> json) {
+    return ObjectifEtapeModel(
+      id: parseId(json['id']),
+      etapeId: parseId(json['etape_id']),
+      description: json['description'] as String? ?? '',
+      atteint: json['atteint'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'description': description,
+      'atteint': atteint,
+    };
+  }
 }
 
 class NotePatientModel {
@@ -146,10 +182,10 @@ class NotePatientModel {
       seanceGroupeId: parseId(json['seance_groupe_id']),
       contenu: json['contenu'] as String? ?? '',
       medias: (json['medias'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map((e) => e.toString())
           .toList(),
       dateCreation: json['date_creation'] as String?,
-      auteur: json['auteur'] as Map<String, dynamic>?,
+      auteur: json['auteur'] is Map ? Map<String, dynamic>.from(json['auteur'] as Map) : null,
     );
   }
 

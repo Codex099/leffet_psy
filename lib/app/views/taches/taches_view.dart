@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/taches_controller.dart';
+import '../../models/tache_model.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/clinical_decorations.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/ios_card.dart';
+import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/state_placeholder.dart';
 
 class TachesView extends GetView<TachesController> {
@@ -14,243 +20,146 @@ class TachesView extends GetView<TachesController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed(AppRoutes.detailTache),
-        child: const Icon(Icons.add),
+      extendBody: true,
+      appBar: CreativeAppBar(
+        title: 'Tâches & Actions',
+        subtitle: 'Suivi Clinique',
+        showBackButton: true,
+        actions: [
+          BouncyTap(
+            onTap: () => Get.toNamed(AppRoutes.detailTache),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.add_task_rounded,
+                size: 20,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
       ),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          children: [
+            // ── Filter Segmented Control (Assignées à moi / Toutes) ──
+            Obx(() => IosSegmentedControl<bool>(
+                  segments: const {
+                    true: 'Mes tâches',
+                    false: 'Toutes les tâches',
+                  },
+                  selectedValue: controller.filterAssignesAMoi.value,
+                  onValueChanged: (val) => controller.toggleFilter(val),
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                )),
+
+            // ── Content / List ──
+            Expanded(
+              child: Obx(() {
+                if (controller.status.value == 'loading') {
+                  return StatePlaceholder.loading();
+                }
+                if (controller.status.value == 'error') {
+                  return StatePlaceholder.error(
+                    message: controller.errorMessage.value,
+                    onAction: () => controller.loadTaches(),
+                  );
+                }
+                if (controller.status.value == 'empty') {
+                  return StatePlaceholder.empty(
+                    title: 'Aucune tâche pour le moment',
+                    message: 'Créez une tâche pour suivre les actions à réaliser.',
+                    actionLabel: '+ Nouvelle tâche',
+                    onAction: () => Get.toNamed(AppRoutes.detailTache),
+                  );
+                }
+
+                return RefreshIndicator(
+                  onRefresh: () => controller.refreshData(),
+                  color: AppColors.primary,
+                  child: ListView(
+                    padding: const EdgeInsets.only(top: 8, bottom: 120),
                     children: [
-                      Text('TÂCHES', style: AppTextStyles.sectionKicker),
-                      Text('Liste des tâches', style: AppTextStyles.screenTitleMedium),
-                      Text('Suivi des actions cliniques et administratives', style: AppTextStyles.bodySmall),
+                      if (controller.tachesAFaire.isNotEmpty)
+                        _buildCategorySection('À faire', controller.tachesAFaire, AppColors.accentCoral),
+                      if (controller.tachesEnCours.isNotEmpty)
+                        _buildCategorySection('En cours', controller.tachesEnCours, AppColors.primary),
+                      if (controller.tachesFait.isNotEmpty)
+                        _buildCategorySection('Terminées', controller.tachesFait, AppColors.secondary),
                     ],
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () => Get.toNamed(AppRoutes.detailTache),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Ajouter une tâche'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      minimumSize: const Size(140, 40),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Toggle filter Assignées à moi / Toutes
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: AppColors.softShadow,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Assignées à moi', style: AppTextStyles.bodyMedium),
-                    Obx(() => Switch(
-                          value: controller.filterAssignesAMoi.value,
-                          onChanged: (val) => controller.toggleFilter(val),
-                        )),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Content Lists / Categories
-              Expanded(
-                child: Obx(() {
-                  if (controller.status.value == 'loading') {
-                    return StatePlaceholder.loading();
-                  }
-                  if (controller.status.value == 'error') {
-                    return StatePlaceholder.error(
-                      message: controller.errorMessage.value,
-                      onAction: () => controller.loadTaches(),
-                    );
-                  }
-                  if (controller.status.value == 'empty') {
-                    return StatePlaceholder.empty(
-                      title: 'Aucune tâche pour le moment',
-                      message: 'Créez une tâche pour suivre les actions à réaliser.',
-                      actionLabel: '+ Ajouter une tâche',
-                      onAction: () => Get.toNamed(AppRoutes.detailTache),
-                    );
-                  }
-
-                  return RefreshIndicator(
-                    onRefresh: () => controller.refreshData(),
-                    color: AppColors.primary,
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildCategorySection('À faire', controller.tachesAFaire, AppColors.primary),
-                          const SizedBox(height: 16),
-                          _buildCategorySection('En cours', controller.tachesEnCours, AppColors.secondary),
-                          const SizedBox(height: 16),
-                          _buildCategorySection('Fait', controller.tachesFait, AppColors.statusPresent),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          ),
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildCategorySection(String title, List<dynamic> list, Color dotColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
-                ),
-                const SizedBox(width: 8),
-                Text(title, style: AppTextStyles.sectionTitle),
-              ],
-            ),
-            Text('${list.length} tâches', style: AppTextStyles.bodySmall),
-          ],
-        ),
-        const SizedBox(height: 10),
-        if (list.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: Text('Aucune tâche dans cette catégorie', style: AppTextStyles.bodySmall),
-          )
-        else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: list.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final t = list[index];
-              return _buildTacheCard(t);
-            },
-          ),
-      ],
+  Widget _buildCategorySection(String title, List<TacheModel> list, Color dotColor) {
+    return IosCard(
+      title: '$title (${list.length})',
+      children: list.map((t) => _buildTacheTile(t)).toList(),
     );
   }
 
-  Widget _buildTacheCard(dynamic t) {
-    final Color statutColor = t.statut == 'fait'
-        ? AppColors.statusPresent
-        : t.statut == 'en_cours'
-            ? AppColors.secondary
-            : AppColors.primary;
+  Widget _buildTacheTile(TacheModel t) {
+    final bool isDone = t.statut == 'fait';
+    final Color prioColor = t.priorite == 'haute'
+        ? AppColors.accentCoral
+        : t.priorite == 'normale'
+            ? AppColors.primary
+            : AppColors.secondary;
 
-    return InkWell(
-      onTap: () => Get.toNamed(AppRoutes.detailTache, arguments: t.id),
-      onLongPress: () async {
-        // Cycle rapide du statut sans ouvrir l'écran
-        final order = ['a_faire', 'en_cours', 'fait'];
-        final idx = order.indexOf(t.statut);
-        final next = order[(idx + 1) % order.length];
-        final labels = {'a_faire': 'À faire', 'en_cours': 'En cours', 'fait': 'Fait'};
-        final confirm = await Get.dialog<bool>(
-          AlertDialog(
-            title: const Text('Changer le statut'),
-            content: Text('Passer « ${t.titre} » en "${labels[next]}" ?'),
-            actions: [
-              TextButton(onPressed: () => Get.back(result: false), child: const Text('Annuler')),
-              ElevatedButton(onPressed: () => Get.back(result: true), child: const Text('Confirmer')),
-            ],
+    return IosCardTile(
+      leading: InkWell(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          final nextStatut = isDone ? 'a_faire' : 'fait';
+          controller.updateStatutFromList(t.id, nextStatut);
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isDone ? AppColors.iosGreen : Colors.transparent,
+            border: Border.all(
+              color: isDone ? AppColors.iosGreen : AppColors.iosSystemGray3,
+              width: 1.8,
+            ),
           ),
-        );
-        if (confirm == true) {
-          await controller.updateStatutFromList(t.id, next);
-        }
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
+          child: isDone
+              ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+              : null,
+        ),
+      ),
+      title: t.titre,
+      subtitle: "${t.description != null && t.description!.isNotEmpty ? '${t.description!} · ' : ''}${t.dateEcheance != null ? 'Échéance : ${t.dateEcheance}' : ''}",
+      showChevron: true,
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.cardShadow,
+          color: prioColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(6),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(t.titre,
-                      style: AppTextStyles.cardName,
-                      overflow: TextOverflow.ellipsis),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statutColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    t.prioriteLabel,
-                    style: AppTextStyles.badge.copyWith(color: statutColor),
-                  ),
-                ),
-              ],
-            ),
-            if (t.description != null && t.description!.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(t.description!,
-                  style: AppTextStyles.bodySmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis),
-            ],
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.touch_app_outlined,
-                    size: 12, color: AppColors.textSecondary),
-                const SizedBox(width: 4),
-                Text('Appui long pour changer le statut',
-                    style: AppTextStyles.bodySmall
-                        .copyWith(fontSize: 10, color: AppColors.textSecondary)),
-              ],
-            ),
-          ],
+        child: Text(
+          t.prioriteLabel,
+          style: AppTextStyles.iosCaption1.copyWith(
+            color: prioColor,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
+      onTap: () => Get.toNamed(AppRoutes.detailTache, arguments: t.id),
     );
   }
 }
-

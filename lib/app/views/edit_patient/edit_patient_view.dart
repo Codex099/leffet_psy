@@ -3,9 +3,10 @@ import 'package:get/get.dart';
 import '../../controllers/edit_patient_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/searchable_picker.dart';
 import '../../widgets/state_placeholder.dart';
 
 class EditPatientView extends GetView<EditPatientController> {
@@ -15,58 +16,38 @@ class EditPatientView extends GetView<EditPatientController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+      appBar: CreativeAppBar(
+        title: controller.patientId == null ? 'Nouveau Patient' : 'Édition Patient',
+        subtitle: 'Dossier Clinique',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // ── Header ──
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 12, 20, 0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => Get.back(),
-                  ),
-                  const SizedBox(width: 4),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('ADMIN', style: AppTextStyles.sectionKicker),
-                      Text(
-                        controller.patientId == null
-                            ? 'Nouveau patient'
-                            : 'Édition patient',
-                        style: AppTextStyles.screenTitleMedium,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
             // ── Step Tabs ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Obx(() => Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border, width: 0.8),
                       boxShadow: AppColors.softShadow,
                     ),
                     child: Row(
                       children: [
-                        _buildStepTab('Perso', 1),
-                        _buildStepTab('Médical', 2),
-                        _buildStepTab('Tuteur', 3),
-                        _buildStepTab('Fin', 4),
+                        _buildStepTab('1. Identité', 1),
+                        _buildStepTab('2. Médical', 2),
+                        _buildStepTab('3. Tuteur', 3),
+                        _buildStepTab('4. Bilan', 4),
                       ],
                     ),
                   )),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // ── Step Content ──
             Expanded(
@@ -89,15 +70,18 @@ class EditPatientView extends GetView<EditPatientController> {
               }),
             ),
 
-
             // ── Nav Buttons ──
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Obx(() => Row(
                     children: [
                       if (controller.currentStep.value > 1) ...[
                         Expanded(
                           child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
                             onPressed: () => controller.previousStep(),
                             child: const Text('Précédent'),
                           ),
@@ -110,8 +94,8 @@ class EditPatientView extends GetView<EditPatientController> {
                           label: controller.status.value == 'loading'
                               ? 'En cours...'
                               : controller.currentStep.value == 4
-                                  ? 'Terminer'
-                                  : 'Suivant',
+                                  ? 'Enregistrer le dossier'
+                                  : 'Étape suivante',
                           isLoading: controller.status.value == 'loading',
                           onPressed: controller.status.value == 'loading'
                               ? null
@@ -480,37 +464,19 @@ class EditPatientView extends GetView<EditPatientController> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Choisir un parent', style: AppTextStyles.fieldLabel),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: AppColors.fieldBackground,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<int?>(
-                        value: controller.selectedParentId.value,
-                        isExpanded: true,
-                        hint: Text('Sélectionner un parent', style: AppTextStyles.fieldHint),
-                        dropdownColor: AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                        items: [
-                          const DropdownMenuItem<int?>(
-                            value: null,
-                            child: Text('-- Aucun parent sélectionné --'),
-                          ),
-                          ...controller.availableParents.map(
-                            (p) => DropdownMenuItem<int?>(
-                              value: p.id,
-                              child: Text(p.fullName),
-                            ),
-                          ),
-                        ],
-                        onChanged: (val) => controller.selectedParentId.value = val,
-                      ),
-                    ),
+                  SearchablePickerField<dynamic>(
+                    label: 'Choisir un parent / tuteur',
+                    hintText: 'Rechercher un parent...',
+                    title: 'Sélectionner un parent',
+                    leadingIcon: Icons.family_restroom_rounded,
+                    selectedValue: controller.selectedParentId.value,
+                    items: controller.availableParents.map((p) => SearchableItem<dynamic>(
+                      value: p.id,
+                      label: p.fullName,
+                      subtitle: p.telephone != null && p.telephone!.isNotEmpty ? p.telephone : 'Parent / Tuteur',
+                      initials: p.initials,
+                    )).toList(),
+                    onSingleChanged: (val) => controller.selectedParentId.value = val,
                   ),
 
                   const SizedBox(height: 14),

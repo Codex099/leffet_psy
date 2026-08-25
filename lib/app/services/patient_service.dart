@@ -73,10 +73,14 @@ class PatientService {
   }
 
   /// PUT /api/patients/{id}/statut — Changer statut actif/inactif
-  Future<void> updateStatut(dynamic id, {required bool estActif}) async {
+  Future<void> updateStatut(dynamic id, {required bool estActif, String? noteDegradation}) async {
+    final payload = <String, dynamic>{'est_actif': estActif};
+    if (noteDegradation != null && noteDegradation.trim().isNotEmpty) {
+      payload['note_degradation'] = noteDegradation.trim();
+    }
     await _dio.put(
       ApiConfig.patientStatut(id),
-      data: {'est_actif': estActif},
+      data: payload,
     );
   }
 

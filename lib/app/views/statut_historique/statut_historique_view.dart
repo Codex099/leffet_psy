@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../controllers/statut_historique_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/creative_app_bar.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
 
@@ -14,30 +14,17 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+      appBar: const CreativeAppBar(
+        title: 'Historique des Statuts',
+        subtitle: 'Suivi Clinique & Réactivations',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => Get.back(),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('SUIVI PATIENT', style: AppTextStyles.sectionKicker),
-                      Text('Historique des statuts', style: AppTextStyles.screenTitleMedium),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
               Expanded(
                 child: Obx(() {
                   if (controller.status.value == 'loading') {

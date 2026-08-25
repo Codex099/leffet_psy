@@ -4,13 +4,43 @@ import '../../controllers/edit_groupe_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../utils/json_utils.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
-import '../../widgets/state_placeholder.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/searchable_picker.dart';
 
-class EditGroupeView extends GetView<EditGroupeController> {
+class EditGroupeView extends StatefulWidget {
   const EditGroupeView({super.key});
+
+  @override
+  State<EditGroupeView> createState() => _EditGroupeViewState();
+}
+
+class _EditGroupeViewState extends State<EditGroupeView> {
+  final controller = Get.find<EditGroupeController>();
+  late final TextEditingController _nomCtrl;
+  late final TextEditingController _descCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _nomCtrl = TextEditingController(text: controller.nom.value);
+    _descCtrl = TextEditingController(text: controller.description.value);
+
+    ever(controller.nom, (v) {
+      if (_nomCtrl.text != v) _nomCtrl.text = v;
+    });
+    ever(controller.description, (v) {
+      if (_descCtrl.text != v) _descCtrl.text = v;
+    });
+  }
+
+  @override
+  void dispose() {
+    _nomCtrl.dispose();
+    _descCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,34 +48,17 @@ class EditGroupeView extends GetView<EditGroupeController> {
 
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
+      appBar: CreativeAppBar(
+        title: isEditMode ? 'Modifier le Groupe' : 'Nouveau Groupe',
+        subtitle: 'Atelier Thérapeutique',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header ──
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => Get.back(),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('DÉTAIL DU GROUPE', style: AppTextStyles.sectionKicker),
-                      Text(
-                        isEditMode ? 'Édition Groupe' : 'Créer un groupe',
-                        style: AppTextStyles.screenTitleMedium,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
 
               // ── Infos générales ──
               _card(children: [
@@ -55,7 +68,7 @@ class EditGroupeView extends GetView<EditGroupeController> {
                 AppTextField(
                   label: 'Nom du groupe *',
                   hintText: 'Ex: Groupe Compétences sociales',
-                  initialValue: controller.nom.value,
+                  controller: _nomCtrl,
                   onChanged: (v) => controller.nom.value = v,
                 ),
                 const SizedBox(height: 14),
@@ -63,7 +76,7 @@ class EditGroupeView extends GetView<EditGroupeController> {
                   label: 'Description',
                   hintText: 'Description du groupe...',
                   maxLines: 3,
-                  initialValue: controller.description.value,
+                  controller: _descCtrl,
                   onChanged: (v) => controller.description.value = v,
                 ),
               ]),
@@ -165,7 +178,7 @@ class EditGroupeView extends GetView<EditGroupeController> {
               ]),
               const SizedBox(height: 16),
 
-              // ── Employés assignés (US-M20 — RxSet réactif) ──
+              // ── Employés assignés (SearchablePickerField multi-sélection) ──
               _card(children: [
                 Row(
                   children: [
@@ -175,7 +188,7 @@ class EditGroupeView extends GetView<EditGroupeController> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text('Sélectionnez les intervenants pour ce groupe',
+                Text('Sélectionnez les intervenants avec recherche instantanée',
                     style: AppTextStyles.bodySmall),
                 const SizedBox(height: 12),
                 Obx(() {
@@ -189,64 +202,24 @@ class EditGroupeView extends GetView<EditGroupeController> {
                     return Text('Aucun professionnel disponible',
                         style: AppTextStyles.bodySmall);
                   }
-                  // Lecture du RxSet à l'intérieur du Obx pour la réactivité correcte
-                  final selectedIds = controller.selectedEmployeeIds.toSet();
-                  return Column(
-                    children: controller.availableEmployees.map((emp) {
-                      final isSelected = selectedIds.contains(emp.id);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: InkWell(
-                          onTap: () => controller.toggleEmployee(emp.id),
-                          borderRadius: BorderRadius.circular(12),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppColors.primary.withOpacity(0.08)
-                                  : AppColors.fieldBackground,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color:
-                                    isSelected ? AppColors.primary : Colors.transparent,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: AppColors.secondaryLight,
-                                  child: Text(
-                                    emp.initials,
-                                    style: AppTextStyles.bodySmall.copyWith(
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(emp.fullName,
-                                          style: AppTextStyles.bodyMedium
-                                              .copyWith(fontWeight: FontWeight.w600)),
-                                      Text(emp.roleLabel, style: AppTextStyles.bodySmall),
-                                    ],
-                                  ),
-                                ),
-                                Checkbox(
-                                  value: isSelected,
-                                  onChanged: (_) => controller.toggleEmployee(emp.id),
-                                  activeColor: AppColors.primary,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                  return SearchablePickerField<dynamic>(
+                    label: 'Intervenants',
+                    hintText: 'Rechercher et assigner des professionnels...',
+                    title: 'Intervenants du Groupe',
+                    isMultiSelect: true,
+                    leadingIcon: Icons.badge_outlined,
+                    selectedValues: controller.selectedEmployeeIds.toList(),
+                    items: controller.availableEmployees.map((emp) {
+                      return SearchableItem<dynamic>(
+                        value: emp.id,
+                        label: emp.fullName,
+                        subtitle: emp.roleLabel,
+                        initials: emp.initials,
                       );
                     }).toList(),
+                    onMultiChanged: (vals) {
+                      controller.selectedEmployeeIds.assignAll(vals);
+                    },
                   );
                 }),
               ]),
@@ -496,92 +469,29 @@ class EditGroupeView extends GetView<EditGroupeController> {
   }
 
   void _showPatientPickerSheet(BuildContext context) {
-    showModalBottomSheet(
+    final unassigned = controller.allPatients
+        .where((p) => !controller.isPatientInGroupe(p.id))
+        .toList();
+    if (unassigned.isEmpty) {
+      Get.snackbar('Info', 'Tous les patients actifs sont déjà dans ce groupe.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    SearchablePicker.showMulti<dynamic>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.6,
-          maxChildSize: 0.9,
-          builder: (_, scrollCtrl) {
-            return Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppColors.border,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Ajouter un patient au groupe',
-                      style: AppTextStyles.screenTitleMedium),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: Obx(() {
-                      if (controller.patientsStatus.value == 'loading') {
-                        return StatePlaceholder.loading();
-                      }
-                      final unassigned = controller.allPatients
-                          .where((p) => !controller.isPatientInGroupe(p.id))
-                          .toList();
-                      if (unassigned.isEmpty) {
-                        return StatePlaceholder.empty(
-                          title: 'Tous les patients actifs sont déjà dans ce groupe',
-                          message: '',
-                        );
-                      }
-                      return ListView.separated(
-                        controller: scrollCtrl,
-                        itemCount: unassigned.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
-                        itemBuilder: (_, i) {
-                          final p = unassigned[i];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: AppColors.secondaryLight,
-                              child: Text(
-                                p.initials,
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            title: Text(p.fullName, style: AppTextStyles.cardName),
-                            subtitle: Text(
-                                p.age != null ? '${p.age} ans' : '',
-                                style: AppTextStyles.bodySmall),
-                            trailing: const Icon(Icons.add_circle_outline,
-                                color: AppColors.primary),
-                            onTap: () {
-                              Navigator.pop(ctx);
-                              controller.addPatientToGroupe(p.id);
-                            },
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            tileColor: AppColors.fieldBackground,
-                          );
-                        },
-                      );
-                    }),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
+      title: 'Ajouter des patients au groupe',
+      items: unassigned.map((p) => SearchableItem<dynamic>(
+        value: p.id,
+        label: p.fullName,
+        subtitle: '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}',
+        initials: p.initials,
+      )).toList(),
+      initialSelected: [],
+      onConfirm: (selectedPatientIds) {
+        if (selectedPatientIds.isNotEmpty) {
+          controller.addPatientsToGroupe(selectedPatientIds);
+        }
       },
     );
   }

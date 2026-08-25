@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../controllers/historique_seances_patient_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/creative_app_bar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../models/seance_model.dart';
 
@@ -14,39 +14,14 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+      appBar: const CreativeAppBar(
+        title: 'Historique des Séances',
+        subtitle: 'Consultations & Bilans',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            // Header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: const BoxDecoration(
-                gradient: AppColors.headerGradient,
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                    onPressed: () => Get.back(),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('HISTORIQUE', style: AppTextStyles.sectionKicker),
-                        Text(
-                          'Historique des séances',
-                          style: AppTextStyles.screenTitleMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
             // Filter tabs
             Container(
               color: AppColors.surface,

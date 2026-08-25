@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import '../../controllers/notes_patient_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
 import '../../widgets/media_picker_widget.dart';
 import '../../widgets/state_placeholder.dart';
 
@@ -15,30 +15,17 @@ class NotesPatientView extends GetView<NotesPatientController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+      appBar: const CreativeAppBar(
+        title: 'Notes Cliniques',
+        subtitle: 'Suivi et Évolutions',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => Get.back(),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('NOTES CLINIQUES', style: AppTextStyles.sectionKicker),
-                      Text('Notes du patient', style: AppTextStyles.screenTitleMedium),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
               // Add note card
               Container(
                 padding: const EdgeInsets.all(16),

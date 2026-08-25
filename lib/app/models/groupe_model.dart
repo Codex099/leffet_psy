@@ -26,10 +26,10 @@ class GroupeModel {
       typePlanning: json['type_planning'] as String? ?? 'ponctuel',
       description: json['description'] as String?,
       patients: (json['patients'] as List<dynamic>?)
-          ?.map((e) => e as Map<String, dynamic>)
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
       planningRecurrent: (json['planning_recurrent'] as List<dynamic>?)
-          ?.map((e) => e as Map<String, dynamic>)
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
       employeeIds: (json['employees'] as List<dynamic>?)
           ?.map((e) => parseId(e is Map ? e['id'] : e))
@@ -46,6 +46,9 @@ class GroupeModel {
   }
 
   bool get isFixe => typePlanning == 'fixe';
+  bool get estFixe => isFixe;
+  String get typeLabel => isFixe ? 'Fixe' : 'Ponctuel';
+  int get membresCount => patients?.length ?? 0;
 
   String get initials {
     final words = nom.split(' ');

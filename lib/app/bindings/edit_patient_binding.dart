@@ -4,7 +4,6 @@ import '../controllers/edit_patient_controller.dart';
 class EditPatientBinding extends Bindings {
   @override
   void dependencies() {
-    Get.delete<EditPatientController>(force: true);
-    Get.put<EditPatientController>(EditPatientController());
+    Get.lazyPut<EditPatientController>(() => EditPatientController());
   }
 }

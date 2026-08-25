@@ -11,7 +11,7 @@ class CompteRenduSeanceController extends GetxController {
   final RxString errorMessage = ''.obs;
 
   final descriptionEtat = ''.obs;
-  final etapePlanId = RxnInt();
+  final etapePlanId = Rx<dynamic>(null);
   final medias = <String>[].obs;
 
   dynamic seanceId;

@@ -7,10 +7,10 @@ class ApiConfig {
   // ─── Base URL ──────────────────────────────────────────────────────────────
   /// URL de base du backend FastAPI.
   /// Modifier cette valeur pour pointer vers staging/production.
-  static const String baseUrl = 'https://ferry-documents-spy-automatically.trycloudflare.com';
+  static const String baseUrl = 'http://10.0.2.2:8000';
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────
-  static const int connectTimeoutMs = 10000;
+  static const int connectTimeoutMs = 20000;
   static const int receiveTimeoutMs = 30000;
   static const int sendTimeoutMs = 60000; // Plus long pour les uploads
 

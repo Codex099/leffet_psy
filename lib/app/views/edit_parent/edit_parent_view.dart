@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import '../../controllers/edit_parent_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
 
 class EditParentView extends GetView<EditParentController> {
   const EditParentView({super.key});
@@ -16,38 +16,21 @@ class EditParentView extends GetView<EditParentController> {
 
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
+      appBar: CreativeAppBar(
+        title: isEditMode ? 'Modifier le Parent' : 'Nouveau Parent / Tuteur',
+        subtitle: 'Tuteur Légal & Famille',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading' && isEditMode) {
             return const Center(child: CircularProgressIndicator());
           }
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('GESTION PARENTS', style: AppTextStyles.sectionKicker),
-                        Text(
-                          isEditMode ? 'Édition Parent' : 'Ajout Parent',
-                          style: AppTextStyles.screenTitleMedium,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
 
                 // Error Banner (for 409 and other errors)
                 if (controller.status.value == 'error' && controller.errorMessage.value.isNotEmpty)
@@ -55,9 +38,9 @@ class EditParentView extends GetView<EditParentController> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
+                      color: AppColors.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.error.withOpacity(0.4)),
+                      border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       children: [

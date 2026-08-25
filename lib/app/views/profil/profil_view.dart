@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/profil_controller.dart';
@@ -5,7 +6,12 @@ import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/app_button.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/ios_card.dart';
+import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/status_badge.dart';
 
 class ProfilView extends GetView<ProfilController> {
   const ProfilView({super.key});
@@ -14,238 +20,197 @@ class ProfilView extends GetView<ProfilController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
+      extendBody: true,
+      appBar: const CreativeAppBar(
+        title: 'Mon Espace Praticien',
+        subtitle: 'Profil & Paramètres',
+      ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 3),
-      body: Obx(() {
-        if (controller.status.value == 'loading') {
-          return const StatePlaceholder(type: StatePlaceholderType.loading);
-        }
-        if (controller.status.value == 'error') {
-          return StatePlaceholder.error(
-            message: controller.errorMessage.value,
-            onAction: () => controller.loadProfile(),
-          );
-        }
+      body: SafeArea(
+        bottom: false,
+        child: Obx(() {
+          if (controller.status.value == 'loading') {
+            return const StatePlaceholder(type: StatePlaceholderType.loading);
+          }
+          if (controller.status.value == 'error') {
+            return StatePlaceholder.error(
+              message: controller.errorMessage.value,
+              onAction: () => controller.loadProfile(),
+            );
+          }
 
-        final user = controller.currentUser.value;
+          final user = controller.currentUser.value;
+          final isAdmin = user?.role == 'admin';
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              // Hero Header
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 24),
-                decoration: const BoxDecoration(
-                  gradient: AppColors.headerGradient,
-                ),
-                child: Column(
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(top: 12, bottom: 120),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Carte Profil En-tête iOS ──
+                IosCard(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const SizedBox(width: 40),
-                        Text('Profil utilisateur', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white)),
-                        IconButton(
-                          icon: const Icon(Icons.settings_outlined, color: Colors.white),
-                          onPressed: () {},
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 36,
-                          backgroundColor: AppColors.secondaryLight,
-                          child: Text(
-                            user?.initials ?? 'CM',
-                            style: AppTextStyles.screenTitle.copyWith(color: AppColors.primary),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          PatientAvatar(
+                            initials: user?.initials ?? 'U',
+                            radius: 30,
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(user?.fullName ?? 'Claire Moreau', style: AppTextStyles.cardNameHero),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                user?.roleLabel ?? 'Admin',
-                                style: AppTextStyles.badge.copyWith(color: Colors.white),
-                              ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(user?.fullName ?? 'Utilisateur', style: AppTextStyles.iosTitle2),
+                                const SizedBox(height: 2),
+                                Text('@${user?.username ?? "user"}', style: AppTextStyles.iosFootnote),
+                                const SizedBox(height: 6),
+                                StatusBadge.active(label: user?.roleLabel ?? 'Employé'),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    // Informations de contact card
-                    _buildCard(
-                      title: 'Informations de contact',
-                      icon: Icons.contact_page_outlined,
-                      child: Column(
-                        children: [
-                          _buildContactRow(Icons.email_outlined, 'Email', 'claire.moreau@clinique.fr'),
-                          const SizedBox(height: 12),
-                          _buildContactRow(Icons.phone_outlined, 'Téléphone', user?.telephone ?? '+33 6 12 34 56 78'),
-                          const SizedBox(height: 12),
-                          _buildContactRow(Icons.badge_outlined, 'Rôle', user?.roleLabel ?? 'Admin'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Gestion clinique expandable card
-                    _buildCard(
-                      title: 'Gestion clinique',
-                      icon: Icons.business_outlined,
-                      child: Column(
-                        children: [
-                          _buildNavItemTile(Icons.groups_outlined, 'Groupes', () => Get.toNamed(AppRoutes.groupesListe)),
-                          _buildNavItemTile(Icons.person_outline, 'Séances individuelles', () => Get.toNamed(AppRoutes.agenda)),
-                          _buildNavItemTile(Icons.badge_outlined, 'Employés', () => Get.toNamed(AppRoutes.employesListe)),
-                          _buildNavItemTile(Icons.family_restroom_outlined, 'Parents', () => Get.toNamed(AppRoutes.parentsListe)),
-                          _buildNavItemTile(Icons.task_alt_outlined, 'Tâches', () => Get.toNamed(AppRoutes.taches)),
-                          _buildNavItemTile(Icons.calendar_month_outlined, 'Calendrier administratif', () => Get.toNamed(AppRoutes.calendrier)),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Paramètres du compte card
-                    _buildCard(
-                      title: 'Paramètres du compte',
-                      icon: Icons.tune_outlined,
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.notifications_none_rounded, color: AppColors.primary),
-                                  const SizedBox(width: 12),
-                                  Text('Notifications', style: AppTextStyles.bodyMedium),
-                                ],
-                              ),
-                              Switch(value: true, onChanged: (v) {}),
-                            ],
                           ),
-                          _buildNavItemTile(Icons.lock_outline, 'Sécurité & mot de passe', () {}),
-                          _buildNavItemTile(Icons.language_outlined, 'Langue', () {}, trailingText: 'Français'),
-                          _buildNavItemTile(Icons.help_outline, 'Aide & support', () {}),
                         ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Déconnexion Button
-                    ElevatedButton.icon(
-                      onPressed: () => controller.logout(),
-                      icon: const Icon(Icons.logout_rounded),
-                      label: const Text('Déconnexion'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.error,
-                        minimumSize: const Size(double.infinity, 50),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-        );
-      }),
-    );
-  }
 
-  Widget _buildCard({
-    required String title,
-    required IconData icon,
-    required Widget child,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: AppColors.primary, size: 20),
-              const SizedBox(width: 8),
-              Text(title, style: AppTextStyles.sectionTitle),
-            ],
-          ),
-          const SizedBox(height: 14),
-          child,
-        ],
-      ),
-    );
-  }
+                // ── Coordonnées ──
+                IosCard(
+                  title: 'Coordonnées & Compte',
+                  children: [
+                    IosCardTile(
+                      leading: const Icon(Icons.phone_outlined, color: AppColors.primary, size: 20),
+                      title: 'Téléphone',
+                      subtitle: user?.telephone != null && user!.telephone!.isNotEmpty
+                          ? user.telephone!
+                          : 'Non renseigné',
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.badge_outlined, color: AppColors.primary, size: 20),
+                      title: 'Identifiant système',
+                      subtitle: '${user?.id ?? "—"}',
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.security_rounded, color: AppColors.primary, size: 20),
+                      title: 'Niveau d\'accès',
+                      subtitle: user?.roleLabel ?? 'Standard',
+                    ),
+                  ],
+                ),
 
-  Widget _buildContactRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.fieldBackground,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: AppColors.primary, size: 18),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: AppTextStyles.bodySmall.copyWith(fontSize: 11)),
-            Text(value, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ],
-    );
-  }
+                // ── Modules Cliniques & Raccourcis ──
+                IosCard(
+                  title: 'Gestion Clinique',
+                  children: [
+                    IosCardTile(
+                      leading: const Icon(Icons.groups_outlined, color: AppColors.primary, size: 20),
+                      title: 'Groupes Thérapeutiques',
+                      subtitle: 'Séances collectives et plannings',
+                      showChevron: true,
+                      onTap: () => Get.toNamed(AppRoutes.groupesListe),
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.family_restroom_outlined, color: AppColors.secondary, size: 20),
+                      title: 'Parents & Tuteurs',
+                      subtitle: 'Annuaire des contacts familiaux',
+                      showChevron: true,
+                      onTap: () => Get.toNamed(AppRoutes.parentsListe),
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.task_alt_outlined, color: AppColors.accentCoral, size: 20),
+                      title: 'Tâches & Actions',
+                      subtitle: 'Gestion des todo-lists cliniques',
+                      showChevron: true,
+                      onTap: () => Get.toNamed(AppRoutes.taches),
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.calendar_month_outlined, color: AppColors.primaryLight, size: 20),
+                      title: 'Calendrier Administratif',
+                      subtitle: 'Événements et réunions',
+                      showChevron: true,
+                      onTap: () => Get.toNamed(AppRoutes.calendrier),
+                    ),
+                    if (isAdmin)
+                      IosCardTile(
+                        leading: const Icon(Icons.badge_outlined, color: AppColors.primary, size: 20),
+                        title: 'Gestion de l\'Équipe (Admin)',
+                        subtitle: 'Comptes et droits d\'accès (Admin)',
+                        showChevron: true,
+                        onTap: () => Get.toNamed(AppRoutes.employesListe),
+                      ),
+                  ],
+                ),
 
-  Widget _buildNavItemTile(IconData icon, String title, VoidCallback onTap, {String? trailingText}) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.fieldBackground,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: AppColors.primary, size: 18),
+                // ── Préférences ──
+                IosCard(
+                  title: 'Préférences',
+                  children: [
+                    IosCardTile(
+                      leading: const Icon(Icons.notifications_none_rounded, color: AppColors.primary, size: 20),
+                      title: 'Notifications push',
+                      trailing: Switch.adaptive(
+                        value: true,
+                        activeTrackColor: AppColors.iosGreen,
+                        onChanged: (_) {},
+                      ),
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.language_rounded, color: AppColors.primary, size: 20),
+                      title: 'Langue de l\'application',
+                      trailing: Text('Français', style: AppTextStyles.iosSubhead),
+                      showChevron: true,
+                      onTap: () {},
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.info_outline_rounded, color: AppColors.primary, size: 20),
+                      title: 'Version de l\'application',
+                      trailing: Text('1.0.0 (Build 2026)', style: AppTextStyles.iosFootnote),
+                    ),
+                  ],
+                ),
+
+                // ── Déconnexion (US-M39) ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: AppButton(
+                    label: 'Se déconnecter',
+                    icon: Icons.logout_rounded,
+                    isDestructive: true,
+                    onPressed: () => _confirmLogout(context),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(child: Text(title, style: AppTextStyles.bodyMedium)),
-            if (trailingText != null)
-              Text(trailingText, style: AppTextStyles.bodySmall)
-            else
-              const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
-          ],
-        ),
+          );
+        }),
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => CupertinoAlertDialog(
+        title: const Text('Déconnexion'),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter de votre session PsyCare ?'),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.logout();
+            },
+            child: const Text('Déconnexion'),
+          ),
+        ],
       ),
     );
   }

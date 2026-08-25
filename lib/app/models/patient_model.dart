@@ -45,10 +45,10 @@ class PatientModel {
       dateReactivation: json['date_reactivation'] as String?,
       sexe: json['sexe'] as String?,
       parents: (json['parents'] as List<dynamic>?)
-          ?.map((e) => e as Map<String, dynamic>)
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
       employesAssignes: (json['employes_assignes'] as List<dynamic>?)
-          ?.map((e) => e as Map<String, dynamic>)
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
     );
   }
@@ -120,15 +120,26 @@ class PatientModel {
     try {
       final dob = DateTime.parse(dateNaissance!);
       final now = DateTime.now();
-      int age = now.year - dob.year;
+      int calculatedAge = now.year - dob.year;
       if (now.month < dob.month ||
           (now.month == dob.month && now.day < dob.day)) {
-        age--;
+        calculatedAge--;
       }
-      return age;
+      return calculatedAge;
     } catch (_) {
       return null;
     }
+  }
+
+  bool get actif => estActif;
+  String? get photoUrl => photo;
+
+  String get statutLabel => estActif ? 'Actif' : 'Inactif';
+
+  String? get ageFormatted {
+    final a = age;
+    if (a == null) return null;
+    return '$a ans';
   }
 
   PatientModel copyWith({

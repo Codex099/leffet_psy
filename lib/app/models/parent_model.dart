@@ -83,8 +83,8 @@ class PatientParentModel {
       patientId: parseId(json['patient_id']),
       parentId: parseId(json['parent_id']),
       role: json['role'] as String? ?? 'tuteur',
-      parent: json['parent'] != null
-          ? ParentModel.fromJson(json['parent'] as Map<String, dynamic>)
+      parent: json['parent'] is Map
+          ? ParentModel.fromJson(Map<String, dynamic>.from(json['parent'] as Map))
           : null,
     );
   }

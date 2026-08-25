@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import '../../controllers/compte_rendu_groupe_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
 import '../../widgets/media_picker_widget.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
@@ -16,7 +16,11 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
+      appBar: const CreativeAppBar(
+        title: 'Compte-rendu Groupe',
+        subtitle: 'Atelier Clinique Collectif',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {
@@ -30,28 +34,10 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('COMPTE-RENDU', style: AppTextStyles.sectionKicker),
-                        Text('Compte-rendu de groupe', style: AppTextStyles.screenTitleMedium),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
 
                 // Group summary banner
                 Container(

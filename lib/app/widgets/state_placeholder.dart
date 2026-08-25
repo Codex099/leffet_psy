@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// Composant réutilisable unique pour afficher les états de chargement, d'erreur et vide.
-/// Conforme à la section 7.9 du PRD et observable dans les maquettes (ex: agenda.png, taches.png).
+/// Composant réutilisable pour afficher les états de chargement, d'erreur et vide.
+/// Conforme au design system iOS moderne avec nettoyage automatique des messages d'erreur.
 class StatePlaceholder extends StatelessWidget {
   final StatePlaceholderType type;
   final String? title;
@@ -50,11 +50,41 @@ class StatePlaceholder extends StatelessWidget {
   }) {
     return StatePlaceholder(
       type: StatePlaceholderType.error,
-      title: title ?? 'Erreur réseau',
+      title: title ?? 'Erreur de connexion',
       message: message ?? 'Impossible de charger les données pour le moment.',
       actionLabel: actionLabel ?? 'Réessayer',
       onAction: onAction,
     );
+  }
+
+  static String sanitizeErrorMessage(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      return 'Impossible de charger les données pour le moment.';
+    }
+    if (raw.contains('connection timeout') ||
+        raw.contains('receive timeout') ||
+        raw.contains('Délai d\'attente')) {
+      return 'Le délai d\'attente vers le serveur a expiré. Veuillez vérifier votre connexion internet ou réattaquer la synchronisation.';
+    }
+    if (raw.contains('connection error') ||
+        raw.contains('Impossible de se connecter') ||
+        raw.contains('SocketException')) {
+      return 'Impossible de joindre le serveur clinique. Vérifiez votre accès réseau.';
+    }
+    if (raw.contains('403') || raw.contains('Accès refusé')) {
+      return 'Accès restreint : vous ne disposez pas des droits suffisants pour consulter cette section.';
+    }
+    if (raw.contains('404') || raw.contains('introuvable')) {
+      return 'Les informations demandées n\'ont pas été trouvées.';
+    }
+
+    final clean = raw
+        .replaceAll(RegExp(r'^DioException\s*\[.*?\]:\s*'), '')
+        .replaceAll(RegExp(r'^Exception:\s*'), '')
+        .replaceAll(RegExp(r'Error:\s*.*$'), '')
+        .trim();
+
+    return clean.isNotEmpty ? clean : 'Une anomalie réseau est survenue.';
   }
 
   @override
@@ -69,12 +99,13 @@ class StatePlaceholder extends StatelessWidget {
             children: [
               const CircularProgressIndicator(
                 color: AppColors.primary,
+                strokeWidth: 2.8,
               ),
               if (message != null) ...[
                 const SizedBox(height: 16),
                 Text(
                   message!,
-                  style: AppTextStyles.bodySmall,
+                  style: AppTextStyles.iosSubhead.copyWith(color: AppColors.textSecondary),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -85,19 +116,28 @@ class StatePlaceholder extends StatelessWidget {
     }
 
     final isError = type == StatePlaceholderType.error;
-    final iconColor = isError ? AppColors.error : AppColors.secondary;
-    final iconBgColor = isError ? AppColors.errorLight : AppColors.secondaryLight.withValues(alpha: 0.4);
+    final iconColor = isError ? AppColors.logoCoral : AppColors.secondary;
+    final iconBgColor = isError
+        ? AppColors.logoCoralLight
+        : AppColors.secondaryLight.withValues(alpha: 0.4);
     final iconData = isError ? Icons.wifi_off_rounded : Icons.inbox_rounded;
+    final displayMessage = isError ? sanitizeErrorMessage(message) : message;
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isError
+                  ? AppColors.logoCoral.withValues(alpha: 0.2)
+                  : AppColors.border,
+              width: 1,
+            ),
             boxShadow: AppColors.cardShadow,
           ),
           child: Column(
@@ -105,8 +145,8 @@ class StatePlaceholder extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   color: iconBgColor,
                   shape: BoxShape.circle,
@@ -114,37 +154,47 @@ class StatePlaceholder extends StatelessWidget {
                 child: Icon(
                   iconData,
                   color: iconColor,
-                  size: 32,
+                  size: 28,
                 ),
               ),
               if (title != null) ...[
                 const SizedBox(height: 16),
                 Text(
                   title!,
-                  style: AppTextStyles.emptyStateTitle,
+                  style: AppTextStyles.iosHeadline.copyWith(
+                    color: isError ? AppColors.textPrimary : AppColors.primary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
-              if (message != null) ...[
+              if (displayMessage != null) ...[
                 const SizedBox(height: 8),
                 Text(
-                  message!,
-                  style: AppTextStyles.emptyStateBody,
+                  displayMessage,
+                  style: AppTextStyles.iosSubhead.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
               if (onAction != null && actionLabel != null) ...[
                 const SizedBox(height: 20),
-                ElevatedButton(
+                ElevatedButton.icon(
                   onPressed: onAction,
+                  icon: Icon(
+                    isError ? Icons.refresh_rounded : Icons.add_rounded,
+                    size: 18,
+                  ),
+                  label: Text(actionLabel!),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isError ? AppColors.primary : AppColors.primary,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
                     minimumSize: const Size(160, 44),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
+                      borderRadius: BorderRadius.circular(22),
                     ),
+                    elevation: 0,
                   ),
-                  child: Text(actionLabel!),
                 ),
               ],
             ],

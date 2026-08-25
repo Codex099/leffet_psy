@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/parents_liste_controller.dart';
+import '../../models/parent_model.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/clinical_decorations.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/ios_card.dart';
+import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 
 class ParentsListeView extends GetView<ParentsListeController> {
@@ -14,130 +20,224 @@ class ParentsListeView extends GetView<ParentsListeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed(AppRoutes.editParent),
-        child: const Icon(Icons.add),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => Get.back(),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('GESTION CLINIQUE', style: AppTextStyles.sectionKicker),
-                      Text('Parents', style: AppTextStyles.screenTitleMedium),
-                    ],
-                  ),
-                ],
+      appBar: CreativeAppBar(
+        title: 'Annuaire Parents',
+        subtitle: 'Contacts & Tuteurs',
+        showBackButton: true,
+        actions: [
+          BouncyTap(
+            onTap: () => Get.toNamed(AppRoutes.editParent),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 16),
-
-              // Search bar
-              Container(
+              child: const Icon(
+                Icons.person_add_alt_1_rounded,
+                size: 20,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // iOS Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Container(
+                height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.fieldBackground,
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppColors.iosSystemGray5,
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: TextField(
                   onChanged: (val) => controller.search(val),
+                  style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
-                    hintText: 'Rechercher par nom ou téléphone',
-                    hintStyle: AppTextStyles.fieldHint.copyWith(fontSize: 13),
-                    prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+                    hintText: 'Rechercher un parent (nom, téléphone)...',
+                    hintStyle: AppTextStyles.iosSubhead,
+                    prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.iosSystemGray),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    isDense: true,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+            ),
 
-              // Content / List
-              Expanded(
-                child: Obx(() {
-                  if (controller.status.value == 'loading') {
-                    return StatePlaceholder.loading();
-                  }
-                  if (controller.status.value == 'error') {
-                    return StatePlaceholder.error(
-                      message: controller.errorMessage.value,
-                      onAction: () => controller.loadParents(),
-                    );
-                  }
-                  final list = controller.filteredParents;
-                  if (list.isEmpty) {
-                    return StatePlaceholder.empty(
-                      title: 'Aucun parent trouvé',
-                      message: 'Ajoutez un parent ou ajustez votre recherche.',
-                      actionLabel: '+ Ajouter un parent',
-                      onAction: () => Get.toNamed(AppRoutes.editParent),
-                    );
-                  }
-
-                  return ListView.separated(
-                    itemCount: list.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final parent = list[index];
-                      return _buildParentCard(parent);
-                    },
+            // Content List
+            Expanded(
+              child: Obx(() {
+                if (controller.status.value == 'loading') {
+                  return StatePlaceholder.loading();
+                }
+                if (controller.status.value == 'error') {
+                  return StatePlaceholder.error(
+                    message: controller.errorMessage.value,
+                    onAction: () => controller.loadParents(),
                   );
-                }),
-              ),
+                }
+                
+                // Force reactivity on search query
+                final query = controller.searchQuery.value;
+                final list = controller.filteredParents;
+                
+                if (list.isEmpty) {
+                  return StatePlaceholder.empty(
+                    title: query.isNotEmpty ? 'Aucun résultat' : 'Aucun parent enregistré',
+                    message: query.isNotEmpty
+                        ? 'Aucun parent ne correspond à "$query".'
+                        : 'Ajoutez des parents pour les associer aux fiches des patients.',
+                    actionLabel: '+ Nouveau parent',
+                    onAction: () => Get.toNamed(AppRoutes.editParent),
+                  );
+                }
 
-            ],
-          ),
+                return ListView.builder(
+                  padding: const EdgeInsets.only(top: 6, bottom: 120),
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final parent = list[index];
+                    return IosCard(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      children: [
+                        IosCardTile(
+                          leading: PatientAvatar(
+                            initials: parent.initials,
+                            radius: 20,
+                          ),
+                          title: parent.fullName,
+                          subtitle: parent.telephone != null && parent.telephone!.isNotEmpty
+                              ? parent.telephone
+                              : 'Aucun téléphone renseigné',
+                          showChevron: true,
+                          trailing: parent.telephone != null && parent.telephone!.isNotEmpty
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.iosGreen.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.phone_rounded, size: 14, color: AppColors.iosGreen),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Appeler',
+                                        style: AppTextStyles.iosCaption1.copyWith(
+                                          color: AppColors.iosGreen,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : null,
+                          onTap: () => _showParentDetailSheet(context, parent),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildParentCard(dynamic parent) {
-    return InkWell(
-      onTap: () => Get.toNamed(AppRoutes.editParent, arguments: parent.id),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
+  void _showParentDetailSheet(BuildContext context, ParentModel parent) {
+    HapticFeedback.lightImpact();
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: const BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.cardShadow,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: AppColors.secondaryLight,
-              child: Text(parent.initials, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary)),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(parent.fullName, style: AppTextStyles.cardName),
-                  const SizedBox(height: 4),
-                  Text(parent.telephone ?? 'Pas de numéro enregistré', style: AppTextStyles.bodySmall),
-                ],
+            Center(
+              child: Container(
+                width: 36,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: AppColors.iosSystemGray4,
+                  borderRadius: BorderRadius.circular(3),
+                ),
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                PatientAvatar(initials: parent.initials, radius: 28),
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(parent.fullName, style: AppTextStyles.iosTitle2),
+                    if (parent.etatCivil != null && parent.etatCivil!.isNotEmpty)
+                      Text('État civil : ${parent.etatCivil}', style: AppTextStyles.iosFootnote),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            IosCard(
+              margin: EdgeInsets.zero,
+              children: [
+                IosCardTile(
+                  leading: const Icon(Icons.phone_rounded, color: AppColors.primary, size: 20),
+                  title: 'Téléphone',
+                  subtitle: parent.telephone ?? 'Non renseigné',
+                ),
+                if (parent.adresse != null && parent.adresse!.isNotEmpty)
+                  IosCardTile(
+                    leading: const Icon(Icons.location_on_outlined, color: AppColors.primary, size: 20),
+                    title: 'Adresse',
+                    subtitle: parent.adresse,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Get.back();
+                      Get.toNamed(AppRoutes.editParent, arguments: parent.id);
+                    },
+                    icon: const Icon(Icons.edit_rounded, size: 18),
+                    label: const Text('Modifier'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Get.back(),
+                    child: const Text('Fermer'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
+      isScrollControlled: true,
     );
   }
 }

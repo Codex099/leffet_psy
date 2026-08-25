@@ -181,23 +181,54 @@ class EditGroupeController extends GetxController {
     return groupePatients.any((p) => parseId(p['id'] ?? p['patient_id']) == patientId);
   }
 
-  Future<void> addPatientToGroupe(dynamic patientId) async {
+  Future<void> addPatientsToGroupe(List<dynamic> patientIds) async {
+    if (patientIds.isEmpty) return;
+
     if (groupeId == null) {
-      Get.snackbar('Info', 'Enregistrez le groupe d\'abord avant d\'ajouter des patients.',
+      // Groupe non encore enregistré : ajouter localement à la liste des membres
+      for (final pid in patientIds) {
+        final pat = allPatients.firstWhereOrNull((p) => p.id == pid);
+        if (pat != null && !isPatientInGroupe(pid)) {
+          groupePatients.add({
+            'id': pat.id,
+            'nom': pat.nom,
+            'prenom': pat.prenom,
+          });
+        }
+      }
+      groupePatients.refresh();
+      Get.snackbar('Sélection', '${patientIds.length} patient(s) sélectionné(s) pour ce groupe.',
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
+
     try {
-      await _groupeService.addPatientToGroupe(groupeId!, patientId);
+      status.value = 'loading';
+      for (final pid in patientIds) {
+        try {
+          await _groupeService.addPatientToGroupe(groupeId!, pid);
+        } catch (_) {}
+      }
       await _loadGroupe(groupeId!);
-      Get.snackbar('Succès', 'Patient ajouté au groupe.', snackPosition: SnackPosition.BOTTOM);
+      status.value = 'success';
+      Get.snackbar('Succès', '${patientIds.length} patient(s) ajouté(s) au groupe d\'un seul coup.',
+          snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
+      status.value = 'error';
       Get.snackbar('Erreur', e.toString(), snackPosition: SnackPosition.BOTTOM);
     }
   }
 
+  Future<void> addPatientToGroupe(dynamic patientId) async {
+    await addPatientsToGroupe([patientId]);
+  }
+
   Future<void> removePatientFromGroupe(dynamic patientId) async {
-    if (groupeId == null) return;
+    if (groupeId == null) {
+      groupePatients.removeWhere((p) => parseId(p['id'] ?? p['patient_id']) == patientId);
+      groupePatients.refresh();
+      return;
+    }
     try {
       await _groupeService.removePatientFromGroupe(groupeId!, patientId);
       await _loadGroupe(groupeId!);
@@ -226,12 +257,25 @@ class EditGroupeController extends GetxController {
         if (selectedEmployeeIds.isNotEmpty) 'employee_ids': selectedEmployeeIds.toList(),
       };
 
+      final bool isNewGroup = (groupeId == null);
       GroupeModel saved;
       if (groupeId != null) {
         saved = await _groupeService.updateGroupe(groupeId!, data);
       } else {
         saved = await _groupeService.createGroupe(data);
         groupeId = saved.id;
+      }
+
+      // Si nouveau groupe avec des patients présélectionnés
+      if (isNewGroup && groupePatients.isNotEmpty && groupeId != null) {
+        for (final p in List.from(groupePatients)) {
+          final pid = parseId(p['id'] ?? p['patient_id']);
+          if (pid != null) {
+            try {
+              await _groupeService.addPatientToGroupe(groupeId!, pid);
+            } catch (_) {}
+          }
+        }
       }
 
       // Enregistrement des créneaux récurrents

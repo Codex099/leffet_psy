@@ -34,11 +34,11 @@ class SeanceGroupeModel {
       heureDebut: json['heure_debut'] as String? ?? '',
       heureFin: json['heure_fin'] as String? ?? '',
       statut: json['statut'] as String? ?? 'planifiee',
-      groupe: json['groupe'] as Map<String, dynamic>?,
-      employe: json['employe'] as Map<String, dynamic>?,
+      groupe: json['groupe'] is Map ? Map<String, dynamic>.from(json['groupe'] as Map) : null,
+      employe: json['employe'] is Map ? Map<String, dynamic>.from(json['employe'] as Map) : null,
       participants: (json['participants'] as List<dynamic>?)
           ?.map((e) => SeanceGroupeParticipantModel.fromJson(
-              e as Map<String, dynamic>))
+              e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{}))
           .toList(),
     );
   }
@@ -86,13 +86,14 @@ class SeanceGroupeParticipantModel {
       patientId: parseId(json['patient_id']),
       statutPresence: json['statut_presence'] as String?,
       descriptionEtat: json['description_etat'] as String?,
-      reponsesQuestionnaire:
-          json['reponses_questionnaire'] as Map<String, dynamic>?,
+      reponsesQuestionnaire: json['reponses_questionnaire'] is Map
+          ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
+          : null,
       redigePar: json['redige_par'] as String?,
       medias: (json['medias'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map((e) => e.toString())
           .toList(),
-      patient: json['patient'] as Map<String, dynamic>?,
+      patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
     );
   }
 

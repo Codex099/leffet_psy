@@ -47,14 +47,14 @@ class SeanceModel {
       statut: json['statut'] as String? ?? 'planifiee',
       motifStatut: json['motif_statut'] as String?,
       statutPresence: json['statut_presence'] as String?,
-      descriptionEtat: json['description_etat'] as String?,
-      reponsesQuestionnaire:
-          json['reponses_questionnaire'] as Map<String, dynamic>?,
+      reponsesQuestionnaire: json['reponses_questionnaire'] is Map
+          ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
+          : null,
       medias: (json['medias'] as List<dynamic>?)
-          ?.map((e) => e as String)
+          ?.map((e) => e.toString())
           .toList(),
-      patient: json['patient'] as Map<String, dynamic>?,
-      employe: json['employe'] as Map<String, dynamic>?,
+      patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
+      employe: json['employe'] is Map ? Map<String, dynamic>.from(json['employe'] as Map) : null,
     );
   }
 
@@ -74,8 +74,25 @@ class SeanceModel {
   }
 
   String get patientFullName {
-    if (patient == null) return '';
-    return '${patient!['prenom'] ?? ''} ${patient!['nom'] ?? ''}'.trim();
+    if (patient == null) return 'Patient';
+    final prenom = patient!['prenom'] ?? '';
+    final nom = patient!['nom'] ?? '';
+    final full = '$prenom $nom'.trim();
+    return full.isNotEmpty ? full : 'Patient';
+  }
+
+  String get statutLabel {
+    switch (statut) {
+      case 'planifiee':
+      case 'prevue':
+        return 'Planifiée';
+      case 'realisee':
+        return 'Réalisée';
+      case 'annulee':
+        return 'Annulée';
+      default:
+        return statut;
+    }
   }
 
   String get duree {

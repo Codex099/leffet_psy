@@ -50,7 +50,7 @@ class EditPatientController extends GetxController {
 
   // ──── Step 3 — Tuteur ────
   final RxList<ParentModel> availableParents = <ParentModel>[].obs;
-  final RxnInt selectedParentId = RxnInt(null);
+  final Rx<dynamic> selectedParentId = Rx<dynamic>(null);
   final roleParent = 'pere'.obs;
   final RxString parentsStatus = 'loading'.obs;
 

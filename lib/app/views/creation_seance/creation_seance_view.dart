@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import '../../controllers/creation_seance_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
-import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/ios_card.dart';
+import '../../widgets/ios_segmented_control.dart';
+import '../../widgets/searchable_picker.dart';
+import '../../widgets/state_placeholder.dart';
 
 class CreationSeanceView extends GetView<CreationSeanceController> {
   const CreationSeanceView({super.key});
@@ -14,203 +17,224 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
+      appBar: const CreativeAppBar(
+        title: 'Planifier une séance',
+        subtitle: 'Consultation Clinique',
+        showBackButton: true,
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded),
-                    onPressed: () => Get.back(),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('PLANIFICATION', style: AppTextStyles.sectionKicker),
-                      Text('Nouvelle séance', style: AppTextStyles.screenTitleMedium),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+        child: Obx(() {
+          if (controller.status.value == 'loading' && controller.patients.isEmpty) {
+            return StatePlaceholder.loading(message: 'Chargement des options de séance...');
+          }
+          if (controller.status.value == 'error') {
+            return StatePlaceholder.error(
+              message: controller.errorMessage.value,
+              onAction: () => controller.loadOptions(),
+            );
+          }
 
-              // Etape 1 : Choisir le type de séance
-              Text('Étape 1 : Type de séance', style: AppTextStyles.sectionTitle),
-              const SizedBox(height: 10),
-              Obx(() => Row(
-                    children: [
-                      Expanded(
-                        child: _buildTypeCard(
-                          type: 'individuelle',
-                          title: 'Individuelle',
-                          icon: Icons.person_rounded,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildTypeCard(
-                          type: 'groupe',
-                          title: 'Groupe',
-                          icon: Icons.groups_rounded,
-                        ),
-                      ),
-                    ],
-                  )),
-              const SizedBox(height: 24),
-
-              // Etape 2 : Détails & sélection
-              Text('Étape 2 : Détails de la séance', style: AppTextStyles.sectionTitle),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: AppColors.cardShadow,
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(top: 12, bottom: 60),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Type de séance (Segmented Control iOS) ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Text('TYPE DE SÉANCE', style: AppTextStyles.iosCaption2),
                 ),
-                child: Obx(() {
-                  if (controller.status.value == 'loading') {
-                    return const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
+                Obx(() => IosSegmentedControl<String>(
+                      segments: const {
+                        'individuelle': 'Individuelle',
+                        'groupe': 'Collectif (Groupe)',
+                      },
+                      selectedValue: controller.typeSeance.value,
+                      onValueChanged: (t) => controller.typeSeance.value = t,
+                    )),
+                const SizedBox(height: 12),
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                // ── Bénéficiaire (Patient ou Groupe) ──
+                Obx(() {
+                  final isIndiv = controller.typeSeance.value == 'individuelle';
+                  return IosCard(
+                    title: isIndiv ? 'Patient' : 'Groupe Clinique',
+                    subtitle: isIndiv
+                        ? 'Recherchez et sélectionnez le patient suivi'
+                        : 'Recherchez et sélectionnez le groupe concerné',
                     children: [
-                      if (controller.typeSeance.value == 'individuelle') ...[
-                        Text('Sélectionner un patient', style: AppTextStyles.fieldLabel),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.fieldBackground,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<int>(
-                              isExpanded: true,
-                              value: controller.selectedPatientId.value,
-                              items: controller.patients
-                                  .map((p) => DropdownMenuItem<int>(
-                                        value: p.id,
-                                        child: Text(p.fullName),
-                                      ))
-                                  .toList(),
-                              onChanged: (val) => controller.selectedPatientId.value = val,
-                            ),
-                          ),
-                        ),
-                      ] else ...[
-                        Text('Sélectionner un groupe', style: AppTextStyles.fieldLabel),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.fieldBackground,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<int>(
-                              isExpanded: true,
-                              value: controller.selectedGroupeId.value,
-                              items: controller.groupes
-                                  .map((g) => DropdownMenuItem<int>(
-                                        value: g.id,
-                                        child: Text(g.nom),
-                                      ))
-                                  .toList(),
-                              onChanged: (val) => controller.selectedGroupeId.value = val,
-                            ),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 14),
-                      AppTextField(
-                        label: 'Date de la séance',
-                        hintText: 'AAAA-MM-JJ',
-                        controller: TextEditingController(text: controller.date.value),
-                        onChanged: (v) => controller.date.value = v,
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AppTextField(
-                              label: 'Heure de début',
-                              hintText: '10:00',
-                              controller: TextEditingController(text: controller.heureDebut.value),
-                              onChanged: (v) => controller.heureDebut.value = v,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: AppTextField(
-                              label: 'Heure de fin',
-                              hintText: '10:45',
-                              controller: TextEditingController(text: controller.heureFin.value),
-                              onChanged: (v) => controller.heureFin.value = v,
-                            ),
-                          ),
-                        ],
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: isIndiv
+                            ? _buildPatientPicker()
+                            : _buildGroupePicker(),
                       ),
                     ],
                   );
                 }),
-              ),
-              const SizedBox(height: 24),
-              Obx(() => AppButton(
+
+                // ── Date et Horaires ──
+                IosCard(
+                  title: 'Date & Horaires',
+                  children: [
+                    IosCardTile(
+                      leading: const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 20),
+                      title: 'Date de la séance',
+                      subtitle: controller.date.value.isEmpty ? 'Sélectionner' : controller.date.value,
+                      showChevron: true,
+                      onTap: () => _pickDate(context),
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
+                      title: 'Horaire de début',
+                      subtitle: controller.heureDebut.value,
+                      showChevron: true,
+                      onTap: () => _pickTime(context, isStart: true),
+                    ),
+                    IosCardTile(
+                      leading: const Icon(Icons.timer_outlined, color: AppColors.primary, size: 20),
+                      title: 'Horaire de fin',
+                      subtitle: controller.heureFin.value,
+                      showChevron: true,
+                      onTap: () => _pickTime(context, isStart: false),
+                    ),
+                  ],
+                ),
+
+                // ── Psychologues / Praticiens assignés ──
+                IosCard(
+                  title: 'Praticiens Responsables',
+                  subtitle: 'Sélectionnez un ou plusieurs professionnels avec recherche instantanée',
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Obx(() {
+                        if (controller.employees.isEmpty) {
+                          return Text('Aucun praticien disponible.', style: AppTextStyles.iosFootnote);
+                        }
+                        return SearchablePickerField<dynamic>(
+                          label: 'Praticiens Assignés',
+                          hintText: 'Rechercher et sélectionner les praticiens...',
+                          title: 'Sélectionner les Praticiens',
+                          isMultiSelect: true,
+                          leadingIcon: Icons.badge_outlined,
+                          selectedValues: controller.selectedEmployeeIds.toList(),
+                          items: controller.employees.map((emp) {
+                            return SearchableItem<dynamic>(
+                              value: emp.id,
+                              label: emp.fullName,
+                              subtitle: emp.roleLabel,
+                              initials: emp.initials,
+                            );
+                          }).toList(),
+                          onMultiChanged: (vals) {
+                            controller.selectedEmployeeIds.assignAll(vals);
+                          },
+                        );
+                      }),
+                    ),
+                  ],
+                ),
+
+                // ── Bouton de confirmation ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: AppButton(
                     label: 'Planifier la séance',
-                    isLoading: controller.status.value == 'loading',
+                    icon: Icons.event_available_rounded,
                     onPressed: () => controller.createSeance(),
-                  )),
-            ],
-          ),
-        ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ),
     );
   }
 
-  Widget _buildTypeCard({
-    required String type,
-    required String title,
-    required IconData icon,
-  }) {
-    final isSelected = controller.typeSeance.value == type;
-    return InkWell(
-      onTap: () => controller.typeSeance.value = type,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppColors.cardShadow,
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 32,
-              color: isSelected ? Colors.white : AppColors.primary,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: isSelected ? Colors.white : AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
+  Widget _buildPatientPicker() {
+    if (controller.patients.isEmpty) {
+      return Text('Aucun patient actif disponible.', style: AppTextStyles.iosFootnote);
+    }
+    return SearchablePickerField<dynamic>(
+      label: 'Patient concerné *',
+      hintText: 'Rechercher un patient par nom ou prénom...',
+      title: 'Sélectionner un patient',
+      leadingIcon: Icons.person_search_rounded,
+      selectedValue: controller.selectedPatientId.value,
+      items: controller.patients.map((p) {
+        return SearchableItem<dynamic>(
+          value: p.id,
+          label: p.fullName,
+          subtitle: '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}',
+          initials: p.initials,
+        );
+      }).toList(),
+      onSingleChanged: (val) {
+        if (val != null) controller.selectedPatientId.value = val;
+      },
     );
+  }
+
+  Widget _buildGroupePicker() {
+    if (controller.groupes.isEmpty) {
+      return Text('Aucun groupe disponible.', style: AppTextStyles.iosFootnote);
+    }
+    return SearchablePickerField<dynamic>(
+      label: 'Groupe concerné *',
+      hintText: 'Rechercher un groupe thérapeutique...',
+      title: 'Sélectionner un groupe',
+      leadingIcon: Icons.groups_rounded,
+      selectedValue: controller.selectedGroupeId.value,
+      items: controller.groupes.map((g) {
+        return SearchableItem<dynamic>(
+          value: g.id,
+          label: g.nom,
+          subtitle: '${g.typeLabel} • ${g.membresCount} membre(s)',
+          initials: g.initials,
+        );
+      }).toList(),
+      onSingleChanged: (val) {
+        if (val != null) controller.selectedGroupeId.value = val;
+      },
+    );
+  }
+
+  Future<void> _pickDate(BuildContext context) async {
+    final initial = DateTime.tryParse(controller.date.value) ?? DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime.now().subtract(const Duration(days: 30)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null) {
+      controller.date.value =
+          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+    }
+  }
+
+  Future<void> _pickTime(BuildContext context, {required bool isStart}) async {
+    final currentStr = isStart ? controller.heureDebut.value : controller.heureFin.value;
+    final parts = currentStr.split(':');
+    final initialTime = TimeOfDay(
+      hour: parts.isNotEmpty ? (int.tryParse(parts[0]) ?? 10) : 10,
+      minute: parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0,
+    );
+
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+
+    if (picked != null) {
+      final formatted = "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+      if (isStart) {
+        controller.heureDebut.value = formatted;
+      } else {
+        controller.heureFin.value = formatted;
+      }
+    }
   }
 }

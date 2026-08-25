@@ -3,19 +3,62 @@ import 'package:get/get.dart';
 import '../../controllers/edit_employe_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/ios_card.dart';
+import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/state_placeholder.dart';
 
-class EditEmployeView extends GetView<EditEmployeController> {
+class EditEmployeView extends StatefulWidget {
   const EditEmployeView({super.key});
 
-  static const List<Map<String, String>> _roles = [
-    {'value': 'admin', 'label': 'Admin'},
-    {'value': 'psychologue', 'label': 'Psychologue'},
-    {'value': 'educatrice', 'label': 'Éducatrice'},
-  ];
+  @override
+  State<EditEmployeView> createState() => _EditEmployeViewState();
+}
+
+class _EditEmployeViewState extends State<EditEmployeView> {
+  final controller = Get.find<EditEmployeController>();
+
+  late final TextEditingController _prenomCtrl;
+  late final TextEditingController _nomCtrl;
+  late final TextEditingController _telCtrl;
+  late final TextEditingController _usernameCtrl;
+  late final TextEditingController _passwordCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _prenomCtrl = TextEditingController(text: controller.prenom.value);
+    _nomCtrl = TextEditingController(text: controller.nom.value);
+    _telCtrl = TextEditingController(text: controller.telephone.value);
+    _usernameCtrl = TextEditingController(text: controller.username.value);
+    _passwordCtrl = TextEditingController(text: controller.password.value);
+
+    // Écouter les mises à jour asynchrones du contrôleur
+    ever(controller.prenom, (v) {
+      if (_prenomCtrl.text != v) _prenomCtrl.text = v;
+    });
+    ever(controller.nom, (v) {
+      if (_nomCtrl.text != v) _nomCtrl.text = v;
+    });
+    ever(controller.telephone, (v) {
+      if (_telCtrl.text != v) _telCtrl.text = v;
+    });
+    ever(controller.username, (v) {
+      if (_usernameCtrl.text != v) _usernameCtrl.text = v;
+    });
+  }
+
+  @override
+  void dispose() {
+    _prenomCtrl.dispose();
+    _nomCtrl.dispose();
+    _telCtrl.dispose();
+    _usernameCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,271 +66,158 @@ class EditEmployeView extends GetView<EditEmployeController> {
 
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
+      appBar: CreativeAppBar(
+        title: isEditMode ? 'Modifier l\'employé' : 'Nouvel employé',
+        subtitle: 'Équipe Clinique',
+        showBackButton: true,
+      ),
       body: SafeArea(
         child: Obx(() {
-          if (controller.status.value == 'loading' && isEditMode &&
-              controller.nom.value.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+          if (controller.status.value == 'loading' && isEditMode && controller.nom.value.isEmpty) {
+            return StatePlaceholder.loading(message: 'Chargement des données de l\'employé...');
+          }
+          if (controller.status.value == 'error') {
+            return StatePlaceholder.error(
+              message: controller.errorMessage.value,
+              onAction: () => controller.onInit(),
+            );
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
-                Row(
+                // ── Rôle Segmented Control iOS ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  child: Text('RÔLE DE L\'EMPLOYÉ', style: AppTextStyles.iosCaption2),
+                ),
+                Obx(() => IosSegmentedControl<String>(
+                      segments: const {
+                        'psychologue': 'Psychologue',
+                        'educatrice': 'Éducatrice',
+                        'admin': 'Admin',
+                      },
+                      selectedValue: controller.role.value,
+                      onValueChanged: (r) => controller.role.value = r,
+                    )),
+                const SizedBox(height: 12),
+
+                // ── Informations personnelles ──
+                IosCard(
+                  title: 'Identité & Contact',
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('EMPLOYÉ', style: AppTextStyles.sectionKicker),
-                        Text(
-                          isEditMode ? 'Édition Employé' : 'Ajout Employé',
-                          style: AppTextStyles.screenTitleMedium,
-                        ),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          AppTextField(
+                            label: 'Prénom *',
+                            hintText: 'Ex. Camille',
+                            controller: _prenomCtrl,
+                            onChanged: (v) => controller.prenom.value = v,
+                          ),
+                          const SizedBox(height: 14),
+                          AppTextField(
+                            label: 'Nom *',
+                            hintText: 'Ex. Moreau',
+                            controller: _nomCtrl,
+                            onChanged: (v) => controller.nom.value = v,
+                          ),
+                          const SizedBox(height: 14),
+                          AppTextField(
+                            label: 'Téléphone',
+                            hintText: '06 12 34 56 78',
+                            keyboardType: TextInputType.phone,
+                            controller: _telCtrl,
+                            onChanged: (v) => controller.telephone.value = v,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
 
-                // Form fields card
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: AppColors.cardShadow,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppTextField(
-                        label: 'Prénom',
-                        hintText: 'Ex. Camille',
-                        initialValue: controller.prenom.value,
-                        onChanged: (v) => controller.prenom.value = v,
-                      ),
-                      const SizedBox(height: 14),
-                      AppTextField(
-                        label: 'Nom',
-                        hintText: 'Ex. Moreau',
-                        initialValue: controller.nom.value,
-                        onChanged: (v) => controller.nom.value = v,
-                      ),
-                      const SizedBox(height: 14),
-                      AppTextField(
-                        label: 'Téléphone',
-                        hintText: '06 12 34 56 78',
-                        keyboardType: TextInputType.phone,
-                        initialValue: controller.telephone.value,
-                        onChanged: (v) => controller.telephone.value = v,
-                      ),
-                      const SizedBox(height: 14),
-                      AppTextField(
-                        label: 'Nom d\'utilisateur',
-                        hintText: 'c.moreau',
-                        initialValue: controller.username.value,
-                        onChanged: (v) => controller.username.value = v,
-                      ),
-                      const SizedBox(height: 14),
-                      AppTextField(
-                        label: isEditMode
-                            ? 'Nouveau mot de passe (laisser vide pour conserver)'
-                            : 'Mot de passe *',
-                        hintText: '••••••••',
-                        obscureText: true,
-                        onChanged: (v) => controller.password.value = v,
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Role chips
-                      Text('Rôle', style: AppTextStyles.fieldLabel),
-                      const SizedBox(height: 8),
-                      Obx(() => Row(
-                            children: _roles.map((r) {
-                              return Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 8),
-                                  child: _buildRoleChip(r['value']!, r['label']!),
-                                ),
-                              );
-                            }).toList(),
-                          )),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Patients assignés card (live from API)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: AppColors.cardShadow,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // ── Identifiants de connexion ──
+                IosCard(
+                  title: 'Identifiants de connexion',
+                  subtitle: isEditMode ? 'Laissez le mot de passe vide pour ne pas le changer.' : 'Mot de passe initial requis',
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
                         children: [
-                          Text('Patients assignés', style: AppTextStyles.sectionTitle),
-                          const Icon(Icons.people_outline_rounded, color: AppColors.textSecondary),
+                          AppTextField(
+                            label: 'Nom d\'utilisateur (login) *',
+                            hintText: 'c.moreau',
+                            controller: _usernameCtrl,
+                            onChanged: (v) => controller.username.value = v,
+                          ),
+                          const SizedBox(height: 14),
+                          AppTextField(
+                            label: isEditMode ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe initial *',
+                            hintText: '••••••••',
+                            obscureText: true,
+                            controller: _passwordCtrl,
+                            onChanged: (v) => controller.password.value = v,
+                          ),
                         ],
                       ),
-                      Text('Sélection multiple des patients suivis', style: AppTextStyles.bodySmall),
-                      const SizedBox(height: 14),
+                    ),
+                  ],
+                ),
 
-                      // Patient search field
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldBackground,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextField(
-                          onChanged: (v) => controller.patientSearch.value = v,
-                          decoration: InputDecoration(
-                            hintText: 'Rechercher un patient...',
-                            hintStyle: AppTextStyles.fieldHint.copyWith(fontSize: 13),
-                            prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary, size: 18),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                        ),
+                // ── Patients Assignés ──
+                IosCard(
+                  title: 'Patients Assignés',
+                  subtitle: 'Sélectionnez les patients que cet employé peut suivre',
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (controller.allPatients.isEmpty)
+                            Text('Aucun patient disponible.', style: AppTextStyles.iosFootnote)
+                          else
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: controller.allPatients.map((p) {
+                                final isSelected = controller.selectedPatientIds.contains(p.id);
+                                return FilterChip(
+                                  selected: isSelected,
+                                  label: Text('${p.prenom} ${p.nom}'),
+                                  selectedColor: AppColors.primary.withValues(alpha: 0.15),
+                                  checkmarkColor: AppColors.primary,
+                                  labelStyle: TextStyle(
+                                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                  ),
+                                  onSelected: (_) => controller.togglePatient(p.id),
+                                );
+                              }).toList(),
+                            ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
+                    ),
+                  ],
+                ),
 
-                      // Patient list
-                      Obx(() {
-                        if (controller.patientsStatus.value == 'loading') {
-                          return const SizedBox(
-                            height: 80,
-                            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                          );
-                        }
-                        final patients = controller.filteredPatients;
-                        if (patients.isEmpty) {
-                          return StatePlaceholder.empty(
-                            title: 'Aucun patient actif trouvé',
-                            message: '',
-                          );
-                        }
-                        return Column(
-                          children: patients.map((p) {
-                            final isChecked = controller.selectedPatientIds.contains(p.id);
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: InkWell(
-                                onTap: () => controller.togglePatient(p.id),
-                                borderRadius: BorderRadius.circular(12),
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: isChecked
-                                        ? AppColors.primary.withOpacity(0.08)
-                                        : AppColors.fieldBackground,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: isChecked ? AppColors.primary : Colors.transparent,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Checkbox(
-                                        value: isChecked,
-                                        onChanged: (_) => controller.togglePatient(p.id),
-                                        activeColor: AppColors.primary,
-                                      ),
-                                      CircleAvatar(
-                                        radius: 18,
-                                        backgroundColor: AppColors.secondaryLight,
-                                        child: Text(
-                                          p.initials,
-                                          style: AppTextStyles.bodySmall.copyWith(
-                                            color: AppColors.primary,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(p.fullName,
-                                                style: AppTextStyles.bodyMedium
-                                                    .copyWith(fontWeight: FontWeight.w600)),
-                                            if (p.age != null)
-                                              Text('${p.age} ans',
-                                                  style: AppTextStyles.bodySmall),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        );
-                      }),
-                    ],
+                // ── Bouton Enregistrer ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: AppButton(
+                    label: isEditMode ? 'Enregistrer les modifications' : 'Créer l\'employé',
+                    icon: Icons.check_circle_outline_rounded,
+                    onPressed: () => controller.saveEmployee(),
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Submit Button
-                Obx(() => AppButton(
-                      label: controller.status.value == 'loading'
-                          ? 'Enregistrement...'
-                          : isEditMode
-                              ? 'Mettre à jour'
-                              : 'Créer l\'employé',
-                      onPressed: controller.status.value == 'loading'
-                          ? null
-                          : () => controller.saveEmployee(),
-                    )),
               ],
             ),
           );
         }),
-      ),
-    );
-  }
-
-  Widget _buildRoleChip(String value, String label) {
-    final isSelected = controller.role.value == value;
-    return InkWell(
-      onTap: () => controller.role.value = value,
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.fieldBackground,
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: isSelected ? Colors.white : AppColors.textPrimary,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ),
       ),
     );
   }
