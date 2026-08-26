@@ -68,7 +68,7 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                 ),
                 const SizedBox(height: 16),
 
-                // Horaires card
+                // Type d'horaires (Fixe vs Ponctuel)
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -81,52 +81,204 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
+                          const Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
                           const SizedBox(width: 8),
-                          Text('Horaires', style: AppTextStyles.sectionTitle),
+                          Text('Type d\'horaires', style: AppTextStyles.sectionTitle),
                         ],
                       ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AppTextField(
-                              label: 'Heure de début',
-                              hintText: '09:00',
-                              onChanged: (v) => controller.heureDebut.value = v,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: AppTextField(
-                              label: 'Heure de fin',
-                              hintText: '09:45',
-                              onChanged: (v) => controller.heureFin.value = v,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AppTextField(
-                              label: 'Date de début',
-                              hintText: '14/06/2026',
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: AppTextField(
-                              label: 'Date de fin',
-                              hintText: '14/09/2026',
-                            ),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(height: 12),
+                      Obx(() => Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => controller.setModeCreneaux('fixe'),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: controller.modeCreneaux.value == 'fixe'
+                                          ? AppColors.primary
+                                          : AppColors.fieldBackground,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: controller.modeCreneaux.value == 'fixe'
+                                            ? AppColors.primary
+                                            : AppColors.border,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'Horaires Fixes',
+                                        style: AppTextStyles.iosCaption1.copyWith(
+                                          color: controller.modeCreneaux.value == 'fixe'
+                                              ? Colors.white
+                                              : AppColors.textPrimary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => controller.setModeCreneaux('ponctuel'),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: controller.modeCreneaux.value == 'ponctuel'
+                                          ? AppColors.primary
+                                          : AppColors.fieldBackground,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: controller.modeCreneaux.value == 'ponctuel'
+                                            ? AppColors.primary
+                                            : AppColors.border,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'Ponctuel / Par Jour',
+                                        style: AppTextStyles.iosCaption1.copyWith(
+                                          color: controller.modeCreneaux.value == 'ponctuel'
+                                              ? Colors.white
+                                              : AppColors.textPrimary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )),
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // Horaires card
+                Obx(() {
+                  if (controller.modeCreneaux.value == 'fixe') {
+                    return Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: AppColors.cardShadow,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
+                              const SizedBox(width: 8),
+                              Text('Horaires Fixes (Communs)', style: AppTextStyles.sectionTitle),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: AppTextField(
+                                  label: 'Heure de début',
+                                  hintText: '09:00',
+                                  controller: TextEditingController(text: controller.heureDebut.value),
+                                  onChanged: (v) => controller.heureDebut.value = v,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: AppTextField(
+                                  label: 'Heure de fin',
+                                  hintText: '09:45',
+                                  controller: TextEditingController(text: controller.heureFin.value),
+                                  onChanged: (v) => controller.heureFin.value = v,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Mode Ponctuel / Par Jour
+                  return Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: AppColors.cardShadow,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
+                            const SizedBox(width: 8),
+                            Text('Horaires Personnalisés par Jour', style: AppTextStyles.sectionTitle),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        if (controller.selectedDays.isEmpty)
+                          Text('Sélectionnez des jours ci-dessus pour définir leurs horaires.',
+                              style: AppTextStyles.bodySmall)
+                        else
+                          ...controller.selectedDays.map((d) {
+                            final start = controller.getSlotStartForDay(d);
+                            final end = controller.getSlotEndForDay(d);
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.fieldBackground,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      d,
+                                      style: AppTextStyles.iosCaption1.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: AppTextField(
+                                      label: 'Début',
+                                      hintText: '09:00',
+                                      controller: TextEditingController(text: start),
+                                      onChanged: (v) => controller.updateSlotForDay(d, debut: v),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: AppTextField(
+                                      label: 'Fin',
+                                      hintText: '09:45',
+                                      controller: TextEditingController(text: end),
+                                      onChanged: (v) => controller.updateSlotForDay(d, fin: v),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                      ],
+                    ),
+                  );
+                }),
                 const SizedBox(height: 16),
 
                 // Psychologue assigné card

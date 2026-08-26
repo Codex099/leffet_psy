@@ -25,6 +25,7 @@ import '../bindings/patients_liste_binding.dart';
 import '../bindings/plan_therapeutique_binding.dart';
 import '../bindings/planning_recurrent_binding.dart';
 import '../bindings/profil_binding.dart';
+import '../bindings/seances_individuelles_binding.dart';
 import '../bindings/statut_historique_binding.dart';
 import '../bindings/taches_binding.dart';
 
@@ -52,6 +53,7 @@ import '../views/patients/patients_liste_view.dart';
 import '../views/plan_therapeutique/plan_therapeutique_view.dart';
 import '../views/planning_recurrent/planning_recurrent_view.dart';
 import '../views/profil/profil_view.dart';
+import '../views/seances_individuelles/seances_individuelles_view.dart';
 import '../views/statut_historique/statut_historique_view.dart';
 import '../views/taches/taches_view.dart';
 
@@ -158,6 +160,11 @@ class AppPages {
       name: AppRoutes.editEmploye,
       page: () => const EditEmployeView(),
       binding: EditEmployeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.seancesIndividuelles,
+      page: () => const SeancesIndividuellesView(),
+      binding: SeancesIndividuellesBinding(),
     ),
     GetPage(
       name: AppRoutes.compteRenduHub,

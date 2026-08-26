@@ -4,7 +4,6 @@ import '../../controllers/plan_therapeutique_controller.dart';
 import '../../models/plan_therapeutique_model.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
 
@@ -15,7 +14,6 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {

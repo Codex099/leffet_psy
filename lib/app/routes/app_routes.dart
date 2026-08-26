@@ -33,6 +33,7 @@ abstract class AppRoutes {
   static const editEmploye = '/employes/edit';
 
   // ─── Séances & Comptes-rendus ──────────────────────────────────────────────
+  static const seancesIndividuelles = '/seances-individuelles';
   static const compteRenduHub = '/comptes-rendus';
   static const compteRenduSpecialiste = '/comptes-rendus/redaction';
   static const compteRenduSeance = '/seances/compte-rendu';

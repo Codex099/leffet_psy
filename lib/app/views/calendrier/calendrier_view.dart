@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../../controllers/calendrier_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/clinical_decorations.dart';
@@ -20,7 +19,6 @@ class CalendrierView extends GetView<CalendrierController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      extendBody: true,
       appBar: CreativeAppBar(
         title: 'Calendrier Administratif',
         subtitle: 'Événements & Réunions',
@@ -44,7 +42,6 @@ class CalendrierView extends GetView<CalendrierController> {
           ),
         ],
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

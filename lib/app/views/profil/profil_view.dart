@@ -106,6 +106,13 @@ class ProfilView extends GetView<ProfilController> {
                   title: 'Gestion Clinique',
                   children: [
                     IosCardTile(
+                      leading: const Icon(Icons.person_outline_rounded, color: AppColors.primary, size: 20),
+                      title: 'Séances Individuelles',
+                      subtitle: 'Consultations & créneaux récurrents',
+                      showChevron: true,
+                      onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
+                    ),
+                    IosCardTile(
                       leading: const Icon(Icons.groups_outlined, color: AppColors.primary, size: 20),
                       title: 'Groupes Thérapeutiques',
                       subtitle: 'Séances collectives et plannings',

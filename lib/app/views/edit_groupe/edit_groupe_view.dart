@@ -93,11 +93,79 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text('Sélectionnez les jours, puis ajustez les créneaux horaires.',
+                Text('Sélectionnez le type d\'horaires et les jours de tenue du groupe.',
                     style: AppTextStyles.bodySmall),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
+
+                // Sélecteur Mode Fixe vs Ponctuel (par jour)
+                Obx(() => Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.fieldBackground,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => controller.setModeCreneaux('fixe'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: controller.modeCreneaux.value == 'fixe'
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Horaires Fixes',
+                                    style: AppTextStyles.iosCaption1.copyWith(
+                                      color: controller.modeCreneaux.value == 'fixe'
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => controller.setModeCreneaux('ponctuel'),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: controller.modeCreneaux.value == 'ponctuel'
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Ponctuel / Par Jour',
+                                    style: AppTextStyles.iosCaption1.copyWith(
+                                      color: controller.modeCreneaux.value == 'ponctuel'
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                const SizedBox(height: 14),
 
                 // Chips jours de la semaine
+                Text('Jours de la semaine',
+                    style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
                 Obx(() => Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -109,14 +177,57 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                         ),
                       ),
                     )),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
-                // Créneaux par jour
+                // Affichage selon le mode (Fixe vs Ponctuel)
                 Obx(() {
                   if (controller.daySlots.isEmpty) {
                     return const SizedBox.shrink();
                   }
-                  // Grouper par jour dans l'ordre
+
+                  if (controller.modeCreneaux.value == 'fixe') {
+                    // Mode Fixe : Heure début et fin uniques pour tous les jours
+                    return Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.fieldBackground,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Horaires communs pour tous les jours sélectionnés',
+                            style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _timePicker(
+                                  context,
+                                  label: 'Début',
+                                  value: controller.globalHeureDebut.value,
+                                  onPicked: (v) => controller.updateGlobalStart(v),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: _timePicker(
+                                  context,
+                                  label: 'Fin',
+                                  value: controller.globalHeureFin.value,
+                                  onPicked: (v) => controller.updateGlobalEnd(v),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Mode Ponctuel / Par Jour : Créneaux indépendants par jour
                   final activeDays = EditGroupeController.allDays
                       .where((d) => controller.isDayActive(d))
                       .toList();

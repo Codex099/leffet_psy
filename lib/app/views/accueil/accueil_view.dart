@@ -396,6 +396,13 @@ class AccueilView extends GetView<AccueilController> {
                       onTap: () => Get.toNamed(AppRoutes.agenda),
                     ),
                     IosCardTile(
+                      leading: _buildIconCircle(Icons.person_outline_rounded, AppColors.primary),
+                      title: 'Séances Individuelles',
+                      subtitle: 'Consultations, types de séances & créneaux',
+                      showChevron: true,
+                      onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
+                    ),
+                    IosCardTile(
                       leading: _buildIconCircle(Icons.groups_outlined, AppColors.secondaryLight),
                       title: 'Groupes & Ateliers',
                       subtitle: 'Séances collectives et participants',

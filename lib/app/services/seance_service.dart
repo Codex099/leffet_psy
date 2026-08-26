@@ -69,16 +69,40 @@ class PlanningRecurrentService {
     dynamic patientId,
     Map<String, dynamic> data,
   ) async {
+    final now = DateTime.now();
+    final todayStr = now.toIso8601String().split('T').first;
+    final payload = Map<String, dynamic>.from(data);
+
+    // Champs obligatoires selon le schéma FastAPI
+    payload['date_debut'] ??= todayStr;
+    payload['mode_generation'] ??= 'auto';
+    payload['horizon_jours'] ??= 30;
+
     final response = await _dio.post(
       ApiConfig.patientPlanningRecurrent(patientId),
-      data: data,
+      data: payload,
     );
     return PatientPlanningRecurrentModel.fromJson(
         Map<String, dynamic>.from(response.data as Map));
   }
 
   /// POST /api/patients/{id}/planning-recurrent/generer — Génération manuelle
-  Future<void> genererSeances(dynamic patientId) async {
-    await _dio.post(ApiConfig.patientPlanningRecurrentGenerer(patientId));
+  Future<void> genererSeances(
+    dynamic patientId, {
+    String? dateDebut,
+    String? dateFin,
+  }) async {
+    final now = DateTime.now();
+    final dDebut = dateDebut ?? now.toIso8601String().split('T').first;
+    final dFin = dateFin ??
+        now.add(const Duration(days: 30)).toIso8601String().split('T').first;
+
+    await _dio.post(
+      ApiConfig.patientPlanningRecurrentGenerer(patientId),
+      data: {
+        'date_debut': dDebut,
+        'date_fin': dFin,
+      },
+    );
   }
 }

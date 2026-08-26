@@ -6,7 +6,6 @@ import '../../models/tache_model.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
@@ -20,7 +19,6 @@ class TachesView extends GetView<TachesController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      extendBody: true,
       appBar: CreativeAppBar(
         title: 'Tâches & Actions',
         subtitle: 'Suivi Clinique',
@@ -47,7 +45,6 @@ class TachesView extends GetView<TachesController> {
           ),
         ],
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: SafeArea(
         child: Column(
           children: [

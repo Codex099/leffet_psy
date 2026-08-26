@@ -38,9 +38,13 @@ class EditGroupeController extends GetxController {
   final nom = ''.obs;
   final description = ''.obs;
   final typePlanning = 'fixe'.obs;
-
   // Planning récurrent : liste de créneaux (un ou plusieurs par jour)
   final RxList<DaySlot> daySlots = <DaySlot>[].obs;
+
+  // Mode des créneaux : 'fixe' (mêmes heures pour tous les jours) ou 'ponctuel' (heure personnalisée par jour)
+  final RxString modeCreneaux = 'fixe'.obs;
+  final RxString globalHeureDebut = '09:00'.obs;
+  final RxString globalHeureFin = '09:45'.obs;
 
   // Employees — RxSet pour une réactivité correcte des checkboxes
   final RxList<EmployeeModel> availableEmployees = <EmployeeModel>[].obs;
@@ -194,12 +198,47 @@ class EditGroupeController extends GetxController {
 
   List<DaySlot> slotsForDay(String day) => daySlots.where((s) => s.day == day).toList();
 
+  void setModeCreneaux(String mode) {
+    modeCreneaux.value = mode;
+    if (mode == 'fixe') {
+      for (int i = 0; i < daySlots.length; i++) {
+        daySlots[i] = daySlots[i].copyWith(
+          heureDebut: globalHeureDebut.value,
+          heureFin: globalHeureFin.value,
+        );
+      }
+      daySlots.refresh();
+    }
+  }
+
+  void updateGlobalStart(String val) {
+    globalHeureDebut.value = val;
+    if (modeCreneaux.value == 'fixe') {
+      for (int i = 0; i < daySlots.length; i++) {
+        daySlots[i] = daySlots[i].copyWith(heureDebut: val);
+      }
+      daySlots.refresh();
+    }
+  }
+
+  void updateGlobalEnd(String val) {
+    globalHeureFin.value = val;
+    if (modeCreneaux.value == 'fixe') {
+      for (int i = 0; i < daySlots.length; i++) {
+        daySlots[i] = daySlots[i].copyWith(heureFin: val);
+      }
+      daySlots.refresh();
+    }
+  }
+
   /// Active ou désactive un jour. Si activation → ajoute un créneau par défaut.
   void toggleDay(String day) {
     if (isDayActive(day)) {
       daySlots.removeWhere((s) => s.day == day);
     } else {
-      daySlots.add(DaySlot(day: day, heureDebut: '09:00', heureFin: '09:45'));
+      final start = modeCreneaux.value == 'fixe' ? globalHeureDebut.value : '09:00';
+      final end = modeCreneaux.value == 'fixe' ? globalHeureFin.value : '09:45';
+      daySlots.add(DaySlot(day: day, heureDebut: start, heureFin: end));
     }
     daySlots.refresh();
   }

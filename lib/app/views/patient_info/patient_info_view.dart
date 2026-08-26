@@ -4,7 +4,6 @@ import '../../controllers/patient_info_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/searchable_picker.dart';
@@ -19,8 +18,6 @@ class PatientInfoView extends GetView<PatientInfoController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      extendBody: true,
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
       body: Obx(() {
         if (controller.status.value == 'loading') {
           return const Scaffold(body: StatePlaceholder(type: StatePlaceholderType.loading));

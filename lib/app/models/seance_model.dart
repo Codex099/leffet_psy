@@ -81,6 +81,18 @@ class SeanceModel {
     return full.isNotEmpty ? full : 'Patient';
   }
 
+  String get initials {
+    if (patient == null) return 'P';
+    final prenom = (patient!['prenom'] as String? ?? '').trim();
+    final nom = (patient!['nom'] as String? ?? '').trim();
+    final p = prenom.isNotEmpty ? prenom[0].toUpperCase() : '';
+    final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
+    final res = '$p$n';
+    return res.isNotEmpty ? res : 'P';
+  }
+
+  String? get photoUrl => patient?['photo'] as String?;
+
   String get statutLabel {
     switch (statut) {
       case 'planifiee':

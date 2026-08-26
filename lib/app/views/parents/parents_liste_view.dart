@@ -6,7 +6,6 @@ import '../../models/parent_model.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
@@ -43,7 +42,6 @@ class ParentsListeView extends GetView<ParentsListeController> {
           ),
         ],
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: SafeArea(
         child: Column(
           children: [

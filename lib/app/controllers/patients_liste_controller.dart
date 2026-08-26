@@ -52,9 +52,18 @@ class PatientsListeController extends GetxController {
         actif: null,
         search: null,
       );
-      allPatients.value = list;
+      final uniquePatients = <PatientModel>[];
+      final seenIds = <String>{};
+      for (final p in list) {
+        final idStr = p.id.toString();
+        if (!seenIds.contains(idStr)) {
+          seenIds.add(idStr);
+          uniquePatients.add(p);
+        }
+      }
+      allPatients.value = uniquePatients;
       _lastLoaded = DateTime.now();
-      status.value = list.isEmpty ? 'empty' : 'success';
+      status.value = uniquePatients.isEmpty ? 'empty' : 'success';
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
