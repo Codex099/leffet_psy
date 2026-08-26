@@ -8,6 +8,9 @@ import '../services/patient_service.dart';
 import '../services/parent_service.dart';
 import '../services/upload_service.dart';
 import '../utils/json_utils.dart';
+import 'accueil_controller.dart';
+import 'patient_info_controller.dart';
+import 'patients_liste_controller.dart';
 
 class EditPatientController extends GetxController {
   final PatientService _patientService = PatientService();
@@ -352,6 +355,22 @@ class EditPatientController extends GetxController {
 
   // Step 4: Finish & optional plan
   Future<void> _finishWizard() async {
+    try {
+      if (Get.isRegistered<PatientsListeController>()) {
+        Get.find<PatientsListeController>().loadPatients();
+      }
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<PatientInfoController>()) {
+        Get.find<PatientInfoController>().loadPatientInfo();
+      }
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<AccueilController>()) {
+        Get.find<AccueilController>().loadDashboard();
+      }
+    } catch (_) {}
+
     Get.back(result: true);
     Get.snackbar(
       'Succès',

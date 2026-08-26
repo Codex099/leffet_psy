@@ -128,9 +128,9 @@ class GroupesListeView extends GetView<GroupesListeController> {
             child: const Icon(Icons.groups_rounded, color: Colors.white, size: 24),
           ),
           title: groupe.nom,
-          subtitle: '${groupe.typeLabel} • ${groupe.membresCount} membre(s)',
+          subtitle: '${groupe.membresCount} participant(s) inscrit(s)',
           trailing: StatusBadge.active(
-            label: groupe.estFixe ? 'Fixe' : 'Ponctuel',
+            label: 'Atelier Actif',
           ),
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.groupeDetail, arguments: groupe.id),

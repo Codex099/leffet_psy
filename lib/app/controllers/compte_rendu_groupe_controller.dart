@@ -30,7 +30,28 @@ class CompteRenduGroupeController extends GetxController {
     if (seanceId == null) return;
     try {
       status.value = 'loading';
-      seance.value = await _seanceService.getSeanceGroupe(seanceId!);
+      try {
+        seance.value = await _seanceService.getSeanceGroupe(seanceId!);
+      } catch (_) {
+        // Fallback: seanceId peut être un groupe_id si venant de la fiche groupe
+        final list = await _seanceService.getSeancesGroupe(groupeId: seanceId);
+        if (list.isNotEmpty) {
+          seance.value = list.first;
+          seanceId = list.first.id;
+        } else {
+          // Création à la volée d'une séance pour aujourd'hui
+          final todayStr = DateTime.now().toIso8601String().split('T').first;
+          final created = await _seanceService.createSeanceGroupe({
+            'groupe_id': seanceId,
+            'date': todayStr,
+            'heure_debut': '10:00',
+            'heure_fin': '10:45',
+            'statut': 'prevue',
+          });
+          seance.value = created;
+          seanceId = created.id;
+        }
+      }
       status.value = 'success';
     } catch (e) {
       errorMessage.value = e.toString();

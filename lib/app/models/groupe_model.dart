@@ -48,7 +48,15 @@ class GroupeModel {
   bool get isFixe => typePlanning == 'fixe';
   bool get estFixe => isFixe;
   String get typeLabel => isFixe ? 'Fixe' : 'Ponctuel';
-  int get membresCount => patients?.length ?? 0;
+  int get membresCount {
+    if (patients == null || patients!.isEmpty) return 0;
+    final seen = <String>{};
+    for (final p in patients!) {
+      final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
+      if (pid != null) seen.add(pid);
+    }
+    return seen.isNotEmpty ? seen.length : patients!.length;
+  }
 
   String get initials {
     final words = nom.split(' ');

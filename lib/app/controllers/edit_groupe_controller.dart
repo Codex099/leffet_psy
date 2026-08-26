@@ -5,7 +5,10 @@ import '../models/patient_model.dart';
 import '../services/employee_service.dart';
 import '../services/groupe_service.dart';
 import '../services/patient_service.dart';
+import '../services/seance_groupe_service.dart';
 import '../utils/json_utils.dart';
+import 'accueil_controller.dart';
+import 'agenda_controller.dart';
 
 /// Un créneau horaire pour un jour donné
 class DaySlot {
@@ -26,6 +29,7 @@ class EditGroupeController extends GetxController {
   final GroupeService _groupeService = GroupeService();
   final EmployeeService _employeeService = EmployeeService();
   final PatientService _patientService = PatientService();
+  final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
 
   // Current groupe being edited (null = create mode)
   dynamic groupeId;
@@ -57,6 +61,33 @@ class EditGroupeController extends GetxController {
   static const List<String> allDays = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];
   static const List<String> allDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
+  static const Map<String, String> dayToFull = {
+    'lun': 'lundi',
+    'mar': 'mardi',
+    'mer': 'mercredi',
+    'jeu': 'jeudi',
+    'ven': 'vendredi',
+    'sam': 'samedi',
+    'dim': 'dimanche',
+    'lundi': 'lundi',
+    'mardi': 'mardi',
+    'mercredi': 'mercredi',
+    'jeudi': 'jeudi',
+    'vendredi': 'vendredi',
+    'samedi': 'samedi',
+    'dimanche': 'dimanche',
+  };
+
+  static const Map<String, String> fullToShort = {
+    'lundi': 'lun',
+    'mardi': 'mar',
+    'mercredi': 'mer',
+    'jeudi': 'jeu',
+    'vendredi': 'ven',
+    'samedi': 'sam',
+    'dimanche': 'dim',
+  };
+
   @override
   void onInit() {
     super.onInit();
@@ -79,7 +110,33 @@ class EditGroupeController extends GetxController {
       nom.value = groupe.nom;
       description.value = groupe.description ?? '';
       typePlanning.value = groupe.typePlanning;
-      groupePatients.value = groupe.patients ?? [];
+      
+      // Déduplication stricte par identifiant patient
+      final rawPatients = groupe.patients ?? [];
+      final seenIds = <String>{};
+      final uniquePatients = <Map<String, dynamic>>[];
+      for (final p in rawPatients) {
+        final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
+        if (pid != null && !seenIds.contains(pid)) {
+          seenIds.add(pid);
+          uniquePatients.add(p);
+        }
+      }
+      groupePatients.value = uniquePatients;
+
+      // Pré-remplir les créneaux récurrents existants
+      if (groupe.planningRecurrent != null && groupe.planningRecurrent!.isNotEmpty) {
+        daySlots.value = groupe.planningRecurrent!.map((slot) {
+          final rawDay = (slot['jour_semaine'] ?? '').toString().toLowerCase();
+          final shortDay = fullToShort[rawDay] ?? rawDay;
+          return DaySlot(
+            day: shortDay,
+            heureDebut: slot['heure_debut'] ?? '09:00',
+            heureFin: slot['heure_fin'] ?? '09:45',
+          );
+        }).toList();
+      }
+
       // Pré-remplir les employee ids si l'API les retourne
       if (groupe.employeeIds != null) {
         selectedEmployeeIds.addAll(groupe.employeeIds!);
@@ -178,17 +235,29 @@ class EditGroupeController extends GetxController {
   // ──────────────────────────────────────────
 
   bool isPatientInGroupe(dynamic patientId) {
-    return groupePatients.any((p) => parseId(p['id'] ?? p['patient_id']) == patientId);
+    if (patientId == null) return false;
+    final targetId = parseId(patientId)?.toString();
+    if (targetId == null) return false;
+    return groupePatients.any((p) {
+      final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
+      return pid != null && pid == targetId;
+    });
   }
 
   Future<void> addPatientsToGroupe(List<dynamic> patientIds) async {
-    if (patientIds.isEmpty) return;
+    // Filtrer pour ne garder QUE les patients non encore inscrits (zéro doublon)
+    final toAdd = patientIds.where((pid) => !isPatientInGroupe(pid)).toSet().toList();
+    if (toAdd.isEmpty) {
+      Get.snackbar('Information', 'Ce(s) patient(s) font déjà partie de ce groupe.',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
 
     if (groupeId == null) {
-      // Groupe non encore enregistré : ajouter localement à la liste des membres
-      for (final pid in patientIds) {
+      // Groupe non encore enregistré : ajouter localement à la liste des membres sans doublon
+      for (final pid in toAdd) {
         final pat = allPatients.firstWhereOrNull((p) => p.id == pid);
-        if (pat != null && !isPatientInGroupe(pid)) {
+        if (pat != null) {
           groupePatients.add({
             'id': pat.id,
             'nom': pat.nom,
@@ -197,21 +266,21 @@ class EditGroupeController extends GetxController {
         }
       }
       groupePatients.refresh();
-      Get.snackbar('Sélection', '${patientIds.length} patient(s) sélectionné(s) pour ce groupe.',
+      Get.snackbar('Sélection', '${toAdd.length} patient(s) sélectionné(s) pour ce groupe.',
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
     try {
       status.value = 'loading';
-      for (final pid in patientIds) {
+      for (final pid in toAdd) {
         try {
           await _groupeService.addPatientToGroupe(groupeId!, pid);
         } catch (_) {}
       }
       await _loadGroupe(groupeId!);
       status.value = 'success';
-      Get.snackbar('Succès', '${patientIds.length} patient(s) ajouté(s) au groupe d\'un seul coup.',
+      Get.snackbar('Succès', '${toAdd.length} patient(s) ajouté(s) au groupe d\'un seul coup.',
           snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       status.value = 'error';
@@ -224,8 +293,9 @@ class EditGroupeController extends GetxController {
   }
 
   Future<void> removePatientFromGroupe(dynamic patientId) async {
+    final targetId = parseId(patientId)?.toString();
     if (groupeId == null) {
-      groupePatients.removeWhere((p) => parseId(p['id'] ?? p['patient_id']) == patientId);
+      groupePatients.removeWhere((p) => parseId(p['id'] ?? p['patient_id'])?.toString() == targetId);
       groupePatients.refresh();
       return;
     }
@@ -278,22 +348,48 @@ class EditGroupeController extends GetxController {
         }
       }
 
-      // Enregistrement des créneaux récurrents
+      // Enregistrement des créneaux récurrents et génération des séances sur l'agenda
       if (daySlots.isNotEmpty && groupeId != null) {
         for (final slot in daySlots) {
-          await _groupeService.setPlanningRecurrent(groupeId!, {
-            'jour_semaine': slot.day,
-            'heure_debut': slot.heureDebut,
-            'heure_fin': slot.heureFin,
-          });
+          final fullDay = dayToFull[slot.day.toLowerCase()] ?? slot.day;
+          try {
+            await _groupeService.setPlanningRecurrent(groupeId!, {
+              'jour_semaine': fullDay,
+              'heure_debut': slot.heureDebut,
+              'heure_fin': slot.heureFin,
+            });
+
+            // Création de la séance de groupe pour le jour correspondant de la semaine
+            final targetDate = _getNextWeekdayDate(slot.day);
+            final dateStr = targetDate.toIso8601String().split('T').first;
+            await _seanceGroupeService.createSeanceGroupe({
+              'groupe_id': groupeId!,
+              'date': dateStr,
+              'heure_debut': slot.heureDebut,
+              'heure_fin': slot.heureFin,
+              'statut': 'prevue',
+              if (selectedEmployeeIds.isNotEmpty) 'employe_id': selectedEmployeeIds.first,
+            });
+          } catch (_) {}
         }
       }
+
+      try {
+        if (Get.isRegistered<AgendaController>()) {
+          Get.find<AgendaController>().loadAgenda(forceRefresh: true);
+        }
+      } catch (_) {}
+      try {
+        if (Get.isRegistered<AccueilController>()) {
+          Get.find<AccueilController>().loadDashboard(forceRefresh: true);
+        }
+      } catch (_) {}
 
       status.value = 'success';
       Get.back(result: true);
       Get.snackbar(
         'Succès',
-        groupeId != null ? 'Groupe mis à jour.' : 'Groupe créé.',
+        groupeId != null ? 'Groupe mis à jour et créneaux planifiés.' : 'Groupe créé et créneaux planifiés.',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
@@ -301,5 +397,29 @@ class EditGroupeController extends GetxController {
       status.value = 'error';
       Get.snackbar('Erreur', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
     }
+  }
+
+  DateTime _getNextWeekdayDate(String dayStr) {
+    final dayMap = {
+      'lundi': DateTime.monday,
+      'lun': DateTime.monday,
+      'mardi': DateTime.tuesday,
+      'mar': DateTime.tuesday,
+      'mercredi': DateTime.wednesday,
+      'mer': DateTime.wednesday,
+      'jeudi': DateTime.thursday,
+      'jeu': DateTime.thursday,
+      'vendredi': DateTime.friday,
+      'ven': DateTime.friday,
+      'samedi': DateTime.saturday,
+      'sam': DateTime.saturday,
+      'dimanche': DateTime.sunday,
+      'dim': DateTime.sunday,
+    };
+    final targetWeekday = dayMap[dayStr.toLowerCase()] ?? DateTime.monday;
+    final now = DateTime.now();
+    int diff = targetWeekday - now.weekday;
+    if (diff < 0) diff += 7;
+    return now.add(Duration(days: diff));
   }
 }

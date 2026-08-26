@@ -23,26 +23,26 @@ class SeanceService {
     );
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => SeanceModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => SeanceModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
   /// POST /api/seances — Création d'une séance
   Future<SeanceModel> createSeance(Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.seances, data: data);
-    return SeanceModel.fromJson(response.data as Map<String, dynamic>);
+    return SeanceModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/seances/{id} — Détail séance
   Future<SeanceModel> getSeance(dynamic id) async {
     final response = await _dio.get(ApiConfig.seance(id));
-    return SeanceModel.fromJson(response.data as Map<String, dynamic>);
+    return SeanceModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/seances/{id} — Mise à jour séance (compte-rendu)
   Future<SeanceModel> updateSeance(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.seance(id), data: data);
-    return SeanceModel.fromJson(response.data as Map<String, dynamic>);
+    return SeanceModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/seances/{id}
@@ -61,7 +61,7 @@ class PlanningRecurrentService {
         await _dio.get(ApiConfig.patientPlanningRecurrent(patientId));
     if (response.data == null) return null;
     return PatientPlanningRecurrentModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// POST /api/patients/{id}/planning-recurrent — Créer/modifier planning
@@ -74,7 +74,7 @@ class PlanningRecurrentService {
       data: data,
     );
     return PatientPlanningRecurrentModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// POST /api/patients/{id}/planning-recurrent/generer — Génération manuelle

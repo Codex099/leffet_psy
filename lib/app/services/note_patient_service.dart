@@ -10,7 +10,7 @@ class NoteService {
     final response =
         await _dio.get(ApiConfig.patientNotes(patientId));
     return (response.data as List<dynamic>)
-        .map((e) => e as Map<String, dynamic>)
+        .map((e) => Map<String, dynamic>.from(e as Map))
         .toList();
   }
 
@@ -21,7 +21,7 @@ class NoteService {
   ) async {
     final response =
         await _dio.post(ApiConfig.patientNotes(patientId), data: data);
-    return response.data as Map<String, dynamic>;
+    return Map<String, dynamic>.from(response.data as Map);
   }
 
   /// DELETE /api/notes/{id}

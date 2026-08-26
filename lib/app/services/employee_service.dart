@@ -17,27 +17,27 @@ class EmployeeService {
     );
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => EmployeeModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => EmployeeModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
   /// POST /api/employees — Création (admin)
   Future<EmployeeModel> createEmployee(Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.employees, data: data);
-    return EmployeeModel.fromJson(response.data as Map<String, dynamic>);
+    return EmployeeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/employees/{id}
   Future<EmployeeModel> getEmployee(dynamic id) async {
     final response = await _dio.get(ApiConfig.employee(id));
-    return EmployeeModel.fromJson(response.data as Map<String, dynamic>);
+    return EmployeeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/employees/{id}
   Future<EmployeeModel> updateEmployee(
       dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.employee(id), data: data);
-    return EmployeeModel.fromJson(response.data as Map<String, dynamic>);
+    return EmployeeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/employees/{id}

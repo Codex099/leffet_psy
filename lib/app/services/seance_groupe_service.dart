@@ -23,7 +23,7 @@ class SeanceGroupeService {
     );
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => SeanceGroupeModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => SeanceGroupeModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
@@ -31,13 +31,13 @@ class SeanceGroupeService {
   Future<SeanceGroupeModel> createSeanceGroupe(
       Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.seancesGroupe, data: data);
-    return SeanceGroupeModel.fromJson(response.data as Map<String, dynamic>);
+    return SeanceGroupeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/seances-groupe/{id} — Détail
   Future<SeanceGroupeModel> getSeanceGroupe(dynamic id) async {
     final response = await _dio.get(ApiConfig.seanceGroupe(id));
-    return SeanceGroupeModel.fromJson(response.data as Map<String, dynamic>);
+    return SeanceGroupeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/seances-groupe/{id} — Mise à jour
@@ -45,7 +45,7 @@ class SeanceGroupeService {
       dynamic id, Map<String, dynamic> data) async {
     final response =
         await _dio.put(ApiConfig.seanceGroupe(id), data: data);
-    return SeanceGroupeModel.fromJson(response.data as Map<String, dynamic>);
+    return SeanceGroupeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/seances-groupe/{id}
@@ -65,6 +65,6 @@ class SeanceGroupeService {
       data: data,
     );
     return SeanceGroupeParticipantModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 }

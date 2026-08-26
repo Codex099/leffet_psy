@@ -24,26 +24,26 @@ class PatientService {
     );
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => PatientModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => PatientModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
   /// POST /api/patients — Création d'un patient
   Future<PatientModel> createPatient(Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.patients, data: data);
-    return PatientModel.fromJson(response.data as Map<String, dynamic>);
+    return PatientModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/patients/{id} — Fiche patient
   Future<PatientModel> getPatient(dynamic id) async {
     final response = await _dio.get(ApiConfig.patient(id));
-    return PatientModel.fromJson(response.data as Map<String, dynamic>);
+    return PatientModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PATCH /api/patients/{id} — Mise à jour patient
   Future<PatientModel> updatePatient(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.patch(ApiConfig.patient(id), data: data);
-    return PatientModel.fromJson(response.data as Map<String, dynamic>);
+    return PatientModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/patients/{id} — Suppression patient
@@ -68,7 +68,7 @@ class PatientService {
     final response = await _dio.get(ApiConfig.patientParents(patientId));
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => PatientParentModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => PatientParentModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
@@ -92,7 +92,7 @@ class PatientService {
     final list = response.data as List<dynamic>;
     return list
         .map((e) => PatientStatutHistoriqueModel.fromJson(
-            e as Map<String, dynamic>))
+            Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
@@ -113,7 +113,7 @@ class PatientService {
     final response =
         await _dio.get(ApiConfig.patientDossierMedical(patientId));
     return DossierMedicalModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PATCH /api/patients/{id}/dossier-medical — Mise à jour dossier médical
@@ -126,6 +126,6 @@ class PatientService {
       data: data,
     );
     return DossierMedicalModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 }

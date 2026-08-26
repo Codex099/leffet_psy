@@ -6,6 +6,7 @@ import '../services/employee_service.dart';
 import '../services/patient_service.dart';
 import '../services/tache_service.dart';
 import '../utils/json_utils.dart';
+import 'taches_controller.dart';
 
 class DetailTacheController extends GetxController {
   final TacheService _tacheService = TacheService();
@@ -144,6 +145,13 @@ class DetailTacheController extends GetxController {
         await _tacheService.updateTache(tache.value!.id, data);
         Get.snackbar('Succès', 'Tâche mise à jour.', snackPosition: SnackPosition.BOTTOM);
       }
+
+      try {
+        if (Get.isRegistered<TachesController>()) {
+          Get.find<TachesController>().loadTaches(forceRefresh: true);
+        }
+      } catch (_) {}
+
       Get.back(result: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'enregistrer la tâche: $e',
@@ -155,7 +163,12 @@ class DetailTacheController extends GetxController {
     if (tache.value == null) return;
     try {
       await _tacheService.deleteTache(tache.value!.id);
-      Get.back();
+      try {
+        if (Get.isRegistered<TachesController>()) {
+          Get.find<TachesController>().loadTaches(forceRefresh: true);
+        }
+      } catch (_) {}
+      Get.back(result: true);
       Get.snackbar('Supprimée', 'Tâche supprimée.', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer la tâche.',

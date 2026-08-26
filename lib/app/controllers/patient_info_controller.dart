@@ -8,6 +8,8 @@ import '../services/parent_service.dart';
 import '../services/plan_therapeutique_service.dart';
 import '../services/note_patient_service.dart';
 import '../utils/json_utils.dart';
+import 'accueil_controller.dart';
+import 'patients_liste_controller.dart';
 
 class PatientInfoController extends GetxController {
   final PatientService _patientService = PatientService();
@@ -142,6 +144,7 @@ class PatientInfoController extends GetxController {
       }
 
       await loadPatientInfo();
+      _notifyGlobalControllers();
       Get.snackbar(
         'Statut mis à jour',
         newStatus ? 'Patient réactivé avec succès' : 'Patient désactivé',
@@ -162,6 +165,7 @@ class PatientInfoController extends GetxController {
         'date': todayStr,
       });
       await loadPatientInfo();
+      _notifyGlobalControllers();
       Get.snackbar('Succès', 'Note enregistrée avec succès', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'enregistrer la note : $e', snackPosition: SnackPosition.BOTTOM);
@@ -172,6 +176,7 @@ class PatientInfoController extends GetxController {
     if (patientId == null) return;
     try {
       await _patientService.deletePatient(patientId!);
+      _notifyGlobalControllers();
       Get.back();
       Get.snackbar('Succès', 'Patient supprimé', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
@@ -183,9 +188,23 @@ class PatientInfoController extends GetxController {
     try {
       await _noteService.deleteNote(noteId);
       await loadPatientInfo();
+      _notifyGlobalControllers();
       Get.snackbar('Succès', 'Note supprimée', snackPosition: SnackPosition.BOTTOM);
     } catch (_) {
       Get.snackbar('Erreur', 'Impossible de supprimer la note', snackPosition: SnackPosition.BOTTOM);
     }
+  }
+
+  void _notifyGlobalControllers() {
+    try {
+      if (Get.isRegistered<PatientsListeController>()) {
+        Get.find<PatientsListeController>().loadPatients();
+      }
+    } catch (_) {}
+    try {
+      if (Get.isRegistered<AccueilController>()) {
+        Get.find<AccueilController>().loadDashboard();
+      }
+    } catch (_) {}
   }
 }

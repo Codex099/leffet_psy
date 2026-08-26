@@ -5,6 +5,7 @@ import '../../controllers/groupe_detail_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../utils/json_utils.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/creative_app_bar.dart';
@@ -60,7 +61,16 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
         }
 
         final g = controller.groupe.value;
-        final patientsList = g?.patients ?? [];
+        final rawPatients = g?.patients ?? [];
+        final seenPatIds = <String>{};
+        final patientsList = <Map<String, dynamic>>[];
+        for (final p in rawPatients) {
+          final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
+          if (pid != null && !seenPatIds.contains(pid)) {
+            seenPatIds.add(pid);
+            patientsList.add(p);
+          }
+        }
         final planningList = g?.planningRecurrent ?? [];
 
         return SingleChildScrollView(
@@ -99,7 +109,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  StatusBadge.active(label: g?.typePlanning == 'fixe' ? 'Planning Fixe' : 'Ponctuel'),
+                                  StatusBadge.active(label: 'Atelier Clinique'),
                                   const SizedBox(width: 8),
                                   Text(
                                     '${patientsList.length} membre${patientsList.length > 1 ? 's' : ''}',
@@ -124,31 +134,29 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                 ],
               ),
 
-              // ── Planning Récurrent Fixe ──
-              if (g?.isFixe == true) ...[
-                IosCard(
-                  title: 'Horaires Récurrents',
-                  children: [
-                    if (planningList.isEmpty)
-                      const IosCardTile(
-                        leading: Icon(Icons.schedule_rounded, color: AppColors.iosSystemGray),
-                        title: 'Aucun créneau configuré',
-                        subtitle: 'Définissez les jours et heures dans l\'édition du groupe.',
-                      )
-                    else
-                      ...planningList.map((slot) {
-                        final jour = slot['jour_semaine'] ?? '';
-                        final debut = slot['heure_debut'] ?? '';
-                        final fin = slot['heure_fin'] ?? '';
-                        return IosCardTile(
-                          leading: const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 20),
-                          title: 'Tous les ${jour.toUpperCase()}',
-                          subtitle: '$debut — $fin',
-                        );
-                      }),
-                  ],
-                ),
-              ],
+              // ── Horaires & Planning Récurrent ──
+              IosCard(
+                title: 'Horaires Récurrents',
+                children: [
+                  if (planningList.isEmpty)
+                    const IosCardTile(
+                      leading: Icon(Icons.schedule_rounded, color: AppColors.iosSystemGray),
+                      title: 'Aucun créneau configuré',
+                      subtitle: 'Définissez les jours et heures dans l\'édition du groupe.',
+                    )
+                  else
+                    ...planningList.map((slot) {
+                      final jour = slot['jour_semaine'] ?? '';
+                      final debut = slot['heure_debut'] ?? '';
+                      final fin = slot['heure_fin'] ?? '';
+                      return IosCardTile(
+                        leading: const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 20),
+                        title: 'Tous les ${jour.toUpperCase()}',
+                        subtitle: '$debut — $fin',
+                      );
+                    }),
+                ],
+              ),
 
               // ── Membres & Participants ──
               IosCard(

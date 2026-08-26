@@ -27,7 +27,10 @@ class TachesView extends GetView<TachesController> {
         showBackButton: true,
         actions: [
           BouncyTap(
-            onTap: () => Get.toNamed(AppRoutes.detailTache),
+            onTap: () async {
+              final res = await Get.toNamed(AppRoutes.detailTache);
+              if (res == true) controller.loadTaches(forceRefresh: true);
+            },
             child: Container(
               padding: const EdgeInsets.all(8),
               margin: const EdgeInsets.only(right: 8),
@@ -51,8 +54,8 @@ class TachesView extends GetView<TachesController> {
             // ── Filter Segmented Control (Assignées à moi / Toutes) ──
             Obx(() => IosSegmentedControl<bool>(
                   segments: const {
-                    true: 'Mes tâches',
                     false: 'Toutes les tâches',
+                    true: 'Mes tâches',
                   },
                   selectedValue: controller.filterAssignesAMoi.value,
                   onValueChanged: (val) => controller.toggleFilter(val),
@@ -63,20 +66,25 @@ class TachesView extends GetView<TachesController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading();
+                  return StatePlaceholder.loading(message: 'Chargement des tâches...');
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
                     message: controller.errorMessage.value,
-                    onAction: () => controller.loadTaches(),
+                    onAction: () => controller.loadTaches(forceRefresh: true),
                   );
                 }
-                if (controller.status.value == 'empty') {
+                if (controller.taches.isEmpty) {
                   return StatePlaceholder.empty(
                     title: 'Aucune tâche pour le moment',
-                    message: 'Créez une tâche pour suivre les actions à réaliser.',
+                    message: controller.filterAssignesAMoi.value
+                        ? 'Aucune tâche ne vous est assignée actuellement.'
+                        : 'Créez une tâche pour suivre les actions à réaliser.',
                     actionLabel: '+ Nouvelle tâche',
-                    onAction: () => Get.toNamed(AppRoutes.detailTache),
+                    onAction: () async {
+                      final res = await Get.toNamed(AppRoutes.detailTache);
+                      if (res == true) controller.loadTaches(forceRefresh: true);
+                    },
                   );
                 }
 
@@ -111,7 +119,7 @@ class TachesView extends GetView<TachesController> {
   }
 
   Widget _buildTacheTile(TacheModel t) {
-    final bool isDone = t.statut == 'fait';
+    final bool isDone = t.statut == 'fait' || t.statut == 'terminee' || t.statut == 'cloturee';
     final Color prioColor = t.priorite == 'haute'
         ? AppColors.accentCoral
         : t.priorite == 'normale'
@@ -159,7 +167,10 @@ class TachesView extends GetView<TachesController> {
           ),
         ),
       ),
-      onTap: () => Get.toNamed(AppRoutes.detailTache, arguments: t.id),
+      onTap: () async {
+        final res = await Get.toNamed(AppRoutes.detailTache, arguments: t.id);
+        if (res == true) controller.loadTaches(forceRefresh: true);
+      },
     );
   }
 }

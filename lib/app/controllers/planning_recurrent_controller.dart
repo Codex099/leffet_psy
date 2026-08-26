@@ -3,6 +3,8 @@ import '../models/seance_model.dart';
 import '../services/seance_service.dart';
 
 import '../utils/json_utils.dart';
+import 'accueil_controller.dart';
+import 'agenda_controller.dart';
 
 class PlanningRecurrentController extends GetxController {
   final PlanningRecurrentService _planningService = PlanningRecurrentService();
@@ -15,6 +17,33 @@ class PlanningRecurrentController extends GetxController {
   final heureFin = '09:45'.obs;
 
   dynamic patientId;
+
+  static const Map<String, String> dayToFull = {
+    'lun': 'lundi',
+    'mar': 'mardi',
+    'mer': 'mercredi',
+    'jeu': 'jeudi',
+    'ven': 'vendredi',
+    'sam': 'samedi',
+    'dim': 'dimanche',
+    'lundi': 'lundi',
+    'mardi': 'mardi',
+    'mercredi': 'mercredi',
+    'jeudi': 'jeudi',
+    'vendredi': 'vendredi',
+    'samedi': 'samedi',
+    'dimanche': 'dimanche',
+  };
+
+  static const Map<String, String> fullToShort = {
+    'lundi': 'Lun',
+    'mardi': 'Mar',
+    'mercredi': 'Mer',
+    'jeudi': 'Jeu',
+    'vendredi': 'Ven',
+    'samedi': 'Sam',
+    'dimanche': 'Dim',
+  };
 
   @override
   void onInit() {
@@ -33,7 +62,11 @@ class PlanningRecurrentController extends GetxController {
     try {
       status.value = 'loading';
       planning.value = await _planningService.getPlanningRecurrent(patientId!);
-      selectedDays.value = planning.value?.joursSemaine ?? [];
+      final rawDays = planning.value?.joursSemaine ?? [];
+      selectedDays.value = rawDays.map((d) {
+        final lower = d.toLowerCase();
+        return fullToShort[lower] ?? d;
+      }).toList();
       status.value = 'success';
     } catch (e) {
       errorMessage.value = e.toString();
@@ -45,13 +78,35 @@ class PlanningRecurrentController extends GetxController {
     if (patientId == null) return;
     try {
       status.value = 'loading';
+      final fullDays = selectedDays.map((d) {
+        final lower = d.toLowerCase();
+        return dayToFull[lower] ?? lower;
+      }).toList();
       await _planningService.setPlanningRecurrent(patientId!, {
-        'jours_semaine': selectedDays,
+        'jours_semaine': fullDays,
         'heure_debut': heureDebut.value,
         'heure_fin': heureFin.value,
       });
-      Get.back();
-      Get.snackbar('Succès', 'Planning récurrent enregistré');
+
+      // Génération automatique des séances prévues sur l'agenda
+      try {
+        await _planningService.genererSeances(patientId!);
+      } catch (_) {}
+
+      try {
+        if (Get.isRegistered<AgendaController>()) {
+          Get.find<AgendaController>().loadAgenda(forceRefresh: true);
+        }
+      } catch (_) {}
+      try {
+        if (Get.isRegistered<AccueilController>()) {
+          Get.find<AccueilController>().loadDashboard(forceRefresh: true);
+        }
+      } catch (_) {}
+
+      Get.back(result: true);
+      Get.snackbar('Succès', 'Planning récurrent enregistré et séances générées sur l\'agenda',
+          snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';

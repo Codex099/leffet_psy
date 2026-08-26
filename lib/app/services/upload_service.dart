@@ -21,7 +21,7 @@ class UploadService {
       data: formData,
     );
 
-    final data = response.data as Map<String, dynamic>;
+    final data = Map<String, dynamic>.from(response.data as Map);
     return data['url'] as String? ?? data['path'] as String? ?? '';
   }
 }

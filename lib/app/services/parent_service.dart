@@ -17,26 +17,26 @@ class ParentService {
     );
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => ParentModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => ParentModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
   /// POST /api/parents — Création d'un parent
   Future<ParentModel> createParent(Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.parents, data: data);
-    return ParentModel.fromJson(response.data as Map<String, dynamic>);
+    return ParentModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/parents/{id} — Fiche parent
   Future<ParentModel> getParent(dynamic id) async {
     final response = await _dio.get(ApiConfig.parentById(id));
-    return ParentModel.fromJson(response.data as Map<String, dynamic>);
+    return ParentModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/parents/{id} — Mise à jour parent
   Future<ParentModel> updateParent(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.parentById(id), data: data);
-    return ParentModel.fromJson(response.data as Map<String, dynamic>);
+    return ParentModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/parents/{id} — Suppression parent

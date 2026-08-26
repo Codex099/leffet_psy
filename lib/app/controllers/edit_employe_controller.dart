@@ -4,6 +4,7 @@ import '../models/patient_model.dart';
 import '../services/employee_service.dart';
 import '../services/patient_service.dart';
 import '../utils/json_utils.dart';
+import 'employes_liste_controller.dart';
 
 class EditEmployeController extends GetxController {
   final EmployeeService _employeeService = EmployeeService();
@@ -131,6 +132,12 @@ class EditEmployeController extends GetxController {
       if (selectedPatientIds.isNotEmpty) {
         await _employeeService.assignPatients(saved.id, selectedPatientIds.toList());
       }
+
+      try {
+        if (Get.isRegistered<EmployesListeController>()) {
+          Get.find<EmployesListeController>().loadEmployees();
+        }
+      } catch (_) {}
 
       status.value = 'success';
       Get.back(result: true);

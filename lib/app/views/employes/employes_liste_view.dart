@@ -26,7 +26,10 @@ class EmployesListeView extends GetView<EmployesListeController> {
         showBackButton: true,
         actions: [
           BouncyTap(
-            onTap: () => Get.toNamed(AppRoutes.editEmploye),
+            onTap: () async {
+              final res = await Get.toNamed(AppRoutes.editEmploye);
+              if (res == true) controller.loadEmployees();
+            },
             child: Container(
               padding: const EdgeInsets.all(8),
               margin: const EdgeInsets.only(right: 8),
@@ -79,7 +82,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading();
+                  return StatePlaceholder.loading(message: 'Chargement de l\'équipe...');
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -92,32 +95,42 @@ class EmployesListeView extends GetView<EmployesListeController> {
                     title: 'Aucun employé enregistré',
                     message: 'Ajoutez des membres de l\'équipe pour configurer leurs accès.',
                     actionLabel: '+ Nouvel employé',
-                    onAction: () => Get.toNamed(AppRoutes.editEmploye),
+                    onAction: () async {
+                      final res = await Get.toNamed(AppRoutes.editEmploye);
+                      if (res == true) controller.loadEmployees();
+                    },
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.only(top: 6, bottom: 120),
-                  itemCount: controller.employees.length,
-                  itemBuilder: (context, index) {
-                    final emp = controller.employees[index];
-                    return IosCard(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      children: [
-                        IosCardTile(
-                          leading: PatientAvatar(
-                            initials: emp.initials,
-                            radius: 20,
+                return RefreshIndicator(
+                  onRefresh: () => controller.loadEmployees(),
+                  color: AppColors.primary,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(top: 6, bottom: 120),
+                    itemCount: controller.employees.length,
+                    itemBuilder: (context, index) {
+                      final emp = controller.employees[index];
+                      return IosCard(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        children: [
+                          IosCardTile(
+                            leading: PatientAvatar(
+                              initials: emp.initials,
+                              radius: 20,
+                            ),
+                            title: emp.fullName,
+                            subtitle: "${emp.telephone ?? emp.username} · ${emp.patientsAssignesIds?.length ?? 0} patient(s) assigné(s)",
+                            showChevron: true,
+                            trailing: StatusBadge.active(label: emp.roleLabel),
+                            onTap: () async {
+                              final res = await Get.toNamed(AppRoutes.editEmploye, arguments: emp.id);
+                              if (res == true) controller.loadEmployees();
+                            },
                           ),
-                          title: emp.fullName,
-                          subtitle: "${emp.telephone ?? emp.username} · ${emp.patientsAssignesIds?.length ?? 0} patient(s) assigné(s)",
-                          showChevron: true,
-                          trailing: StatusBadge.active(label: emp.roleLabel),
-                          onTap: () => Get.toNamed(AppRoutes.editEmploye, arguments: emp.id),
-                        ),
-                      ],
-                    );
-                  },
+                        ],
+                      );
+                    },
+                  ),
                 );
               }),
             ),

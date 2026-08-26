@@ -23,26 +23,26 @@ class TacheService {
     );
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => TacheModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => TacheModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
   /// POST /api/taches — Création
   Future<TacheModel> createTache(Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.taches, data: data);
-    return TacheModel.fromJson(response.data as Map<String, dynamic>);
+    return TacheModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/taches/{id}
   Future<TacheModel> getTache(dynamic id) async {
     final response = await _dio.get(ApiConfig.tache(id));
-    return TacheModel.fromJson(response.data as Map<String, dynamic>);
+    return TacheModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/taches/{id}
   Future<TacheModel> updateTache(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.tache(id), data: data);
-    return TacheModel.fromJson(response.data as Map<String, dynamic>);
+    return TacheModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/taches/{id}

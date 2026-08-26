@@ -17,26 +17,26 @@ class GroupeService {
     );
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => GroupeModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => GroupeModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
   /// POST /api/groupes — Création d'un groupe
   Future<GroupeModel> createGroupe(Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.groupes, data: data);
-    return GroupeModel.fromJson(response.data as Map<String, dynamic>);
+    return GroupeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/groupes/{id} — Détail groupe
   Future<GroupeModel> getGroupe(dynamic id) async {
     final response = await _dio.get(ApiConfig.groupe(id));
-    return GroupeModel.fromJson(response.data as Map<String, dynamic>);
+    return GroupeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/groupes/{id} — Mise à jour groupe
   Future<GroupeModel> updateGroupe(dynamic id, Map<String, dynamic> data) async {
     final response = await _dio.put(ApiConfig.groupe(id), data: data);
-    return GroupeModel.fromJson(response.data as Map<String, dynamic>);
+    return GroupeModel.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/groupes/{id} — Suppression groupe
@@ -54,7 +54,7 @@ class GroupeService {
       data: data,
     );
     return GroupePlanningRecurrentModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// POST /api/groupes/{id}/patients — Ajouter un patient au groupe
@@ -79,6 +79,6 @@ class GroupeService {
       queryParameters: {'patient_id': patientId},
     );
     final list = response.data as List<dynamic>;
-    return list.map((e) => e as Map<String, dynamic>).toList();
+    return list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
   }
 }

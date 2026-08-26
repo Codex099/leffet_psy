@@ -13,7 +13,7 @@ class PlanTherapeutiqueService {
     final list = response.data as List<dynamic>;
     return list
         .map((e) =>
-            PlanTherapeutiqueModel.fromJson(e as Map<String, dynamic>))
+            PlanTherapeutiqueModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
@@ -27,7 +27,7 @@ class PlanTherapeutiqueService {
       data: data,
     );
     return PlanTherapeutiqueModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// GET /api/plans-therapeutiques/{plan_id}
@@ -35,7 +35,7 @@ class PlanTherapeutiqueService {
     final response =
         await _dio.get(ApiConfig.planTherapeutique(planId));
     return PlanTherapeutiqueModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/plans-therapeutiques/{plan_id}
@@ -48,7 +48,7 @@ class PlanTherapeutiqueService {
       data: data,
     );
     return PlanTherapeutiqueModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/plans-therapeutiques/{plan_id}
@@ -61,7 +61,7 @@ class PlanTherapeutiqueService {
     final response = await _dio.get(ApiConfig.planEtapes(planId));
     final list = response.data as List<dynamic>;
     return list
-        .map((e) => EtapePlanTherapeutiqueModel.fromJson(e as Map<String, dynamic>))
+        .map((e) => EtapePlanTherapeutiqueModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
@@ -73,7 +73,7 @@ class PlanTherapeutiqueService {
     final response =
         await _dio.post(ApiConfig.planEtapes(planId), data: data);
     return EtapePlanTherapeutiqueModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}
@@ -87,7 +87,7 @@ class PlanTherapeutiqueService {
       data: data,
     );
     return EtapePlanTherapeutiqueModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}
@@ -102,6 +102,6 @@ class PlanTherapeutiqueService {
   ) async {
     final response =
         await _dio.post(ApiConfig.planEtapeCreerTache(planId, etapeId));
-    return response.data as Map<String, dynamic>;
+    return Map<String, dynamic>.from(response.data as Map);
   }
 }

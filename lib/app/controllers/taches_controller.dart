@@ -8,7 +8,7 @@ class TachesController extends GetxController {
   final RxList<TacheModel> taches = <TacheModel>[].obs;
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
-  final RxBool filterAssignesAMoi = true.obs;
+  final RxBool filterAssignesAMoi = false.obs;
 
   /// Cache TTL — 3 minutes (les tâches changent plus vite)
   DateTime? _lastLoaded;
@@ -34,7 +34,7 @@ class TachesController extends GetxController {
     try {
       status.value = 'loading';
       final list = await _tacheService.getTaches(
-        assigneesAMoi: filterAssignesAMoi.value,
+        assigneesAMoi: filterAssignesAMoi.value ? true : null,
       );
       taches.value = list;
       _lastLoaded = DateTime.now();
@@ -52,9 +52,12 @@ class TachesController extends GetxController {
     loadTaches(forceRefresh: true); // filtre change → force refresh
   }
 
-  List<TacheModel> get tachesAFaire => taches.where((t) => t.statut == 'a_faire').toList();
+  List<TacheModel> get tachesAFaire => taches
+      .where((t) => t.statut == 'a_faire' || (t.statut != 'en_cours' && t.statut != 'fait' && t.statut != 'terminee'))
+      .toList();
   List<TacheModel> get tachesEnCours => taches.where((t) => t.statut == 'en_cours').toList();
-  List<TacheModel> get tachesFait => taches.where((t) => t.statut == 'fait').toList();
+  List<TacheModel> get tachesFait =>
+      taches.where((t) => t.statut == 'fait' || t.statut == 'terminee' || t.statut == 'cloturee').toList();
 
   /// Met à jour le statut d'une tâche depuis la liste (US-M38)
   Future<void> updateStatutFromList(dynamic tacheId, String newStatut) async {

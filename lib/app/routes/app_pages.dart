@@ -5,8 +5,8 @@ import '../bindings/accueil_binding.dart';
 import '../bindings/agenda_binding.dart';
 import '../bindings/auth_binding.dart';
 import '../bindings/calendrier_binding.dart';
-import '../bindings/compte_rendu_groupe_binding.dart';
-import '../bindings/compte_rendu_seance_binding.dart';
+import '../bindings/compte_rendu_hub_binding.dart';
+import '../bindings/compte_rendu_specialiste_binding.dart';
 import '../bindings/creation_seance_binding.dart';
 import '../bindings/detail_tache_binding.dart';
 import '../bindings/dossier_medical_binding.dart';
@@ -31,8 +31,8 @@ import '../bindings/taches_binding.dart';
 import '../views/accueil/accueil_view.dart';
 import '../views/agenda/agenda_view.dart';
 import '../views/calendrier/calendrier_view.dart';
-import '../views/compte_rendu_groupe/compte_rendu_groupe_view.dart';
-import '../views/compte_rendu_seance/compte_rendu_seance_view.dart';
+import '../views/compte_rendu_hub/compte_rendu_hub_view.dart';
+import '../views/compte_rendu_specialiste/compte_rendu_specialiste_view.dart';
 import '../views/creation_seance/creation_seance_view.dart';
 import '../views/detail_tache/detail_tache_view.dart';
 import '../views/dossier_medical/dossier_medical_view.dart';
@@ -160,14 +160,24 @@ class AppPages {
       binding: EditEmployeBinding(),
     ),
     GetPage(
+      name: AppRoutes.compteRenduHub,
+      page: () => const CompteRenduHubView(),
+      binding: CompteRenduHubBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.compteRenduSpecialiste,
+      page: () => const CompteRenduSpecialisteView(),
+      binding: CompteRenduSpecialisteBinding(),
+    ),
+    GetPage(
       name: AppRoutes.compteRenduSeance,
-      page: () => const CompteRenduSeanceView(),
-      binding: CompteRenduSeanceBinding(),
+      page: () => const CompteRenduSpecialisteView(),
+      binding: CompteRenduSpecialisteBinding(),
     ),
     GetPage(
       name: AppRoutes.compteRenduGroupe,
-      page: () => const CompteRenduGroupeView(),
-      binding: CompteRenduGroupeBinding(),
+      page: () => const CompteRenduSpecialisteView(),
+      binding: CompteRenduSpecialisteBinding(),
     ),
     GetPage(
       name: AppRoutes.creationSeance,

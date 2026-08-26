@@ -22,7 +22,7 @@ class CalendrierService {
     final list = response.data as List<dynamic>;
     return list
         .map((e) =>
-            EvenementCalendrierModel.fromJson(e as Map<String, dynamic>))
+            EvenementCalendrierModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
   }
 
@@ -31,7 +31,7 @@ class CalendrierService {
       Map<String, dynamic> data) async {
     final response = await _dio.post(ApiConfig.calendrier, data: data);
     return EvenementCalendrierModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// PUT /api/calendrier/{id}
@@ -40,7 +40,7 @@ class CalendrierService {
     final response =
         await _dio.put(ApiConfig.evenementCalendrier(id), data: data);
     return EvenementCalendrierModel.fromJson(
-        response.data as Map<String, dynamic>);
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// DELETE /api/calendrier/{id}

@@ -161,7 +161,10 @@ class AccueilView extends GetView<AccueilController> {
                               subtitle: 'Créer dossier',
                               icon: Icons.person_add_rounded,
                               color: AppColors.primary,
-                              onTap: () => Get.toNamed(AppRoutes.editPatient),
+                              onTap: () async {
+                                final res = await Get.toNamed(AppRoutes.editPatient);
+                                if (res == true) controller.loadDashboard();
+                              },
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -171,7 +174,10 @@ class AccueilView extends GetView<AccueilController> {
                               subtitle: 'Planifier RDV',
                               icon: Icons.add_alarm_rounded,
                               color: AppColors.secondary,
-                              onTap: () => Get.toNamed(AppRoutes.creationSeance),
+                              onTap: () async {
+                                final res = await Get.toNamed(AppRoutes.creationSeance);
+                                if (res == true) controller.loadDashboard();
+                              },
                             ),
                           ),
                         ],
@@ -185,7 +191,10 @@ class AccueilView extends GetView<AccueilController> {
                               subtitle: 'Action à faire',
                               icon: Icons.check_circle_outline_rounded,
                               color: AppColors.accentCoral,
-                              onTap: () => Get.toNamed(AppRoutes.detailTache),
+                              onTap: () async {
+                                final res = await Get.toNamed(AppRoutes.detailTache);
+                                if (res == true) controller.loadDashboard();
+                              },
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -195,7 +204,10 @@ class AccueilView extends GetView<AccueilController> {
                               subtitle: 'Atelier collectif',
                               icon: Icons.groups_rounded,
                               color: AppColors.primaryLight,
-                              onTap: () => Get.toNamed(AppRoutes.editGroupe),
+                              onTap: () async {
+                                final res = await Get.toNamed(AppRoutes.editGroupe);
+                                if (res == true) controller.loadDashboard();
+                              },
                             ),
                           ),
                         ],
@@ -230,6 +242,53 @@ class AccueilView extends GetView<AccueilController> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // ── Espace Comptes-Rendus & Bilans Spécialiste ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: BouncyTap(
+                    onTap: () => Get.toNamed(AppRoutes.compteRenduHub),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.border, width: 0.9),
+                        boxShadow: AppColors.softShadow,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.assignment_turned_in_rounded, color: AppColors.primary, size: 22),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Espace Comptes-Rendus',
+                                  style: AppTextStyles.iosSubhead.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                Text(
+                                  'Bilans cliniques & rappels de suivi',
+                                  style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary, size: 20),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 18),
@@ -286,15 +345,33 @@ class AccueilView extends GetView<AccueilController> {
                     else
                       ...controller.prochainesSeances.map((s) {
                         return IosCardTile(
-                          leading: PatientAvatar(
-                            initials: s.patientFullName.isNotEmpty ? s.patientFullName[0] : 'P',
-                            radius: 20,
-                          ),
-                          title: s.patientFullName,
-                          subtitle: '${s.heureDebut} — ${s.heureFin} (${s.duree})',
+                          leading: s.isGroupe
+                              ? Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryLight.withValues(alpha: 0.20),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(Icons.groups_rounded, color: AppColors.primary, size: 22),
+                                )
+                              : PatientAvatar(
+                                  photoUrl: s.photoUrl,
+                                  initials: s.initials,
+                                  radius: 20,
+                                ),
+                          title: s.title,
+                          subtitle: s.subtitle,
                           trailing: StatusBadge.active(label: s.statutLabel),
                           showChevron: true,
-                          onTap: () => Get.toNamed(AppRoutes.compteRenduSeance, arguments: s.id),
+                          onTap: () async {
+                            if (s.isGroupe) {
+                              await Get.toNamed(AppRoutes.compteRenduGroupe, arguments: s.id);
+                            } else {
+                              await Get.toNamed(AppRoutes.compteRenduSeance, arguments: s.id);
+                            }
+                            controller.loadDashboard(forceRefresh: true);
+                          },
                         );
                       }),
                   ],

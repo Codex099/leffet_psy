@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/agenda_controller.dart';
-import '../../models/seance_model.dart';
+import '../../models/agenda_session_item.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
@@ -28,7 +28,10 @@ class AgendaView extends GetView<AgendaController> {
         subtitle: 'Consultations Cliniques',
         actions: [
           BouncyTap(
-            onTap: () => Get.toNamed(AppRoutes.creationSeance),
+            onTap: () async {
+              final res = await Get.toNamed(AppRoutes.creationSeance);
+              if (res == true) controller.loadAgenda(forceRefresh: true);
+            },
             child: Container(
               padding: const EdgeInsets.all(8),
               margin: const EdgeInsets.only(right: 8),
@@ -50,138 +53,247 @@ class AgendaView extends GetView<AgendaController> {
         bottom: false,
         child: Column(
           children: [
-            // ── Mode Switcher (Jour / Semaine) ──
-            Obx(() => IosSegmentedControl<String>(
-                  segments: const {
-                    'Jour': 'Vue Journée',
-                    'Semaine': 'Vue Semaine',
-                  },
-                  selectedValue: controller.activeMode.value,
-                  onValueChanged: (mode) => controller.setMode(mode),
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                )),
-
-            // ── Date Navigation Card Simple ──
+            // ── En-tête Mois & Navigation Semaine ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border, width: 0.9),
-                  boxShadow: AppColors.softShadow,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    BouncyTap(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        controller.previousDay();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldBackground,
-                          borderRadius: BorderRadius.circular(10),
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Titre Mois Année
+                  Obx(() => InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: controller.selectedDate.value,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime(2030),
+                          );
+                          if (picked != null) {
+                            controller.selectDate(picked);
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(10),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                          child: Row(
+                            children: [
+                              Text(
+                                controller.monthYearTitle,
+                                style: AppTextStyles.iosTitle3.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primary, size: 22),
+                            ],
+                          ),
                         ),
-                        child: const Icon(Icons.chevron_left_rounded, color: AppColors.primary, size: 24),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: controller.selectedDate.value,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2030),
-                        );
-                        if (picked != null) {
-                          controller.selectedDate.value = picked;
-                          controller.loadAgenda();
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        child: Column(
-                          children: [
-                            Obx(() => Text(
-                                  controller.formattedDate,
-                                  style: AppTextStyles.iosHeadline.copyWith(
+                      )),
+
+                  // Bouton Aujourd'hui & Flèches navigation
+                  Row(
+                    children: [
+                      Obx(() {
+                        if (!controller.isSelectedDateToday) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: BouncyTap(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                controller.goToToday();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.10),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Text(
+                                  'Aujourd\'hui',
+                                  style: AppTextStyles.iosCaption1.copyWith(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w700,
                                   ),
-                                )),
-                            const SizedBox(height: 2),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.calendar_month_rounded, size: 13, color: AppColors.secondary),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Changer de date',
-                                  style: AppTextStyles.iosCaption2.copyWith(color: AppColors.secondary),
                                 ),
-                              ],
+                              ),
                             ),
-                          ],
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                      BouncyTap(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          controller.previousWeek();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.border, width: 0.8),
+                          ),
+                          child: const Icon(Icons.chevron_left_rounded, size: 20, color: AppColors.textPrimary),
                         ),
                       ),
-                    ),
-                    BouncyTap(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        controller.nextDay();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldBackground,
-                          borderRadius: BorderRadius.circular(10),
+                      const SizedBox(width: 6),
+                      BouncyTap(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          controller.nextWeek();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.border, width: 0.8),
+                          ),
+                          child: const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textPrimary),
                         ),
-                        child: const Icon(Icons.chevron_right_rounded, color: AppColors.primary, size: 24),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
             ),
 
-            // ── Content / List of Sessions ──
+            // ── Bandeau Horizontal 7 Jours (Week Strip) ──
+            Obx(() {
+              final weekDays = controller.currentWeekDays;
+              final selected = controller.selectedDate.value;
+              final now = DateTime.now();
+
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.border, width: 0.8),
+                  boxShadow: AppColors.softShadow,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: weekDays.map((day) {
+                    final bool isSelected =
+                        selected.year == day.year && selected.month == day.month && selected.day == day.day;
+                    final bool isToday =
+                        now.year == day.year && now.month == day.month && now.day == day.day;
+                    final bool hasSessions = controller.hasSessionsOn(day);
+                    final dayShorts = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'];
+                    final dayName = dayShorts[day.weekday - 1];
+
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          controller.selectDate(day);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            gradient: isSelected ? AppColors.oceanGradient : null,
+                            color: isSelected
+                                ? null
+                                : isToday
+                                    ? AppColors.primaryLight.withValues(alpha: 0.15)
+                                    : Colors.transparent,
+                            borderRadius: BorderRadius.circular(14),
+                            border: isToday && !isSelected
+                                ? Border.all(color: AppColors.primary, width: 1.2)
+                                : null,
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.primary.withValues(alpha: 0.25),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    )
+                                  ]
+                                : null,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                dayName,
+                                style: AppTextStyles.iosCaption2.copyWith(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected
+                                      ? Colors.white.withValues(alpha: 0.90)
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${day.day}',
+                                style: AppTextStyles.iosHeadline.copyWith(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : isToday
+                                          ? AppColors.primary
+                                          : AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              // Indicateur de séance
+                              Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: hasSessions
+                                      ? (isSelected ? AppColors.accentCoral : AppColors.primary)
+                                      : Colors.transparent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            }),
+
+            // ── Mode Switcher (Jour / Semaine complète) ──
+            Obx(() => IosSegmentedControl<String>(
+                  segments: const {
+                    'Jour': 'Vue Journée',
+                    'Semaine': 'Semaine Complète',
+                  },
+                  selectedValue: controller.activeMode.value,
+                  onValueChanged: (mode) => controller.setMode(mode),
+                  margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                )),
+
+            // ── Contenu Séances ──
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(message: 'Chargement du planning...');
+                  return StatePlaceholder.loading(message: 'Chargement des consultations...');
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
                     message: controller.errorMessage.value,
-                    onAction: () => controller.loadAgenda(),
-                  );
-                }
-                if (controller.seances.isEmpty) {
-                  return StatePlaceholder.empty(
-                    title: 'Aucune séance programmée',
-                    message: 'Aucun rendez-vous planifié pour cette date.',
-                    actionLabel: '+ Planifier un rendez-vous',
-                    onAction: () => Get.toNamed(AppRoutes.creationSeance),
+                    onAction: () => controller.loadAgenda(forceRefresh: true),
                   );
                 }
 
-                return RefreshIndicator(
-                  onRefresh: () async => controller.loadAgenda(),
-                  color: AppColors.primary,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 6, bottom: 120),
-                    itemCount: controller.seances.length,
-                    itemBuilder: (context, index) {
-                      final seance = controller.seances[index];
-                      return _buildSessionCard(seance);
-                    },
-                  ),
-                );
+                if (controller.activeMode.value == 'Jour') {
+                  return _buildDayView(context);
+                } else {
+                  return _buildWeekView(context);
+                }
               }),
             ),
           ],
@@ -190,20 +302,168 @@ class AgendaView extends GetView<AgendaController> {
     );
   }
 
-  Widget _buildSessionCard(SeanceModel seance) {
+  /// Vue Journée simple et claire
+  Widget _buildDayView(BuildContext context) {
+    final daySessions = controller.sessionsForSelectedDate;
+
+    if (daySessions.isEmpty) {
+      return StatePlaceholder.empty(
+        title: 'Aucune consultation',
+        message: 'Aucun rendez-vous prévu pour le ${controller.formattedSelectedDate}.',
+        actionLabel: '+ Planifier un rendez-vous',
+        onAction: () async {
+          final res = await Get.toNamed(AppRoutes.creationSeance);
+          if (res == true) controller.loadAgenda(forceRefresh: true);
+        },
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => controller.loadAgenda(forceRefresh: true),
+      color: AppColors.primary,
+      child: ListView(
+        padding: const EdgeInsets.only(top: 6, bottom: 120),
+        children: [
+          // En-tête du jour sélectionné
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  controller.formattedSelectedDate,
+                  style: AppTextStyles.iosSubhead.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${daySessions.length} séance${daySessions.length > 1 ? "s" : ""}',
+                    style: AppTextStyles.iosCaption1.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Liste des cartes de séance
+          ...daySessions.map((session) => _buildSessionCard(session)),
+        ],
+      ),
+    );
+  }
+
+  /// Vue Semaine Complète regroupée par jour
+  Widget _buildWeekView(BuildContext context) {
+    final weekDays = controller.currentWeekDays;
+    final weekSessions = controller.sessionsForCurrentWeek;
+
+    if (weekSessions.isEmpty) {
+      return StatePlaceholder.empty(
+        title: 'Semaine libre',
+        message: 'Aucune consultation programmée pour cette semaine.',
+        actionLabel: '+ Planifier un rendez-vous',
+        onAction: () async {
+          final res = await Get.toNamed(AppRoutes.creationSeance);
+          if (res == true) controller.loadAgenda(forceRefresh: true);
+        },
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => controller.loadAgenda(forceRefresh: true),
+      color: AppColors.primary,
+      child: ListView.builder(
+        padding: const EdgeInsets.only(top: 6, bottom: 120),
+        itemCount: weekDays.length,
+        itemBuilder: (context, index) {
+          final day = weekDays[index];
+          final sessions = controller.sessionsForDate(day);
+          if (sessions.isEmpty) return const SizedBox.shrink();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      controller.formatDayDate(day),
+                      style: AppTextStyles.iosSubhead.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '(${sessions.length})',
+                      style: AppTextStyles.iosCaption1.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ...sessions.map((session) => _buildSessionCard(session)),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSessionCard(AgendaSessionItem session) {
     return IosCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       children: [
         IosCardTile(
-          leading: PatientAvatar(
-            initials: seance.patientFullName.isNotEmpty ? seance.patientFullName[0] : 'S',
-            radius: 20,
-          ),
-          title: seance.patientFullName.isNotEmpty ? seance.patientFullName : 'Patient #${seance.patientId}',
-          subtitle: '${seance.heureDebut} — ${seance.heureFin} (${seance.duree})',
+          leading: session.isGroupe
+              ? Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryLight.withValues(alpha: 0.20),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.groups_rounded, color: AppColors.primary, size: 24),
+                )
+              : PatientAvatar(
+                  photoUrl: session.photoUrl,
+                  initials: session.initials,
+                  radius: 21,
+                ),
+          title: session.title,
+          subtitle: '${session.heureDebut} — ${session.heureFin}${session.isGroupe && session.participants != null ? " • ${session.participants!.length} participant(s)" : ""}',
           showChevron: true,
-          trailing: StatusBadge.active(label: seance.statutLabel),
-          onTap: () => Get.toNamed(AppRoutes.compteRenduSeance, arguments: seance.id),
+          trailing: StatusBadge.active(label: session.statutLabel),
+          onTap: () async {
+            if (session.isGroupe) {
+              await Get.toNamed(AppRoutes.compteRenduGroupe, arguments: session.id);
+            } else {
+              await Get.toNamed(AppRoutes.compteRenduSeance, arguments: session.id);
+            }
+            controller.loadAgenda(forceRefresh: true);
+          },
         ),
       ],
     );

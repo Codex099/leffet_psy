@@ -32,7 +32,9 @@ abstract class AppRoutes {
   static const employesListe = '/employes';
   static const editEmploye = '/employes/edit';
 
-  // ─── Séances ───────────────────────────────────────────────────────────────
+  // ─── Séances & Comptes-rendus ──────────────────────────────────────────────
+  static const compteRenduHub = '/comptes-rendus';
+  static const compteRenduSpecialiste = '/comptes-rendus/redaction';
   static const compteRenduSeance = '/seances/compte-rendu';
   static const compteRenduGroupe = '/seances-groupe/compte-rendu';
   static const creationSeance = '/seances/creation';

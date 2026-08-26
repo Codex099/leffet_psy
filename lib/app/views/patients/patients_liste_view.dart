@@ -27,7 +27,12 @@ class PatientsListeView extends GetView<PatientsListeController> {
         subtitle: 'Cabinet PsyCare',
         actions: [
           BouncyTap(
-            onTap: () => Get.toNamed(AppRoutes.editPatient),
+            onTap: () async {
+              final res = await Get.toNamed(AppRoutes.editPatient);
+              if (res == true) {
+                controller.loadPatients();
+              }
+            },
             child: Container(
               padding: const EdgeInsets.all(8),
               margin: const EdgeInsets.only(right: 8),
@@ -132,7 +137,12 @@ class PatientsListeView extends GetView<PatientsListeController> {
                     title: 'Aucun patient trouvé',
                     message: 'Vous pouvez ajouter un nouveau dossier dès maintenant.',
                     actionLabel: '+ Créer un dossier patient',
-                    onAction: () => Get.toNamed(AppRoutes.editPatient),
+                    onAction: () async {
+                      final res = await Get.toNamed(AppRoutes.editPatient);
+                      if (res == true) {
+                        controller.loadPatients();
+                      }
+                    },
                   );
                 }
 
@@ -182,7 +192,10 @@ class PatientsListeView extends GetView<PatientsListeController> {
               : patient.sexeLabel,
           trailing: StatusBadge.active(label: patient.statutLabel),
           showChevron: true,
-          onTap: () => Get.toNamed(AppRoutes.patientInfo, arguments: patient.id),
+          onTap: () async {
+            await Get.toNamed(AppRoutes.patientInfo, arguments: patient.id);
+            controller.loadPatients();
+          },
         ),
       ],
     );

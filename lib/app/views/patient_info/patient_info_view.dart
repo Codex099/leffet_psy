@@ -79,11 +79,17 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 22),
-                                      onPressed: () => Get.toNamed(AppRoutes.editPatient, arguments: controller.patientId),
+                                      onPressed: () async {
+                                        final res = await Get.toNamed(AppRoutes.editPatient, arguments: controller.patientId);
+                                        if (res == true) controller.loadPatientInfo();
+                                      },
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.medical_services_outlined, color: Colors.white, size: 22),
-                                      onPressed: () => Get.toNamed(AppRoutes.dossierMedical, arguments: controller.patientId),
+                                      onPressed: () async {
+                                        await Get.toNamed(AppRoutes.dossierMedical, arguments: controller.patientId);
+                                        controller.loadPatientInfo();
+                                      },
                                     ),
                                   ],
                                 ),
@@ -257,7 +263,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       title: 'Plan thérapeutique',
                       icon: Icons.assignment_rounded,
                       actionLabel: 'Voir tout',
-                      onActionTap: () => Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId),
+                      onActionTap: () async {
+                        await Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId);
+                        controller.loadPatientInfo();
+                      },
                       child: controller.plans.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -266,7 +275,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                   Text('Aucun plan thérapeutique.', style: AppTextStyles.bodySmall),
                                   const SizedBox(height: 8),
                                   OutlinedButton.icon(
-                                    onPressed: () => Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId),
+                                    onPressed: () async {
+                                      await Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId);
+                                      controller.loadPatientInfo();
+                                    },
                                     icon: const Icon(Icons.add, size: 14),
                                     label: const Text('Créer un plan'),
                                     style: OutlinedButton.styleFrom(
@@ -306,25 +318,34 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       title: 'Historique des séances',
                       icon: Icons.access_time_rounded,
                       actionLabel: 'Tout voir',
-                      onActionTap: () => Get.toNamed(AppRoutes.historiqueSeancesPatient, arguments: controller.patientId),
+                      onActionTap: () async {
+                        await Get.toNamed(AppRoutes.historiqueSeancesPatient, arguments: controller.patientId);
+                        controller.loadPatientInfo();
+                      },
                       child: Column(
                         children: [
                           _buildSeanceTypeItem(
                             icon: Icons.calendar_month_rounded,
                             label: 'Séances individuelles',
-                            onTap: () => Get.toNamed(
-                              AppRoutes.historiqueSeancesPatient,
-                              arguments: {'id': controller.patientId, 'type': 'individuel'},
-                            ),
+                            onTap: () async {
+                              await Get.toNamed(
+                                AppRoutes.historiqueSeancesPatient,
+                                arguments: {'id': controller.patientId, 'type': 'individuel'},
+                              );
+                              controller.loadPatientInfo();
+                            },
                           ),
                           const SizedBox(height: 8),
                           _buildSeanceTypeItem(
                             icon: Icons.groups_rounded,
                             label: 'Séances groupe',
-                            onTap: () => Get.toNamed(
-                              AppRoutes.historiqueSeancesPatient,
-                              arguments: {'id': controller.patientId, 'type': 'groupe'},
-                            ),
+                            onTap: () async {
+                              await Get.toNamed(
+                                AppRoutes.historiqueSeancesPatient,
+                                arguments: {'id': controller.patientId, 'type': 'groupe'},
+                              );
+                              controller.loadPatientInfo();
+                            },
                           ),
                         ],
                       ),
@@ -337,7 +358,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       subtitle: 'Suivi des activations et notes',
                       icon: Icons.history_rounded,
                       actionLabel: 'Gérer',
-                      onActionTap: () => Get.toNamed(AppRoutes.statutHistorique, arguments: controller.patientId),
+                      onActionTap: () async {
+                        await Get.toNamed(AppRoutes.statutHistorique, arguments: controller.patientId);
+                        controller.loadPatientInfo();
+                      },
                       child: controller.statutHistorique.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -378,22 +402,18 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                         Container(
                                           padding: const EdgeInsets.all(10),
                                           decoration: BoxDecoration(
-                                            color: AppColors.primary.withValues(alpha: 0.08),
+                                            color: AppColors.surface,
                                             borderRadius: BorderRadius.circular(10),
-                                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.15)),
+                                            border: Border.all(color: AppColors.borderLight),
                                           ),
                                           child: Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              const Icon(Icons.rate_review_outlined, size: 16, color: AppColors.primary),
+                                              const Icon(Icons.sticky_note_2_outlined, size: 16, color: AppColors.secondary),
                                               const SizedBox(width: 8),
                                               Expanded(
                                                 child: Text(
                                                   hist.noteDegradation!,
-                                                  style: AppTextStyles.iosFootnote.copyWith(
-                                                    color: AppColors.primary,
-                                                    fontStyle: FontStyle.italic,
-                                                  ),
+                                                  style: AppTextStyles.bodySmall.copyWith(fontStyle: FontStyle.italic),
                                                 ),
                                               ),
                                             ],
@@ -413,7 +433,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       title: 'Notes & Observations',
                       icon: Icons.note_alt_outlined,
                       headerWidget: ElevatedButton.icon(
-                        onPressed: () => Get.toNamed(AppRoutes.notesPatient, arguments: controller.patientId),
+                        onPressed: () async {
+                          await Get.toNamed(AppRoutes.notesPatient, arguments: controller.patientId);
+                          controller.loadPatientInfo();
+                        },
                         icon: const Icon(Icons.add, size: 16),
                         label: const Text('Note'),
                         style: ElevatedButton.styleFrom(
@@ -462,7 +485,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           ),
                           const SizedBox(height: 12),
                           ElevatedButton.icon(
-                            onPressed: () => Get.toNamed(AppRoutes.planningRecurrent, arguments: controller.patientId),
+                            onPressed: () async {
+                              await Get.toNamed(AppRoutes.planningRecurrent, arguments: controller.patientId);
+                              controller.loadPatientInfo();
+                            },
                             icon: const Icon(Icons.tune_rounded),
                             label: const Text('Définir les créneaux'),
                             style: ElevatedButton.styleFrom(

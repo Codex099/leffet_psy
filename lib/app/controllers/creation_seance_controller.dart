@@ -8,6 +8,8 @@ import '../services/employee_service.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 import '../utils/json_utils.dart';
+import 'accueil_controller.dart';
+import 'agenda_controller.dart';
 
 class CreationSeanceController extends GetxController {
   final SeanceService _seanceService = SeanceService();
@@ -114,6 +116,17 @@ class CreationSeanceController extends GetxController {
       }
 
       status.value = 'success';
+      try {
+        if (Get.isRegistered<AgendaController>()) {
+          Get.find<AgendaController>().loadAgenda(forceRefresh: true);
+        }
+      } catch (_) {}
+      try {
+        if (Get.isRegistered<AccueilController>()) {
+          Get.find<AccueilController>().loadDashboard(forceRefresh: true);
+        }
+      } catch (_) {}
+
       Get.back(result: true);
       Get.snackbar('Succès', 'Séance planifiée avec succès', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {

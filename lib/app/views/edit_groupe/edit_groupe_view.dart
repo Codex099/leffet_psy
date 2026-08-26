@@ -82,20 +82,6 @@ class _EditGroupeViewState extends State<EditGroupeView> {
               ]),
               const SizedBox(height: 16),
 
-              // ── Type de groupe ──
-              _card(children: [
-                Text('Type de groupe', style: AppTextStyles.sectionTitle),
-                const SizedBox(height: 14),
-                Obx(() => Row(
-                      children: [
-                        Expanded(child: _buildTypeTile('fixe', 'Fixe')),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildTypeTile('ponctuel', 'Ponctuel')),
-                      ],
-                    )),
-              ]),
-              const SizedBox(height: 16),
-
               // ── Planning récurrent multi-créneaux ──
               _card(children: [
                 Row(
@@ -332,32 +318,6 @@ class _EditGroupeViewState extends State<EditGroupeView> {
         boxShadow: AppColors.cardShadow,
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
-    );
-  }
-
-  Widget _buildTypeTile(String value, String label) {
-    final isSelected = controller.typePlanning.value == value;
-    return InkWell(
-      onTap: () => controller.typePlanning.value = value,
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : AppColors.fieldBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: isSelected ? Colors.white : AppColors.textPrimary,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ),
-      ),
     );
   }
 
