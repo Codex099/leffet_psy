@@ -570,7 +570,7 @@ class EditPatientView extends GetView<EditPatientController> {
                   onChanged: (v) => controller.addPlanTherapeutique.value = v,
                   title: Text('Créer un plan thérapeutique',
                       style: AppTextStyles.bodyMedium),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                   contentPadding: EdgeInsets.zero,
                 )),
           ]),

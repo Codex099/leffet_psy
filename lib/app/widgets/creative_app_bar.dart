@@ -4,9 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import 'clinical_decorations.dart';
 
-/// AppBar créative et responsive avec dégradé subtil, effets de verre et micro-animations
+/// AppBar premium iOS 17 — Frosted glass, gradient, et micro-animations.
 class CreativeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? subtitle;
@@ -28,152 +27,221 @@ class CreativeAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(subtitle != null ? 68.0 : 56.0);
+  Size get preferredSize => Size.fromHeight(subtitle != null ? 70.0 : 58.0);
 
   @override
   Widget build(BuildContext context) {
     if (isGradient) {
-      return Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.oceanGradient,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              children: [
-                if (showBackButton)
-                  BouncyTap(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      margin: const EdgeInsets.only(right: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  )
-                else if (leading != null)
-                  leading!,
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (subtitle != null)
-                        Text(
-                          subtitle!.toUpperCase(),
-                          style: AppTextStyles.iosCaption2.copyWith(
-                            color: Colors.white.withValues(alpha: 0.8),
-                            letterSpacing: 0.8,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      Text(
-                        title,
-                        style: AppTextStyles.iosTitle3.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (actions != null) ...actions!,
-              ],
-            ),
-          ),
-        ),
+      return _GradientAppBar(
+        title: title,
+        subtitle: subtitle,
+        leading: leading,
+        actions: actions,
+        showBackButton: showBackButton,
+        preferredSize: preferredSize,
       );
     }
+    return _FrostedAppBar(
+      title: title,
+      subtitle: subtitle,
+      leading: leading,
+      actions: actions,
+      showBackButton: showBackButton,
+      backgroundColor: backgroundColor,
+      preferredSize: preferredSize,
+    );
+  }
+}
 
-    // Version Frosted Glass Lumineuse avec bordure teintée
-    return ClipRRect(
+// ─── Gradient AppBar ──────────────────────────────────────────────────────────
+class _GradientAppBar extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final Widget? leading;
+  final List<Widget>? actions;
+  final bool showBackButton;
+  final Size preferredSize;
+
+  const _GradientAppBar({
+    required this.title,
+    this.subtitle,
+    this.leading,
+    this.actions,
+    required this.showBackButton,
+    required this.preferredSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: AppColors.headerGradient,
+        boxShadow: AppColors.heroShadow,
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            children: [
+              if (showBackButton)
+                _BackButton(isOnDark: true)
+              else if (leading != null)
+                leading!,
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (subtitle != null)
+                      Text(
+                        subtitle!.toUpperCase(),
+                        style: AppTextStyles.iosCaption2.copyWith(
+                          color: Colors.white.withValues(alpha: 0.75),
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    Text(
+                      title,
+                      style: AppTextStyles.iosTitle3.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (actions != null) ...actions!,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Frosted Glass AppBar ─────────────────────────────────────────────────────
+class _FrostedAppBar extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final Widget? leading;
+  final List<Widget>? actions;
+  final bool showBackButton;
+  final Color? backgroundColor;
+  final Size preferredSize;
+
+  const _FrostedAppBar({
+    required this.title,
+    this.subtitle,
+    this.leading,
+    this.actions,
+    required this.showBackButton,
+    this.backgroundColor,
+    required this.preferredSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: Container(
           decoration: BoxDecoration(
-            color: backgroundColor ?? Colors.white.withValues(alpha: 0.92),
+            color: backgroundColor ?? Colors.white.withValues(alpha: 0.94),
             border: const Border(
-              bottom: BorderSide(
-                color: AppColors.borderLight,
-                width: 1.0,
-              ),
+              bottom: BorderSide(color: AppColors.borderLight, width: 0.6),
             ),
           ),
           child: SafeArea(
             bottom: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: Row(
                 children: [
                   if (showBackButton)
-                    BouncyTap(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        Get.back();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        margin: const EdgeInsets.only(right: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldBackground,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: AppColors.primary,
-                          size: 18,
-                        ),
-                      ),
-                    )
+                    _BackButton(isOnDark: false)
                   else if (leading != null)
                     leading!,
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (subtitle != null)
-                          Text(
-                            subtitle!.toUpperCase(),
-                            style: AppTextStyles.iosCaption2.copyWith(
-                              color: AppColors.secondary,
-                              letterSpacing: 0.8,
+                    child: subtitle != null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                subtitle!.toUpperCase(),
+                                style: AppTextStyles.iosCaption2.copyWith(
+                                  color: AppColors.secondary,
+                                  letterSpacing: 1.0,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              Text(
+                                title,
+                                style: AppTextStyles.iosTitle3.copyWith(
+                                  color: AppColors.textPrimary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            title,
+                            style: AppTextStyles.iosTitle3.copyWith(
+                              color: AppColors.textPrimary,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                        Text(
-                          title,
-                          style: AppTextStyles.iosTitle3.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                   if (actions != null) ...actions!,
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Back Button ──────────────────────────────────────────────────────────────
+class _BackButton extends StatefulWidget {
+  final bool isOnDark;
+  const _BackButton({required this.isOnDark});
+
+  @override
+  State<_BackButton> createState() => _BackButtonState();
+}
+
+class _BackButtonState extends State<_BackButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        HapticFeedback.selectionClick();
+        Get.back();
+      },
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        padding: const EdgeInsets.all(9),
+        decoration: BoxDecoration(
+          color: widget.isOnDark
+              ? Colors.white.withValues(alpha: _pressed ? 0.3 : 0.18)
+              : AppColors.fieldBackground
+                  .withValues(alpha: _pressed ? 0.7 : 1.0),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.arrow_back_ios_new_rounded,
+          color: widget.isOnDark ? Colors.white : AppColors.primary,
+          size: 17,
         ),
       ),
     );

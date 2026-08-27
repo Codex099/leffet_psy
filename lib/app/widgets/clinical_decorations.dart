@@ -1,9 +1,10 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
 
-/// Widget interactif avec animation de rebond élastique (Bouncy Scale) et retour haptique
+/// Widget interactif avec animation de rebond élastique + retour haptique.
 class BouncyTap extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -14,7 +15,7 @@ class BouncyTap extends StatefulWidget {
     super.key,
     required this.child,
     this.onTap,
-    this.scaleFactor = 0.96,
+    this.scaleFactor = 0.95,
     this.borderRadius,
   });
 
@@ -22,7 +23,8 @@ class BouncyTap extends StatefulWidget {
   State<BouncyTap> createState() => _BouncyTapState();
 }
 
-class _BouncyTapState extends State<BouncyTap> with SingleTickerProviderStateMixin {
+class _BouncyTapState extends State<BouncyTap>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scaleAnimation;
 
@@ -32,15 +34,15 @@ class _BouncyTapState extends State<BouncyTap> with SingleTickerProviderStateMix
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 100),
-      reverseDuration: const Duration(milliseconds: 140),
+      reverseDuration: const Duration(milliseconds: 200),
     );
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: widget.scaleFactor,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeInOutQuad,
-      reverseCurve: Curves.easeOutBack,
+      curve: Curves.easeIn,
+      reverseCurve: Curves.elasticOut,
     ));
   }
 
@@ -50,30 +52,12 @@ class _BouncyTapState extends State<BouncyTap> with SingleTickerProviderStateMix
     super.dispose();
   }
 
-  void _onTapDown(TapDownDetails details) {
-    if (widget.onTap != null) {
-      _controller.forward();
-    }
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    if (widget.onTap != null) {
-      _controller.reverse();
-    }
-  }
-
-  void _onTapCancel() {
-    if (widget.onTap != null) {
-      _controller.reverse();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
+      onTapDown: (_) { if (widget.onTap != null) _controller.forward(); },
+      onTapUp: (_) { if (widget.onTap != null) _controller.reverse(); },
+      onTapCancel: () { if (widget.onTap != null) _controller.reverse(); },
       onTap: () {
         if (widget.onTap != null) {
           HapticFeedback.lightImpact();
@@ -83,17 +67,16 @@ class _BouncyTapState extends State<BouncyTap> with SingleTickerProviderStateMix
       behavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
         animation: _scaleAnimation,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _scaleAnimation.value, child: child),
         child: widget.child,
       ),
     );
   }
 }
 
-/// Indicateur de statut avec pulsation lumineuse animée (Pulse Glow)
+// ─── PulseDot ─────────────────────────────────────────────────────────────────
+/// Indicateur de statut avec pulsation lumineuse animée.
 class PulseDot extends StatefulWidget {
   final Color color;
   final double size;
@@ -117,10 +100,9 @@ class _PulseDotState extends State<PulseDot> with SingleTickerProviderStateMixin
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1600),
+      duration: const Duration(milliseconds: 1400),
     )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.6).animate(
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.7).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
   }
@@ -135,89 +117,69 @@ class _PulseDotState extends State<PulseDot> with SingleTickerProviderStateMixin
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _pulseAnimation,
-      builder: (context, child) {
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: widget.size * _pulseAnimation.value,
-              height: widget.size * _pulseAnimation.value,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.color.withValues(alpha: 0.35 / _pulseAnimation.value),
-              ),
+      builder: (context, child) => Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: widget.size * _pulseAnimation.value,
+            height: widget.size * _pulseAnimation.value,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.color.withValues(alpha: 0.28 / _pulseAnimation.value),
             ),
-            Container(
-              width: widget.size,
-              height: widget.size,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: widget.color,
-                boxShadow: [
-                  BoxShadow(
-                    color: widget.color.withValues(alpha: 0.5),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
+          ),
+          Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: widget.color,
+              boxShadow: [
+                BoxShadow(
+                  color: widget.color.withValues(alpha: 0.55),
+                  blurRadius: 5,
+                ),
+              ],
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }
 
-/// Peintre personnalisé pour des courbes organiques apaisantes (Zen Waves)
+// ─── ZenWavePainter ───────────────────────────────────────────────────────────
+/// Peintre de vagues organiques apaisantes.
 class ZenWavePainter extends CustomPainter {
   final Color waveColor;
   final Color accentColor;
 
-  ZenWavePainter({
-    required this.waveColor,
-    required this.accentColor,
-  });
+  ZenWavePainter({required this.waveColor, required this.accentColor});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint1 = Paint()
       ..color = waveColor
       ..style = PaintingStyle.fill;
-
     final path1 = Path()
-      ..moveTo(0, size.height * 0.7)
-      ..cubicTo(
-        size.width * 0.25,
-        size.height * 0.55,
-        size.width * 0.65,
-        size.height * 0.85,
-        size.width,
-        size.height * 0.65,
-      )
+      ..moveTo(0, size.height * 0.68)
+      ..cubicTo(size.width * 0.22, size.height * 0.52, size.width * 0.62,
+          size.height * 0.84, size.width, size.height * 0.62)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
-
     canvas.drawPath(path1, paint1);
 
     final paint2 = Paint()
       ..color = accentColor
       ..style = PaintingStyle.fill;
-
     final path2 = Path()
       ..moveTo(0, size.height * 0.82)
-      ..cubicTo(
-        size.width * 0.35,
-        size.height * 0.72,
-        size.width * 0.75,
-        size.height * 0.95,
-        size.width,
-        size.height * 0.78,
-      )
+      ..cubicTo(size.width * 0.32, size.height * 0.70, size.width * 0.72,
+          size.height * 0.94, size.width, size.height * 0.76)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();
-
     canvas.drawPath(path2, paint2);
   }
 
@@ -225,9 +187,54 @@ class ZenWavePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Arc métrique circulaire moderne pour afficher la progression d'activité
+// ─── GlassCard ────────────────────────────────────────────────────────────────
+/// Carte glassmorphism avec backdrop blur premium.
+class GlassCard extends StatelessWidget {
+  final Widget child;
+  final double borderRadius;
+  final EdgeInsetsGeometry padding;
+  final Color? color;
+  final double blur;
+  final Border? border;
+  final List<BoxShadow>? boxShadow;
+
+  const GlassCard({
+    super.key,
+    required this.child,
+    this.borderRadius = 24,
+    this.padding = const EdgeInsets.all(20),
+    this.color,
+    this.blur = 28,
+    this.border,
+    this.boxShadow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+        child: Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: color ?? AppColors.glassWhite,
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: border ??
+                Border.all(color: AppColors.glassBorder, width: 1.2),
+            boxShadow: boxShadow ?? AppColors.glassShadow,
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
+// ─── CircularMetricIndicator ─────────────────────────────────────────────────
+/// Arc métrique circulaire pour la progression.
 class CircularMetricIndicator extends StatelessWidget {
-  final double percentage; // 0.0 à 1.0
+  final double percentage;
   final double size;
   final double strokeWidth;
   final Color activeColor;
@@ -261,7 +268,7 @@ class CircularMetricIndicator extends StatelessWidget {
               backgroundColor: backgroundColor,
             ),
           ),
-          if (child != null) child!,
+          ?child,
         ],
       ),
     );
@@ -291,7 +298,6 @@ class _ArcPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-
     canvas.drawCircle(center, radius, bgPaint);
 
     final activePaint = Paint()
@@ -299,7 +305,6 @@ class _ArcPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-
     final sweepAngle = 2 * math.pi * percentage.clamp(0.0, 1.0);
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),

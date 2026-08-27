@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/accueil_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/app_animations.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/ios_card.dart';
@@ -25,407 +27,54 @@ class AccueilView extends GetView<AccueilController> {
         bottom: false,
         child: Obx(() {
           if (controller.status.value == 'loading') {
-            return StatePlaceholder.loading(message: 'Chargement de votre espace...');
+            return Column(
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 16),
+                Expanded(child: ShimmerListLoader(count: 4)),
+              ],
+            );
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-              onAction: () => controller.loadDashboard(forceRefresh: true),
+            return Column(
+              children: [
+                _buildHeader(context),
+                Expanded(
+                  child: StatePlaceholder.error(
+                    message: controller.errorMessage.value,
+                    onAction: () => controller.loadDashboard(forceRefresh: true),
+                  ),
+                ),
+              ],
             );
           }
 
-          final user = controller.currentUser.value;
-          final today = DateTime.now();
-          final formattedDate = DateFormat('EEEE d MMMM yyyy', 'fr_FR').format(today);
-
-          return RefreshIndicator(
+          return PremiumRefreshIndicator(
             onRefresh: () => controller.refreshData(),
-            color: AppColors.primary,
             child: ListView(
-              padding: const EdgeInsets.only(top: 10, bottom: 120),
+              padding: const EdgeInsets.only(top: 0, bottom: 120),
               children: [
-                // ── En-tête Bienvenue Zen ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: AppColors.oceanGradient,
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: AppColors.heroShadow,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: CustomPaint(
-                              painter: ZenWavePainter(
-                                waveColor: AppColors.secondary.withValues(alpha: 0.25),
-                                accentColor: AppColors.secondaryLight.withValues(alpha: 0.15),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.20),
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: Colors.white.withValues(alpha: 0.30),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const PulseDot(color: Colors.white, size: 7),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            formattedDate,
-                                            style: AppTextStyles.iosCaption2.copyWith(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    BouncyTap(
-                                      onTap: () => Get.toNamed(AppRoutes.profil),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(color: Colors.white, width: 2),
-                                        ),
-                                        child: PatientAvatar(
-                                          initials: user?.initials ?? 'U',
-                                          radius: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 14),
-                                Text(
-                                  user != null ? 'Bonjour ${user.prenom} 👋' : 'Bonjour 👋',
-                                  style: AppTextStyles.iosLargeTitle.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Voici le résumé de vos consultations et dossiers du jour.',
-                                  style: AppTextStyles.iosSubhead.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                // ── Header Hero ──────────────────────────────────────────────
+                _buildHeader(context),
                 const SizedBox(height: 16),
 
-                // ── 4 Actions Rapides Évidentes ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ACTIONS RAPIDES',
-                        style: AppTextStyles.iosCaption2.copyWith(
-                          color: AppColors.textSecondary,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              label: '+ Patient',
-                              subtitle: 'Créer dossier',
-                              icon: Icons.person_add_rounded,
-                              color: AppColors.primary,
-                              onTap: () async {
-                                final res = await Get.toNamed(AppRoutes.editPatient);
-                                if (res == true) controller.loadDashboard();
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              label: '+ Séance',
-                              subtitle: 'Planifier RDV',
-                              icon: Icons.add_alarm_rounded,
-                              color: AppColors.secondary,
-                              onTap: () async {
-                                final res = await Get.toNamed(AppRoutes.creationSeance);
-                                if (res == true) controller.loadDashboard();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              label: '+ Tâche',
-                              subtitle: 'Action à faire',
-                              icon: Icons.check_circle_outline_rounded,
-                              color: AppColors.accentCoral,
-                              onTap: () async {
-                                final res = await Get.toNamed(AppRoutes.detailTache);
-                                if (res == true) controller.loadDashboard();
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _buildQuickActionButton(
-                              label: '+ Groupe',
-                              subtitle: 'Atelier collectif',
-                              icon: Icons.groups_rounded,
-                              color: AppColors.primaryLight,
-                              onTap: () async {
-                                final res = await Get.toNamed(AppRoutes.editGroupe);
-                                if (res == true) controller.loadDashboard();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // ── Résumé Activité (2 Cartes Claires) ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _buildSimpleMetricCard(
-                          title: 'Séances aujourd\'hui',
-                          count: '${controller.seancesPrevuesCount.value}',
-                          icon: Icons.calendar_today_rounded,
-                          color: AppColors.primary,
-                          onTap: () => Get.toNamed(AppRoutes.agenda),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildSimpleMetricCard(
-                          title: 'Patients suivis',
-                          count: '${controller.totalPatients.value}',
-                          icon: Icons.people_alt_rounded,
-                          color: AppColors.secondary,
-                          onTap: () => Get.toNamed(AppRoutes.patientsListe),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-
-                // ── Espace Comptes-Rendus & Bilans Spécialiste ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: BouncyTap(
-                    onTap: () => Get.toNamed(AppRoutes.compteRenduHub),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.border, width: 0.9),
-                        boxShadow: AppColors.softShadow,
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.10),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.assignment_turned_in_rounded, color: AppColors.primary, size: 22),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Espace Comptes-Rendus',
-                                  style: AppTextStyles.iosSubhead.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                                Text(
-                                  'Bilans cliniques & rappels de suivi',
-                                  style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                // ── Quick Actions ────────────────────────────────────────────
+                _buildQuickActions().animate(delay: 100.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
                 const SizedBox(height: 18),
 
-                // ── Consultations du Jour ──
-                IosCard(
-                  title: 'Séances du jour',
-                  subtitle: controller.prochainesSeances.isNotEmpty
-                      ? '${controller.prochainesSeances.length} rendez-vous programmé(s)'
-                      : 'Aucun rendez-vous prévu',
-                  children: [
-                    if (controller.prochainesSeances.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.event_available_rounded,
-                              color: AppColors.secondary,
-                              size: 32,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Planning libre pour le moment',
-                              style: AppTextStyles.iosHeadline.copyWith(color: AppColors.primary),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Vous pouvez ajouter une nouvelle séance en un clic.',
-                              style: AppTextStyles.iosFootnote.copyWith(color: AppColors.textSecondary),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 14),
-                            BouncyTap(
-                              onTap: () => Get.toNamed(AppRoutes.creationSeance),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                decoration: BoxDecoration(
-                                  gradient: AppColors.oceanGradient,
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                child: Text(
-                                  '+ Planifier une séance',
-                                  style: AppTextStyles.iosCaption1.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      ...controller.prochainesSeances.map((s) {
-                        return IosCardTile(
-                          leading: s.isGroupe
-                              ? Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryLight.withValues(alpha: 0.20),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Icon(Icons.groups_rounded, color: AppColors.primary, size: 22),
-                                )
-                              : PatientAvatar(
-                                  photoUrl: s.photoUrl,
-                                  initials: s.initials,
-                                  radius: 20,
-                                ),
-                          title: s.title,
-                          subtitle: s.subtitle,
-                          trailing: StatusBadge.active(label: s.statutLabel),
-                          showChevron: true,
-                          onTap: () async {
-                            if (s.isGroupe) {
-                              await Get.toNamed(AppRoutes.compteRenduGroupe, arguments: s.id);
-                            } else {
-                              await Get.toNamed(AppRoutes.compteRenduSeance, arguments: s.id);
-                            }
-                            controller.loadDashboard(forceRefresh: true);
-                          },
-                        );
-                      }),
-                  ],
-                ),
+                // ── Métriques ────────────────────────────────────────────────
+                _buildMetrics().animate(delay: 200.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+                const SizedBox(height: 14),
 
-                // ── Modules de Navigation ──
-                IosCard(
-                  title: 'Espaces de travail',
-                  children: [
-                    IosCardTile(
-                      leading: _buildIconCircle(Icons.folder_shared_outlined, AppColors.primary),
-                      title: 'Dossiers Patients',
-                      subtitle: 'Consulter et rechercher parmi tous les patients',
-                      showChevron: true,
-                      onTap: () => Get.toNamed(AppRoutes.patientsListe),
-                    ),
-                    IosCardTile(
-                      leading: _buildIconCircle(Icons.calendar_month_outlined, AppColors.secondary),
-                      title: 'Planning & Agenda',
-                      subtitle: 'Vue globale jour et semaine',
-                      showChevron: true,
-                      onTap: () => Get.toNamed(AppRoutes.agenda),
-                    ),
-                    IosCardTile(
-                      leading: _buildIconCircle(Icons.person_outline_rounded, AppColors.primary),
-                      title: 'Séances Individuelles',
-                      subtitle: 'Consultations, types de séances & créneaux',
-                      showChevron: true,
-                      onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
-                    ),
-                    IosCardTile(
-                      leading: _buildIconCircle(Icons.groups_outlined, AppColors.secondaryLight),
-                      title: 'Groupes & Ateliers',
-                      subtitle: 'Séances collectives et participants',
-                      showChevron: true,
-                      onTap: () => Get.toNamed(AppRoutes.groupesListe),
-                    ),
-                    IosCardTile(
-                      leading: _buildIconCircle(Icons.task_alt_rounded, AppColors.accentCoral),
-                      title: 'Tâches & Actions',
-                      subtitle: 'Suivi de vos actions et bilans cliniques',
-                      showChevron: true,
-                      onTap: () => Get.toNamed(AppRoutes.taches),
-                    ),
-                    if (user?.role == 'admin')
-                      IosCardTile(
-                        leading: _buildIconCircle(Icons.badge_outlined, AppColors.accentDeep),
-                        title: 'Gestion de l\'Équipe (Admin)',
-                        subtitle: 'Comptes praticiens et permissions',
-                        showChevron: true,
-                        onTap: () => Get.toNamed(AppRoutes.employesListe),
-                      ),
-                  ],
-                ),
+                // ── Lien Comptes-Rendus ──────────────────────────────────────
+                _buildCompteRenduBanner().animate(delay: 280.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+                const SizedBox(height: 18),
+
+                // ── Séances du Jour ──────────────────────────────────────────
+                _buildSeancesCard().animate(delay: 350.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+
+                // ── Espaces de Travail ───────────────────────────────────────
+                _buildWorkspaces().animate(delay: 450.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
               ],
             ),
           );
@@ -434,54 +83,244 @@ class AccueilView extends GetView<AccueilController> {
     );
   }
 
-  Widget _buildQuickActionButton({
+  // ─── Header Hero ────────────────────────────────────────────────────────────
+  Widget _buildHeader(BuildContext context) {
+    final user = controller.currentUser.value;
+    final today = DateTime.now();
+    final formattedDate = DateFormat('EEEE d MMMM', 'fr_FR').format(today);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.oceanGradient,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: AppColors.glowShadow,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: Stack(
+            children: [
+              // Vagues décoratives
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: ZenWavePainter(
+                    waveColor: AppColors.secondary.withValues(alpha: 0.20),
+                    accentColor: AppColors.secondaryLight.withValues(alpha: 0.12),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Date badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.25),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const PulseDot(color: Colors.white, size: 6),
+                              const SizedBox(width: 7),
+                              Text(
+                                _capitalize(formattedDate),
+                                style: AppTextStyles.iosCaption2.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Avatar profil
+                        BouncyTap(
+                          onTap: () => Get.toNamed(AppRoutes.profil),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.20),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: PatientAvatar(
+                              initials: user?.initials ?? 'U',
+                              radius: 19,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    // Greeting
+                    Text(
+                      user != null
+                          ? 'Bonjour, ${user.prenom} 👋'
+                          : 'Bonjour 👋',
+                      style: AppTextStyles.iosLargeTitle.copyWith(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Voici le résumé de vos consultations du jour.',
+                      style: AppTextStyles.iosSubhead.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ).animate().fadeIn(duration: 700.ms).slideY(begin: -0.08, curve: Curves.easeOut);
+  }
+
+  // ─── Quick Actions ───────────────────────────────────────────────────────────
+  Widget _buildQuickActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 10),
+            child: Text(
+              'ACTIONS RAPIDES',
+              style: AppTextStyles.iosCaption2.copyWith(
+                color: AppColors.textTertiary,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: _quickAction(
+                  label: 'Nouveau Patient',
+                  icon: Icons.person_add_rounded,
+                  gradient: AppColors.oceanGradient,
+                  onTap: () async {
+                    final res = await Get.toNamed(AppRoutes.editPatient);
+                    if (res == true) controller.loadDashboard();
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _quickAction(
+                  label: 'Planifier Séance',
+                  icon: Icons.add_alarm_rounded,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
+                  ),
+                  onTap: () async {
+                    final res = await Get.toNamed(AppRoutes.creationSeance);
+                    if (res == true) controller.loadDashboard();
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _quickAction(
+                  label: 'Nouvelle Tâche',
+                  icon: Icons.task_alt_rounded,
+                  gradient: AppColors.accentGradient,
+                  onTap: () async {
+                    final res = await Get.toNamed(AppRoutes.detailTache);
+                    if (res == true) controller.loadDashboard();
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _quickAction(
+                  label: 'Nouveau Groupe',
+                  icon: Icons.groups_rounded,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF075F8C), Color(0xFFADCCD9)],
+                  ),
+                  onTap: () async {
+                    final res = await Get.toNamed(AppRoutes.editGroupe);
+                    if (res == true) controller.loadDashboard();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _quickAction({
     required String label,
-    required String subtitle,
     required IconData icon,
-    required Color color,
+    required Gradient gradient,
     required VoidCallback onTap,
   }) {
     return BouncyTap(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border, width: 0.9),
-          boxShadow: AppColors.softShadow,
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.20),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
+                color: Colors.white.withValues(alpha: 0.20),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: color, size: 20),
+              child: Icon(icon, color: Colors.white, size: 20),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: AppTextStyles.iosHeadline.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: AppTextStyles.iosCaption2.copyWith(
-                      color: AppColors.textSecondary,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 10),
+            Text(
+              label,
+              style: AppTextStyles.iosFootnote.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
               ),
             ),
           ],
@@ -490,21 +329,53 @@ class AccueilView extends GetView<AccueilController> {
     );
   }
 
-  Widget _buildSimpleMetricCard({
+  // ─── Métriques Animées ───────────────────────────────────────────────────────
+  Widget _buildMetrics() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: _metricCard(
+              title: 'Séances aujourd\'hui',
+              value: controller.seancesPrevuesCount.value,
+              icon: Icons.calendar_today_rounded,
+              gradient: AppColors.oceanGradient,
+              onTap: () => Get.toNamed(AppRoutes.agenda),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _metricCard(
+              title: 'Patients suivis',
+              value: controller.totalPatients.value,
+              icon: Icons.people_alt_rounded,
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
+              ),
+              onTap: () => Get.toNamed(AppRoutes.patientsListe),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _metricCard({
     required String title,
-    required String count,
+    required int value,
     required IconData icon,
-    required Color color,
+    required Gradient gradient,
     required VoidCallback onTap,
   }) {
     return BouncyTap(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border, width: 0.9),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppColors.borderLight, width: 0.6),
           boxShadow: AppColors.cardShadow,
         ),
         child: Column(
@@ -513,20 +384,32 @@ class AccueilView extends GetView<AccueilController> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: color, size: 22),
-                const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.textHint),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: gradient,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: AppColors.softShadow,
+                  ),
+                  child: Icon(icon, color: Colors.white, size: 18),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 12,
+                  color: AppColors.textHint,
+                ),
               ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              count,
+            const SizedBox(height: 14),
+            AnimatedCounter(
+              value: value,
               style: AppTextStyles.iosTitle1.copyWith(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w800,
-                fontSize: 26,
+                fontSize: 28,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 3),
             Text(
               title,
               style: AppTextStyles.iosFootnote.copyWith(
@@ -540,15 +423,253 @@ class AccueilView extends GetView<AccueilController> {
     );
   }
 
-  Widget _buildIconCircle(IconData icon, Color color) {
-    return Container(
-      width: 38,
-      height: 38,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        shape: BoxShape.circle,
+  // ─── Bannière Comptes-Rendus ─────────────────────────────────────────────────
+  Widget _buildCompteRenduBanner() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: BouncyTap(
+        onTap: () => Get.toNamed(AppRoutes.compteRenduHub),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.borderLight, width: 0.6),
+            boxShadow: AppColors.cardShadow,
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  gradient: AppColors.oceanGradient,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: AppColors.softShadow,
+                ),
+                child: const Icon(
+                  Icons.assignment_turned_in_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Espace Comptes-Rendus',
+                      style: AppTextStyles.iosHeadline.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Bilans cliniques & rappels de suivi',
+                      style: AppTextStyles.iosFootnote.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.fieldBackground,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textSecondary,
+                  size: 18,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      child: Icon(icon, color: color, size: 20),
     );
+  }
+
+  // ─── Séances du Jour ─────────────────────────────────────────────────────────
+  Widget _buildSeancesCard() {
+    return IosCard(
+      title: 'Séances du jour',
+      subtitle: controller.prochainesSeances.isNotEmpty
+          ? '${controller.prochainesSeances.length} rendez-vous programmé(s)'
+          : 'Planning libre aujourd\'hui',
+      children: [
+        if (controller.prochainesSeances.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.statusPresentLight,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.event_available_rounded,
+                    color: AppColors.secondary,
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  'Planning libre pour le moment',
+                  style: AppTextStyles.iosHeadline.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Ajoutez une nouvelle séance en un clic.',
+                  style: AppTextStyles.iosFootnote.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 18),
+                BouncyTap(
+                  onTap: () => Get.toNamed(AppRoutes.creationSeance),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.oceanGradient,
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: AppColors.softShadow,
+                    ),
+                    child: Text(
+                      '+ Planifier une séance',
+                      style: AppTextStyles.iosCaption1.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...controller.prochainesSeances.map((s) {
+            return IosCardTile(
+              leading: s.isGroupe
+                  ? Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.groupHeaderGradient,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.groups_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    )
+                  : PatientAvatar(
+                      photoUrl: s.photoUrl,
+                      initials: s.initials,
+                      radius: 22,
+                    ),
+              title: s.title,
+              subtitle: s.subtitle,
+              trailing: StatusBadge.active(label: s.statutLabel),
+              showChevron: true,
+              onTap: () async {
+                if (s.isGroupe) {
+                  await Get.toNamed(AppRoutes.compteRenduGroupe, arguments: s.id);
+                } else {
+                  await Get.toNamed(AppRoutes.compteRenduSeance, arguments: s.id);
+                }
+                controller.loadDashboard(forceRefresh: true);
+              },
+            );
+          }),
+      ],
+    );
+  }
+
+  // ─── Espaces de Travail ──────────────────────────────────────────────────────
+  Widget _buildWorkspaces() {
+    final user = controller.currentUser.value;
+    return IosCard(
+      title: 'Espaces de travail',
+      children: [
+        IosCardTile(
+          leading: _iconBox(Icons.folder_shared_rounded, AppColors.oceanGradient),
+          title: 'Dossiers Patients',
+          subtitle: 'Consulter et rechercher vos dossiers',
+          showChevron: true,
+          onTap: () => Get.toNamed(AppRoutes.patientsListe),
+        ),
+        IosCardTile(
+          leading: _iconBox(Icons.calendar_month_rounded, const LinearGradient(
+            colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
+          )),
+          title: 'Planning & Agenda',
+          subtitle: 'Vue globale jour et semaine',
+          showChevron: true,
+          onTap: () => Get.toNamed(AppRoutes.agenda),
+        ),
+        IosCardTile(
+          leading: _iconBox(Icons.person_outline_rounded, const LinearGradient(
+            colors: [Color(0xFF064973), Color(0xFF1A7CB0)],
+          )),
+          title: 'Séances Individuelles',
+          subtitle: 'Consultations & créneaux',
+          showChevron: true,
+          onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
+        ),
+        IosCardTile(
+          leading: _iconBox(Icons.groups_rounded, AppColors.groupHeaderGradient),
+          title: 'Groupes & Ateliers',
+          subtitle: 'Séances collectives et participants',
+          showChevron: true,
+          onTap: () => Get.toNamed(AppRoutes.groupesListe),
+        ),
+        IosCardTile(
+          leading: _iconBox(Icons.task_alt_rounded, AppColors.accentGradient),
+          title: 'Tâches & Actions',
+          subtitle: 'Suivi de vos actions cliniques',
+          showChevron: true,
+          onTap: () => Get.toNamed(AppRoutes.taches),
+        ),
+        if (user?.role == 'admin')
+          IosCardTile(
+            leading: _iconBox(Icons.badge_rounded, const LinearGradient(
+              colors: [Color(0xFFA62929), Color(0xFFD93636)],
+            )),
+            title: 'Gestion de l\'Équipe',
+            subtitle: 'Comptes praticiens et permissions',
+            showChevron: true,
+            onTap: () => Get.toNamed(AppRoutes.employesListe),
+          ),
+      ],
+    );
+  }
+
+  Widget _iconBox(IconData icon, Gradient gradient) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppColors.softShadow,
+      ),
+      child: Icon(icon, color: Colors.white, size: 20),
+    );
+  }
+
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
   }
 }

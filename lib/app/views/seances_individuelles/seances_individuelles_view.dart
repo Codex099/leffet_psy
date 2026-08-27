@@ -30,21 +30,22 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
           BouncyTap(
             onTap: () => _openNouveauCreneauModal(context),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
               margin: const EdgeInsets.only(right: 6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                gradient: AppColors.oceanGradient,
                 borderRadius: BorderRadius.circular(14),
+                boxShadow: AppColors.softShadow,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.repeat_rounded, size: 16, color: AppColors.primary),
+                  const Icon(Icons.repeat_rounded, size: 16, color: Colors.white),
                   const SizedBox(width: 4),
                   Text(
                     '+ Créneau',
                     style: AppTextStyles.iosCaption1.copyWith(
-                      color: AppColors.primary,
+                      color: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -60,13 +61,14 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
               if (res == true) controller.loadData(forceRefresh: true);
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(9),
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                gradient: AppColors.accentGradient,
                 shape: BoxShape.circle,
+                boxShadow: AppColors.accentShadow,
               ),
-              child: const Icon(Icons.add_alarm_rounded, size: 20, color: AppColors.primary),
+              child: const Icon(Icons.add_alarm_rounded, size: 19, color: Colors.white),
             ),
           ),
         ],

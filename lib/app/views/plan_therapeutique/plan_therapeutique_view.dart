@@ -370,7 +370,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             const SizedBox(height: 12),
             Obx(() => DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Statut'),
-                  value: controller.statutPlan.value,
+                  initialValue: controller.statutPlan.value,
                   items: const [
                     DropdownMenuItem(value: 'actif', child: Text('Actif')),
                     DropdownMenuItem(value: 'suspendu', child: Text('Suspendu')),
@@ -426,7 +426,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             const SizedBox(height: 12),
             Obx(() => DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Statut'),
-                  value: controller.statutEtape.value,
+                  initialValue: controller.statutEtape.value,
                   items: const [
                     DropdownMenuItem(value: 'a_faire', child: Text('À faire')),
                     DropdownMenuItem(value: 'en_cours', child: Text('En cours')),

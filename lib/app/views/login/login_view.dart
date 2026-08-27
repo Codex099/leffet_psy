@@ -1,6 +1,8 @@
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../theme/app_colors.dart';
@@ -13,37 +15,53 @@ class LoginView extends StatefulWidget {
   State<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
   final controller = Get.find<AuthController>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _obscurePassword = true.obs;
 
+  // Aurora animation
+  late final AnimationController _auroraController;
+  late final Animation<double> _auroraAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _auroraController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat(reverse: true);
+    _auroraAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _auroraController, curve: Curves.easeInOut),
+    );
+  }
+
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
+    _auroraController.dispose();
     super.dispose();
   }
 
   void _handleSubmit() {
-    HapticFeedback.lightImpact();
+    HapticFeedback.mediumImpact();
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
-
     if (username.isEmpty || password.isEmpty) {
       Get.snackbar(
         'Champs requis',
         'Veuillez renseigner votre identifiant et mot de passe.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: AppColors.error.withValues(alpha: 0.9),
+        backgroundColor: AppColors.error.withValues(alpha: 0.92),
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
-        borderRadius: 14,
+        borderRadius: 16,
+        icon: const Icon(Icons.warning_rounded, color: Colors.white),
       );
       return;
     }
-
     controller.login(username, password);
   }
 
@@ -52,63 +70,97 @@ class _LoginViewState extends State<LoginView> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: AppColors.primaryDark,
       body: Stack(
         children: [
-          // ── Orbes d'ambiance clinique en arrière-plan ──
-          Positioned(
-            top: -60,
-            left: -40,
-            child: Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.secondaryLight.withValues(alpha: 0.6),
-                    AppColors.scaffold.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: size.height * 0.35,
-            right: -80,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.secondaryMuted.withValues(alpha: 0.25),
-                    AppColors.scaffold.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -50,
-            left: size.width * 0.2,
-            child: Container(
-              width: 260,
-              height: 260,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.primaryLight.withValues(alpha: 0.15),
-                    AppColors.scaffold.withValues(alpha: 0.0),
-                  ],
-                ),
-              ),
-            ),
+          // ── Aurora Background Animé ──────────────────────────────────────
+          AnimatedBuilder(
+            animation: _auroraAnim,
+            builder: (context, _) {
+              return Stack(
+                children: [
+                  // Base gradient fond profond
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF021A2D),
+                          Color(0xFF032B45),
+                          Color(0xFF064973),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Orbe 1 — Bleu primaire
+                  Positioned(
+                    top: size.height * (-0.1 + _auroraAnim.value * 0.08),
+                    left: size.width * (-0.2 + _auroraAnim.value * 0.05),
+                    child: Container(
+                      width: size.width * 0.85,
+                      height: size.width * 0.85,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            AppColors.primaryLight.withValues(alpha: 0.45),
+                            AppColors.primary.withValues(alpha: 0.0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Orbe 2 — Secondaire ciel
+                  Positioned(
+                    top: size.height * (0.35 + _auroraAnim.value * 0.06),
+                    right: size.width * (-0.3 + _auroraAnim.value * 0.04),
+                    child: Container(
+                      width: size.width * 0.75,
+                      height: size.width * 0.75,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            AppColors.secondary.withValues(alpha: 0.30),
+                            AppColors.secondary.withValues(alpha: 0.0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Orbe 3 — Givré bas
+                  Positioned(
+                    bottom: size.height * (-0.05 - _auroraAnim.value * 0.03),
+                    left: size.width * 0.1,
+                    child: Container(
+                      width: size.width * 0.70,
+                      height: size.width * 0.70,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            AppColors.secondaryLight.withValues(alpha: 0.18),
+                            AppColors.secondaryLight.withValues(alpha: 0.0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Voile de bruit subtil (patterns)
+                  CustomPaint(
+                    size: size,
+                    painter: _AuroraNoisePainter(
+                      progress: _auroraAnim.value,
+                      color: AppColors.secondary.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
 
-          // ── Contenu Principal ──
+          // ── Contenu Principal ────────────────────────────────────────────
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -116,69 +168,87 @@ class _LoginViewState extends State<LoginView> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // ── Logo Hero Card en verre dépoli ──
+                    // ── Logo Hero ──────────────────────────────────────────
                     Container(
-                      width: 104,
-                      height: 104,
-                      padding: const EdgeInsets.all(14),
+                      width: 100,
+                      height: 100,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(28),
+                        color: Colors.white.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(30),
                         border: Border.all(
-                          color: Colors.white,
+                          color: Colors.white.withValues(alpha: 0.25),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.10),
-                            blurRadius: 28,
-                            offset: const Offset(0, 10),
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            blurRadius: 40,
+                            offset: const Offset(0, 14),
                           ),
                         ],
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.asset(
-                          'assets/images/logo.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => const Icon(
-                            Icons.psychology_rounded,
-                            size: 54,
-                            color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(28),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (ctx, e, st) => const Icon(
+                                Icons.psychology_rounded,
+                                size: 48,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 18),
+                    )
+                        .animate()
+                        .fadeIn(duration: 800.ms, curve: Curves.easeOut)
+                        .scale(begin: const Offset(0.6, 0.6), curve: Curves.easeOutBack),
 
-                    // ── Titre & Badge Espace Médical ──
+                    const SizedBox(height: 20),
+
+                    // ── Titre ──────────────────────────────────────────────
                     Text(
                       'PsyCare',
                       style: AppTextStyles.iosLargeTitle.copyWith(
-                        color: AppColors.primary,
+                        color: Colors.white,
                         fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
+                        fontSize: 34,
+                        letterSpacing: -0.8,
                       ),
-                    ),
+                    )
+                        .animate(delay: 200.ms)
+                        .fadeIn(duration: 700.ms)
+                        .slideY(begin: 0.3, curve: Curves.easeOut),
+
                     const SizedBox(height: 6),
+
                     Text(
                       'Plateforme Clinique & Suivi Thérapeutique',
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.iosBody.copyWith(
-                        color: AppColors.textSecondary,
+                      style: AppTextStyles.iosSubhead.copyWith(
+                        color: Colors.white.withValues(alpha: 0.75),
                         fontSize: 14,
                       ),
-                    ),
+                    )
+                        .animate(delay: 350.ms)
+                        .fadeIn(duration: 600.ms),
+
                     const SizedBox(height: 12),
 
-                    // ── Badge de Sécurité Clinique ──
+                    // ── Badge Espace Sécurisé ──────────────────────────────
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.08),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.15),
+                          color: Colors.white.withValues(alpha: 0.22),
                           width: 1,
                         ),
                       ),
@@ -188,85 +258,81 @@ class _LoginViewState extends State<LoginView> {
                           const Icon(
                             Icons.verified_user_rounded,
                             size: 13,
-                            color: AppColors.primary,
+                            color: Colors.white,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             'Espace Professionnel Sécurisé',
                             style: AppTextStyles.iosCaption1.copyWith(
-                              color: AppColors.primary,
+                              color: Colors.white.withValues(alpha: 0.92),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 28),
+                    )
+                        .animate(delay: 450.ms)
+                        .fadeIn(duration: 500.ms),
 
-                    // ── Carte Formulaire Frosted Glass Inset Grouped ──
+                    const SizedBox(height: 32),
+
+                    // ── Formulaire Glass ──────────────────────────────────
                     ClipRRect(
                       borderRadius: BorderRadius.circular(28),
                       child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                         child: Container(
-                          padding: const EdgeInsets.all(22),
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.88),
+                            color: Colors.white.withValues(alpha: 0.11),
                             borderRadius: BorderRadius.circular(28),
                             border: Border.all(
-                              color: Colors.white,
-                              width: 1.4,
+                              color: Colors.white.withValues(alpha: 0.22),
+                              width: 1.2,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.07),
-                                blurRadius: 24,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Connexion Praticien',
-                                style: AppTextStyles.iosHeadline.copyWith(
-                                  color: AppColors.primary,
+                                style: AppTextStyles.iosTitle3.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Saisissez vos identifiants pour accéder aux dossiers.',
                                 style: AppTextStyles.iosFootnote.copyWith(
-                                  color: AppColors.textSecondary,
+                                  color: Colors.white.withValues(alpha: 0.7),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 22),
 
                               // Champ Identifiant
-                              _buildInputField(
+                              _buildDarkField(
                                 controller: _usernameController,
-                                label: 'Identifiant / Nom d\'utilisateur',
-                                hint: 'Ex: dr.martin ou admin',
+                                label: 'Identifiant',
+                                hint: 'Dr. Martin ou admin',
                                 icon: Icons.badge_outlined,
-                                keyboardType: TextInputType.text,
                               ),
                               const SizedBox(height: 14),
 
-                              // Champ Mot de passe avec toggle
-                              Obx(() => _buildInputField(
+                              // Champ Mot de passe
+                              Obx(() => _buildDarkField(
                                     controller: _passwordController,
                                     label: 'Mot de passe',
                                     hint: '••••••••',
                                     icon: Icons.lock_outline_rounded,
                                     obscureText: _obscurePassword.value,
-                                    suffixIcon: IconButton(
+                                    suffix: IconButton(
                                       icon: Icon(
                                         _obscurePassword.value
                                             ? Icons.visibility_off_outlined
                                             : Icons.visibility_outlined,
                                         size: 20,
-                                        color: AppColors.textSecondary,
+                                        color: Colors.white.withValues(alpha: 0.65),
                                       ),
                                       onPressed: () {
                                         HapticFeedback.selectionClick();
@@ -274,60 +340,67 @@ class _LoginViewState extends State<LoginView> {
                                       },
                                     ),
                                   )),
-                              const SizedBox(height: 16),
 
-                              // Bannière d'erreur si échec auth
+                              const SizedBox(height: 14),
+
+                              // Erreur auth
                               Obx(() {
                                 if (controller.errorMessage.isNotEmpty) {
                                   return Container(
                                     width: double.infinity,
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                    margin: const EdgeInsets.only(bottom: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 10),
                                     decoration: BoxDecoration(
-                                      color: AppColors.logoCoralLight,
+                                      color: AppColors.error.withValues(alpha: 0.18),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color: AppColors.logoCoral.withValues(alpha: 0.3),
+                                        color: AppColors.error.withValues(alpha: 0.35),
                                       ),
                                     ),
                                     child: Row(
                                       children: [
                                         const Icon(
                                           Icons.error_outline_rounded,
-                                          size: 18,
-                                          color: AppColors.logoCoral,
+                                          size: 17,
+                                          color: Color(0xFFFF8080),
                                         ),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             controller.errorMessage.value,
                                             style: AppTextStyles.iosFootnote.copyWith(
-                                              color: AppColors.logoCoral,
+                                              color: const Color(0xFFFF9999),
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                  );
+                                  ).animate().fadeIn(duration: 300.ms).shakeX();
                                 }
                                 return const SizedBox.shrink();
                               }),
 
-                              // ── Bouton de Connexion Pilule Dégradé ──
+                              // Bouton Connexion
                               Obx(() {
                                 final isLoading = controller.isLoading.value;
                                 return Container(
                                   width: double.infinity,
                                   height: 52,
                                   decoration: BoxDecoration(
-                                    gradient: AppColors.logoGradient,
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF0A5C8F),
+                                        Color(0xFF75AABF),
+                                      ],
+                                    ),
                                     borderRadius: BorderRadius.circular(26),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.primary.withValues(alpha: 0.30),
-                                        blurRadius: 16,
-                                        offset: const Offset(0, 6),
+                                        color: AppColors.primary.withValues(alpha: 0.5),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 8),
                                       ),
                                     ],
                                   ),
@@ -336,6 +409,7 @@ class _LoginViewState extends State<LoginView> {
                                     child: InkWell(
                                       onTap: isLoading ? null : _handleSubmit,
                                       borderRadius: BorderRadius.circular(26),
+                                      splashColor: Colors.white.withValues(alpha: 0.15),
                                       child: Center(
                                         child: isLoading
                                             ? const SizedBox(
@@ -343,24 +417,27 @@ class _LoginViewState extends State<LoginView> {
                                                 height: 22,
                                                 child: CircularProgressIndicator(
                                                   strokeWidth: 2.5,
-                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<Color>(
+                                                          Colors.white),
                                                 ),
                                               )
                                             : Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: [
                                                   const Icon(
                                                     Icons.login_rounded,
                                                     size: 20,
                                                     color: Colors.white,
                                                   ),
-                                                  const SizedBox(width: 8),
+                                                  const SizedBox(width: 10),
                                                   Text(
                                                     'Accéder à l\'espace',
                                                     style: AppTextStyles.iosHeadline.copyWith(
                                                       color: Colors.white,
+                                                      fontWeight: FontWeight.w700,
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
@@ -374,40 +451,48 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                    )
+                        .animate(delay: 550.ms)
+                        .fadeIn(duration: 700.ms)
+                        .slideY(begin: 0.2, curve: Curves.easeOutCubic),
 
-                    // ── Confidentialité Médicale & Footer ──
+                    const SizedBox(height: 28),
+
+                    // ── Footer Sécurité ────────────────────────────────────
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.shield_outlined,
-                          size: 14,
-                          color: AppColors.textTertiary,
+                          size: 13,
+                          color: Colors.white.withValues(alpha: 0.45),
                         ),
                         const SizedBox(width: 6),
                         Flexible(
                           child: Text(
                             'Données cliniques protégées & chiffrées de bout en bout',
                             style: AppTextStyles.iosCaption2.copyWith(
-                              color: AppColors.textTertiary,
+                              color: Colors.white.withValues(alpha: 0.45),
+                              fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
-                    ),
+                    )
+                        .animate(delay: 900.ms)
+                        .fadeIn(duration: 600.ms),
+
                     const SizedBox(height: 6),
+
                     Text(
                       'PsyCare v1.0 • Accès réservé au personnel autorisé',
                       style: AppTextStyles.iosCaption2.copyWith(
-                        color: AppColors.textHint,
+                        color: Colors.white.withValues(alpha: 0.28),
                         fontSize: 10,
                       ),
                       textAlign: TextAlign.center,
-                    ),
+                    ).animate(delay: 1000.ms).fadeIn(duration: 600.ms),
                   ],
                 ),
               ),
@@ -418,14 +503,13 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildInputField({
+  Widget _buildDarkField({
     required TextEditingController controller,
     required String label,
     required String hint,
     required IconData icon,
     bool obscureText = false,
-    TextInputType? keyboardType,
-    Widget? suffixIcon,
+    Widget? suffix,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,44 +517,80 @@ class _LoginViewState extends State<LoginView> {
         Text(
           label,
           style: AppTextStyles.iosCaption1.copyWith(
-            color: AppColors.primary,
+            color: Colors.white.withValues(alpha: 0.80),
             fontWeight: FontWeight.w600,
+            letterSpacing: 0.3,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 7),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.fieldBackground,
+            color: Colors.white.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: AppColors.border,
+              color: Colors.white.withValues(alpha: 0.20),
               width: 1,
             ),
           ),
           child: TextField(
             controller: controller,
             obscureText: obscureText,
-            keyboardType: keyboardType,
-            style: AppTextStyles.iosBody,
+            style: AppTextStyles.iosBody.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+            cursorColor: AppColors.secondary,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: AppTextStyles.iosSubhead.copyWith(
-                color: AppColors.textHint,
+                color: Colors.white.withValues(alpha: 0.40),
               ),
-              prefixIcon: Icon(
-                icon,
-                size: 20,
-                color: AppColors.secondary,
-              ),
-              suffixIcon: suffixIcon,
+              prefixIcon: Icon(icon, size: 20,
+                  color: Colors.white.withValues(alpha: 0.65)),
+              suffixIcon: suffix,
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14, vertical: 14),
             ),
           ),
         ),
       ],
     );
   }
+}
+
+// ─── Aurora Noise Painter ─────────────────────────────────────────────────────
+class _AuroraNoisePainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  _AuroraNoisePainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * (0.55 + math.sin(progress * math.pi) * 0.06))
+      ..cubicTo(
+        size.width * 0.25,
+        size.height * (0.45 + math.cos(progress * math.pi) * 0.05),
+        size.width * 0.65,
+        size.height * (0.68 + math.sin(progress * math.pi * 1.3) * 0.06),
+        size.width,
+        size.height * (0.52 + math.cos(progress * math.pi * 0.8) * 0.04),
+      )
+      ..lineTo(size.width, 0)
+      ..lineTo(0, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_AuroraNoisePainter old) => old.progress != progress;
 }

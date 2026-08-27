@@ -34,16 +34,17 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
               }
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.all(9),
+              margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                gradient: AppColors.oceanGradient,
                 shape: BoxShape.circle,
+                boxShadow: AppColors.softShadow,
               ),
               child: const Icon(
                 Icons.edit_rounded,
-                size: 20,
-                color: AppColors.primary,
+                size: 19,
+                color: Colors.white,
               ),
             ),
           ),

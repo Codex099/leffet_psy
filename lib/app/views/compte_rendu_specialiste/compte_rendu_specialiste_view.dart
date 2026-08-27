@@ -156,10 +156,11 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.10),
+                  gradient: AppColors.oceanGradient,
                   shape: BoxShape.circle,
+                  boxShadow: AppColors.softShadow,
                 ),
-                child: const Icon(Icons.badge_outlined, size: 17, color: AppColors.primary),
+                child: const Icon(Icons.badge_outlined, size: 17, color: Colors.white),
               ),
               const SizedBox(width: 10),
               Expanded(

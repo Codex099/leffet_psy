@@ -30,16 +30,17 @@ class TachesView extends GetView<TachesController> {
               if (res == true) controller.loadTaches(forceRefresh: true);
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.all(9),
+              margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                gradient: AppColors.accentGradient,
                 shape: BoxShape.circle,
+                boxShadow: AppColors.accentShadow,
               ),
               child: const Icon(
                 Icons.add_task_rounded,
-                size: 20,
-                color: AppColors.primary,
+                size: 19,
+                color: Colors.white,
               ),
             ),
           ),

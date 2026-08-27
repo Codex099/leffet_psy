@@ -1,45 +1,41 @@
 import 'package:flutter/material.dart';
 
-/// Palette de couleurs centralisée pour PsyCare basée STRICTEMENT sur la charte officielle :
-/// 1. #064973 (Bleu Pétrole / Océan profond)
-/// 2. #75AABF (Bleu Acier / Céruléen doux)
-/// 3. #ADCCD9 (Bleu Givré / Brume pastel)
-/// 4. #D93636 (Rouge Corail éclatant)
-/// 5. #A62929 (Bordeaux / Pourpre profond)
+/// Palette de couleurs centralisée pour PsyCare — Design Premium iOS Clinique.
+/// Charte officielle : #064973 · #75AABF · #ADCCD9 · #D93636 · #A62929
 class AppColors {
   AppColors._();
 
   // ─── 5 Couleurs Officielles de la Charte ──────────────────────────────────
-  /// #064973 (RGB 6, 73, 115) — Couleur Primaire Maîtresse : Navigation, Titres, Actions
   static const Color primary = Color(0xFF064973);
-
-  /// #75AABF (RGB 117, 170, 191) — Couleur Secondaire : Accents, Icônes, Dégradés
   static const Color secondary = Color(0xFF75AABF);
-
-  /// #ADCCD9 (RGB 173, 204, 217) — Couleur Claire / Givrée : Fonds de cartes, Puces, Séparateurs
   static const Color secondaryLight = Color(0xFFADCCD9);
   static const Color secondaryMuted = Color(0xFFADCCD9);
-
-  /// #D93636 (RGB 217, 54, 54) — Rouge Corail Vif : Badges d'alerte, Accents dynamiques, Boutons urgents
   static const Color accentCoral = Color(0xFFD93636);
   static const Color logoCoral = Color(0xFFD93636);
   static const Color logoCoralLight = Color(0xFFFCEAEA);
-
-  /// #A62929 (RGB 166, 41, 41) — Rouge Bordeaux Profond : Alertes critiques, États pressés, Contrastes
   static const Color accentDeep = Color(0xFFA62929);
 
-  // ─── Déclinaisons Harmoniques & Ergonomie ──────────────────────────────────
-  /// Variations primaires
+  // ─── Déclinaisons Primaires ────────────────────────────────────────────────
   static const Color primaryLight = Color(0xFF0A5C8F);
   static const Color primaryDark = Color(0xFF032B45);
+  static const Color primaryXLight = Color(0xFF1A7CB0);
 
-  /// Fond d'écran général apaisant teinté avec la brume pastel #ADCCD9
-  static const Color scaffold = Color(0xFFF2F7F9);
-  static const Color background = Color(0xFFF2F7F9);
+  // ─── Surfaces & Fonds ──────────────────────────────────────────────────────
+  static const Color scaffold = Color(0xFFF0F5F9);
+  static const Color background = Color(0xFFF0F5F9);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceElevated = Color(0xFFFFFFFF);
   static const Color fieldBackground = Color(0xFFEBF2F6);
   static const Color frostedGlassColor = Color(0xDCFFFFFF);
+  static const Color surfaceCard = Color(0xFFFAFCFE);
+
+  // ─── Glassmorphism ─────────────────────────────────────────────────────────
+  static const Color glassWhite = Color(0xEEFFFFFF);
+  static const Color glassWhiteMedium = Color(0xCCFFFFFF);
+  static const Color glassWhiteLight = Color(0x99FFFFFF);
+  static const Color glassPrimary = Color(0x1A064973);
+  static const Color glassBorder = Color(0x40FFFFFF);
+  static const Color glassBorderStrong = Color(0x80FFFFFF);
 
   // ─── Typographie ──────────────────────────────────────────────────────────
   static const Color textPrimary = Color(0xFF062338);
@@ -47,6 +43,7 @@ class AppColors {
   static const Color textTertiary = Color(0xFF7B98A9);
   static const Color textHint = Color(0xFF9EBDCE);
   static const Color textOnPrimary = Color(0xFFFFFFFF);
+  static const Color textOnDark = Color(0xFFFFFFFF);
 
   // ─── Bordures & Séparateurs ───────────────────────────────────────────────
   static const Color border = Color(0xFFD3E4EC);
@@ -59,147 +56,202 @@ class AppColors {
   static const Color statusPresent = Color(0xFF75AABF);
   static const Color statusPresentLight = Color(0xFFE6F1F5);
   static const Color statusPresentBg = Color(0xFFE6F1F5);
-
   static const Color statusAbsent = Color(0xFFD93636);
   static const Color statusAbsentLight = Color(0xFFFCEAEA);
   static const Color statusAbsentBg = Color(0xFFFCEAEA);
-
   static const Color statusPending = Color(0xFF064973);
   static const Color statusPendingLight = Color(0xFFE6EEF3);
   static const Color statusPendingBg = Color(0xFFE6EEF3);
-
   static const Color statusActive = Color(0xFF064973);
   static const Color statusActiveBg = Color(0xFFE0EDF3);
-
   static const Color statusInactive = Color(0xFF7B98A9);
   static const Color statusInactiveBg = Color(0xFFEAF1F5);
 
-  // ─── Alertes & Destructif (Palette Rouge #D93636 / #A62929) ────────────────
+  // ─── Alertes & Destructif ────────────────────────────────────────────────
   static const Color error = Color(0xFFD93636);
   static const Color errorDark = Color(0xFFA62929);
   static const Color errorLight = Color(0xFFFCEAEA);
+  static const Color success = Color(0xFF2E7D6B);
+  static const Color successLight = Color(0xFFE3F4F0);
+  static const Color warning = Color(0xFFB8860B);
+  static const Color warningLight = Color(0xFFFFF8E1);
 
-  // ─── Couleurs Système iOS adaptées à la Charte ─────────────────────────────
-  static const Color iosBackground = Color(0xFFF2F7F9);
+  // ─── iOS System Colors adaptées ──────────────────────────────────────────
+  static const Color iosBackground = Color(0xFFF0F5F9);
   static const Color iosSecondaryBackground = Color(0xFFFFFFFF);
   static const Color iosTertiaryBackground = Color(0xFFE0EDF3);
-
   static const Color iosSystemGray = Color(0xFF7B98A9);
   static const Color iosSystemGray2 = Color(0xFF9EBDCE);
   static const Color iosSystemGray3 = Color(0xFFBED5E1);
   static const Color iosSystemGray4 = Color(0xFFD3E4EC);
   static const Color iosSystemGray5 = Color(0xFFE3EDF3);
-  static const Color iosSystemGray6 = Color(0xFFF2F7F9);
-
+  static const Color iosSystemGray6 = Color(0xFFF0F5F9);
   static const Color iosBlue = Color(0xFF064973);
-  static const Color iosGreen = Color(0xFF5399A8);
+  static const Color iosGreen = Color(0xFF2E7D6B);
   static const Color iosIndigo = Color(0xFF064973);
   static const Color iosOrange = Color(0xFFD93636);
   static const Color iosPink = Color(0xFFD93636);
   static const Color iosPurple = Color(0xFF064973);
   static const Color iosRed = Color(0xFFD93636);
   static const Color iosTeal = Color(0xFF75AABF);
-  static const Color iosYellow = Color(0xFFD93636);
+  static const Color iosYellow = Color(0xFFB8860B);
 
-  // ─── Dégradés Artistiques de la Charte ────────────────────────────────────
-  /// Dégradé Océan Clinique (#064973 -> #75AABF)
+  // ─── Dégradés Premium ────────────────────────────────────────────────────
+  /// Gradient principal clinique (#064973 → #0A5C8F → #75AABF)
   static const LinearGradient oceanGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF064973),
-      Color(0xFF75AABF),
-    ],
+    colors: [Color(0xFF064973), Color(0xFF0A5C8F), Color(0xFF75AABF)],
+    stops: [0.0, 0.5, 1.0],
   );
 
-  /// Dégradé Hero avec les 3 bleus de la charte (#064973 -> #75AABF -> #ADCCD9)
+  /// Gradient hero 3 bleus
   static const LinearGradient logoGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF064973),
-      Color(0xFF75AABF),
-      Color(0xFFADCCD9),
-    ],
+    colors: [Color(0xFF064973), Color(0xFF75AABF), Color(0xFFADCCD9)],
   );
 
-  /// Dégradé En-tête (#064973 -> #75AABF)
+  /// Gradient en-tête riche
   static const LinearGradient headerGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF064973),
-      Color(0xFF75AABF),
-    ],
+    colors: [Color(0xFF032B45), Color(0xFF064973), Color(0xFF1A7CB0)],
+    stops: [0.0, 0.5, 1.0],
   );
 
-  /// Dégradé Groupe (#75AABF -> #064973)
+  /// Gradient groupe
   static const LinearGradient groupHeaderGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF75AABF),
-      Color(0xFF064973),
-    ],
+    colors: [Color(0xFF75AABF), Color(0xFF064973)],
   );
 
-  /// Dégradé Dynamique Corail (#D93636 -> #A62929)
+  /// Gradient corail dynamique
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0xFFD93636),
-      Color(0xFFA62929),
-    ],
+    colors: [Color(0xFFD93636), Color(0xFFA62929)],
   );
 
-  /// Dégradé Doux Givré (#F2F7F9 -> #E0EDF3)
+  /// Gradient fond doux givré
   static const LinearGradient softIceGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0xFFF2F7F9),
-      Color(0xFFE0EDF3),
-    ],
+    colors: [Color(0xFFF0F5F9), Color(0xFFE3EDF3)],
   );
 
-  // ─── Ombres Cliniques Douces ──────────────────────────────────────────────
+  /// Gradient vertical sombre pour overlays
+  static const LinearGradient darkOverlayGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0x00032B45), Color(0xCC032B45)],
+  );
+
+  /// Aurora gradient animé pour login
+  static const LinearGradient auroraGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF032B45),
+      Color(0xFF064973),
+      Color(0xFF0A5C8F),
+      Color(0xFF75AABF),
+      Color(0xFFADCCD9),
+    ],
+    stops: [0.0, 0.25, 0.5, 0.75, 1.0],
+  );
+
+  /// Gradient succès vert
+  static const LinearGradient successGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF2E7D6B), Color(0xFF48A999)],
+  );
+
+  // ─── Ombres Premium ───────────────────────────────────────────────────────
   static List<BoxShadow> get cardShadow => [
         BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.06),
-          blurRadius: 18,
-          offset: const Offset(0, 5),
+          color: const Color(0xFF064973).withValues(alpha: 0.07),
+          blurRadius: 20,
+          offset: const Offset(0, 6),
           spreadRadius: 0,
         ),
         BoxShadow(
-          color: const Color(0xFF75AABF).withValues(alpha: 0.04),
-          blurRadius: 6,
+          color: const Color(0xFF75AABF).withValues(alpha: 0.05),
+          blurRadius: 8,
           offset: const Offset(0, 2),
         ),
       ];
 
   static List<BoxShadow> get softShadow => [
         BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.05),
-          blurRadius: 12,
-          offset: const Offset(0, 3),
+          color: const Color(0xFF064973).withValues(alpha: 0.06),
+          blurRadius: 14,
+          offset: const Offset(0, 4),
         ),
       ];
 
   static List<BoxShadow> get heroShadow => [
         BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.18),
-          blurRadius: 28,
-          offset: const Offset(0, 10),
-          spreadRadius: 1,
+          color: const Color(0xFF064973).withValues(alpha: 0.22),
+          blurRadius: 36,
+          offset: const Offset(0, 12),
+          spreadRadius: 2,
+        ),
+        BoxShadow(
+          color: const Color(0xFF064973).withValues(alpha: 0.10),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
         ),
       ];
 
   static List<BoxShadow> get accentShadow => [
         BoxShadow(
-          color: const Color(0xFFD93636).withValues(alpha: 0.25),
+          color: const Color(0xFFD93636).withValues(alpha: 0.28),
+          blurRadius: 22,
+          offset: const Offset(0, 7),
+        ),
+      ];
+
+  static List<BoxShadow> get glowShadow => [
+        BoxShadow(
+          color: const Color(0xFF064973).withValues(alpha: 0.30),
+          blurRadius: 40,
+          offset: const Offset(0, 16),
+          spreadRadius: 4,
+        ),
+        BoxShadow(
+          color: const Color(0xFF75AABF).withValues(alpha: 0.20),
           blurRadius: 20,
           offset: const Offset(0, 6),
+        ),
+      ];
+
+  static List<BoxShadow> get floatingShadow => [
+        BoxShadow(
+          color: const Color(0xFF064973).withValues(alpha: 0.16),
+          blurRadius: 30,
+          offset: const Offset(0, 10),
+          spreadRadius: 0,
+        ),
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.04),
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
+      ];
+
+  static List<BoxShadow> get glassShadow => [
+        BoxShadow(
+          color: const Color(0xFF064973).withValues(alpha: 0.12),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
+        ),
+        BoxShadow(
+          color: Colors.white.withValues(alpha: 0.80),
+          blurRadius: 1,
+          offset: const Offset(0, -1),
         ),
       ];
 }

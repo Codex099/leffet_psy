@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// Carte Inset Grouped iOS (Apple Human Interface Guidelines).
-/// Regroupe des lignes d'informations ou de réglages avec séparateurs fins automatiques.
+/// Carte Inset Grouped iOS premium avec variantes hero et glass.
 class IosCard extends StatelessWidget {
   final List<Widget> children;
   final String? title;
@@ -13,6 +12,7 @@ class IosCard extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
   final Color? backgroundColor;
+  final Widget? headerTrailing;
 
   const IosCard({
     super.key,
@@ -23,7 +23,19 @@ class IosCard extends StatelessWidget {
     this.margin,
     this.padding,
     this.backgroundColor,
+    this.headerTrailing,
   });
+
+  /// Variante Hero avec en-tête dégradé.
+  const factory IosCard.hero({
+    Key? key,
+    required List<Widget> children,
+    required String title,
+    String? subtitle,
+    Gradient? gradient,
+    Widget? icon,
+    EdgeInsetsGeometry? margin,
+  }) = _IosCardHero;
 
   @override
   Widget build(BuildContext context) {
@@ -34,15 +46,30 @@ class IosCard extends StatelessWidget {
         children: [
           if (title != null) ...[
             Padding(
-              padding: const EdgeInsets.only(left: 12, bottom: 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.only(left: 4, bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(title!.toUpperCase(), style: AppTextStyles.iosCaption2),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(subtitle!, style: AppTextStyles.iosFootnote),
-                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title!.toUpperCase(),
+                          style: AppTextStyles.iosCaption2.copyWith(
+                            color: AppColors.textTertiary,
+                            letterSpacing: 1.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(subtitle!, style: AppTextStyles.iosFootnote),
+                        ],
+                      ],
+                    ),
+                  ),
+                  ?headerTrailing,
                 ],
               ),
             ),
@@ -50,22 +77,20 @@ class IosCard extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: backgroundColor ?? AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 0.8),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.borderLight, width: 0.6),
               boxShadow: AppColors.cardShadow,
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(19),
               child: Column(
                 children: [
                   for (int i = 0; i < children.length; i++) ...[
                     if (i > 0)
-                      const Divider(
-                        height: 1,
-                        thickness: 0.8,
-                        indent: 16,
-                        endIndent: 0,
-                        color: AppColors.separator,
+                      Container(
+                        height: 0.6,
+                        margin: const EdgeInsets.only(left: 16),
+                        color: AppColors.separator.withValues(alpha: 0.7),
                       ),
                     children[i],
                   ],
@@ -75,8 +100,13 @@ class IosCard extends StatelessWidget {
           ),
           if (footer != null) ...[
             Padding(
-              padding: const EdgeInsets.only(left: 12, top: 6),
-              child: Text(footer!, style: AppTextStyles.iosFootnote),
+              padding: const EdgeInsets.only(left: 4, top: 6),
+              child: Text(
+                footer!,
+                style: AppTextStyles.iosFootnote.copyWith(
+                  color: AppColors.textTertiary,
+                ),
+              ),
             ),
           ],
         ],
@@ -85,8 +115,106 @@ class IosCard extends StatelessWidget {
   }
 }
 
-/// Ligne interactive standard à l'intérieur d'une IosCard
-class IosCardTile extends StatelessWidget {
+// ─── Variante Hero ────────────────────────────────────────────────────────────
+class _IosCardHero extends IosCard {
+  final Gradient? gradient;
+  final Widget? icon;
+
+  const _IosCardHero({
+    super.key,
+    required super.children,
+    required String title,
+    super.subtitle,
+    this.gradient,
+    this.icon,
+    super.margin,
+  }) : super(title: title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: AppColors.cardShadow,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Column(
+                children: [
+                  // Hero header
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: gradient ?? AppColors.oceanGradient,
+                    ),
+                    child: Row(
+                      children: [
+                        if (icon != null) ...[
+                          icon!,
+                          const SizedBox(width: 12),
+                        ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title!,
+                                style: AppTextStyles.iosHeadline.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              if (subtitle != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  subtitle!,
+                                  style: AppTextStyles.iosFootnote.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Children body
+                  Container(
+                    color: AppColors.surface,
+                    child: Column(
+                      children: [
+                        for (int i = 0; i < children.length; i++) ...[
+                          if (i > 0)
+                            Container(
+                              height: 0.6,
+                              margin: const EdgeInsets.only(left: 16),
+                              color: AppColors.separator.withValues(alpha: 0.7),
+                            ),
+                          children[i],
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── IosCardTile Premium ─────────────────────────────────────────────────────
+/// Ligne interactive standard enrichie.
+class IosCardTile extends StatefulWidget {
   final Widget? leading;
   final String title;
   final String? subtitle;
@@ -95,6 +223,7 @@ class IosCardTile extends StatelessWidget {
   final Color? titleColor;
   final bool showChevron;
   final EdgeInsetsGeometry padding;
+  final Color? tileColor;
 
   const IosCardTile({
     super.key,
@@ -105,26 +234,42 @@ class IosCardTile extends StatelessWidget {
     this.onTap,
     this.titleColor,
     this.showChevron = false,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+    this.padding = const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+    this.tileColor,
   });
 
   @override
+  State<IosCardTile> createState() => _IosCardTileState();
+}
+
+class _IosCardTileState extends State<IosCardTile> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final tile = InkWell(
-      onTap: onTap != null
-          ? () {
-              HapticFeedback.selectionClick();
-              onTap!();
-            }
-          : null,
-      splashColor: AppColors.primary.withValues(alpha: 0.05),
-      highlightColor: AppColors.primary.withValues(alpha: 0.03),
-      child: Padding(
-        padding: padding,
+    return GestureDetector(
+      onTapDown: (_) {
+        if (widget.onTap != null) setState(() => _isPressed = true);
+      },
+      onTapUp: (_) {
+        if (widget.onTap != null) {
+          setState(() => _isPressed = false);
+          HapticFeedback.selectionClick();
+          widget.onTap!();
+        }
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        color: _isPressed
+            ? AppColors.primary.withValues(alpha: 0.04)
+            : (widget.tileColor ?? Colors.transparent),
+        padding: widget.padding,
         child: Row(
           children: [
-            if (leading != null) ...[
-              leading!,
+            if (widget.leading != null) ...[
+              widget.leading!,
               const SizedBox(width: 14),
             ],
             Expanded(
@@ -133,31 +278,33 @@ class IosCardTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    title,
+                    widget.title,
                     style: AppTextStyles.iosHeadline.copyWith(
-                      color: titleColor ?? AppColors.textPrimary,
+                      color: widget.titleColor ?? AppColors.textPrimary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  if (widget.subtitle != null && widget.subtitle!.isNotEmpty) ...[
                     const SizedBox(height: 3),
                     Text(
-                      subtitle!,
-                      style: AppTextStyles.iosFootnote,
+                      widget.subtitle!,
+                      style: AppTextStyles.iosFootnote.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
                     ),
                   ],
                 ],
               ),
             ),
-            if (trailing != null) ...[
+            if (widget.trailing != null) ...[
               const SizedBox(width: 8),
-              trailing!,
+              widget.trailing!,
             ],
-            if (showChevron) ...[
-              const SizedBox(width: 6),
+            if (widget.showChevron) ...[
+              const SizedBox(width: 4),
               const Icon(
                 Icons.chevron_right_rounded,
-                size: 20,
+                size: 18,
                 color: AppColors.iosSystemGray3,
               ),
             ],
@@ -165,7 +312,5 @@ class IosCardTile extends StatelessWidget {
         ),
       ),
     );
-
-    return tile;
   }
 }

@@ -6,16 +6,12 @@ import '../routes/app_routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// Barre de navigation flottante et responsive iOS (Floating Island Capsule / Frosted Glass / Haptics).
-class AppBottomNav extends StatelessWidget {
+/// Barre de navigation flottante premium iOS 17 — Frosted glass + Sliding pill indicator.
+class AppBottomNav extends StatefulWidget {
   final int currentIndex;
 
-  const AppBottomNav({
-    super.key,
-    required this.currentIndex,
-  });
+  const AppBottomNav({super.key, required this.currentIndex});
 
-  /// Routes principales liées aux onglets de navigation.
   static const _tabRoutes = [
     AppRoutes.accueil,
     AppRoutes.patientsListe,
@@ -24,99 +20,189 @@ class AppBottomNav extends StatelessWidget {
   ];
 
   @override
+  State<AppBottomNav> createState() => _AppBottomNavState();
+}
+
+class _AppBottomNavState extends State<AppBottomNav>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pillController;
+  late Animation<double> _pillPosition;
+  int _currentIndex = 0;
+
+  static const _items = [
+    _NavItem(Icons.home_outlined, Icons.home_rounded, 'Accueil', AppRoutes.accueil),
+    _NavItem(Icons.people_outline_rounded, Icons.people_alt_rounded, 'Patients', AppRoutes.patientsListe),
+    _NavItem(Icons.calendar_today_outlined, Icons.calendar_month_rounded, 'Agenda', AppRoutes.agenda),
+    _NavItem(Icons.person_outline_rounded, Icons.person_rounded, 'Profil', AppRoutes.profil),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.currentIndex;
+    _pillController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _pillPosition = Tween<double>(
+      begin: _currentIndex.toDouble(),
+      end: _currentIndex.toDouble(),
+    ).animate(CurvedAnimation(parent: _pillController, curve: Curves.easeOutCubic));
+  }
+
+  @override
+  void dispose() {
+    _pillController.dispose();
+    super.dispose();
+  }
+
+  void _navigateTo(int index) {
+    if (index == _currentIndex) return;
+    HapticFeedback.selectionClick();
+
+    _pillPosition = Tween<double>(
+      begin: _pillPosition.value,
+      end: index.toDouble(),
+    ).animate(CurvedAnimation(parent: _pillController, curve: Curves.easeOutCubic));
+
+    _pillController
+      ..reset()
+      ..forward();
+
+    setState(() => _currentIndex = index);
+
+    final route = _items[index].route;
+    Get.offNamedUntil(
+      route,
+      (r) => !AppBottomNav._tabRoutes.contains(r.settings.name),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final bottomPadding = mediaQuery.padding.bottom;
     final screenWidth = mediaQuery.size.width;
-
-    // Responsive horizontal margin (smartphone / tablette)
-    final horizontalMargin = screenWidth > 600 ? 40.0 : 18.0;
+    final horizontalMargin = screenWidth > 600 ? 48.0 : 20.0;
 
     return SafeArea(
       top: false,
-      left: false,
-      right: false,
-      bottom: true,
       child: Padding(
         padding: EdgeInsets.only(
           left: horizontalMargin,
           right: horizontalMargin,
-          bottom: bottomPadding > 0 ? 4 : 12,
-          top: 0,
+          bottom: bottomPadding > 0 ? 6 : 14,
         ),
         child: Align(
           alignment: Alignment.bottomCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               maxWidth: 460,
-              minHeight: 64,
-              maxHeight: 70,
+              minHeight: 66,
+              maxHeight: 72,
             ),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(36),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.18),
-                    blurRadius: 28,
-                    offset: const Offset(0, 8),
-                    spreadRadius: 0,
-                  ),
-                  BoxShadow(
-                    color: AppColors.secondary.withValues(alpha: 0.12),
-                    blurRadius: 16,
-                    offset: const Offset(0, 3),
-                    spreadRadius: 0,
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(40),
+                boxShadow: AppColors.floatingShadow,
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(36),
+                borderRadius: BorderRadius.circular(40),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                  filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.92),
-                      borderRadius: BorderRadius.circular(36),
+                      color: Colors.white.withValues(alpha: 0.95),
+                      borderRadius: BorderRadius.circular(40),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.95),
+                        color: Colors.white.withValues(alpha: 0.98),
                         width: 1.5,
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _buildNavItem(
-                          index: 0,
-                          icon: Icons.home_outlined,
-                          selectedIcon: Icons.home_rounded,
-                          label: 'Accueil',
-                          route: AppRoutes.accueil,
-                        ),
-                        _buildNavItem(
-                          index: 1,
-                          icon: Icons.people_outline_rounded,
-                          selectedIcon: Icons.people_alt_rounded,
-                          label: 'Patients',
-                          route: AppRoutes.patientsListe,
-                        ),
-                        _buildNavItem(
-                          index: 2,
-                          icon: Icons.calendar_today_outlined,
-                          selectedIcon: Icons.calendar_month_rounded,
-                          label: 'Agenda',
-                          route: AppRoutes.agenda,
-                        ),
-                        _buildNavItem(
-                          index: 3,
-                          icon: Icons.person_outline_rounded,
-                          selectedIcon: Icons.person_rounded,
-                          label: 'Profil',
-                          route: AppRoutes.profil,
-                        ),
-                      ],
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final itemWidth = constraints.maxWidth / _items.length;
+                        return Stack(
+                          children: [
+                            // ── Sliding pill indicator ──
+                            AnimatedBuilder(
+                              animation: _pillPosition,
+                              builder: (context, _) {
+                                return Positioned(
+                                  left: _pillPosition.value * itemWidth + 4,
+                                  top: 0,
+                                  bottom: 0,
+                                  width: itemWidth - 8,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Color(0xFF064973),
+                                          Color(0xFF0A5C8F),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(32),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.primary.withValues(alpha: 0.35),
+                                          blurRadius: 14,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            // ── Nav items ──
+                            Row(
+                              children: List.generate(_items.length, (index) {
+                                final isSelected = index == _currentIndex;
+                                final item = _items[index];
+                                return Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => _navigateTo(index),
+                                    behavior: HitTestBehavior.opaque,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        AnimatedSwitcher(
+                                          duration: const Duration(milliseconds: 200),
+                                          child: Icon(
+                                            isSelected ? item.selectedIcon : item.icon,
+                                            key: ValueKey(isSelected),
+                                            color: isSelected
+                                                ? Colors.white
+                                                : AppColors.textTertiary,
+                                            size: 22,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        AnimatedDefaultTextStyle(
+                                          duration: const Duration(milliseconds: 200),
+                                          style: AppTextStyles.iosCaption2.copyWith(
+                                            color: isSelected
+                                                ? Colors.white
+                                                : AppColors.textTertiary,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                            fontSize: 10,
+                                          ),
+                                          child: Text(item.label),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -127,74 +213,13 @@ class AppBottomNav extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildNavItem({
-    required int index,
-    required IconData icon,
-    required IconData selectedIcon,
-    required String label,
-    required String route,
-  }) {
-    final isSelected = index == currentIndex;
+class _NavItem {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  final String route;
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (isSelected) return;
-          HapticFeedback.selectionClick();
-          Get.offNamedUntil(
-            route,
-            (r) => !_tabRoutes.contains(r.settings.name),
-          );
-        },
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeInOutCubic,
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.12)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(22),
-            border: isSelected
-                ? Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.18),
-                    width: 1,
-                  )
-                : null,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedScale(
-                scale: isSelected ? 1.08 : 1.0,
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOutBack,
-                child: Icon(
-                  isSelected ? selectedIcon : icon,
-                  color: isSelected ? AppColors.primary : AppColors.secondary,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(height: 2),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: AppTextStyles.iosCaption2.copyWith(
-                    color: isSelected ? AppColors.primary : AppColors.secondary,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    fontSize: 10.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  const _NavItem(this.icon, this.selectedIcon, this.label, this.route);
 }

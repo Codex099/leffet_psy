@@ -26,16 +26,17 @@ class GroupesListeView extends GetView<GroupesListeController> {
           BouncyTap(
             onTap: () => Get.toNamed(AppRoutes.editGroupe),
             child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.all(9),
+              margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                gradient: AppColors.groupHeaderGradient,
                 shape: BoxShape.circle,
+                boxShadow: AppColors.softShadow,
               ),
               child: const Icon(
                 Icons.group_add_rounded,
-                size: 20,
-                color: AppColors.primary,
+                size: 19,
+                color: Colors.white,
               ),
             ),
           ),

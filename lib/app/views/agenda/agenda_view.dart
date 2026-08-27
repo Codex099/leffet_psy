@@ -33,16 +33,17 @@ class AgendaView extends GetView<AgendaController> {
               if (res == true) controller.loadAgenda(forceRefresh: true);
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.all(9),
+              margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                gradient: AppColors.oceanGradient,
                 shape: BoxShape.circle,
+                boxShadow: AppColors.softShadow,
               ),
               child: const Icon(
                 Icons.add_alarm_rounded,
-                size: 20,
-                color: AppColors.primary,
+                size: 19,
+                color: Colors.white,
               ),
             ),
           ),
@@ -104,15 +105,16 @@ class AgendaView extends GetView<AgendaController> {
                                 controller.goToToday();
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.10),
+                                  gradient: AppColors.oceanGradient,
                                   borderRadius: BorderRadius.circular(14),
+                                  boxShadow: AppColors.softShadow,
                                 ),
                                 child: Text(
                                   'Aujourd\'hui',
                                   style: AppTextStyles.iosCaption1.copyWith(
-                                    color: AppColors.primary,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -338,15 +340,16 @@ class AgendaView extends GetView<AgendaController> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.10),
+                    gradient: AppColors.oceanGradient,
                     borderRadius: BorderRadius.circular(10),
+                    boxShadow: AppColors.softShadow,
                   ),
                   child: Text(
                     '${daySessions.length} séance${daySessions.length > 1 ? "s" : ""}',
                     style: AppTextStyles.iosCaption1.copyWith(
-                      color: AppColors.primary,
+                      color: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

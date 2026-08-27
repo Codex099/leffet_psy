@@ -92,7 +92,7 @@ class CreationSeanceController extends GetxController {
           'heure_debut': heureDebut.value,
           'heure_fin': heureFin.value,
           'statut': 'prevue',
-          if (selectedEmployeeIds.isNotEmpty) 'employee_ids': selectedEmployeeIds.toList(),
+          if (selectedEmployeeIds.isNotEmpty) 'employe_ids': selectedEmployeeIds.toList(),
         };
 
         await _seanceService.createSeance(payload);

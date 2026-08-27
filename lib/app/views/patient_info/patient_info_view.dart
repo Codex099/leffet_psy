@@ -238,7 +238,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                   ),
                                 ),
                               );
-                            }).toList(),
+                            }),
                           const SizedBox(height: 8),
                           OutlinedButton.icon(
                             onPressed: () => _showAssociateParentDialog(context),
@@ -557,7 +557,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                   onPressed: onActionTap,
                   child: Text(actionLabel, style: AppTextStyles.bodySmall.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
                 ),
-              if (headerWidget != null) headerWidget,
+              ?headerWidget,
             ],
           ),
           const SizedBox(height: 12),
@@ -696,7 +696,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
             content: StatefulBuilder(
               builder: (ctx, setDialogState) => DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Lien de parenté'),
-                value: selectedRole,
+                initialValue: selectedRole,
                 items: const [
                   DropdownMenuItem(value: 'pere', child: Text('Père')),
                   DropdownMenuItem(value: 'mere', child: Text('Mère')),

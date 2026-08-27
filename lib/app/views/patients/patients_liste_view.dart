@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../controllers/patients_liste_controller.dart';
 import '../../models/patient_model.dart';
@@ -8,7 +9,6 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/creative_app_bar.dart';
-import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
@@ -29,21 +29,20 @@ class PatientsListeView extends GetView<PatientsListeController> {
           BouncyTap(
             onTap: () async {
               final res = await Get.toNamed(AppRoutes.editPatient);
-              if (res == true) {
-                controller.loadPatients();
-              }
+              if (res == true) controller.loadPatients();
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.all(9),
+              margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.10),
+                gradient: AppColors.oceanGradient,
                 shape: BoxShape.circle,
+                boxShadow: AppColors.softShadow,
               ),
               child: const Icon(
                 Icons.person_add_rounded,
-                size: 20,
-                color: AppColors.primary,
+                size: 19,
+                color: Colors.white,
               ),
             ),
           ),
@@ -54,24 +53,32 @@ class PatientsListeView extends GetView<PatientsListeController> {
         bottom: false,
         child: Column(
           children: [
-            // ── Search Bar Simple & Évidente ──
+            // ── Search Bar Premium ─────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
               child: Container(
-                height: 46,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border, width: 0.9),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderLight, width: 0.7),
                   boxShadow: AppColors.softShadow,
                 ),
                 child: TextField(
                   onChanged: (val) => controller.search(val),
-                  style: AppTextStyles.iosBody,
+                  style: AppTextStyles.iosBody.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                   decoration: InputDecoration(
-                    hintText: 'Rechercher un patient par nom...',
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
-                    prefixIcon: const Icon(Icons.search_rounded, size: 22, color: AppColors.secondary),
+                    hintText: 'Rechercher un patient...',
+                    hintStyle: AppTextStyles.iosSubhead.copyWith(
+                      color: AppColors.textHint,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 22,
+                      color: AppColors.secondary,
+                    ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -79,10 +86,10 @@ class PatientsListeView extends GetView<PatientsListeController> {
                     isDense: true,
                   ),
                 ),
-              ),
+              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
             ),
 
-            // ── Segmented Control Filter (Tous / Actifs / Inactifs) ──
+            // ── Filtres Segmented ──────────────────────────────────────────
             Obx(() {
               int selectedIndex = 0;
               if (controller.actifFilter.value == true) selectedIndex = 1;
@@ -91,7 +98,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
               return IosSegmentedControl<int>(
                 segments: const {
                   0: 'Tous',
-                  1: 'Suivi Actif',
+                  1: 'Suivi actif',
                   2: 'Inactifs',
                 },
                 selectedValue: selectedIndex,
@@ -100,29 +107,32 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   if (idx == 1) controller.setActifFilter(true);
                   if (idx == 2) controller.setActifFilter(false);
                 },
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               );
             }),
 
-            // ── Compteur de patients ──
+            // ── Compteur ──────────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Obx(() => Text(
-                        '${controller.filteredPatients.length} patient(s) répertorié(s)',
-                        style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
+                        '${controller.filteredPatients.length} patient(s)',
+                        style: AppTextStyles.iosCaption2.copyWith(
+                          color: AppColors.textTertiary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       )),
                 ],
               ),
             ),
 
-            // ── Liste Patients Inset Grouped ──
+            // ── Liste Patients ─────────────────────────────────────────────
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(message: 'Chargement des dossiers...');
+                  return ShimmerListLoader(count: 6);
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -135,13 +145,11 @@ class PatientsListeView extends GetView<PatientsListeController> {
                 if (list.isEmpty) {
                   return StatePlaceholder.empty(
                     title: 'Aucun patient trouvé',
-                    message: 'Vous pouvez ajouter un nouveau dossier dès maintenant.',
-                    actionLabel: '+ Créer un dossier patient',
+                    message: 'Vous pouvez créer un nouveau dossier dès maintenant.',
+                    actionLabel: '+ Créer un dossier',
                     onAction: () async {
                       final res = await Get.toNamed(AppRoutes.editPatient);
-                      if (res == true) {
-                        controller.loadPatients();
-                      }
+                      if (res == true) controller.loadPatients();
                     },
                   );
                 }
@@ -149,12 +157,13 @@ class PatientsListeView extends GetView<PatientsListeController> {
                 return RefreshIndicator(
                   onRefresh: () async => controller.loadPatients(),
                   color: AppColors.primary,
+                  backgroundColor: Colors.white,
+                  strokeWidth: 2.5,
                   child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 2, bottom: 120),
+                    padding: const EdgeInsets.only(top: 6, bottom: 120),
                     itemCount: list.length,
                     itemBuilder: (context, index) {
-                      final patient = list[index];
-                      return _buildPatientCard(patient);
+                      return _buildPatientCard(list[index], index);
                     },
                   ),
                 );
@@ -166,38 +175,137 @@ class PatientsListeView extends GetView<PatientsListeController> {
     );
   }
 
-  Widget _buildPatientCard(PatientModel patient) {
-    return IosCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      children: [
-        IosCardTile(
-          leading: Stack(
+  Widget _buildPatientCard(PatientModel patient, int index) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      child: BouncyTap(
+        onTap: () async {
+          await Get.toNamed(AppRoutes.patientInfo, arguments: patient.id);
+          controller.loadPatients();
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.borderLight, width: 0.6),
+            boxShadow: AppColors.cardShadow,
+          ),
+          child: Row(
             children: [
-              PatientAvatar(
-                photoUrl: patient.photoUrl,
-                initials: patient.initials,
-                radius: 22,
+              // Avatar + indicateur statut
+              Stack(
+                children: [
+                  PatientAvatar(
+                    photoUrl: patient.photoUrl,
+                    initials: patient.initials,
+                    radius: 24,
+                  ),
+                  if (patient.actif)
+                    const Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: PulseDot(color: AppColors.secondary, size: 9),
+                    ),
+                ],
               ),
-              if (patient.actif)
-                const Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: PulseDot(color: AppColors.secondary, size: 8),
+              const SizedBox(width: 14),
+              // Info patient
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      patient.fullName,
+                      style: AppTextStyles.iosHeadline.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      patient.ageFormatted != null
+                          ? '${patient.ageFormatted} • ${patient.sexeLabel}'
+                          : patient.sexeLabel,
+                      style: AppTextStyles.iosFootnote.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              // Badge + chevron
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  StatusBadge.active(label: patient.statutLabel),
+                  const SizedBox(height: 6),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: AppColors.iosSystemGray3,
+                  ),
+                ],
+              ),
             ],
           ),
-          title: patient.fullName,
-          subtitle: patient.ageFormatted != null
-              ? '${patient.ageFormatted} • ${patient.sexeLabel}'
-              : patient.sexeLabel,
-          trailing: StatusBadge.active(label: patient.statutLabel),
-          showChevron: true,
-          onTap: () async {
-            await Get.toNamed(AppRoutes.patientInfo, arguments: patient.id);
-            controller.loadPatients();
-          },
         ),
-      ],
+      )
+          .animate(delay: Duration(milliseconds: 50 * (index % 10)))
+          .fadeIn(duration: 400.ms)
+          .slideX(begin: 0.05, curve: Curves.easeOut),
+    );
+  }
+}
+
+// Shimmer loader — imported from app_animations via state_placeholder
+class ShimmerListLoader extends StatelessWidget {
+  final int count;
+  const ShimmerListLoader({super.key, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 6, bottom: 20),
+      itemCount: count,
+      itemBuilder: (_, i) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: AppColors.softShadow,
+          ),
+          child: Row(
+            children: [
+              _shimmer(48, 48, 24),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _shimmer(double.infinity, 14, 7),
+                    const SizedBox(height: 8),
+                    _shimmer(100, 11, 6),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ).animate(delay: Duration(milliseconds: i * 80)).fadeIn(duration: 400.ms),
+      ),
+    );
+  }
+
+  Widget _shimmer(double w, double h, double r) {
+    return Container(
+      width: w,
+      height: h,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F0F5),
+        borderRadius: BorderRadius.circular(r),
+      ),
     );
   }
 }

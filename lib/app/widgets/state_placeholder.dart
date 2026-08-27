@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'app_animations.dart';
 
-/// Composant réutilisable pour afficher les états de chargement, d'erreur et vide.
-/// Conforme au design system iOS moderne avec nettoyage automatique des messages d'erreur.
+/// Composant réutilisable pour les états de chargement, d'erreur et vide.
+/// Design premium iOS avec shimmer loading et illustrations animées.
 class StatePlaceholder extends StatelessWidget {
   final StatePlaceholderType type;
   final String? title;
@@ -64,7 +65,7 @@ class StatePlaceholder extends StatelessWidget {
     if (raw.contains('connection timeout') ||
         raw.contains('receive timeout') ||
         raw.contains('Délai d\'attente')) {
-      return 'Le délai d\'attente vers le serveur a expiré. Veuillez vérifier votre connexion internet ou réattaquer la synchronisation.';
+      return 'Le délai d\'attente vers le serveur a expiré. Vérifiez votre connexion internet.';
     }
     if (raw.contains('connection error') ||
         raw.contains('Impossible de se connecter') ||
@@ -72,132 +73,141 @@ class StatePlaceholder extends StatelessWidget {
       return 'Impossible de joindre le serveur clinique. Vérifiez votre accès réseau.';
     }
     if (raw.contains('403') || raw.contains('Accès refusé')) {
-      return 'Accès restreint : vous ne disposez pas des droits suffisants pour consulter cette section.';
+      return 'Accès restreint : vous ne disposez pas des droits nécessaires.';
     }
     if (raw.contains('404') || raw.contains('introuvable')) {
       return 'Les informations demandées n\'ont pas été trouvées.';
     }
-
     final clean = raw
         .replaceAll(RegExp(r'^DioException\s*\[.*?\]:\s*'), '')
         .replaceAll(RegExp(r'^Exception:\s*'), '')
         .replaceAll(RegExp(r'Error:\s*.*$'), '')
         .trim();
-
     return clean.isNotEmpty ? clean : 'Une anomalie réseau est survenue.';
   }
 
   @override
   Widget build(BuildContext context) {
+    // ── Loading: Shimmer skeleton ────────────────────────────────────────────
     if (type == StatePlaceholderType.loading) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(
-                color: AppColors.primary,
-                strokeWidth: 2.8,
-              ),
-              if (message != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  message!,
-                  style: AppTextStyles.iosSubhead.copyWith(color: AppColors.textSecondary),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ],
-          ),
-        ),
+      return Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: ShimmerListLoader(count: 5),
       );
     }
 
+    // ── Error / Empty ────────────────────────────────────────────────────────
     final isError = type == StatePlaceholderType.error;
     final iconColor = isError ? AppColors.logoCoral : AppColors.secondary;
     final iconBgColor = isError
         ? AppColors.logoCoralLight
-        : AppColors.secondaryLight.withValues(alpha: 0.4);
-    final iconData = isError ? Icons.wifi_off_rounded : Icons.inbox_rounded;
+        : AppColors.secondaryLight.withValues(alpha: 0.35);
+    final iconData = isError ? Icons.cloud_off_rounded : Icons.folder_open_rounded;
     final displayMessage = isError ? sanitizeErrorMessage(message) : message;
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isError
-                  ? AppColors.logoCoral.withValues(alpha: 0.2)
-                  : AppColors.border,
-              width: 1,
-            ),
-            boxShadow: AppColors.cardShadow,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  iconData,
-                  color: iconColor,
-                  size: 28,
-                ),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+        child: FadeSlideIn(
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: isError
+                    ? AppColors.logoCoral.withValues(alpha: 0.18)
+                    : AppColors.borderLight,
+                width: 0.8,
               ),
-              if (title != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  title!,
-                  style: AppTextStyles.iosHeadline.copyWith(
-                    color: isError ? AppColors.textPrimary : AppColors.primary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-              if (displayMessage != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  displayMessage,
-                  style: AppTextStyles.iosSubhead.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-              if (onAction != null && actionLabel != null) ...[
-                const SizedBox(height: 20),
-                ElevatedButton.icon(
-                  onPressed: onAction,
-                  icon: Icon(
-                    isError ? Icons.refresh_rounded : Icons.add_rounded,
-                    size: 18,
-                  ),
-                  label: Text(actionLabel!),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(160, 44),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(22),
+              boxShadow: AppColors.cardShadow,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Icon circle
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: iconBgColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: iconColor.withValues(alpha: 0.2),
+                        width: 1.5,
+                      ),
                     ),
-                    elevation: 0,
+                    child: Icon(iconData, color: iconColor, size: 32),
                   ),
-                ),
-              ],
-            ],
+                  if (title != null) ...[
+                    const SizedBox(height: 18),
+                    Text(
+                      title!,
+                      style: AppTextStyles.iosTitle3.copyWith(
+                        color: isError ? AppColors.textPrimary : AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  if (displayMessage != null) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      displayMessage,
+                      style: AppTextStyles.iosSubhead.copyWith(
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  if (onAction != null && actionLabel != null) ...[
+                    const SizedBox(height: 24),
+                    Container(
+                      height: 46,
+                      decoration: BoxDecoration(
+                        gradient: isError
+                            ? AppColors.accentGradient
+                            : AppColors.oceanGradient,
+                        borderRadius: BorderRadius.circular(23),
+                        boxShadow: isError
+                            ? AppColors.accentShadow
+                            : AppColors.softShadow,
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: onAction,
+                          borderRadius: BorderRadius.circular(23),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                isError ? Icons.refresh_rounded : Icons.add_rounded,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                actionLabel!,
+                                style: AppTextStyles.iosHeadline.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
