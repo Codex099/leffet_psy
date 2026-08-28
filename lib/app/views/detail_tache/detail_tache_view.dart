@@ -50,17 +50,23 @@ class _DetailTacheViewState extends State<DetailTacheView> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: controller.isNew ? 'Nouvelle Tâche' : 'Détail de la Tâche',
-        subtitle: 'Action Clinique',
+        title: controller.isNew ? 'Nouvelle Tâche'.tr : 'Détail de la Tâche',
+        subtitle: 'Action Clinique'.tr,
         showBackButton: true,
       ),
       body: SafeArea(
         child: Obx(() {
-          if (controller.status.value == 'loading' && !controller.isNew && controller.titre.value.isEmpty) {
-            return StatePlaceholder.loading(message: 'Chargement de la tâche...');
+          if (controller.status.value == 'loading' &&
+              !controller.isNew &&
+              controller.titre.value.isEmpty) {
+            return StatePlaceholder.loading(
+              message: 'Chargement de la tâche...',
+            );
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(message: controller.errorMessage.value);
+            return StatePlaceholder.error(
+              message: controller.errorMessage.value,
+            );
           }
 
           return SingleChildScrollView(
@@ -70,54 +76,68 @@ class _DetailTacheViewState extends State<DetailTacheView> {
               children: [
                 // ── Statut de la tâche (Segmented Control iOS) ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Text('STATUT DE LA TÂCHE', style: AppTextStyles.iosCaption2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    'STATUT DE LA TÂCHE'.tr,
+                    style: AppTextStyles.iosCaption2,
+                  ),
                 ),
-                Obx(() => IosSegmentedControl<String>(
-                      segments: const {
-                        'a_faire': 'À faire',
-                        'en_cours': 'En cours',
-                        'fait': 'Terminée',
-                      },
-                      selectedValue: controller.statut.value,
-                      onValueChanged: (s) => controller.statut.value = s,
-                    )),
+                Obx(
+                  () => IosSegmentedControl<String>(
+                    segments: {
+                      'a_faire': 'À faire'.tr,
+                      'en_cours': 'En cours'.tr,
+                      'fait': 'Terminée',
+                    },
+                    selectedValue: controller.statut.value,
+                    onValueChanged: (s) => controller.statut.value = s,
+                  ),
+                ),
                 const SizedBox(height: 12),
 
                 // ── Priorité Segmented Control iOS ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Text('PRIORITÉ', style: AppTextStyles.iosCaption2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: Text('PRIORITÉ'.tr, style: AppTextStyles.iosCaption2),
                 ),
-                Obx(() => IosSegmentedControl<String>(
-                      segments: const {
-                        'haute': 'Haute',
-                        'normale': 'Normale',
-                        'basse': 'Basse',
-                      },
-                      selectedValue: controller.priorite.value,
-                      onValueChanged: (p) => controller.priorite.value = p,
-                    )),
+                Obx(
+                  () => IosSegmentedControl<String>(
+                    segments: {
+                      'haute': 'Haute'.tr,
+                      'normale': 'Normale'.tr,
+                      'basse': 'Basse',
+                    },
+                    selectedValue: controller.priorite.value,
+                    onValueChanged: (p) => controller.priorite.value = p,
+                  ),
+                ),
                 const SizedBox(height: 12),
 
                 // ── Détails principaux ──
                 IosCard(
-                  title: 'Informations',
+                  title: 'Informations'.tr,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
                           AppTextField(
-                            label: 'Titre de la tâche *',
-                            hintText: 'Ex: Rédiger le bilan psychologique',
+                            label: 'Titre de la tâche *'.tr,
+                            hintText: 'Ex: Rédiger le bilan psychologique'.tr,
                             controller: _titreCtrl,
                             onChanged: (v) => controller.titre.value = v,
                           ),
                           const SizedBox(height: 14),
                           AppTextField(
-                            label: 'Description',
-                            hintText: 'Préciser les consignes ou observations...',
+                            label: 'Description'.tr,
+                            hintText:
+                                'Préciser les consignes ou observations...'.tr,
                             maxLines: 4,
                             controller: _descCtrl,
                             onChanged: (v) => controller.description.value = v,
@@ -130,19 +150,21 @@ class _DetailTacheViewState extends State<DetailTacheView> {
 
                 // ── Assignation Employé (US-M37) ──
                 IosCard(
-                  title: 'Assignation',
-                  subtitle: 'Professionnel en charge de cette action',
+                  title: 'Assignation'.tr,
+                  subtitle: 'Professionnel en charge de cette action'.tr,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Obx(() {
                         if (controller.employeesStatus.value == 'loading') {
-                          return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                          return const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          );
                         }
                         return SearchablePickerField<dynamic>(
-                          label: 'Assigner à ',
-                          hintText: 'Sélectionner un praticien...',
-                          title: 'Assigner la tâche à ',
+                          label: 'Assigner à '.tr,
+                          hintText: 'Sélectionner un praticien...'.tr,
+                          title: 'Assigner la tâche à '.tr,
                           leadingIcon: Icons.badge_outlined,
                           selectedValue: controller.assigneA.value,
                           items: controller.availableEmployees.map((emp) {
@@ -153,7 +175,8 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                               initials: emp.initials,
                             );
                           }).toList(),
-                          onSingleChanged: (val) => controller.assigneA.value = val,
+                          onSingleChanged: (val) =>
+                              controller.assigneA.value = val,
                         );
                       }),
                     ),
@@ -162,27 +185,29 @@ class _DetailTacheViewState extends State<DetailTacheView> {
 
                 // ── Lien Patient Optionnel ──
                 IosCard(
-                  title: 'Patient Lié (Optionnel)',
-                  subtitle: 'Associer cette tâche à  un suivi clinique',
+                  title: 'Patient Lié (Optionnel)'.tr,
+                  subtitle: 'Associer cette tâche à  un suivi clinique'.tr,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Obx(() {
                         return SearchablePickerField<dynamic>(
-                          label: 'Patient concerné',
-                          hintText: 'Rechercher et associer un patient...',
-                          title: 'Associer un patient',
+                          label: 'Patient concerné'.tr,
+                          hintText: 'Rechercher et associer un patient...'.tr,
+                          title: 'Associer un patient'.tr,
                           leadingIcon: Icons.person_search_rounded,
                           selectedValue: controller.patientId.value,
                           items: controller.availablePatients.map((p) {
                             return SearchableItem<dynamic>(
                               value: p.id,
                               label: p.fullName,
-                              subtitle: '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}',
+                              subtitle:
+                                  '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}'.tr,
                               initials: p.initials,
                             );
                           }).toList(),
-                          onSingleChanged: (val) => controller.patientId.value = val,
+                          onSingleChanged: (val) =>
+                              controller.patientId.value = val,
                         );
                       }),
                     ),
@@ -191,11 +216,15 @@ class _DetailTacheViewState extends State<DetailTacheView> {
 
                 // ── Échéance ──
                 IosCard(
-                  title: 'Échéance',
+                  title: 'Échéance'.tr,
                   children: [
                     IosCardTile(
-                      leading: const Icon(Icons.event_outlined, color: AppColors.primary, size: 20),
-                      title: 'Date d\'échéance',
+                      leading: const Icon(
+                        Icons.event_outlined,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                      title: 'Date d\'.tréchéance',
                       subtitle: controller.dateEcheance.value.isEmpty
                           ? 'Aucune date fixée'
                           : controller.dateEcheance.value,
@@ -207,11 +236,16 @@ class _DetailTacheViewState extends State<DetailTacheView> {
 
                 // ── Bouton Enregistrer & Supprimer ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   child: Column(
                     children: [
                       AppButton(
-                        label: controller.isNew ? 'Créer la tâche' : 'Mettre à  jour la tâche',
+                        label: controller.isNew
+                            ? 'Créer la tâche'
+                            : 'Mettre à  jour la tâche',
                         icon: Icons.check_circle_outline_rounded,
                         onPressed: () => controller.saveTache(),
                       ),
@@ -219,8 +253,15 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                         const SizedBox(height: 12),
                         TextButton.icon(
                           onPressed: () => _confirmDelete(context),
-                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
-                          label: Text('Supprimer cette tâche', style: AppTextStyles.buttonDestructive),
+                          icon: const Icon(
+                            Icons.delete_outline_rounded,
+                            color: AppColors.error,
+                            size: 20,
+                          ),
+                          label: Text(
+                            'Supprimer cette tâche'.tr,
+                            style: AppTextStyles.buttonDestructive,
+                          ),
                         ),
                       ],
                     ],
@@ -254,13 +295,13 @@ class _DetailTacheViewState extends State<DetailTacheView> {
     showCupertinoDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('Supprimer la tâche'),
-        content: const Text('Êtes-vous sûr de vouloir supprimer cette tâche ?'),
+        title: Text('Supprimer la tâche'.tr),
+        content: Text('Êtes-vous sûr de vouloir supprimer cette tâche ?'.tr),
         actions: [
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text('Annuler'.tr),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -268,7 +309,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
               Navigator.pop(ctx);
               controller.deleteTache();
             },
-            child: const Text('Supprimer'),
+            child: Text('Supprimer'.tr),
           ),
         ],
       ),

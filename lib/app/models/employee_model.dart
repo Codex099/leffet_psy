@@ -48,7 +48,18 @@ class EmployeeModel {
   String get initials {
     final p = prenom.isNotEmpty ? prenom[0].toUpperCase() : '';
     final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
-    return '$p$n';
+    final combined = '$p$n';
+    if (combined.isNotEmpty) return combined;
+    if (username.isNotEmpty) return username[0].toUpperCase();
+    return 'U';
+  }
+
+  /// Première lettre du nom de famille (ou prénom/username) pour affichage avatar
+  String get initialLetter {
+    if (nom.isNotEmpty) return nom[0].toUpperCase();
+    if (prenom.isNotEmpty) return prenom[0].toUpperCase();
+    if (username.isNotEmpty) return username[0].toUpperCase();
+    return 'U';
   }
 
   String get roleLabel {

@@ -57,11 +57,18 @@ class PlanningRecurrentService {
   /// GET /api/patients/{id}/planning-recurrent
   Future<PatientPlanningRecurrentModel?> getPlanningRecurrent(
       dynamic patientId) async {
-    final response =
-        await _dio.get(ApiConfig.patientPlanningRecurrent(patientId));
-    if (response.data == null) return null;
-    return PatientPlanningRecurrentModel.fromJson(
-        Map<String, dynamic>.from(response.data as Map));
+    try {
+      final response =
+          await _dio.get(ApiConfig.patientPlanningRecurrent(patientId));
+      if (response.data == null) return null;
+      return PatientPlanningRecurrentModel.fromJson(
+          Map<String, dynamic>.from(response.data as Map));
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return null;
+      }
+      rethrow;
+    }
   }
 
   /// POST /api/patients/{id}/planning-recurrent — Créer/modifier planning

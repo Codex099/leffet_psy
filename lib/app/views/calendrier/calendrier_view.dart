@@ -20,8 +20,8 @@ class CalendrierView extends GetView<CalendrierController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: 'Calendrier Administratif',
-        subtitle: 'Événements & Réunions',
+        title: 'Calendrier Administratif'.tr,
+        subtitle: 'Événements & Réunions'.tr,
         showBackButton: true,
         actions: [
           BouncyTap(
@@ -48,15 +48,20 @@ class CalendrierView extends GetView<CalendrierController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Segmented Control (Liste / Calendrier)
-            Obx(() => IosSegmentedControl<String>(
-                  segments: const {
-                    'Liste': 'Liste des événements',
-                    'Calendrier': 'Vue Calendrier',
-                  },
-                  selectedValue: controller.activeTab.value,
-                  onValueChanged: (tab) => controller.activeTab.value = tab,
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                )),
+            Obx(
+              () => IosSegmentedControl<String>(
+                segments: const {
+                  'Liste': 'Liste des événements',
+                  'Calendrier': 'Vue Calendrier',
+                },
+                selectedValue: controller.activeTab.value,
+                onValueChanged: (tab) => controller.activeTab.value = tab,
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+              ),
+            ),
 
             // Content List or Empty placeholder
             Expanded(
@@ -72,9 +77,10 @@ class CalendrierView extends GetView<CalendrierController> {
                 }
                 if (controller.status.value == 'empty') {
                   return StatePlaceholder.empty(
-                    title: 'Aucun événement planifié',
-                    message: 'Ajoutez un événement pour organiser le calendrier clinique.',
-                    actionLabel: '+ Nouvel événement',
+                    title: 'Aucun événement planifié'.tr,
+                    message:
+                        'Ajoutez un événement pour organiser le calendrier clinique.',
+                    actionLabel: 'Nouvel événement',
                     onAction: () => _showAddDialog(context),
                   );
                 }
@@ -85,7 +91,10 @@ class CalendrierView extends GetView<CalendrierController> {
                   itemBuilder: (context, index) {
                     final ev = controller.evenements[index];
                     return IosCard(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
                       children: [
                         IosCardTile(
                           leading: Container(
@@ -101,16 +110,25 @@ class CalendrierView extends GetView<CalendrierController> {
                             ),
                           ),
                           title: ev.titre,
-                          subtitle: "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' Â· ${ev.description}' : ''}",
+                          subtitle:
+                              "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' Â· ${ev.description}' : ''}".tr,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary),
+                                icon: const Icon(
+                                  Icons.edit_outlined,
+                                  size: 20,
+                                  color: AppColors.primary,
+                                ),
                                 onPressed: () => _showAddDialog(context, ev),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline_rounded, size: 20, color: AppColors.error),
+                                icon: const Icon(
+                                  Icons.delete_outline_rounded,
+                                  size: 20,
+                                  color: AppColors.error,
+                                ),
                                 onPressed: () => _confirmDelete(context, ev.id),
                               ),
                             ],
@@ -132,13 +150,15 @@ class CalendrierView extends GetView<CalendrierController> {
     showCupertinoDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('Supprimer l\'événement'),
-        content: const Text('Êtes-vous sûr de vouloir supprimer cet événement du calendrier clinique ?'),
+        title: const Text('Supprimer l\'.trévénement'),
+        content: Text(
+          'Êtes-vous sûr de vouloir supprimer cet événement du calendrier clinique ?'.tr,
+        ),
         actions: [
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text('Annuler'.tr),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -146,7 +166,7 @@ class CalendrierView extends GetView<CalendrierController> {
               Navigator.pop(ctx);
               controller.deleteEvenement(id);
             },
-            child: const Text('Supprimer'),
+            child: Text('Supprimer'.tr),
           ),
         ],
       ),
@@ -157,7 +177,9 @@ class CalendrierView extends GetView<CalendrierController> {
     controller.resetForm(ev);
     final formKey = GlobalKey<FormState>();
     final titreTextCtrl = TextEditingController(text: controller.titre.value);
-    final descTextCtrl = TextEditingController(text: controller.description.value);
+    final descTextCtrl = TextEditingController(
+      text: controller.description.value,
+    );
 
     Get.bottomSheet(
       Container(
@@ -190,8 +212,8 @@ class CalendrierView extends GetView<CalendrierController> {
                 ),
                 const SizedBox(height: 20),
                 AppTextField(
-                  label: 'Titre de l\'événement *',
-                  hintText: 'Ex: Réunion d\'équipe pluridisciplinaire',
+                  label: 'Titre de l\'.trévénement *',
+                  hintText: 'Ex: Réunion d\'.tréquipe pluridisciplinaire',
                   controller: titreTextCtrl,
                   onChanged: (v) => controller.titre.value = v,
                   validator: (v) {
@@ -203,8 +225,8 @@ class CalendrierView extends GetView<CalendrierController> {
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
-                  label: 'Description',
-                  hintText: 'Détails ou ordre du jour...',
+                  label: 'Description'.tr,
+                  hintText: 'Détails ou ordre du jour...'.tr,
                   controller: descTextCtrl,
                   maxLines: 3,
                   onChanged: (v) => controller.description.value = v,
@@ -212,65 +234,90 @@ class CalendrierView extends GetView<CalendrierController> {
                 const SizedBox(height: 14),
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 6),
-                  child: Text('Date de l\'événement *', style: AppTextStyles.fieldLabel),
+                  child: Text(
+                    'Date de l\'.trévénement *',
+                    style: AppTextStyles.fieldLabel,
+                  ),
                 ),
-                Obx(() => InkWell(
-                      onTap: () async {
-                        final initial = DateTime.tryParse(controller.date.value) ?? DateTime.now();
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: initial,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime(2030),
-                        );
-                        if (picked != null) {
-                          controller.date.value =
-                              "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: AppColors.fieldBackground,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border, width: 0.8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              controller.date.value.isEmpty
-                                  ? 'Sélectionner la date'
-                                  : controller.date.value,
-                              style: AppTextStyles.fieldValue,
-                            ),
-                            const Icon(Icons.calendar_month_rounded, color: AppColors.primary, size: 20),
-                          ],
-                        ),
+                Obx(
+                  () => InkWell(
+                    onTap: () async {
+                      final initial =
+                          DateTime.tryParse(controller.date.value) ??
+                          DateTime.now();
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: initial,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      if (picked != null) {
+                        controller.date.value =
+                            "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
                       ),
-                    )),
+                      decoration: BoxDecoration(
+                        color: AppColors.fieldBackground,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border, width: 0.8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            controller.date.value.isEmpty
+                                ? 'Sélectionner la date'
+                                : controller.date.value,
+                            style: AppTextStyles.fieldValue,
+                          ),
+                          const Icon(
+                            Icons.calendar_month_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Rappel (jours avant)', style: AppTextStyles.fieldLabel),
+                    Text(
+                      'Rappel (jours avant)'.tr,
+                      style: AppTextStyles.fieldLabel,
+                    ),
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.remove_circle_outline, color: AppColors.primary),
+                          icon: const Icon(
+                            Icons.remove_circle_outline,
+                            color: AppColors.primary,
+                          ),
                           onPressed: () {
                             if (controller.notifierJours.value > 1) {
                               controller.notifierJours.value--;
                             }
                           },
                         ),
-                        Obx(() => Text(
-                              '${controller.notifierJours.value} j',
-                              style: AppTextStyles.iosHeadline,
-                            )),
+                        Obx(
+                          () => Text(
+                            '${controller.notifierJours.value} j'.tr,
+                            style: AppTextStyles.iosHeadline,
+                          ),
+                        ),
                         IconButton(
-                          icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+                          icon: const Icon(
+                            Icons.add_circle_outline,
+                            color: AppColors.primary,
+                          ),
                           onPressed: () => controller.notifierJours.value++,
                         ),
                       ],
@@ -279,7 +326,7 @@ class CalendrierView extends GetView<CalendrierController> {
                 ),
                 const SizedBox(height: 24),
                 AppButton(
-                  label: ev != null ? 'Mettre à  jour' : 'Enregistrer',
+                  label: ev != null ? 'Mettre à  jour' : 'Enregistrer'.tr,
                   onPressed: () async {
                     if (formKey.currentState?.validate() == true) {
                       final success = await controller.saveEvenement();

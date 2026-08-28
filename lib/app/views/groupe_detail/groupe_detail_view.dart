@@ -22,13 +22,16 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: 'Détail du Groupe',
-        subtitle: 'Atelier Clinique Collectif',
+        title: 'Détail du Groupe'.tr,
+        subtitle: 'Atelier Clinique Collectif'.tr,
         showBackButton: true,
         actions: [
           BouncyTap(
             onTap: () async {
-              final res = await Get.toNamed(AppRoutes.editGroupe, arguments: controller.groupeId);
+              final res = await Get.toNamed(
+                AppRoutes.editGroupe,
+                arguments: controller.groupeId,
+              );
               if (res == true) {
                 controller.loadGroupe();
               }
@@ -81,7 +84,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
             children: [
               // ── En-tête Groupe iOS ──
               IosCard(
-                title: 'Groupe',
+                title: 'Groupe'.tr,
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -97,7 +100,9 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                           child: Center(
                             child: Text(
                               g?.initials ?? 'G',
-                              style: AppTextStyles.iosTitle2.copyWith(color: Colors.white),
+                              style: AppTextStyles.iosTitle2.copyWith(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -106,14 +111,17 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(g?.nom ?? 'Sans nom', style: AppTextStyles.iosTitle2),
+                              Text(
+                                g?.nom ?? 'Sans nom',
+                                style: AppTextStyles.iosTitle2,
+                              ),
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  StatusBadge.active(label: 'Atelier Clinique'),
+                                  StatusBadge.active(label: 'Atelier Clinique'.tr),
                                   const SizedBox(width: 8),
                                   Text(
-                                    '${patientsList.length} membre${patientsList.length > 1 ? 's' : ''}',
+                                    '${patientsList.length} membre${patientsList.length > 1 ? '.trs' : ''}',
                                     style: AppTextStyles.iosFootnote,
                                   ),
                                 ],
@@ -126,10 +134,16 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                   ),
                   if (g?.description != null && g!.description!.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 14),
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        bottom: 14,
+                      ),
                       child: Text(
                         g.description!,
-                        style: AppTextStyles.iosBody.copyWith(color: AppColors.textSecondary),
+                        style: AppTextStyles.iosBody.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                 ],
@@ -137,13 +151,17 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
 
               // ── Horaires & Planning Récurrent ──
               IosCard(
-                title: 'Horaires Récurrents',
+                title: 'Horaires Récurrents'.tr,
                 children: [
                   if (planningList.isEmpty)
-                    const IosCardTile(
-                      leading: Icon(Icons.schedule_rounded, color: AppColors.iosSystemGray),
-                      title: 'Aucun créneau configuré',
-                      subtitle: 'Définissez les jours et heures dans l\'édition du groupe.',
+                    IosCardTile(
+                      leading: Icon(
+                        Icons.schedule_rounded,
+                        color: AppColors.iosSystemGray,
+                      ),
+                      title: 'Aucun créneau configuré'.tr,
+                      subtitle:
+                          'Définissez les jours et heures dans l\'.trédition du groupe.',
                     )
                   else
                     ...planningList.map((slot) {
@@ -151,9 +169,13 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                       final debut = slot['heure_debut'] ?? '';
                       final fin = slot['heure_fin'] ?? '';
                       return IosCardTile(
-                        leading: const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 20),
-                        title: 'Tous les ${jour.toUpperCase()}',
-                        subtitle: '$debut "” $fin',
+                        leading: const Icon(
+                          Icons.calendar_today_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        title: 'Tous les ${jour.toUpperCase()}'.tr,
+                        subtitle: '$debut "” $fin'.tr,
                       );
                     }),
                 ],
@@ -161,21 +183,26 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
 
               // ── Membres & Participants ──
               IosCard(
-                title: 'Membres Inscrits (${patientsList.length})',
-                subtitle: 'Patients associés à  ce groupe clinique',
+                title: 'Membres Inscrits (${patientsList.length})'.tr,
+                subtitle: 'Patients associés à  ce groupe clinique'.tr,
                 children: [
                   if (patientsList.isEmpty)
-                    const IosCardTile(
-                      leading: Icon(Icons.person_add_disabled_rounded, color: AppColors.iosSystemGray),
-                      title: 'Aucun patient dans ce groupe',
-                      subtitle: 'Ajoutez des membres en modifiant le groupe.',
+                    IosCardTile(
+                      leading: Icon(
+                        Icons.person_add_disabled_rounded,
+                        color: AppColors.iosSystemGray,
+                      ),
+                      title: 'Aucun patient dans ce groupe'.tr,
+                      subtitle: 'Ajoutez des membres en modifiant le groupe.'.tr,
                     )
                   else
                     ...patientsList.map((p) {
                       final pNom = p['nom'] ?? '';
                       final pPrenom = p['prenom'] ?? '';
                       final pFullName = '$pPrenom $pNom'.trim();
-                      final initials = pFullName.isNotEmpty ? pFullName[0] : 'P';
+                      final initials = pFullName.isNotEmpty
+                          ? pFullName[0]
+                          : 'P';
                       final pId = p['id'] ?? p['patient_id'];
 
                       return IosCardTile(
@@ -183,7 +210,12 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                         title: pFullName.isNotEmpty ? pFullName : 'Patient',
                         subtitle: p['telephone'] ?? '',
                         showChevron: true,
-                        onTap: pId != null ? () => Get.toNamed(AppRoutes.patientInfo, arguments: pId) : null,
+                        onTap: pId != null
+                            ? () => Get.toNamed(
+                                AppRoutes.patientInfo,
+                                arguments: pId,
+                              )
+                            : null,
                       );
                     }),
                 ],
@@ -191,26 +223,42 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
 
               // ── Actions ──
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Column(
                   children: [
                     AppButton(
-                      label: 'Gérer les membres et créneaux',
+                      label: 'Gérer les membres et créneaux'.tr,
                       icon: Icons.edit_rounded,
                       isSecondary: true,
-                      onPressed: () => Get.toNamed(AppRoutes.editGroupe, arguments: controller.groupeId),
+                      onPressed: () => Get.toNamed(
+                        AppRoutes.editGroupe,
+                        arguments: controller.groupeId,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     AppButton(
-                      label: 'Compte-rendu de séance collective',
+                      label: 'Compte-rendu de séance collective'.tr,
                       icon: Icons.assignment_outlined,
-                      onPressed: () => Get.toNamed(AppRoutes.compteRenduGroupe, arguments: controller.groupeId),
+                      onPressed: () => Get.toNamed(
+                        AppRoutes.compteRenduGroupe,
+                        arguments: controller.groupeId,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextButton.icon(
                       onPressed: () => _confirmDeleteGroup(context),
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
-                      label: Text('Supprimer ce groupe', style: AppTextStyles.buttonDestructive),
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.error,
+                        size: 20,
+                      ),
+                      label: Text(
+                        'Supprimer ce groupe'.tr,
+                        style: AppTextStyles.buttonDestructive,
+                      ),
                     ),
                   ],
                 ),
@@ -226,13 +274,15 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
     showCupertinoDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('Supprimer le groupe'),
-        content: const Text('Êtes-vous sûr de vouloir supprimer ce groupe ? Cette action est irréversible.'),
+        title: Text('Supprimer le groupe'.tr),
+        content: Text(
+          'Êtes-vous sûr de vouloir supprimer ce groupe ? Cette action est irréversible.'.tr,
+        ),
         actions: [
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text('Annuler'.tr),
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
@@ -240,7 +290,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
               Navigator.pop(ctx);
               controller.deleteGroupe();
             },
-            child: const Text('Supprimer'),
+            child: Text('Supprimer'.tr),
           ),
         ],
       ),

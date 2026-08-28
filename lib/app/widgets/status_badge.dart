@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -39,9 +40,9 @@ class StatusBadge extends StatelessWidget {
     );
   }
 
-  factory StatusBadge.active({String label = 'Actif'}) {
+  factory StatusBadge.active({String? label}) {
     return StatusBadge(
-      label: label,
+      label: label ?? 'Actif'.tr,
       backgroundColor: AppColors.statusActiveBg,
       textColor: AppColors.statusActive,
     );

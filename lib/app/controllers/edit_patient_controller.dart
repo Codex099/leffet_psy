@@ -69,15 +69,15 @@ class EditPatientController extends GetxController {
   // Saved patient id (after step-1 save)
   dynamic _savedPatientId;
 
-  static const List<Map<String, String>> roleChoices = [
-    {'value': 'pere', 'label': 'Père'},
-    {'value': 'mere', 'label': 'Mère'},
-    {'value': 'tuteur', 'label': 'Tuteur légal'},
-    {'value': 'oncle', 'label': 'Oncle'},
-    {'value': 'tante', 'label': 'Tante'},
-    {'value': 'grand_pere', 'label': 'Grand-père'},
-    {'value': 'grand_mere', 'label': 'Grand-mère'},
-    {'value': 'autre', 'label': 'Autre'},
+  static List<Map<String, String>> roleChoices = [
+    {'value': 'pere', 'label': 'Père'.tr},
+    {'value': 'mere', 'label': 'Mère'.tr},
+    {'value': 'tuteur', 'label': 'Tuteur légal'.tr},
+    {'value': 'oncle', 'label': 'Oncle'.tr},
+    {'value': 'tante', 'label': 'Tante'.tr},
+    {'value': 'grand_pere', 'label': 'Grand-père'.tr},
+    {'value': 'grand_mere', 'label': 'Grand-mère'.tr},
+    {'value': 'autre', 'label': 'Autre'.tr},
   ];
 
   @override

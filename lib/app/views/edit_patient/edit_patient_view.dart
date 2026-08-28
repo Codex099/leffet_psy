@@ -18,8 +18,10 @@ class EditPatientView extends GetView<EditPatientController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: controller.patientId == null ? 'Nouveau Patient' : 'Édition Patient',
-        subtitle: 'Dossier Clinique',
+        title: controller.patientId == null
+            ? 'Nouveau Patient'.tr
+            : 'Édition Patient',
+        subtitle: 'Dossier Clinique'.tr,
         showBackButton: true,
       ),
       body: SafeArea(
@@ -30,31 +32,37 @@ class EditPatientView extends GetView<EditPatientController> {
             // ── Step Tabs ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Obx(() => Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border, width: 0.8),
-                      boxShadow: AppColors.softShadow,
-                    ),
-                    child: Row(
-                      children: [
-                        _buildStepTab('1. Identité', 1),
-                        _buildStepTab('2. Médical', 2),
-                        _buildStepTab('3. Tuteur', 3),
-                        _buildStepTab('4. Bilan', 4),
-                      ],
-                    ),
-                  )),
+              child: Obx(
+                () => Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border, width: 0.8),
+                    boxShadow: AppColors.softShadow,
+                  ),
+                  child: Row(
+                    children: [
+                      _buildStepTab('1. Identité', 1),
+                      _buildStepTab('2. Médical', 2),
+                      _buildStepTab('3. Tuteur', 3),
+                      _buildStepTab('4. Bilan', 4),
+                    ],
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 12),
 
             // ── Step Content ──
             Expanded(
               child: Obx(() {
-                if (controller.status.value == 'loading' && controller.patientId != null && controller.prenomController.text.isEmpty) {
-                  return const StatePlaceholder(type: StatePlaceholderType.loading);
+                if (controller.status.value == 'loading' &&
+                    controller.patientId != null &&
+                    controller.prenomController.text.isEmpty) {
+                  return const StatePlaceholder(
+                    type: StatePlaceholderType.loading,
+                  );
                 }
                 switch (controller.currentStep.value) {
                   case 1:
@@ -74,37 +82,41 @@ class EditPatientView extends GetView<EditPatientController> {
             // ── Nav Buttons ──
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: Obx(() => Row(
-                    children: [
-                      if (controller.currentStep.value > 1) ...[
-                        Expanded(
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                            onPressed: () => controller.previousStep(),
-                            child: const Text('Précédent'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                      ],
+              child: Obx(
+                () => Row(
+                  children: [
+                    if (controller.currentStep.value > 1) ...[
                       Expanded(
-                        flex: 2,
-                        child: AppButton(
-                          label: controller.status.value == 'loading'
-                              ? 'En cours...'
-                              : controller.currentStep.value == 4
-                                  ? 'Enregistrer le dossier'
-                                  : 'Étape suivante',
-                          isLoading: controller.status.value == 'loading',
-                          onPressed: controller.status.value == 'loading'
-                              ? null
-                              : () => controller.nextStep(),
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: () => controller.previousStep(),
+                          child: Text('Précédent'.tr),
                         ),
                       ),
+                      const SizedBox(width: 12),
                     ],
-                  )),
+                    Expanded(
+                      flex: 2,
+                      child: AppButton(
+                        label: controller.status.value == 'loading'
+                            ? 'En cours...'
+                            : controller.currentStep.value == 4
+                            ? 'Enregistrer le dossier'.tr
+                            : 'Étape suivante',
+                        isLoading: controller.status.value == 'loading',
+                        onPressed: controller.status.value == 'loading'
+                            ? null
+                            : () => controller.nextStep(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -121,81 +133,100 @@ class EditPatientView extends GetView<EditPatientController> {
         children: [
           // Photo section
           Center(
-            child: Obx(() => Stack(
-                  children: [
-                    controller.pickedPhoto.value != null
-                        ? CircleAvatar(
-                            radius: 48,
-                            backgroundImage:
-                                FileImage(controller.pickedPhoto.value!),
-                          )
-                        : controller.photoUrl.value.isNotEmpty
-                            ? CircleAvatar(
-                                radius: 48,
-                                backgroundImage:
-                                    NetworkImage(controller.photoUrl.value),
-                              )
-                            : const CircleAvatar(
-                                radius: 48,
-                                backgroundColor: AppColors.secondaryLight,
-                                child: Icon(Icons.person_rounded,
-                                    size: 48, color: AppColors.primary),
-                              ),
-                    if (controller.photoUploading.value)
-                      Positioned.fill(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.black38,
-                            shape: BoxShape.circle,
+            child: Obx(
+              () => Stack(
+                children: [
+                  controller.pickedPhoto.value != null
+                      ? CircleAvatar(
+                          radius: 48,
+                          backgroundImage: FileImage(
+                            controller.pickedPhoto.value!,
                           ),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
+                        )
+                      : controller.photoUrl.value.isNotEmpty
+                      ? CircleAvatar(
+                          radius: 48,
+                          backgroundImage: NetworkImage(
+                            controller.photoUrl.value,
+                          ),
+                        )
+                      : const CircleAvatar(
+                          radius: 48,
+                          backgroundColor: AppColors.secondaryLight,
+                          child: Icon(
+                            Icons.person_rounded,
+                            size: 48,
+                            color: AppColors.primary,
                           ),
                         ),
-                      ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: GestureDetector(
-                        onTap: () => _showPhotoOptions(),
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
+                  if (controller.photoUploading.value)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.black38,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
                           ),
-                          child: const Icon(Icons.camera_alt_rounded,
-                              size: 18, color: Colors.white),
                         ),
                       ),
                     ),
-                  ],
-                )),
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: GestureDetector(
+                      onTap: () => _showPhotoOptions(),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.camera_alt_rounded,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 20),
 
-          _sectionCard(children: [
-            SectionHeader(title: 'Identité', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+          _sectionCard(
+            children: [
+              SectionHeader(
+                title: 'Identité'.tr,
+                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+              ),
 
-            const SizedBox(height: 16),
-            AppTextField(
-              label: 'Prénom *',
-              hintText: 'Ex. Léa',
-              controller: controller.prenomController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Nom *',
-              hintText: 'Ex. Dupont',
-              controller: controller.nomController,
-            ),
-            const SizedBox(height: 14),
-            Text('Date de naissance', style: AppTextStyles.fieldLabel),
-            const SizedBox(height: 8),
-            Obx(() => InkWell(
+              const SizedBox(height: 16),
+              AppTextField(
+                label: 'Prénom *'.tr,
+                hintText: 'Ex. Léa'.tr,
+                controller: controller.prenomController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Nom *'.tr,
+                hintText: 'Ex. Dupont'.tr,
+                controller: controller.nomController,
+              ),
+              const SizedBox(height: 14),
+              Text('Date de naissance'.tr, style: AppTextStyles.fieldLabel),
+              const SizedBox(height: 8),
+              Obx(
+                () => InkWell(
                   onTap: () async {
-                    final initial = DateTime.tryParse(controller.dateNaissance.value) ?? DateTime(2018, 1, 1);
+                    final initial =
+                        DateTime.tryParse(controller.dateNaissance.value) ??
+                        DateTime(2018, 1, 1);
                     final picked = await showDatePicker(
                       context: context,
                       initialDate: initial,
@@ -208,7 +239,10 @@ class EditPatientView extends GetView<EditPatientController> {
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.fieldBackground,
                       borderRadius: BorderRadius.circular(14),
@@ -223,36 +257,43 @@ class EditPatientView extends GetView<EditPatientController> {
                               : controller.dateNaissance.value,
                           style: AppTextStyles.bodyMedium,
                         ),
-                        const Icon(Icons.calendar_month_outlined, color: AppColors.primary),
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          color: AppColors.primary,
+                        ),
                       ],
                     ),
                   ),
-                )),
-            const SizedBox(height: 14),
-            Text('Sexe', style: AppTextStyles.fieldLabel),
-            const SizedBox(height: 8),
-            Obx(() => Row(
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text('Sexe'.tr, style: AppTextStyles.fieldLabel),
+              const SizedBox(height: 8),
+              Obx(
+                () => Row(
                   children: [
                     Expanded(child: _buildGenderTile('Garçon')),
                     const SizedBox(width: 12),
                     Expanded(child: _buildGenderTile('Fille')),
                   ],
-                )),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Nombre de frères/sÅ“urs',
-              hintText: '0',
-              keyboardType: TextInputType.number,
-              controller: controller.nombreFreresSoeursController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Rang dans la fratrie',
-              hintText: '1',
-              keyboardType: TextInputType.number,
-              controller: controller.ordreNaissanceController,
-            ),
-          ]),
+                ),
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Nombre de frères/sÅ“urs'.tr,
+                hintText: '0',
+                keyboardType: TextInputType.number,
+                controller: controller.nombreFreresSoeursController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Rang dans la fratrie'.tr,
+                hintText: '1',
+                keyboardType: TextInputType.number,
+                controller: controller.ordreNaissanceController,
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -267,64 +308,82 @@ class EditPatientView extends GetView<EditPatientController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Card 1 : Antécédents & Traitements ──
-          _sectionCard(children: [
-            Row(
-              children: [
-                const Icon(Icons.medical_information_outlined,
-                    color: AppColors.primary, size: 20),
-                const SizedBox(width: 8),
-                Text('Antécédents & Traitements',
-                    style: AppTextStyles.sectionTitle),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Informations médicales de base et traitements actuels.',
-              style: AppTextStyles.bodySmall,
-            ),
-            const SizedBox(height: 16),
+          _sectionCard(
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.medical_information_outlined,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Antécédents & Traitements'.tr,
+                    style: AppTextStyles.sectionTitle,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Informations médicales de base et traitements actuels.'.tr,
+                style: AppTextStyles.bodySmall,
+              ),
+              const SizedBox(height: 16),
 
-            AppTextField(
-              label: 'Antécédents médicaux (Ø§Ù„Ø³ÙˆØ§Ø¨Ù‚ Ø§Ù„Ù…Ø±Ø¶ÙŠØ©)',
-              hintText: 'Ex. Pathologies, chirurgies, hospitalisations...',
-              maxLines: 3,
-              controller: controller.antecedentsMedicauxController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Médicaments pris (Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…ØªÙ†Ø§ÙˆÙ„Ø©)',
-              hintText: 'Ex. Liste des traitements actuels et posologie...',
-              maxLines: 3,
-              controller: controller.medicamentsPrisController,
-            ),
-          ]),
+              AppTextField(
+                label: 'Antécédents médicaux (Ø§Ù„Ø³ÙˆØ§Ø¨Ù‚ Ø§Ù„Ù…Ø±Ø¶ÙŠØ©)'.tr,
+                hintText: 'Ex. Pathologies, chirurgies, hospitalisations...'.tr,
+                maxLines: 3,
+                controller: controller.antecedentsMedicauxController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Médicaments pris (Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…ØªÙ†Ø§ÙˆÙ„Ø©)'.tr,
+                hintText: 'Ex. Liste des traitements actuels et posologie...'.tr,
+                maxLines: 3,
+                controller: controller.medicamentsPrisController,
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
 
           // ── Card 2 : Historique du cas ──
-          _sectionCard(children: [
-            Row(
-              children: [
-                const Icon(Icons.history_edu_outlined,
-                    color: AppColors.primary, size: 20),
-                const SizedBox(width: 8),
-                SectionHeader(title: 'Historique du cas', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+          _sectionCard(
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.history_edu_outlined,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  SectionHeader(
+                    title: 'Historique du cas'.tr,
+                    padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Historique du développement, autonomie et scolarisation.'.tr,
+                style: AppTextStyles.bodySmall,
+              ),
+              const SizedBox(height: 16),
 
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Historique du développement, autonomie et scolarisation.',
-              style: AppTextStyles.bodySmall,
-            ),
-            const SizedBox(height: 16),
-
-            // Date de la cas / historique (tØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)
-            Text('Date du cas (ØªØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)', style: AppTextStyles.fieldLabel),
-            const SizedBox(height: 6),
-            Obx(() => InkWell(
+              // Date de la cas / historique (tØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)
+              Text(
+                'Date du cas (ØªØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)'.tr,
+                style: AppTextStyles.fieldLabel,
+              ),
+              const SizedBox(height: 6),
+              Obx(
+                () => InkWell(
                   onTap: () async {
                     final initial = controller.dateCas.value.isNotEmpty
-                        ? DateTime.tryParse(controller.dateCas.value) ?? DateTime.now()
+                        ? DateTime.tryParse(controller.dateCas.value) ??
+                              DateTime.now()
                         : DateTime.now();
                     final picked = await showDatePicker(
                       context: context,
@@ -339,7 +398,9 @@ class EditPatientView extends GetView<EditPatientController> {
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 14),
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.fieldBackground,
                       borderRadius: BorderRadius.circular(14),
@@ -358,70 +419,76 @@ class EditPatientView extends GetView<EditPatientController> {
                                 : AppColors.textPrimary,
                           ),
                         ),
-                        const Icon(Icons.calendar_today_rounded,
-                            color: AppColors.primary, size: 18),
+                        const Icon(
+                          Icons.calendar_today_rounded,
+                          color: AppColors.primary,
+                          size: 18,
+                        ),
                       ],
                     ),
                   ),
-                )),
-            const SizedBox(height: 14),
+                ),
+              ),
+              const SizedBox(height: 14),
 
-            AppTextField(
-              label: 'Naissance (Ø§Ù„ÙˆÙ„Ø§Ø¯Ø©)',
-              hintText: 'Conditions de naissance, déroulement...',
-              maxLines: 2,
-              controller: controller.naissanceController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Développement psychomoteur (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù†ÙØ³ÙŠ Ø§Ù„Ø­Ø±ÙƒÙŠ)',
-              hintText: 'Marche, motricité fine et globale...',
-              maxLines: 2,
-              controller: controller.developpementPsychomoteurController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Comportement auditif (Ø§Ù„Ø³Ù„ÙˆÙƒ Ø§Ù„Ø³Ù…Ø¹ÙŠ)',
-              hintText: 'Réaction aux sons, écoute...',
-              maxLines: 2,
-              controller: controller.comportementAuditifController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Développement langagier (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù„ØºÙˆÙŠ)',
-              hintText: 'Premiers mots, niveau de langage...',
-              maxLines: 2,
-              controller: controller.developpementLangagierController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Adaptation sociale (Ø§Ù„ØªÙƒÙŠÙ Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠ)',
-              hintText: 'Relations sociales, comportements en groupe...',
-              maxLines: 2,
-              controller: controller.adaptationSocialeController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Autonomie (Ø§Ù„Ø§Ø³ØªÙ‚Ù„Ø§Ù„ÙŠØ©)',
-              hintText: 'Habillage, hygiène, alimentation...',
-              maxLines: 2,
-              controller: controller.autonomieController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Aspect sanitaire / médical (Ø§Ù„Ø¬Ø§Ù†Ø¨ Ø§Ù„ØµØ­ÙŠ)',
-              hintText: 'Bilan de santé général...',
-              maxLines: 2,
-              controller: controller.aspectSanitaireController,
-            ),
-            const SizedBox(height: 14),
-            AppTextField(
-              label: 'Stade de scolarisation (Ù…Ø±Ø­Ù„Ø© Ø§Ù„ØªÙ…Ø¯Ø±Ø³)',
-              hintText: 'Niveau d\'études, intégration scolaire...',
-              maxLines: 2,
-              controller: controller.stadeScolarisationController,
-            ),
-          ]),
+              AppTextField(
+                label: 'Naissance (Ø§Ù„ÙˆÙ„Ø§Ø¯Ø©)'.tr,
+                hintText: 'Conditions de naissance, déroulement...'.tr,
+                maxLines: 2,
+                controller: controller.naissanceController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label:
+                    'Développement psychomoteur (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù†ÙØ³ÙŠ Ø§Ù„Ø­Ø±ÙƒÙŠ)'.tr,
+                hintText: 'Marche, motricité fine et globale...'.tr,
+                maxLines: 2,
+                controller: controller.developpementPsychomoteurController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Comportement auditif (Ø§Ù„Ø³Ù„ÙˆÙƒ Ø§Ù„Ø³Ù…Ø¹ÙŠ)'.tr,
+                hintText: 'Réaction aux sons, écoute...'.tr,
+                maxLines: 2,
+                controller: controller.comportementAuditifController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Développement langagier (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù„ØºÙˆÙŠ)'.tr,
+                hintText: 'Premiers mots, niveau de langage...'.tr,
+                maxLines: 2,
+                controller: controller.developpementLangagierController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Adaptation sociale (Ø§Ù„ØªÙƒÙŠÙ Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠ)'.tr,
+                hintText: 'Relations sociales, comportements en groupe...'.tr,
+                maxLines: 2,
+                controller: controller.adaptationSocialeController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Autonomie (Ø§Ù„Ø§Ø³ØªÙ‚Ù„Ø§Ù„ÙŠØ©)'.tr,
+                hintText: 'Habillage, hygiène, alimentation...'.tr,
+                maxLines: 2,
+                controller: controller.autonomieController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Aspect sanitaire / médical (Ø§Ù„Ø¬Ø§Ù†Ø¨ Ø§Ù„ØµØ­ÙŠ)'.tr,
+                hintText: 'Bilan de santé général...'.tr,
+                maxLines: 2,
+                controller: controller.aspectSanitaireController,
+              ),
+              const SizedBox(height: 14),
+              AppTextField(
+                label: 'Stade de scolarisation (Ù…Ø±Ø­Ù„Ø© Ø§Ù„ØªÙ…Ø¯Ø±Ø³)'.tr,
+                hintText: 'Niveau d\'.trétudes, intégration scolaire...',
+                maxLines: 2,
+                controller: controller.stadeScolarisationController,
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -435,86 +502,106 @@ class EditPatientView extends GetView<EditPatientController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionCard(children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SectionHeader(title: 'Tuteur légal / Parent', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
-
-                    const SizedBox(height: 4),
-                    Text('Associez un parent à  ce patient.', style: AppTextStyles.bodySmall),
-                  ],
-                ),
-                TextButton.icon(
-                  onPressed: () => _showInlineParentDialog(context),
-                  icon: const Icon(Icons.person_add_rounded, size: 18),
-                  label: const Text('+ Nouveau'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Parent dropdown
-            Obx(() {
-              if (controller.parentsStatus.value == 'loading') {
-                return const SizedBox(
-                  height: 60,
-                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          _sectionCard(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SearchablePickerField<dynamic>(
-                    label: 'Choisir un parent / tuteur',
-                    hintText: 'Rechercher un parent...',
-                    title: 'Sélectionner un parent',
-                    leadingIcon: Icons.family_restroom_rounded,
-                    selectedValue: controller.selectedParentId.value,
-                    items: controller.availableParents.map((p) => SearchableItem<dynamic>(
-                      value: p.id,
-                      label: p.fullName,
-                      subtitle: p.telephone != null && p.telephone!.isNotEmpty ? p.telephone : 'Parent / Tuteur',
-                      initials: p.initials,
-                    )).toList(),
-                    onSingleChanged: (val) => controller.selectedParentId.value = val,
-                  ),
-
-                  const SizedBox(height: 14),
-                  Text('Rôle familial', style: AppTextStyles.fieldLabel),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    decoration: BoxDecoration(
-                      color: AppColors.fieldBackground,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: controller.roleParent.value,
-                        isExpanded: true,
-                        dropdownColor: AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                        items: EditPatientController.roleChoices
-                            .map((item) => DropdownMenuItem<String>(
-                                  value: item['value'],
-                                  child: Text(item['label']!),
-                                ))
-                            .toList(),
-                        onChanged: (val) {
-                          if (val != null) controller.roleParent.value = val;
-                        },
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SectionHeader(
+                        title: 'Tuteur légal / Parent'.tr,
+                        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                       ),
-                    ),
+
+                      const SizedBox(height: 4),
+                      Text(
+                        'Associez un parent à  ce patient.'.tr,
+                        style: AppTextStyles.bodySmall,
+                      ),
+                    ],
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _showInlineParentDialog(context),
+                    icon: const Icon(Icons.person_add_rounded, size: 18),
+                    label: Text('+ Nouveau'.tr),
                   ),
                 ],
-              );
-            }),
-          ]),
+              ),
+              const SizedBox(height: 16),
+
+              // Parent dropdown
+              Obx(() {
+                if (controller.parentsStatus.value == 'loading') {
+                  return const SizedBox(
+                    height: 60,
+                    child: Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SearchablePickerField<dynamic>(
+                      label: 'Choisir un parent / tuteur'.tr,
+                      hintText: 'Rechercher un parent...'.tr,
+                      title: 'Sélectionner un parent'.tr,
+                      leadingIcon: Icons.family_restroom_rounded,
+                      selectedValue: controller.selectedParentId.value,
+                      items: controller.availableParents
+                          .map(
+                            (p) => SearchableItem<dynamic>(
+                              value: p.id,
+                              label: p.fullName,
+                              subtitle:
+                                  p.telephone != null && p.telephone!.isNotEmpty
+                                  ? p.telephone
+                                  : 'Parent / Tuteur',
+                              initials: p.initials,
+                            ),
+                          )
+                          .toList(),
+                      onSingleChanged: (val) =>
+                          controller.selectedParentId.value = val,
+                    ),
+
+                    const SizedBox(height: 14),
+                    Text('Rôle familial'.tr, style: AppTextStyles.fieldLabel),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.fieldBackground,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: controller.roleParent.value,
+                          isExpanded: true,
+                          dropdownColor: AppColors.surface,
+                          borderRadius: BorderRadius.circular(14),
+                          items: EditPatientController.roleChoices
+                              .map(
+                                (item) => DropdownMenuItem<String>(
+                                  value: item['value'],
+                                  child: Text(item['label']!),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            if (val != null) controller.roleParent.value = val;
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            ],
+          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -528,58 +615,103 @@ class EditPatientView extends GetView<EditPatientController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionCard(children: [
-            SectionHeader(title: 'Récapitulatif', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+          _sectionCard(
+            children: [
+              SectionHeader(
+                title: 'Récapitulatif'.tr,
+                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+              ),
 
-            const SizedBox(height: 12),
-            Obx(() => Column(
+              const SizedBox(height: 12),
+              Obx(
+                () => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _recapRow('Prénom', controller.prenomController.text.isNotEmpty
-                        ? controller.prenomController.text : '"”'),
+                    _recapRow(
+                      'Prénom'.tr,
+                      controller.prenomController.text.isNotEmpty
+                          ? controller.prenomController.text
+                          : '"”',
+                    ),
                     const Divider(),
-                    _recapRow('Nom', controller.nomController.text.isNotEmpty
-                        ? controller.nomController.text : '"”'),
+                    _recapRow(
+                      'Nom'.tr,
+                      controller.nomController.text.isNotEmpty
+                          ? controller.nomController.text
+                          : '"”',
+                    ),
                     const Divider(),
-                    _recapRow('Date de naissance',
-                        controller.dateNaissance.value.isNotEmpty
-                            ? controller.dateNaissance.value : '"”'),
+                    _recapRow(
+                      'Date de naissance'.tr,
+                      controller.dateNaissance.value.isNotEmpty
+                          ? controller.dateNaissance.value
+                          : '"”',
+                    ),
                     const Divider(),
-                    _recapRow('Sexe', controller.sexe.value),
+                    _recapRow('Sexe'.tr, controller.sexe.value),
                     const Divider(),
-                    _recapRow('Photo',
-                        controller.photoUrl.value.isNotEmpty ? '✓ Ajoutée' : '"”'),
+                    _recapRow(
+                      'Photo',
+                      controller.photoUrl.value.isNotEmpty ? '✓ Ajoutée' : '"”',
+                    ),
                     const Divider(),
-                    _recapRow('Dossier médical',
-                        controller.antecedentsMedicauxController.text.isNotEmpty || controller.dateCas.value.isNotEmpty ? '✓ Renseigné' : '"”'),
+                    _recapRow(
+                      'Dossier médical'.tr,
+                      controller
+                                  .antecedentsMedicauxController
+                                  .text
+                                  .isNotEmpty ||
+                              controller.dateCas.value.isNotEmpty
+                          ? '✓ Renseigné'
+                          : '"”',
+                    ),
                     const Divider(),
-                    _recapRow('Parent lié',
-                        controller.selectedParentId.value != null
-                            ? controller.availableParents
-                                .firstWhereOrNull(
-                                    (p) => p.id == controller.selectedParentId.value)
-                                ?.fullName ?? '"”'
-                            : '"”'),
+                    _recapRow(
+                      'Parent lié'.tr,
+                      controller.selectedParentId.value != null
+                          ? controller.availableParents
+                                    .firstWhereOrNull(
+                                      (p) =>
+                                          p.id ==
+                                          controller.selectedParentId.value,
+                                    )
+                                    ?.fullName ??
+                                '"”'
+                          : '"”',
+                    ),
                   ],
-                )),
-          ]),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
-          _sectionCard(children: [
-            SectionHeader(title: 'Plan thérapeutique', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+          _sectionCard(
+            children: [
+              SectionHeader(
+                title: 'Plan thérapeutique'.tr,
+                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+              ),
 
-            const SizedBox(height: 8),
-            Text('Souhaitez-vous créer un plan thérapeutique pour ce patient après l\'enregistrement ?',
-                style: AppTextStyles.bodySmall),
-            const SizedBox(height: 12),
-            Obx(() => SwitchListTile(
+              const SizedBox(height: 8),
+              Text(
+                'Souhaitez-vous créer un plan thérapeutique pour ce patient après l\'.trenregistrement ?',
+                style: AppTextStyles.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              Obx(
+                () => SwitchListTile(
                   value: controller.addPlanTherapeutique.value,
                   onChanged: (v) => controller.addPlanTherapeutique.value = v,
-                  title: Text('Créer un plan thérapeutique',
-                      style: AppTextStyles.bodyMedium),
+                  title: Text(
+                    'Créer un plan thérapeutique'.tr,
+                    style: AppTextStyles.bodyMedium,
+                  ),
                   activeThumbColor: AppColors.primary,
                   contentPadding: EdgeInsets.zero,
-                )),
-          ]),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -598,15 +730,17 @@ class EditPatientView extends GetView<EditPatientController> {
           color: isActive
               ? AppColors.primary
               : isDone
-                  ? AppColors.secondary
-                  : AppColors.fieldBackground,
+              ? AppColors.secondary
+              : AppColors.fieldBackground,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Center(
           child: Text(
             label,
             style: AppTextStyles.badge.copyWith(
-              color: (isActive || isDone) ? Colors.white : AppColors.textSecondary,
+              color: (isActive || isDone)
+                  ? Colors.white
+                  : AppColors.textSecondary,
             ),
           ),
         ),
@@ -625,8 +759,9 @@ class EditPatientView extends GetView<EditPatientController> {
         decoration: BoxDecoration(
           color: isSelected ? AppColors.surface : AppColors.fieldBackground,
           border: Border.all(
-              color: isSelected ? AppColors.primary : Colors.transparent,
-              width: 1.5),
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            width: 1.5,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
@@ -664,9 +799,12 @@ class EditPatientView extends GetView<EditPatientController> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: AppTextStyles.bodySmall),
-          Text(value,
-              style: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.secondary)),
+          Text(
+            value,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.secondary,
+            ),
+          ),
         ],
       ),
     );
@@ -683,20 +821,29 @@ class EditPatientView extends GetView<EditPatientController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SectionHeader(title: 'Ajouter une photo', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+            SectionHeader(
+              title: 'Ajouter une photo'.tr,
+              padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+            ),
 
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-              title: const Text('Prendre une photo'),
+              leading: const Icon(
+                Icons.camera_alt_rounded,
+                color: AppColors.primary,
+              ),
+              title: Text('Prendre une photo'.tr),
               onTap: () {
                 Get.back();
                 controller.pickPhoto(fromCamera: true);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
-              title: const Text('Choisir depuis la galerie'),
+              leading: const Icon(
+                Icons.photo_library_rounded,
+                color: AppColors.primary,
+              ),
+              title: Text('Choisir depuis la galerie'.tr),
               onTap: () {
                 Get.back();
                 controller.pickPhoto(fromCamera: false);
@@ -709,7 +856,6 @@ class EditPatientView extends GetView<EditPatientController> {
   }
 
   void _showInlineParentDialog(BuildContext context) {
-
     final formKey = GlobalKey<FormState>();
     String nom = '';
     String prenom = '';
@@ -730,37 +876,42 @@ class EditPatientView extends GetView<EditPatientController> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SectionHeader(title: 'Créer un nouveau parent', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+                SectionHeader(
+                  title: 'Créer un nouveau parent'.tr,
+                  padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                ),
 
                 const SizedBox(height: 14),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Prénom *',
+                  decoration: InputDecoration(
+                    labelText: 'Prénom *'.tr,
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Prénom requis' : null,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Prénom requis' : null,
                   onChanged: (v) => prenom = v,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Nom *',
+                  decoration: InputDecoration(
+                    labelText: 'Nom *'.tr,
                     border: OutlineInputBorder(),
                   ),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
                   onChanged: (v) => nom = v,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Téléphone',
+                  decoration: InputDecoration(
+                    labelText: 'Téléphone'.tr,
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (v) => tel = v,
                 ),
                 const SizedBox(height: 16),
                 AppButton(
-                  label: 'Créer et associer',
+                  label: 'Créer et associer'.tr,
                   onPressed: () async {
                     if (formKey.currentState?.validate() == true) {
                       Get.back();
@@ -781,4 +932,3 @@ class EditPatientView extends GetView<EditPatientController> {
     );
   }
 }
-

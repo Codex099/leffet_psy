@@ -117,7 +117,7 @@ class _AppBottomNavState extends State<AppBottomNav>
         padding: EdgeInsets.only(
           left: horizontalMargin,
           right: horizontalMargin,
-          bottom: bottomPadding > 0 ? 6 : 14,
+          bottom: bottomPadding > 0 ? 16 : 32, // Float significantly higher
         ),
         child: Align(
           alignment: Alignment.bottomCenter,
@@ -129,11 +129,17 @@ class _AppBottomNavState extends State<AppBottomNav>
             ),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(40),
-                boxShadow: AppColors.floatingShadow,
+                borderRadius: BorderRadius.circular(50), // Perfect pill
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 40,
+                    offset: const Offset(0, 15),
+                  )
+                ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(40),
+                borderRadius: BorderRadius.circular(50),
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                   child: Container(
@@ -143,7 +149,7 @@ class _AppBottomNavState extends State<AppBottomNav>
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.95),
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(50),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.98),
                         width: 1.5,

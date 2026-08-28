@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/edit_employe_controller.dart';
 import '../../theme/app_colors.dart';
@@ -68,13 +68,17 @@ class _EditEmployeViewState extends State<EditEmployeView> {
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: isEditMode ? 'Modifier l\'employé' : 'Nouvel employé',
-        subtitle: 'Équipe Clinique',
+        subtitle: 'Équipe Clinique'.tr,
         showBackButton: true,
       ),
       body: SafeArea(
         child: Obx(() {
-          if (controller.status.value == 'loading' && isEditMode && controller.nom.value.isEmpty) {
-            return StatePlaceholder.loading(message: 'Chargement des données de l\'employé...');
+          if (controller.status.value == 'loading' &&
+              isEditMode &&
+              controller.nom.value.isEmpty) {
+            return StatePlaceholder.loading(
+              message: 'Chargement des données de l\'employé...',
+            );
           }
           if (controller.status.value == 'error') {
             return StatePlaceholder.error(
@@ -90,44 +94,52 @@ class _EditEmployeViewState extends State<EditEmployeView> {
               children: [
                 // ── Rôle Segmented Control iOS ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Text('RÔLE DE L\'EMPLOYÉ', style: AppTextStyles.iosCaption2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    'RÔLE DE L\'.trEMPLOYÉ',
+                    style: AppTextStyles.iosCaption2,
+                  ),
                 ),
-                Obx(() => IosSegmentedControl<String>(
-                      segments: const {
-                        'psychologue': 'Psychologue',
-                        'educatrice': 'Éducatrice',
-                        'admin': 'Admin',
-                      },
-                      selectedValue: controller.role.value,
-                      onValueChanged: (r) => controller.role.value = r,
-                    )),
+                Obx(
+                  () => IosSegmentedControl<String>(
+                    segments: const {
+                      'psychologue': 'Psychologue',
+                      'educatrice': 'Éducatrice',
+                      'admin': 'Admin',
+                    },
+                    selectedValue: controller.role.value,
+                    onValueChanged: (r) => controller.role.value = r,
+                  ),
+                ),
                 const SizedBox(height: 12),
 
                 // ── Informations personnelles ──
                 IosCard(
-                  title: 'Identité & Contact',
+                  title: 'Identité & Contact'.tr,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
                           AppTextField(
-                            label: 'Prénom *',
-                            hintText: 'Ex. Camille',
+                            label: 'Prénom *'.tr,
+                            hintText: 'Ex. Camille'.tr,
                             controller: _prenomCtrl,
                             onChanged: (v) => controller.prenom.value = v,
                           ),
                           const SizedBox(height: 14),
                           AppTextField(
-                            label: 'Nom *',
-                            hintText: 'Ex. Moreau',
+                            label: 'Nom *'.tr,
+                            hintText: 'Ex. Moreau'.tr,
                             controller: _nomCtrl,
                             onChanged: (v) => controller.nom.value = v,
                           ),
                           const SizedBox(height: 14),
                           AppTextField(
-                            label: 'Téléphone',
+                            label: 'Téléphone'.tr,
                             hintText: '06 12 34 56 78',
                             keyboardType: TextInputType.phone,
                             controller: _telCtrl,
@@ -141,23 +153,27 @@ class _EditEmployeViewState extends State<EditEmployeView> {
 
                 // ── Identifiants de connexion ──
                 IosCard(
-                  title: 'Identifiants de connexion',
-                  subtitle: isEditMode ? 'Laissez le mot de passe vide pour ne pas le changer.' : 'Mot de passe initial requis',
+                  title: 'Identifiants de connexion'.tr,
+                  subtitle: isEditMode
+                      ? 'Laissez le mot de passe vide pour ne pas le changer.'
+                      : 'Mot de passe initial requis',
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
                           AppTextField(
-                            label: 'Nom d\'utilisateur (login) *',
-                            hintText: 'c.moreau',
+                            label: 'Nom d\'.trutilisateur (login) *',
+                            hintText: 'c.moreau'.tr,
                             controller: _usernameCtrl,
                             onChanged: (v) => controller.username.value = v,
                           ),
                           const SizedBox(height: 14),
                           AppTextField(
-                            label: isEditMode ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe initial *',
-                            hintText: '"¢"¢"¢"¢"¢"¢"¢"¢',
+                            label: isEditMode
+                                ? 'Nouveau mot de passe (optionnel)'
+                                : 'Mot de passe initial *',
+                            hintText: '••••••••',
                             obscureText: true,
                             controller: _passwordCtrl,
                             onChanged: (v) => controller.password.value = v,
@@ -170,8 +186,9 @@ class _EditEmployeViewState extends State<EditEmployeView> {
 
                 // ── Patients Assignés ──
                 IosCard(
-                  title: 'Patients Assignés',
-                  subtitle: 'Sélectionnez les patients que cet employé peut suivre',
+                  title: 'Patients Assignés'.tr,
+                  subtitle:
+                      'Sélectionnez les patients que cet employé peut suivre'.tr,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -179,23 +196,34 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (controller.allPatients.isEmpty)
-                            Text('Aucun patient disponible.', style: AppTextStyles.iosFootnote)
+                            Text(
+                              'Aucun patient disponible.'.tr,
+                              style: AppTextStyles.iosFootnote,
+                            )
                           else
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
                               children: controller.allPatients.map((p) {
-                                final isSelected = controller.selectedPatientIds.contains(p.id);
+                                final isSelected = controller.selectedPatientIds
+                                    .contains(p.id);
                                 return FilterChip(
                                   selected: isSelected,
-                                  label: Text('${p.prenom} ${p.nom}'),
-                                  selectedColor: AppColors.primary.withValues(alpha: 0.15),
+                                  label: Text('${p.prenom} ${p.nom}'.tr),
+                                  selectedColor: AppColors.primary.withValues(
+                                    alpha: 0.15,
+                                  ),
                                   checkmarkColor: AppColors.primary,
                                   labelStyle: TextStyle(
-                                    color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                    color: isSelected
+                                        ? AppColors.primary
+                                        : AppColors.textPrimary,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
                                   ),
-                                  onSelected: (_) => controller.togglePatient(p.id),
+                                  onSelected: (_) =>
+                                      controller.togglePatient(p.id),
                                 );
                               }).toList(),
                             ),
@@ -207,9 +235,14 @@ class _EditEmployeViewState extends State<EditEmployeView> {
 
                 // ── Bouton Enregistrer ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
                   child: AppButton(
-                    label: isEditMode ? 'Enregistrer les modifications' : 'Créer l\'employé',
+                    label: isEditMode
+                        ? 'Enregistrer les modifications'
+                        : 'Créer l\'employé',
                     icon: Icons.check_circle_outline_rounded,
                     onPressed: () => controller.saveEmployee(),
                   ),
@@ -222,3 +255,4 @@ class _EditEmployeViewState extends State<EditEmployeView> {
     );
   }
 }
+

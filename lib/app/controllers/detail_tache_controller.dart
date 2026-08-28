@@ -162,8 +162,8 @@ class DetailTacheController extends GetxController {
 
   String _statutLabel(String s) {
     switch (s) {
-      case 'a_faire': return 'À faire';
-      case 'en_cours': return 'En cours';
+      case 'a_faire': return 'À faire'.tr;
+      case 'en_cours': return 'En cours'.tr;
       case 'fait': return 'Fait';
       default: return s;
     }

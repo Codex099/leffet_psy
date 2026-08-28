@@ -27,7 +27,7 @@ class CreativeAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(subtitle != null ? 70.0 : 58.0);
+  Size get preferredSize => Size.fromHeight(subtitle != null ? 80.0 : 70.0);
 
   @override
   Widget build(BuildContext context) {
@@ -73,47 +73,54 @@ class _GradientAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: AppColors.headerGradient,
-        boxShadow: AppColors.heroShadow,
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          child: Row(
-            children: [
-              if (showBackButton)
-                _BackButton(isOnDark: true)
-              else
-                ?leading,
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (subtitle != null)
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: AppColors.headerGradient,
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: Row(
+              children: [
+                if (showBackButton) _BackButton(isOnDark: true) else ?leading,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (subtitle != null)
+                        Text(
+                          subtitle!.toUpperCase(),
+                          style: AppTextStyles.iosCaption2.copyWith(
+                            color: Colors.white.withValues(alpha: 0.75),
+                            letterSpacing: 1.0,
+                          ),
+                        ),
                       Text(
-                        subtitle!.toUpperCase(),
-                        style: AppTextStyles.iosCaption2.copyWith(
-                          color: Colors.white.withValues(alpha: 0.75),
-                          letterSpacing: 1.0,
+                        title,
+                        style: AppTextStyles.iosTitle3.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    Text(
-                      title,
-                      style: AppTextStyles.iosTitle3.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              ...?actions,
-            ],
+                ...?actions,
+              ],
+            ),
           ),
         ),
       ),
@@ -143,60 +150,81 @@ class _FrostedAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: Container(
           decoration: BoxDecoration(
-            color: backgroundColor ?? Colors.white.withValues(alpha: 0.94),
-            border: const Border(
-              bottom: BorderSide(color: AppColors.borderLight, width: 0.6),
-            ),
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-          child: SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              child: Row(
-                children: [
-                  if (showBackButton)
-                    _BackButton(isOnDark: false)
-                  else
-                    ?leading,
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: subtitle != null
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                subtitle!.toUpperCase(),
-                                style: AppTextStyles.iosCaption2.copyWith(
-                                  color: AppColors.secondary,
-                                  letterSpacing: 1.0,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(50),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+              child: Container(
+                decoration: BoxDecoration(
+                  color:
+                      backgroundColor ?? Colors.white.withValues(alpha: 0.94),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.98),
+                    width: 1.5,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  child: Row(
+                    children: [
+                      if (showBackButton)
+                        _BackButton(isOnDark: false)
+                      else
+                        ?leading,
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: subtitle != null
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    subtitle!.toUpperCase(),
+                                    style: AppTextStyles.iosCaption2.copyWith(
+                                      color: AppColors.secondary,
+                                      letterSpacing: 1.0,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    title,
+                                    style: AppTextStyles.iosTitle3.copyWith(
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
                                 title,
                                 style: AppTextStyles.iosTitle3.copyWith(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                            ],
-                          )
-                        : Text(
-                            title,
-                            style: AppTextStyles.iosTitle3.copyWith(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                      ),
+                      ...?actions,
+                    ],
                   ),
-                  ...?actions,
-                ],
+                ),
               ),
             ),
           ),

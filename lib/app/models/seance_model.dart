@@ -137,7 +137,8 @@ class PatientPlanningRecurrentModel {
   final String heureFin;
   final String? dateDebut;
   final String? dateFin;
-  final dynamic employeId;
+  final dynamic employeId; // Conserved for backward compatibility
+  final List<dynamic>? employeIds;
   final String? modeGeneration; // 'auto' | 'manuel'
   final int? horizonJours;
 
@@ -150,6 +151,7 @@ class PatientPlanningRecurrentModel {
     this.dateDebut,
     this.dateFin,
     this.employeId,
+    this.employeIds,
     this.modeGeneration,
     this.horizonJours,
   });
@@ -167,6 +169,9 @@ class PatientPlanningRecurrentModel {
       dateDebut: json['date_debut'] as String?,
       dateFin: json['date_fin'] as String?,
       employeId: parseId(json['employe_id']),
+      employeIds: json['employe_ids'] != null
+          ? (json['employe_ids'] as List).map((e) => parseId(e)).toList()
+          : (json['employe_id'] != null ? [parseId(json['employe_id'])] : []),
       modeGeneration: json['mode_generation'] as String?,
       horizonJours: parseNullableInt(json['horizon_jours']),
     );
@@ -180,6 +185,7 @@ class PatientPlanningRecurrentModel {
       if (dateDebut != null) 'date_debut': dateDebut,
       if (dateFin != null) 'date_fin': dateFin,
       if (employeId != null) 'employe_id': employeId,
+      if (employeIds != null) 'employe_ids': employeIds,
       if (modeGeneration != null) 'mode_generation': modeGeneration,
       if (horizonJours != null) 'horizon_jours': horizonJours,
     };

@@ -106,149 +106,145 @@ class AccueilView extends GetView<AccueilController> {
     final formattedDate = DateFormat('EEEE d MMMM', 'fr_FR').format(today);
 
     return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: AppColors.oceanGradient,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: AppColors.glowShadow,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.headerGradient,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 40,
+              offset: const Offset(0, 16),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Stack(
-                children: [
-                  // Vagues décoratives
-                  Positioned.fill(
-                    child: CustomPaint(
-                      painter: ZenWavePainter(
-                        waveColor: AppColors.secondary.withValues(alpha: 0.20),
-                        accentColor: AppColors.secondaryLight.withValues(
-                          alpha: 0.12,
-                        ),
-                      ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: Stack(
+            children: [
+              // Vagues décoratives
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: ZenWavePainter(
+                    waveColor: AppColors.secondary.withValues(alpha: 0.20),
+                    accentColor: AppColors.secondaryLight.withValues(
+                      alpha: 0.12,
                     ),
                   ),
-                  // ── Logo Clinique Intégral & Centré en Arrière-Plan (Sans Rogne / Sans Animation) ──
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          child: Opacity(
-                            opacity: 0.22,
-                            child: Image.asset(
-                              'assets/images/logo.png',
-                              fit: BoxFit.contain,
-                              alignment: Alignment.center,
-                              filterQuality: FilterQuality.high,
-                              errorBuilder: (ctx, e, st) => const SizedBox.shrink(),
-                            ),
-                          ),
-                        ),
-                      ),
+                ),
+              ),
+              // ── Bannière Panoramique Clinique Largeur Pleine Carte ──
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Opacity(
+                    opacity: 0.25,
+                    child: Image.asset(
+                      'assets/images/hero_banner.png',
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                      filterQuality: FilterQuality.high,
+                      errorBuilder: (ctx, e, st) => const SizedBox.shrink(),
                     ),
                   ),
+                ),
+              ),
 
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top row : Date badge à gauche, Profil à droite
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Top row : Date badge à gauche, Profil à droite
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Date badge
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.18),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.25),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const PulseDot(color: Colors.white, size: 6),
-                                  const SizedBox(width: 7),
-                                  Text(
-                                    _capitalize(formattedDate),
-                                    style: AppTextStyles.iosCaption2.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        // Date badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.25),
                             ),
-
-                            // Avatar profil
-                            BouncyTap(
-                              onTap: () => Get.toNamed(AppRoutes.profil),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2.5,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.20,
-                                      ),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: PatientAvatar(
-                                  initials: user?.initials ?? 'U',
-                                  radius: 19,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const PulseDot(color: Colors.white, size: 6),
+                              const SizedBox(width: 7),
+                              Text(
+                                _capitalize(formattedDate),
+                                style: AppTextStyles.iosCaption2.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        // Greeting Clinique
-                        Text(
-                          'clinique l\'Effet de Papillon 🦋',
-                          style: AppTextStyles.iosLargeTitle.copyWith(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.4,
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          user != null
-                              ? 'Espace clinique de suivi thérapeutique • Dr. ${user.prenom}'
-                              : 'Espace clinique de suivi & prise en charge thérapeutique.',
-                          style: AppTextStyles.iosSubhead.copyWith(
-                            color: Colors.white.withValues(alpha: 0.88),
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w400,
+
+                        // Avatar profil
+                        BouncyTap(
+                          onTap: () => Get.toNamed(AppRoutes.profil),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.20),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: PatientAvatar(
+                              initials: user?.initialLetter ?? 'U',
+                              radius: 19,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    // Greeting Clinique
+                    Text(
+                      'clinique l\'.trEffet de Papillon 🦋',
+                      style: AppTextStyles.iosLargeTitle.copyWith(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user != null
+                          ? 'Espace clinique de suivi thérapeutique • ${user.prenom}'
+                          : 'Espace clinique de suivi & prise en charge thérapeutique.',
+                      style: AppTextStyles.iosSubhead.copyWith(
+                        color: Colors.white.withValues(alpha: 0.88),
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-        )
-        .animate()
-        .fadeIn(duration: 700.ms)
-        .slideY(begin: -0.08, curve: Curves.easeOut);
+        ),
+      ),
+    ).animate().fadeIn(duration: 700.ms).slideY(begin: -0.08, curve: Curves.easeOut);
   }
 
   // ─── Quick Actions ───────────────────────────────────────────────────────────
@@ -261,7 +257,7 @@ class AccueilView extends GetView<AccueilController> {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 10),
             child: Text(
-              'ACTIONS RAPIDES',
+              'ACTIONS RAPIDES'.tr,
               style: AppTextStyles.iosCaption2.copyWith(
                 color: AppColors.textTertiary,
                 letterSpacing: 1.0,
@@ -273,10 +269,10 @@ class AccueilView extends GetView<AccueilController> {
             children: [
               Expanded(
                 child: _quickAction(
-                  label: 'Nouveau Patient',
+                  label: 'Nouveau Patient'.tr,
                   icon: Icons.person_add_rounded,
-                  gradient: AppColors.emeraldGradient,
-                  glowColor: const Color(0xFF059669),
+                  gradient: AppColors.primaryLogoGradient,
+                  glowColor: const Color(0xFF032B45),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.editPatient);
                     if (res == true) controller.loadDashboard();
@@ -286,10 +282,10 @@ class AccueilView extends GetView<AccueilController> {
               const SizedBox(width: 10),
               Expanded(
                 child: _quickAction(
-                  label: 'Planifier Séance',
+                  label: 'Planifier Séance'.tr,
                   icon: Icons.calendar_month_rounded,
-                  gradient: AppColors.violetGradient,
-                  glowColor: const Color(0xFF4F46E5),
+                  gradient: AppColors.secondaryLogoGradient,
+                  glowColor: const Color(0xFF064973),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.creationSeance);
                     if (res == true) controller.loadDashboard();
@@ -303,10 +299,10 @@ class AccueilView extends GetView<AccueilController> {
             children: [
               Expanded(
                 child: _quickAction(
-                  label: 'Nouvelle Tâche',
+                  label: 'Nouvelle Tâche'.tr,
                   icon: Icons.task_alt_rounded,
-                  gradient: AppColors.coralGlowGradient,
-                  glowColor: const Color(0xFFE11D48),
+                  gradient: AppColors.coralLogoGradient,
+                  glowColor: const Color(0xFFA62929),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.detailTache);
                     if (res == true) controller.loadDashboard();
@@ -316,10 +312,10 @@ class AccueilView extends GetView<AccueilController> {
               const SizedBox(width: 10),
               Expanded(
                 child: _quickAction(
-                  label: 'Nouveau Groupe',
+                  label: 'Nouveau Groupe'.tr,
                   icon: Icons.groups_rounded,
-                  gradient: AppColors.amberGoldGradient,
-                  glowColor: const Color(0xFFD97706),
+                  gradient: AppColors.coralSoftLogoGradient,
+                  glowColor: const Color(0xFFD93636),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.editGroupe);
                     if (res == true) controller.loadDashboard();
@@ -394,20 +390,20 @@ class AccueilView extends GetView<AccueilController> {
         children: [
           Expanded(
             child: _metricCard(
-              title: 'Séances aujourd\'hui',
+              title: 'Séances aujourd\'.trhui',
               value: controller.seancesPrevuesCount.value,
               icon: Icons.calendar_today_rounded,
-              gradient: AppColors.violetGradient,
+              gradient: AppColors.primaryLogoGradient,
               onTap: () => Get.toNamed(AppRoutes.agenda),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: _metricCard(
-              title: 'Patients suivis',
+              title: 'Patients suivis'.tr,
               value: controller.totalPatients.value,
               icon: Icons.people_alt_rounded,
-              gradient: AppColors.emeraldGradient,
+              gradient: AppColors.secondaryLogoGradient,
               onTap: () => Get.toNamed(AppRoutes.patientsListe),
             ),
           ),
@@ -446,7 +442,11 @@ class AccueilView extends GetView<AccueilController> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: (gradient is LinearGradient ? gradient.colors.first : AppColors.primary).withValues(alpha: 0.28),
+                        color:
+                            (gradient is LinearGradient
+                                    ? gradient.colors.first
+                                    : AppColors.primary)
+                                .withValues(alpha: 0.28),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -503,7 +503,7 @@ class AccueilView extends GetView<AccueilController> {
               Container(
                 padding: const EdgeInsets.all(11),
                 decoration: BoxDecoration(
-                  gradient: AppColors.indigoGradient,
+                  gradient: AppColors.primaryLogoGradient,
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
@@ -525,7 +525,7 @@ class AccueilView extends GetView<AccueilController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Espace Comptes-Rendus',
+                      'Espace Comptes-Rendus'.tr,
                       style: AppTextStyles.iosHeadline.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
@@ -533,7 +533,7 @@ class AccueilView extends GetView<AccueilController> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      'Bilans cliniques & rappels de suivi',
+                      'Bilans cliniques & rappels de suivi'.tr,
                       style: AppTextStyles.iosFootnote.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -563,7 +563,7 @@ class AccueilView extends GetView<AccueilController> {
   // ─── Séances du Jour ─────────────────────────────────────────────────────────
   Widget _buildSeancesCard() {
     return IosCard(
-      title: 'Séances du jour',
+      title: 'Séances du jour'.tr,
       subtitle: controller.prochainesSeances.isNotEmpty
           ? '${controller.prochainesSeances.length} rendez-vous programmé(s)'
           : 'Planning libre aujourd\'hui',
@@ -587,7 +587,7 @@ class AccueilView extends GetView<AccueilController> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Planning libre pour le moment',
+                  'Planning libre pour le moment'.tr,
                   style: AppTextStyles.iosHeadline.copyWith(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w700,
@@ -595,7 +595,7 @@ class AccueilView extends GetView<AccueilController> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Ajoutez une nouvelle séance en un clic.',
+                  'Ajoutez une nouvelle séance en un clic.'.tr,
                   style: AppTextStyles.iosFootnote.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -610,18 +610,20 @@ class AccueilView extends GetView<AccueilController> {
                       vertical: 11,
                     ),
                     decoration: BoxDecoration(
-                      gradient: AppColors.violetGradient,
+                      gradient: AppColors.primaryLogoGradient,
                       borderRadius: BorderRadius.circular(22),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
+                          color: const Color(
+                            0xFF7C3AED,
+                          ).withValues(alpha: 0.35),
                           blurRadius: 14,
                           offset: const Offset(0, 5),
                         ),
                       ],
                     ),
                     child: Text(
-                      '+ Planifier une séance',
+                      '+ Planifier une séance'.tr,
                       style: AppTextStyles.iosCaption1.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -640,11 +642,13 @@ class AccueilView extends GetView<AccueilController> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        gradient: AppColors.amberGoldGradient,
+                        gradient: AppColors.coralSoftLogoGradient,
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFD97706).withValues(alpha: 0.30),
+                            color: const Color(
+                              0xFFD97706,
+                            ).withValues(alpha: 0.30),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -689,63 +693,60 @@ class AccueilView extends GetView<AccueilController> {
   Widget _buildWorkspaces() {
     final user = controller.currentUser.value;
     return IosCard(
-      title: 'Espaces de travail',
+      title: 'Espaces de travail'.tr,
       children: [
         IosCardTile(
           leading: _iconBox(
             Icons.folder_shared_rounded,
-            AppColors.azureGradient,
+            AppColors.secondaryLogoGradient,
           ),
-          title: 'Dossiers Patients',
-          subtitle: 'Consulter et rechercher vos dossiers',
+          title: 'Dossiers Patients'.tr,
+          subtitle: 'Consulter et rechercher vos dossiers'.tr,
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.patientsListe),
         ),
         IosCardTile(
           leading: _iconBox(
             Icons.calendar_month_rounded,
-            AppColors.violetGradient,
+            AppColors.primaryLogoGradient,
           ),
-          title: 'Planning & Agenda',
-          subtitle: 'Vue globale jour et semaine',
+          title: 'Planning & Agenda'.tr,
+          subtitle: 'Vue globale jour et semaine'.tr,
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.agenda),
         ),
         IosCardTile(
           leading: _iconBox(
             Icons.person_outline_rounded,
-            AppColors.emeraldGradient,
+            AppColors.secondaryLogoGradient,
           ),
-          title: 'Séances Individuelles',
-          subtitle: 'Consultations & créneaux',
+          title: 'Séances Individuelles'.tr,
+          subtitle: 'Consultations & créneaux'.tr,
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
         ),
         IosCardTile(
-          leading: _iconBox(
-            Icons.groups_rounded,
-            AppColors.amberGoldGradient,
-          ),
-          title: 'Groupes & Ateliers',
-          subtitle: 'Séances collectives et participants',
+          leading: _iconBox(Icons.groups_rounded, AppColors.coralSoftLogoGradient),
+          title: 'Groupes & Ateliers'.tr,
+          subtitle: 'Séances collectives et participants'.tr,
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.groupesListe),
         ),
         IosCardTile(
-          leading: _iconBox(Icons.task_alt_rounded, AppColors.coralGlowGradient),
-          title: 'Tâches & Actions',
-          subtitle: 'Suivi de vos actions cliniques',
+          leading: _iconBox(
+            Icons.task_alt_rounded,
+            AppColors.coralLogoGradient,
+          ),
+          title: 'Tâches & Actions'.tr,
+          subtitle: 'Suivi de vos actions cliniques'.tr,
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.taches),
         ),
         if (user?.role == 'admin')
           IosCardTile(
-            leading: _iconBox(
-              Icons.badge_rounded,
-              AppColors.fuchsiaGradient,
-            ),
-            title: 'Gestion de l\'Équipe',
-            subtitle: 'Comptes praticiens et permissions',
+            leading: _iconBox(Icons.badge_rounded, AppColors.coralLogoGradient),
+            title: 'Gestion de l\'.trÉquipe',
+            subtitle: 'Comptes praticiens et permissions'.tr,
             showChevron: true,
             onTap: () => Get.toNamed(AppRoutes.employesListe),
           ),

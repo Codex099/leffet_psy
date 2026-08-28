@@ -13,7 +13,8 @@ import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
-class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteController> {
+class CompteRenduSpecialisteView
+    extends GetView<CompteRenduSpecialisteController> {
   const CompteRenduSpecialisteView({super.key});
 
   @override
@@ -21,8 +22,8 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: 'Compte-Rendu Clinique',
-        subtitle: 'Espace Spécialiste',
+        title: 'Compte-Rendu Clinique'.tr,
+        subtitle: 'Espace Spécialiste'.tr,
         showBackButton: true,
         actions: [
           IconButton(
@@ -34,7 +35,9 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {
-            return StatePlaceholder.loading(message: 'Chargement de la séance...');
+            return StatePlaceholder.loading(
+              message: 'Chargement de la séance...',
+            );
           }
           if (controller.status.value == 'error') {
             return StatePlaceholder.error(
@@ -44,7 +47,10 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -99,7 +105,10 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: controller.isGroupe.value
                       ? AppColors.secondary.withValues(alpha: 0.15)
@@ -110,13 +119,17 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      controller.isGroupe.value ? Icons.groups_rounded : Icons.person_rounded,
+                      controller.isGroupe.value
+                          ? Icons.groups_rounded
+                          : Icons.person_rounded,
                       size: 14,
                       color: AppColors.primary,
                     ),
                     const SizedBox(width: 5),
                     Text(
-                      controller.isGroupe.value ? 'Séance de Groupe' : 'Consultation Individuelle',
+                      controller.isGroupe.value
+                          ? 'Séance de Groupe'
+                          : 'Consultation Individuelle'.tr,
                       style: AppTextStyles.iosCaption1.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
@@ -125,7 +138,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                   ],
                 ),
               ),
-              StatusBadge.active(label: 'À valider'),
+              StatusBadge.active(label: 'À valider'.tr),
             ],
           ),
           const SizedBox(height: 10),
@@ -139,11 +152,17 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
           const SizedBox(height: 4),
           Row(
             children: [
-              const Icon(Icons.schedule_rounded, size: 14, color: AppColors.textSecondary),
+              const Icon(
+                Icons.schedule_rounded,
+                size: 14,
+                color: AppColors.textSecondary,
+              ),
               const SizedBox(width: 5),
               Text(
                 controller.sessionDateTimeInfo,
-                style: AppTextStyles.iosSubhead.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.iosSubhead.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -160,7 +179,11 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                   shape: BoxShape.circle,
                   boxShadow: AppColors.softShadow,
                 ),
-                child: const Icon(Icons.badge_outlined, size: 17, color: Colors.white),
+                child: const Icon(
+                  Icons.badge_outlined,
+                  size: 17,
+                  color: Colors.white,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -168,8 +191,10 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Spécialiste Responsable',
-                      style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
+                      'Spécialiste Responsable'.tr,
+                      style: AppTextStyles.iosCaption2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     Obx(() {
                       final currentId = controller.selectedResponsableId.value;
@@ -178,13 +203,19 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                           value: currentId,
                           isDense: true,
                           isExpanded: true,
-                          hint: Text('Sélectionner un praticien...', style: AppTextStyles.iosSubhead),
-                          icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primary),
+                          hint: Text(
+                            'Sélectionner un praticien...'.tr,
+                            style: AppTextStyles.iosSubhead,
+                          ),
+                          icon: const Icon(
+                            Icons.arrow_drop_down_rounded,
+                            color: AppColors.primary,
+                          ),
                           items: controller.praticiens.map((emp) {
                             return DropdownMenuItem<dynamic>(
                               value: emp.id,
                               child: Text(
-                                '${emp.fullName} (${emp.roleLabel})',
+                                '${emp.fullName} (${emp.roleLabel})'.tr,
                                 style: AppTextStyles.iosSubhead.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
@@ -211,19 +242,21 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
   /// 2. Présence Individuelle
   Widget _buildIndividualPresenceCard(BuildContext context) {
     return IosCard(
-      title: 'Statut de Présence',
+      title: 'Statut de Présence'.tr,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          child: Obx(() => IosSegmentedControl<String>(
-                segments: const {
-                  'present': 'Présent',
-                  'absent_justifie': 'Excusé',
-                  'absent_non_justifie': 'Absent',
-                },
-                selectedValue: controller.statutPresence.value,
-                onValueChanged: (val) => controller.statutPresence.value = val,
-              )),
+          child: Obx(
+            () => IosSegmentedControl<String>(
+              segments: const {
+                'present': 'Présent',
+                'absent_justifie': 'Excusé',
+                'absent_non_justifie': 'Absent',
+              },
+              selectedValue: controller.statutPresence.value,
+              onValueChanged: (val) => controller.statutPresence.value = val,
+            ),
+          ),
         ),
       ],
     );
@@ -240,15 +273,17 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Participants de l\'atelier (${controller.participants.length})',
+                'Participants de l\'.tratelier (${controller.participants.length})',
                 style: AppTextStyles.iosHeadline.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
-                'Présence & Bilan individuel',
-                style: AppTextStyles.iosCaption1.copyWith(color: AppColors.textSecondary),
+                'Présence & Bilan individuel'.tr,
+                style: AppTextStyles.iosCaption1.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -283,7 +318,9 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
               Expanded(
                 child: Text(
                   p.fullName,
-                  style: AppTextStyles.iosSubhead.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.iosSubhead.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               Obx(() {
@@ -294,7 +331,10 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                     p.statutPresence.value = isPresent ? 'absent' : 'present';
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       color: isPresent
                           ? AppColors.iosGreen.withValues(alpha: 0.15)
@@ -305,16 +345,22 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          isPresent ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                          isPresent
+                              ? Icons.check_circle_rounded
+                              : Icons.cancel_rounded,
                           size: 15,
-                          color: isPresent ? AppColors.iosGreen : AppColors.accentCoral,
+                          color: isPresent
+                              ? AppColors.iosGreen
+                              : AppColors.accentCoral,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           isPresent ? 'Présent' : 'Absent',
                           style: AppTextStyles.iosCaption1.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: isPresent ? AppColors.iosGreen : AppColors.accentCoral,
+                            color: isPresent
+                                ? AppColors.iosGreen
+                                : AppColors.accentCoral,
                           ),
                         ),
                       ],
@@ -327,15 +373,23 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
           const SizedBox(height: 8),
           TextField(
             controller: TextEditingController(text: p.noteIndividuelle.value)
-              ..selection = TextSelection.collapsed(offset: p.noteIndividuelle.value.length),
+              ..selection = TextSelection.collapsed(
+                offset: p.noteIndividuelle.value.length,
+              ),
             onChanged: (val) => p.noteIndividuelle.value = val,
             style: AppTextStyles.iosBody.copyWith(fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Note clinique pour ${p.patientPrenom} (comportement, participation, progrès)...',
-              hintStyle: AppTextStyles.iosCaption1.copyWith(color: AppColors.textHint),
+              hintText:
+                  'Note clinique pour ${p.patientPrenom} (comportement, participation, progrès)...'.tr,
+              hintStyle: AppTextStyles.iosCaption1.copyWith(
+                color: AppColors.textHint,
+              ),
               filled: true,
               fillColor: AppColors.fieldBackground,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none,
@@ -352,7 +406,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
   /// 3. Observations Cliniques & Plan Thérapeutique
   Widget _buildClinicalNotesCard(BuildContext context) {
     return IosCard(
-      title: 'Observations Cliniques & Déroulement',
+      title: 'Observations Cliniques & Déroulement'.tr,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -360,14 +414,22 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
-                controller: TextEditingController(text: controller.descriptionEtat.value)
-                  ..selection = TextSelection.collapsed(offset: controller.descriptionEtat.value.length),
+                controller:
+                    TextEditingController(
+                        text: controller.descriptionEtat.value,
+                      )
+                      ..selection = TextSelection.collapsed(
+                        offset: controller.descriptionEtat.value.length,
+                      ),
                 onChanged: (val) => controller.descriptionEtat.value = val,
                 style: AppTextStyles.iosBody,
                 maxLines: 6,
                 decoration: InputDecoration(
-                  hintText: 'Décrivez les observations cliniques, exercices thérapeutiques réalisés, réactions et synthèses du suivi...',
-                  hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
+                  hintText:
+                      'Décrivez les observations cliniques, exercices thérapeutiques réalisés, réactions et synthèses du suivi...'.tr,
+                  hintStyle: AppTextStyles.iosSubhead.copyWith(
+                    color: AppColors.textHint,
+                  ),
                   filled: true,
                   fillColor: AppColors.fieldBackground,
                   contentPadding: const EdgeInsets.all(12),
@@ -382,7 +444,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
               if (controller.etapesDisponibles.isNotEmpty) ...[
                 const SizedBox(height: 14),
                 Text(
-                  'Étape du Plan Thérapeutique Associée',
+                  'Étape du Plan Thérapeutique Associée'.tr,
                   style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
@@ -395,32 +457,37 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                     color: AppColors.fieldBackground,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Obx(() => DropdownButtonHideUnderline(
-                        child: DropdownButton<dynamic>(
-                          value: controller.etapePlanId.value,
-                          isExpanded: true,
-                          hint: Text('Associer une étape (optionnel)', style: AppTextStyles.iosSubhead),
-                          items: [
-                            const DropdownMenuItem<dynamic>(
-                              value: null,
-                              child: Text('-- Aucune étape associée --'),
-                            ),
-                            ...controller.etapesDisponibles.map((et) {
-                              return DropdownMenuItem<dynamic>(
-                                value: et.id,
-                                child: Text(
-                                  et.titre,
-                                  style: AppTextStyles.iosSubhead.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
-                          onChanged: (val) => controller.etapePlanId.value = val,
+                  child: Obx(
+                    () => DropdownButtonHideUnderline(
+                      child: DropdownButton<dynamic>(
+                        value: controller.etapePlanId.value,
+                        isExpanded: true,
+                        hint: Text(
+                          'Associer une étape (optionnel)'.tr,
+                          style: AppTextStyles.iosSubhead,
                         ),
-                      )),
+                        items: [
+                          DropdownMenuItem<dynamic>(
+                            value: null,
+                            child: Text('-- Aucune étape associée --'.tr),
+                          ),
+                          ...controller.etapesDisponibles.map((et) {
+                            return DropdownMenuItem<dynamic>(
+                              value: et.id,
+                              child: Text(
+                                et.titre,
+                                style: AppTextStyles.iosSubhead.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                        onChanged: (val) => controller.etapePlanId.value = val,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -433,7 +500,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
   /// 4. Pièces Jointes & Médias
   Widget _buildMediaSection(BuildContext context) {
     return IosCard(
-      title: 'Pièces Jointes & Médias Cliniques',
+      title: 'Pièces Jointes & Médias Cliniques'.tr,
       children: [
         Padding(
           padding: const EdgeInsets.all(14.0),
@@ -441,14 +508,18 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Ajouter des dessins d\'évaluation, photos de fiches ou supports de séance.',
-                style: AppTextStyles.iosCaption1.copyWith(color: AppColors.textSecondary),
+                'Ajouter des dessins d\'.trévaluation, photos de fiches ou supports de séance.',
+                style: AppTextStyles.iosCaption1.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: 10),
-              Obx(() => MediaPickerWidget(
-                    initialMediaUrls: controller.medias.toList(),
-                    onMediasChanged: (urls) => controller.medias.value = urls,
-                  )),
+              Obx(
+                () => MediaPickerWidget(
+                  initialMediaUrls: controller.medias.toList(),
+                  onMediasChanged: (urls) => controller.medias.value = urls,
+                ),
+              ),
             ],
           ),
         ),
@@ -464,7 +535,9 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: controller.activerRappel.value ? AppColors.accentCoral.withValues(alpha: 0.6) : AppColors.border,
+          color: controller.activerRappel.value
+              ? AppColors.accentCoral.withValues(alpha: 0.6)
+              : AppColors.border,
           width: 1.1,
         ),
         boxShadow: AppColors.softShadow,
@@ -481,7 +554,11 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                   color: AppColors.accentCoral.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.notifications_active_rounded, size: 18, color: AppColors.accentCoral),
+                child: const Icon(
+                  Icons.notifications_active_rounded,
+                  size: 18,
+                  color: AppColors.accentCoral,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -489,24 +566,28 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rappel & Notification de Suivi',
+                      'Rappel & Notification de Suivi'.tr,
                       style: AppTextStyles.iosHeadline.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
                     ),
                     Text(
-                      'Programmer une alerte clinique post-séance',
-                      style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
+                      'Programmer une alerte clinique post-séance'.tr,
+                      style: AppTextStyles.iosCaption2.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Obx(() => Switch.adaptive(
-                    value: controller.activerRappel.value,
-                    activeTrackColor: AppColors.accentCoral,
-                    onChanged: (val) => controller.activerRappel.value = val,
-                  )),
+              Obx(
+                () => Switch.adaptive(
+                  value: controller.activerRappel.value,
+                  activeTrackColor: AppColors.accentCoral,
+                  onChanged: (val) => controller.activerRappel.value = val,
+                ),
+              ),
             ],
           ),
 
@@ -520,7 +601,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
 
                 // Message du rappel
                 Text(
-                  'Action de suivi à  rappeler',
+                  'Action de suivi à  rappeler'.tr,
                   style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
@@ -531,11 +612,17 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                   onChanged: (val) => controller.rappelMessage.value = val,
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
-                    hintText: 'Ex: Relance parents pour compte-rendu bilan, point d\'étape...',
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
+                    hintText:
+                        'Ex: Relance parents pour compte-rendu bilan, point d\'.trétape...',
+                    hintStyle: AppTextStyles.iosSubhead.copyWith(
+                      color: AppColors.textHint,
+                    ),
                     filled: true,
                     fillColor: AppColors.fieldBackground,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -553,7 +640,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Date du rappel',
+                            'Date du rappel'.tr,
                             style: AppTextStyles.iosCaption1.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textSecondary,
@@ -564,30 +651,48 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                             onTap: () async {
                               final picked = await showDatePicker(
                                 context: context,
-                                initialDate: DateTime.now().add(const Duration(days: 7)),
+                                initialDate: DateTime.now().add(
+                                  const Duration(days: 7),
+                                ),
                                 firstDate: DateTime.now(),
-                                lastDate: DateTime.now().add(const Duration(days: 365)),
+                                lastDate: DateTime.now().add(
+                                  const Duration(days: 365),
+                                ),
                               );
                               if (picked != null) {
-                                controller.rappelDate.value = picked.toIso8601String().split('T').first;
+                                controller.rappelDate.value = picked
+                                    .toIso8601String()
+                                    .split('T')
+                                    .first;
                               }
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 11,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.fieldBackground,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.calendar_month_rounded, size: 16, color: AppColors.accentCoral),
+                                  const Icon(
+                                    Icons.calendar_month_rounded,
+                                    size: 16,
+                                    color: AppColors.accentCoral,
+                                  ),
                                   const SizedBox(width: 8),
-                                  Obx(() => Text(
-                                        controller.rappelDate.value.isNotEmpty
-                                            ? controller.rappelDate.value
-                                            : 'Sélectionner date',
-                                        style: AppTextStyles.iosBody.copyWith(fontWeight: FontWeight.w600),
-                                      )),
+                                  Obx(
+                                    () => Text(
+                                      controller.rappelDate.value.isNotEmpty
+                                          ? controller.rappelDate.value
+                                          : 'Sélectionner date',
+                                      style: AppTextStyles.iosBody.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -601,7 +706,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Priorité',
+                            'Priorité'.tr,
                             style: AppTextStyles.iosCaption1.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textSecondary,
@@ -614,19 +719,28 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
                               color: AppColors.fieldBackground,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Obx(() => DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: controller.rappelPriorite.value,
-                                    isExpanded: true,
-                                    items: const [
-                                      DropdownMenuItem(value: 'normale', child: Text('Normale')),
-                                      DropdownMenuItem(value: 'haute', child: Text('Haute')),
-                                    ],
-                                    onChanged: (val) {
-                                      if (val != null) controller.rappelPriorite.value = val;
-                                    },
-                                  ),
-                                )),
+                            child: Obx(
+                              () => DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: controller.rappelPriorite.value,
+                                  isExpanded: true,
+                                  items: [
+                                    DropdownMenuItem(
+                                      value: 'normale',
+                                      child: Text('Normale'.tr),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'haute',
+                                      child: Text('Haute'.tr),
+                                    ),
+                                  ],
+                                  onChanged: (val) {
+                                    if (val != null)
+                                      controller.rappelPriorite.value = val;
+                                  },
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -664,10 +778,14 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
                 Text(
-                  'Valider & Enregistrer le Compte-Rendu',
+                  'Valider & Enregistrer le Compte-Rendu'.tr,
                   style: AppTextStyles.iosHeadline.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -690,7 +808,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
             ),
             child: Center(
               child: Text(
-                'Sauvegarder en brouillon',
+                'Sauvegarder en brouillon'.tr,
                 style: AppTextStyles.iosSubhead.copyWith(
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w600,

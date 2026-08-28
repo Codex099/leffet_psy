@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'seance_model.dart';
 import 'seance_groupe_model.dart';
 
@@ -48,7 +49,7 @@ class AgendaSessionItem {
       id: seance.id,
       isGroupe: false,
       title: fullName,
-      subtitle: '${seance.heureDebut} — ${seance.heureFin}${dur.isNotEmpty ? ' ($dur)' : ''}',
+      subtitle: '${seance.heureDebut} — ${seance.heureFin}${dur.isNotEmpty ? '.tr ($dur)' : ''}',
       date: seance.date,
       heureDebut: seance.heureDebut,
       heureFin: seance.heureFin,
@@ -63,19 +64,19 @@ class AgendaSessionItem {
   }
 
   factory AgendaSessionItem.fromGroupe(SeanceGroupeModel seance) {
-    final name = seance.groupeName.isNotEmpty ? seance.groupeName : 'Groupe';
+    final name = seance.groupeName.isNotEmpty ? seance.groupeName : 'Groupe'.tr;
     final partsCount = seance.participants?.length ?? 0;
     return AgendaSessionItem(
       id: seance.id,
       isGroupe: true,
-      title: 'Groupe : $name',
-      subtitle: '${seance.heureDebut} — ${seance.heureFin}${partsCount > 0 ? ' • $partsCount participant(s)' : ' • Atelier Collectif'}',
+      title: 'Groupe : $name'.tr,
+      subtitle: '${seance.heureDebut} — ${seance.heureFin}${partsCount > 0 ? '.tr • $partsCount participant(s)' : ' • Atelier Collectif'}',
       date: seance.date,
       heureDebut: seance.heureDebut,
       heureFin: seance.heureFin,
       duree: '45 min',
       statut: seance.statut,
-      statutLabel: 'Groupe',
+      statutLabel: 'Groupe'.tr,
       initials: name.isNotEmpty ? name[0].toUpperCase() : 'G',
       groupeId: seance.groupeId,
       participants: seance.participants,

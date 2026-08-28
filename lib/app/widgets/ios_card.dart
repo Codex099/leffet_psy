@@ -78,12 +78,17 @@ class IosCard extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: backgroundColor ?? AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.borderLight, width: 0.6),
-              boxShadow: AppColors.cardShadow,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(19),
+              borderRadius: BorderRadius.circular(28),
               child: Column(
                 children: [
                   for (int i = 0; i < children.length; i++) ...[
@@ -141,11 +146,17 @@ class _IosCardHero extends IosCard {
         children: [
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: AppColors.cardShadow,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(28),
               child: Column(
                 children: [
                   // Hero header

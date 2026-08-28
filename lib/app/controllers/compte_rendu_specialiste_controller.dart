@@ -200,7 +200,7 @@ class CompteRenduSpecialisteController extends GetxController {
       final name = seanceGroupe.value?.groupeName ?? 'Atelier Collectif';
       return 'Atelier : $name';
     }
-    return seanceIndiv.value?.patientFullName ?? 'Consultation Individuelle';
+    return seanceIndiv.value?.patientFullName ?? 'Consultation Individuelle'.tr;
   }
 
   /// Date et heure formatées

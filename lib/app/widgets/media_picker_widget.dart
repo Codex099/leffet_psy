@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,7 +47,7 @@ class _MediaPickerWidgetState extends State<MediaPickerWidget> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'upload : $e')),
+          SnackBar(content: Text('Erreur lors de l\'.trupload : $e')),
         );
       }
     } finally {
@@ -72,7 +73,7 @@ class _MediaPickerWidgetState extends State<MediaPickerWidget> {
               child: ElevatedButton.icon(
                 onPressed: _isUploading ? null : () => _pickAndUpload(ImageSource.camera),
                 icon: const Icon(Icons.camera_alt_rounded),
-                label: const Text('Prendre une photo'),
+                label: Text('Prendre une photo'.tr),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
@@ -85,7 +86,7 @@ class _MediaPickerWidgetState extends State<MediaPickerWidget> {
               child: ElevatedButton.icon(
                 onPressed: _isUploading ? null : () => _pickAndUpload(ImageSource.gallery),
                 icon: const Icon(Icons.photo_library_rounded),
-                label: const Text('Galerie'),
+                label: Text('Galerie'.tr),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.secondaryLight,
                   foregroundColor: AppColors.primary,

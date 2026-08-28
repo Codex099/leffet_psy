@@ -5,6 +5,7 @@ import 'app/bindings/initial_binding.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
 import 'app/theme/app_theme.dart';
+import 'app/translations/app_translations.dart';
 
 class PsyCareApp extends StatelessWidget {
   const PsyCareApp({super.key});
@@ -19,10 +20,14 @@ class PsyCareApp extends StatelessWidget {
       initialBinding: InitialBinding(),
       getPages: AppPages.routes,
       defaultTransition: Transition.cupertino,
-      // ─── Localisation française ─────────────────────────────────────────────
+      
+      // ─── Localisation multilingue ─────────────────────────────────────────────
+      translations: AppTranslations(),
       locale: const Locale('fr', 'FR'),
+      fallbackLocale: const Locale('fr', 'FR'),
       supportedLocales: const [
         Locale('fr', 'FR'),
+        Locale('ar', 'DZ'),
         Locale('en', 'US'),
       ],
       localizationsDelegates: const [

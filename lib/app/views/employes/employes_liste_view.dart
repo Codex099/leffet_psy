@@ -19,8 +19,8 @@ class EmployesListeView extends GetView<EmployesListeController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: 'Équipe & Praticiens',
-        subtitle: 'Gestion des Droits (Admin)',
+        title: 'Équipe & Praticiens'.tr,
+        subtitle: 'Gestion des Droits (Admin)'.tr,
         showBackButton: true,
         actions: [
           BouncyTap(
@@ -63,9 +63,15 @@ class EmployesListeView extends GetView<EmployesListeController> {
                   onChanged: (val) => controller.search(val),
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
-                    hintText: 'Rechercher un membre de l\'équipe...',
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
-                    prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.secondary),
+                    hintText: 'Rechercher un membre de l\'.tréquipe...',
+                    hintStyle: AppTextStyles.iosSubhead.copyWith(
+                      color: AppColors.textHint,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: AppColors.secondary,
+                    ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -80,7 +86,9 @@ class EmployesListeView extends GetView<EmployesListeController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(message: 'Chargement de l\'équipe...');
+                  return StatePlaceholder.loading(
+                    message: 'Chargement de l\'équipe...',
+                  );
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -90,9 +98,10 @@ class EmployesListeView extends GetView<EmployesListeController> {
                 }
                 if (controller.employees.isEmpty) {
                   return StatePlaceholder.empty(
-                    title: 'Aucun employé enregistré',
-                    message: 'Ajoutez des membres de l\'équipe pour configurer leurs accès.',
-                    actionLabel: '+ Nouvel employé',
+                    title: 'Aucun employé enregistré'.tr,
+                    message:
+                        'Ajoutez des membres de l\'équipe pour configurer leurs accès.',
+                    actionLabel: 'Nouvel employé',
                     onAction: () async {
                       final res = await Get.toNamed(AppRoutes.editEmploye);
                       if (res == true) controller.loadEmployees();
@@ -109,7 +118,10 @@ class EmployesListeView extends GetView<EmployesListeController> {
                     itemBuilder: (context, index) {
                       final emp = controller.employees[index];
                       return IosCard(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
                         children: [
                           IosCardTile(
                             leading: PatientAvatar(
@@ -117,11 +129,15 @@ class EmployesListeView extends GetView<EmployesListeController> {
                               radius: 20,
                             ),
                             title: emp.fullName,
-                            subtitle: "${emp.telephone ?? emp.username} Â· ${emp.patientsAssignesIds?.length ?? 0} patient(s) assigné(s)",
+                            subtitle:
+                                "${emp.telephone ?? emp.username} Â· ${emp.patientsAssignesIds?.length ?? 0} patient(s) assigné(s)".tr,
                             showChevron: true,
                             trailing: StatusBadge.active(label: emp.roleLabel),
                             onTap: () async {
-                              final res = await Get.toNamed(AppRoutes.editEmploye, arguments: emp.id);
+                              final res = await Get.toNamed(
+                                AppRoutes.editEmploye,
+                                arguments: emp.id,
+                              );
                               if (res == true) controller.loadEmployees();
                             },
                           ),

@@ -20,8 +20,8 @@ class ParentsListeView extends GetView<ParentsListeController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: 'Annuaire Parents',
-        subtitle: 'Contacts & Tuteurs',
+        title: 'Annuaire Parents'.tr,
+        subtitle: 'Contacts & Tuteurs'.tr,
         showBackButton: true,
         actions: [
           BouncyTap(
@@ -59,9 +59,13 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   onChanged: (val) => controller.search(val),
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
-                    hintText: 'Rechercher un parent (nom, téléphone)...',
+                    hintText: 'Rechercher un parent (nom, téléphone)...'.tr,
                     hintStyle: AppTextStyles.iosSubhead,
-                    prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.iosSystemGray),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: AppColors.iosSystemGray,
+                    ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -84,18 +88,20 @@ class ParentsListeView extends GetView<ParentsListeController> {
                     onAction: () => controller.loadParents(),
                   );
                 }
-                
+
                 // Force reactivity on search query
                 final query = controller.searchQuery.value;
                 final list = controller.filteredParents;
-                
+
                 if (list.isEmpty) {
                   return StatePlaceholder.empty(
-                    title: query.isNotEmpty ? 'Aucun résultat' : 'Aucun parent enregistré',
+                    title: query.isNotEmpty
+                        ? 'Aucun résultat'.tr
+                        : 'Aucun parent enregistré',
                     message: query.isNotEmpty
                         ? 'Aucun parent ne correspond à  "$query".'
                         : 'Ajoutez des parents pour les associer aux fiches des patients.',
-                    actionLabel: '+ Nouveau parent',
+                    actionLabel: 'Nouveau parent',
                     onAction: () => Get.toNamed(AppRoutes.editParent),
                   );
                 }
@@ -106,7 +112,10 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   itemBuilder: (context, index) {
                     final parent = list[index];
                     return IosCard(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
                       children: [
                         IosCardTile(
                           leading: PatientAvatar(
@@ -114,28 +123,42 @@ class ParentsListeView extends GetView<ParentsListeController> {
                             radius: 20,
                           ),
                           title: parent.fullName,
-                          subtitle: parent.telephone != null && parent.telephone!.isNotEmpty
+                          subtitle:
+                              parent.telephone != null &&
+                                  parent.telephone!.isNotEmpty
                               ? parent.telephone
                               : 'Aucun téléphone renseigné',
                           showChevron: true,
-                          trailing: parent.telephone != null && parent.telephone!.isNotEmpty
+                          trailing:
+                              parent.telephone != null &&
+                                  parent.telephone!.isNotEmpty
                               ? Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.iosGreen.withValues(alpha: 0.12),
+                                    color: AppColors.iosGreen.withValues(
+                                      alpha: 0.12,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.phone_rounded, size: 14, color: AppColors.iosGreen),
+                                      const Icon(
+                                        Icons.phone_rounded,
+                                        size: 14,
+                                        color: AppColors.iosGreen,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Appeler',
-                                        style: AppTextStyles.iosCaption1.copyWith(
-                                          color: AppColors.iosGreen,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                                        'Appeler'.tr,
+                                        style: AppTextStyles.iosCaption1
+                                            .copyWith(
+                                              color: AppColors.iosGreen,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -193,9 +216,10 @@ class ParentsListeView extends GetView<ParentsListeController> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      if (parent.etatCivil != null && parent.etatCivil!.isNotEmpty)
+                      if (parent.etatCivil != null &&
+                          parent.etatCivil!.isNotEmpty)
                         Text(
-                          'État civil : ${parent.etatCivil}',
+                          'État civil : ${parent.etatCivil}'.tr,
                           style: AppTextStyles.iosFootnote,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -210,14 +234,22 @@ class ParentsListeView extends GetView<ParentsListeController> {
               margin: EdgeInsets.zero,
               children: [
                 IosCardTile(
-                  leading: const Icon(Icons.phone_rounded, color: AppColors.primary, size: 20),
-                  title: 'Téléphone',
-                  subtitle: parent.telephone ?? 'Non renseigné',
+                  leading: const Icon(
+                    Icons.phone_rounded,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  title: 'Téléphone'.tr,
+                  subtitle: parent.telephone ?? 'Non renseigné'.tr,
                 ),
                 if (parent.adresse != null && parent.adresse!.isNotEmpty)
                   IosCardTile(
-                    leading: const Icon(Icons.location_on_outlined, color: AppColors.primary, size: 20),
-                    title: 'Adresse',
+                    leading: const Icon(
+                      Icons.location_on_outlined,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                    title: 'Adresse'.tr,
                     subtitle: parent.adresse,
                   ),
               ],
@@ -232,14 +264,14 @@ class ParentsListeView extends GetView<ParentsListeController> {
                       Get.toNamed(AppRoutes.editParent, arguments: parent.id);
                     },
                     icon: const Icon(Icons.edit_rounded, size: 18),
-                    label: const Text('Modifier'),
+                    label: Text('Modifier'.tr),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Fermer'),
+                    child: Text('Fermer'.tr),
                   ),
                 ),
               ],

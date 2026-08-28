@@ -19,8 +19,8 @@ class GroupesListeView extends GetView<GroupesListeController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: 'Groupes Thérapeutiques',
-        subtitle: 'Ateliers & Séances',
+        title: 'Groupes Thérapeutiques'.tr,
+        subtitle: 'Ateliers & Séances'.tr,
         showBackButton: true,
         actions: [
           BouncyTap(
@@ -60,9 +60,15 @@ class GroupesListeView extends GetView<GroupesListeController> {
                   onChanged: (val) => controller.search(val),
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
-                    hintText: 'Rechercher un groupe thérapeutique...',
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
-                    prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.secondary),
+                    hintText: 'Rechercher un groupe thérapeutique...'.tr,
+                    hintStyle: AppTextStyles.iosSubhead.copyWith(
+                      color: AppColors.textHint,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: AppColors.secondary,
+                    ),
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -77,7 +83,9 @@ class GroupesListeView extends GetView<GroupesListeController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(message: 'Chargement des groupes...');
+                  return StatePlaceholder.loading(
+                    message: 'Chargement des groupes...',
+                  );
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -87,9 +95,10 @@ class GroupesListeView extends GetView<GroupesListeController> {
                 }
                 if (controller.groupes.isEmpty) {
                   return StatePlaceholder.empty(
-                    title: 'Aucun groupe thérapeutique',
-                    message: 'Créez un groupe pour planifier des ateliers cliniques collectifs.',
-                    actionLabel: '+ Créer un groupe',
+                    title: 'Aucun groupe thérapeutique'.tr,
+                    message:
+                        'Créez un groupe pour planifier des ateliers cliniques collectifs.',
+                    actionLabel: 'Créer un groupe',
                     onAction: () => Get.toNamed(AppRoutes.editGroupe),
                   );
                 }
@@ -126,15 +135,18 @@ class GroupesListeView extends GetView<GroupesListeController> {
               gradient: AppColors.groupHeaderGradient,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.groups_rounded, color: Colors.white, size: 24),
+            child: const Icon(
+              Icons.groups_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
           title: groupe.nom,
-          subtitle: '${groupe.membresCount} participant(s) inscrit(s)',
-          trailing: StatusBadge.active(
-            label: 'Atelier Actif',
-          ),
+          subtitle: '${groupe.membresCount} participant(s) inscrit(s)'.tr,
+          trailing: StatusBadge.active(label: 'Atelier Actif'.tr),
           showChevron: true,
-          onTap: () => Get.toNamed(AppRoutes.groupeDetail, arguments: groupe.id),
+          onTap: () =>
+              Get.toNamed(AppRoutes.groupeDetail, arguments: groupe.id),
         ),
       ],
     );

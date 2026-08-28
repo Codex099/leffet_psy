@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class PatientModel {
@@ -134,7 +135,7 @@ class PatientModel {
   bool get actif => estActif;
   String? get photoUrl => photo;
 
-  String get statutLabel => estActif ? 'Actif' : 'Inactif';
+  String get statutLabel => estActif ? 'Actif'.tr : 'Inactif';
 
   String? get ageFormatted {
     final a = age;

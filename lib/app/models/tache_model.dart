@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class TacheModel {
@@ -62,9 +63,9 @@ class TacheModel {
   String get statutLabel {
     switch (statut) {
       case 'a_faire':
-        return 'À faire';
+        return 'À faire'.tr;
       case 'en_cours':
-        return 'En cours';
+        return 'En cours'.tr;
       case 'fait':
         return 'Fait';
       default:
@@ -75,9 +76,9 @@ class TacheModel {
   String get prioriteLabel {
     switch (priorite) {
       case 'haute':
-        return 'Haute';
+        return 'Haute'.tr;
       case 'normale':
-        return 'Normale';
+        return 'Normale'.tr;
       case 'basse':
         return 'Basse';
       default:

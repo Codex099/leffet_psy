@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 /// Configuration centralisée de l'API backend PsyCare.
 /// TOUTES les URLs et constantes réseau sont définies ici.
 /// Aucune URL ne doit être codée en dur dans les services.
@@ -6,8 +9,17 @@ class ApiConfig {
 
   // ─── Base URL ──────────────────────────────────────────────────────────────
   /// URL de base du backend FastAPI.
-  /// Modifier cette valeur pour pointer vers staging/production.
-  static const String baseUrl = 'http://127.0.0.1:8000';
+  /// S'adapte automatiquement selon la plateforme (Émulateur Android vs Windows/Web).
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://127.0.0.1:8000';
+    } else if (Platform.isAndroid) {
+      return 'http://10.0.2.2:8000';
+    } else {
+      // Windows, macOS, iOS Simulator
+      return 'http://127.0.0.1:8000';
+    }
+  }
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────
   static const int connectTimeoutMs = 20000;

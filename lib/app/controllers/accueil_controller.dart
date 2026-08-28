@@ -41,7 +41,11 @@ class AccueilController extends GetxController {
     }
   }
 
-  void _loadFromCache() {
+  void _loadFromCache() async {
+    final secureUser = await _authService.getCachedUser();
+    if (secureUser != null && currentUser.value == null) {
+      currentUser.value = secureUser;
+    }
     final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.dashboard);
     if (cached != null) {
       if (cached['user'] is EmployeeModel) {

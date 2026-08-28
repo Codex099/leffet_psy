@@ -21,8 +21,8 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: 'Comptes-Rendus Cliniques',
-        subtitle: 'Suivi Thérapeutique Spécialiste',
+        title: 'Comptes-Rendus Cliniques'.tr,
+        subtitle: 'Suivi Thérapeutique Spécialiste'.tr,
         showBackButton: true,
         actions: [
           IconButton(
@@ -40,31 +40,36 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Obx(() => _buildStatTile(
-                          title: 'À Rédiger',
-                          count: '${controller.enAttenteCount}',
-                          icon: Icons.pending_actions_rounded,
-                          color: AppColors.accentCoral,
-                          isSelected: controller.selectedTab.value == 'en_attente',
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            controller.selectedTab.value = 'en_attente';
-                          },
-                        )),
+                    child: Obx(
+                      () => _buildStatTile(
+                        title: 'À Rédiger'.tr,
+                        count: '${controller.enAttenteCount}',
+                        icon: Icons.pending_actions_rounded,
+                        color: AppColors.accentCoral,
+                        isSelected:
+                            controller.selectedTab.value == 'en_attente',
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          controller.selectedTab.value = 'en_attente';
+                        },
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Obx(() => _buildStatTile(
-                          title: 'Validés',
-                          count: '${controller.redigesCount}',
-                          icon: Icons.task_alt_rounded,
-                          color: AppColors.primary,
-                          isSelected: controller.selectedTab.value == 'rediges',
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            controller.selectedTab.value = 'rediges';
-                          },
-                        )),
+                    child: Obx(
+                      () => _buildStatTile(
+                        title: 'Validés'.tr,
+                        count: '${controller.redigesCount}',
+                        icon: Icons.task_alt_rounded,
+                        color: AppColors.primary,
+                        isSelected: controller.selectedTab.value == 'rediges',
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          controller.selectedTab.value = 'rediges';
+                        },
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -73,15 +78,17 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
             // ── Onglets de Navigation ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: Obx(() => IosSegmentedControl<String>(
-                    segments: const {
-                      'en_attente': 'En attente',
-                      'rediges': 'Rédigés',
-                      'tous': 'Toutes',
-                    },
-                    selectedValue: controller.selectedTab.value,
-                    onValueChanged: (val) => controller.selectedTab.value = val,
-                  )),
+              child: Obx(
+                () => IosSegmentedControl<String>(
+                  segments: const {
+                    'en_attente': 'En attente',
+                    'rediges': 'Rédigés',
+                    'tous': 'Toutes',
+                  },
+                  selectedValue: controller.selectedTab.value,
+                  onValueChanged: (val) => controller.selectedTab.value = val,
+                ),
+              ),
             ),
 
             // ── Barre de Recherche & Filtres Type ──
@@ -102,11 +109,19 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                         onChanged: (val) => controller.searchQuery.value = val,
                         style: AppTextStyles.iosBody.copyWith(fontSize: 14),
                         decoration: InputDecoration(
-                          hintText: 'Rechercher patient, groupe, date...',
-                          hintStyle: AppTextStyles.iosCaption1.copyWith(color: AppColors.textHint),
-                          prefixIcon: const Icon(Icons.search_rounded, size: 18, color: AppColors.secondary),
+                          hintText: 'Rechercher patient, groupe, date...'.tr,
+                          hintStyle: AppTextStyles.iosCaption1.copyWith(
+                            color: AppColors.textHint,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            size: 18,
+                            color: AppColors.secondary,
+                          ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
                           isDense: true,
                         ),
                       ),
@@ -115,28 +130,43 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                   const SizedBox(width: 8),
 
                   // Filtre Type (Tous / Indiv / Groupe)
-                  Obx(() => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border, width: 0.8),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: controller.filterType.value,
-                            icon: const Icon(Icons.filter_list_rounded, size: 18, color: AppColors.primary),
-                            items: const [
-                              DropdownMenuItem(value: 'tous', child: Text('Tous types')),
-                              DropdownMenuItem(value: 'indiv', child: Text('Individuel')),
-                              DropdownMenuItem(value: 'groupe', child: Text('Groupe')),
-                            ],
-                            onChanged: (val) {
-                              if (val != null) controller.filterType.value = val;
-                            },
+                  Obx(
+                    () => Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.border, width: 0.8),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: controller.filterType.value,
+                          icon: const Icon(
+                            Icons.filter_list_rounded,
+                            size: 18,
+                            color: AppColors.primary,
                           ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'tous',
+                              child: Text('Tous types'.tr),
+                            ),
+                            DropdownMenuItem(
+                              value: 'indiv',
+                              child: Text('Individuel'.tr),
+                            ),
+                            DropdownMenuItem(
+                              value: 'groupe',
+                              child: Text('Groupe'.tr),
+                            ),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) controller.filterType.value = val;
+                          },
                         ),
-                      )),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -145,7 +175,9 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(message: 'Chargement des comptes-rendus...');
+                  return StatePlaceholder.loading(
+                    message: 'Chargement des comptes-rendus...',
+                  );
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -158,11 +190,11 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
 
                 if (list.isEmpty) {
                   return StatePlaceholder.empty(
-                    title: 'Aucune séance trouvée',
+                    title: 'Aucune séance trouvée'.tr,
                     message: controller.selectedTab.value == 'en_attente'
                         ? 'Tous vos comptes-rendus cliniques sont à  jour !'
                         : 'Aucune séance ne correspond aux critères sélectionnés.',
-                    actionLabel: '+ Planifier une séance',
+                    actionLabel: 'Planifier une séance'.tr,
                     onAction: () async {
                       final res = await Get.toNamed(AppRoutes.creationSeance);
                       if (res == true) controller.loadData(forceRefresh: true);
@@ -262,7 +294,11 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                     color: AppColors.secondary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.groups_rounded, color: AppColors.primary, size: 24),
+                  child: const Icon(
+                    Icons.groups_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                 )
               : PatientAvatar(
                   photoUrl: session.photoUrl,
@@ -270,7 +306,8 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                   radius: 21,
                 ),
           title: session.title,
-          subtitle: '${session.date} • ${session.heureDebut} - ${session.heureFin}${session.isGroupe ? " • Atelier Collectif" : " • Individuel"}',
+          subtitle:
+              '${session.date} • ${session.heureDebut} - ${session.heureFin}${session.isGroupe ? " • Atelier Collectif" : " • Individuel"}'.tr,
           showChevron: true,
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

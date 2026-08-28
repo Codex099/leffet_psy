@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class ParentModel {
@@ -99,9 +100,9 @@ class PatientParentModel {
   String get roleLabel {
     switch (role) {
       case 'pere':
-        return 'Père';
+        return 'Père'.tr;
       case 'mere':
-        return 'Mère';
+        return 'Mère'.tr;
       case 'tuteur':
         return 'Tuteur';
       default:

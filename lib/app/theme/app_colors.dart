@@ -21,8 +21,8 @@ class AppColors {
   static const Color primaryXLight = Color(0xFF1A7CB0);
 
   // ─── Surfaces & Fonds ──────────────────────────────────────────────────────
-  static const Color scaffold = Color(0xFFF0F5F9);
-  static const Color background = Color(0xFFF0F5F9);
+  static const Color scaffold = Color(0xFFF4F4F9);
+  static const Color background = Color(0xFFF4F4F9);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color surfaceElevated = Color(0xFFFFFFFF);
   static const Color fieldBackground = Color(0xFFEBF2F6);
@@ -179,50 +179,72 @@ class AppColors {
     colors: [Color(0xFF2E7D6B), Color(0xFF48A999)],
   );
 
+  // ─── Gradients Basés sur le Logo (UI/UX Pro Max) ─────────────────────────
+  /// Dégradé Primaire (Bleu profond - Nouveau Patient)
+  static const LinearGradient primaryLogoGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF032B45), Color(0xFF064973), Color(0xFF0A5C8F)],
+  );
+
+  /// Dégradé Secondaire (Bleu clair - Planifier Séance)
+  static const LinearGradient secondaryLogoGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF064973), Color(0xFF75AABF), Color(0xFFADCCD9)],
+  );
+
+  /// Dégradé Corail (Rouge vif - Nouvelle Tâche)
+  static const LinearGradient coralLogoGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFA62929), Color(0xFFD93636), Color(0xFFE85454)],
+  );
+
+  /// Dégradé Corail Doux / Accent (Groupes)
+  static const LinearGradient coralSoftLogoGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFD93636), Color(0xFFE85454), Color(0xFFF07A7A)],
+  );
+
   // ─── Gradients Vibrants & Vivants (UI/UX Pro Max) ───────────────────────────
-  /// Émeraude / Menthe fraîche (Nouveau Patient, Santé, Croissance)
   static const LinearGradient emeraldGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFF059669), Color(0xFF10B981), Color(0xFF34D399)],
   );
 
-  /// Violet / Indigo lumineux (Planification, Agenda, Sérénité)
   static const LinearGradient violetGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFF4F46E5), Color(0xFF7C3AED), Color(0xFF9333EA)],
   );
 
-  /// Corail Rose éclatant (Tâches, Priorités, Urgences)
   static const LinearGradient coralGlowGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFFE11D48), Color(0xFFF43F5E), Color(0xFFFB7185)],
   );
 
-  /// Ambre / Or chaleureux (Groupes, Communauté, Ateliers)
   static const LinearGradient amberGoldGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFFD97706), Color(0xFFF59E0B), Color(0xFFFBBF24)],
   );
 
-  /// Bleu Azur Électrique (Bilans, Dossiers, Métriques)
   static const LinearGradient azureGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFF0284C7), Color(0xFF0EA5E9), Color(0xFF38BDF8)],
   );
 
-  /// Indigo / Lilas Céleste (Comptes-Rendus, Bilans Thérapeutiques)
   static const LinearGradient indigoGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [Color(0xFF3B82F6), Color(0xFF6366F1), Color(0xFF8B5CF6)],
   );
 
-  /// Fuchsia / Magenta Vif (Équipe, Administration, Paramètres)
   static const LinearGradient fuchsiaGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,

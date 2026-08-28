@@ -95,12 +95,13 @@ class AgendaController extends GetxController {
 
   Future<void> refreshData() => loadAgenda(forceRefresh: true);
 
-  /// 7 jours de la semaine courante (du Lundi au Dimanche)
+  /// 7 jours de la semaine courante (du Dimanche au Samedi)
   List<DateTime> get currentWeekDays {
     final current = selectedDate.value;
-    final monday = DateTime(current.year, current.month, current.day)
-        .subtract(Duration(days: current.weekday - 1));
-    return List.generate(7, (i) => monday.add(Duration(days: i)));
+    final daysToSubtract = current.weekday % 7;
+    final sunday = DateTime(current.year, current.month, current.day)
+        .subtract(Duration(days: daysToSubtract));
+    return List.generate(7, (i) => sunday.add(Duration(days: i)));
   }
 
   /// Séances du jour sélectionné

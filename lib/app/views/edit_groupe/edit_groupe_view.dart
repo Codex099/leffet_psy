@@ -50,8 +50,8 @@ class _EditGroupeViewState extends State<EditGroupeView> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: isEditMode ? 'Modifier le Groupe' : 'Nouveau Groupe',
-        subtitle: 'Atelier Thérapeutique',
+        title: isEditMode ? 'Modifier le Groupe' : 'Nouveau Groupe'.tr,
+        subtitle: 'Atelier Thérapeutique'.tr,
         showBackButton: true,
       ),
       body: SafeArea(
@@ -64,25 +64,25 @@ class _EditGroupeViewState extends State<EditGroupeView> {
               _card(
                 children: [
                   SectionHeader(
-                    title: 'Informations générales',
+                    title: 'Informations générales'.tr,
                     padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                   ),
 
                   Text(
-                    'Nom et description du groupe',
+                    'Nom et description du groupe'.tr,
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: 16),
                   AppTextField(
-                    label: 'Nom du groupe *',
-                    hintText: 'Ex: Groupe Compétences sociales',
+                    label: 'Nom du groupe *'.tr,
+                    hintText: 'Ex: Groupe Compétences sociales'.tr,
                     controller: _nomCtrl,
                     onChanged: (v) => controller.nom.value = v,
                   ),
                   const SizedBox(height: 14),
                   AppTextField(
-                    label: 'Description',
-                    hintText: 'Description du groupe...',
+                    label: 'Description'.tr,
+                    hintText: 'Description du groupe...'.tr,
                     maxLines: 3,
                     controller: _descCtrl,
                     onChanged: (v) => controller.description.value = v,
@@ -95,13 +95,13 @@ class _EditGroupeViewState extends State<EditGroupeView> {
               _card(
                 children: [
                   SectionHeader(
-                    title: 'Planning récurrent',
+                    title: 'Planning récurrent'.tr,
                     icon: Icons.calendar_month_outlined,
                     padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Sélectionnez le type d\'horaires et les jours de tenue du groupe.',
+                    'Sélectionnez le type d\'.trhoraires et les jours de tenue du groupe.',
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: 14),
@@ -131,7 +131,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'Horaires Fixes',
+                                    'Horaires Fixes'.tr,
                                     style: AppTextStyles.iosCaption1.copyWith(
                                       color:
                                           controller.modeCreneaux.value ==
@@ -164,7 +164,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    'Ponctuel / Par Jour',
+                                    'Ponctuel / Par Jour'.tr,
                                     style: AppTextStyles.iosCaption1.copyWith(
                                       color:
                                           controller.modeCreneaux.value ==
@@ -186,7 +186,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
 
                   // Chips jours de la semaine
                   Text(
-                    'Jours de la semaine',
+                    'Jours de la semaine'.tr,
                     style: AppTextStyles.bodyMedium.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
@@ -225,7 +225,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Horaires communs pour tous les jours sélectionnés',
+                              'Horaires communs pour tous les jours sélectionnés'.tr,
                               style: AppTextStyles.bodySmall.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -236,7 +236,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                                 Expanded(
                                   child: _timePicker(
                                     context,
-                                    label: 'Début',
+                                    label: 'Début'.tr,
                                     value: controller.globalHeureDebut.value,
                                     onPicked: (v) =>
                                         controller.updateGlobalStart(v),
@@ -246,7 +246,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                                 Expanded(
                                   child: _timePicker(
                                     context,
-                                    label: 'Fin',
+                                    label: 'Fin'.tr,
                                     value: controller.globalHeureFin.value,
                                     onPicked: (v) =>
                                         controller.updateGlobalEnd(v),
@@ -294,7 +294,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                                     onPressed: () =>
                                         controller.addSlotForDay(day),
                                     icon: const Icon(Icons.add, size: 16),
-                                    label: const Text('Créneau'),
+                                    label: Text('Créneau'.tr),
                                     style: TextButton.styleFrom(
                                       foregroundColor: AppColors.primary,
                                       padding: EdgeInsets.zero,
@@ -322,13 +322,13 @@ class _EditGroupeViewState extends State<EditGroupeView> {
               _card(
                 children: [
                   SectionHeader(
-                    title: 'Professionnels assignés',
+                    title: 'Professionnels assignés'.tr,
                     icon: Icons.badge_outlined,
                     padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Sélectionnez les intervenants avec recherche instantanée',
+                    'Sélectionnez les intervenants avec recherche instantanée'.tr,
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: 12),
@@ -343,14 +343,14 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                     }
                     if (controller.availableEmployees.isEmpty) {
                       return Text(
-                        'Aucun professionnel disponible',
+                        'Aucun professionnel disponible'.tr,
                         style: AppTextStyles.bodySmall,
                       );
                     }
                     return SearchablePickerField<dynamic>(
-                      label: 'Intervenants',
-                      hintText: 'Rechercher et assigner des professionnels...',
-                      title: 'Intervenants du Groupe',
+                      label: 'Intervenants'.tr,
+                      hintText: 'Rechercher et assigner des professionnels...'.tr,
+                      title: 'Intervenants du Groupe'.tr,
                       isMultiSelect: true,
                       leadingIcon: Icons.badge_outlined,
                       selectedValues: controller.selectedEmployeeIds.toList(),
@@ -379,7 +379,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                     children: [
                       Expanded(
                         child: SectionHeader(
-                          title: 'Patients inscrits',
+                          title: 'Patients inscrits'.tr,
                           icon: Icons.people_outline,
                           padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                         ),
@@ -390,7 +390,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                           Icons.person_add_alt_outlined,
                           size: 16,
                         ),
-                        label: const Text('Ajouter'),
+                        label: Text('Ajouter'.tr),
                       ),
                     ],
                   ),
@@ -401,7 +401,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           child: Text(
-                            'Aucun patient dans ce groupe.',
+                            'Aucun patient dans ce groupe.'.tr,
                             style: AppTextStyles.bodySmall,
                           ),
                         ),
@@ -445,7 +445,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                                     ),
                                     onPressed: () =>
                                         controller.removePatientFromGroupe(id),
-                                    tooltip: 'Retirer du groupe',
+                                    tooltip: 'Retirer du groupe'.tr,
                                   ),
                               ],
                             ),
@@ -531,7 +531,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
           Expanded(
             child: _timePicker(
               context,
-              label: 'Début',
+              label: 'Début'.tr,
               value: slot.heureDebut,
               onPicked: (v) => controller.updateSlotStart(slot, v),
             ),
@@ -540,7 +540,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
           Expanded(
             child: _timePicker(
               context,
-              label: 'Fin',
+              label: 'Fin'.tr,
               value: slot.heureFin,
               onPicked: (v) => controller.updateSlotEnd(slot, v),
             ),
@@ -553,7 +553,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
               size: 20,
             ),
             onPressed: () => controller.removeSlot(slot),
-            tooltip: 'Supprimer ce créneau',
+            tooltip: 'Supprimer ce créneau'.tr,
           ),
         ],
       ),
@@ -634,14 +634,14 @@ class _EditGroupeViewState extends State<EditGroupeView> {
 
     SearchablePicker.showMulti<dynamic>(
       context: context,
-      title: 'Ajouter des patients au groupe',
+      title: 'Ajouter des patients au groupe'.tr,
       items: unassigned
           .map(
             (p) => SearchableItem<dynamic>(
               value: p.id,
               label: p.fullName,
               subtitle:
-                  '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}',
+                  '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}'.tr,
               initials: p.initials,
             ),
           )

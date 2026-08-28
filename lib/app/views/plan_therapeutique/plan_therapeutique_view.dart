@@ -43,8 +43,14 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('PLAN THÉRAPEUTIQUE', style: AppTextStyles.sectionKicker),
-                        Text('Plans thérapeutiques', style: AppTextStyles.screenTitleMedium),
+                        Text(
+                          'PLAN THÉRAPEUTIQUE'.tr,
+                          style: AppTextStyles.sectionKicker,
+                        ),
+                        Text(
+                          'Plans thérapeutiques'.tr,
+                          style: AppTextStyles.screenTitleMedium,
+                        ),
                       ],
                     ),
                   ],
@@ -56,14 +62,21 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                   Center(
                     child: Column(
                       children: [
-                        const Icon(Icons.assignment_outlined, size: 56, color: AppColors.textHint),
+                        const Icon(
+                          Icons.assignment_outlined,
+                          size: 56,
+                          color: AppColors.textHint,
+                        ),
                         const SizedBox(height: 12),
-                        Text('Aucun plan thérapeutique.', style: AppTextStyles.bodyMedium),
+                        Text(
+                          'Aucun plan thérapeutique.'.tr,
+                          style: AppTextStyles.bodyMedium,
+                        ),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: () => _showCreatePlanDialog(context),
                           icon: const Icon(Icons.add),
-                          label: const Text('Créer un plan'),
+                          label: Text('Créer un plan'.tr),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
@@ -76,7 +89,10 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 ] else ...[
                   // Plan selector if multiple plans
                   if (controller.plans.length > 1) ...[
-                    SectionHeader(title: 'Sélectionner un plan', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+                    SectionHeader(
+                      title: 'Sélectionner un plan'.tr,
+                      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                    ),
 
                     const SizedBox(height: 8),
                     SizedBox(
@@ -84,17 +100,24 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: controller.plans.length,
-                        separatorBuilder: (ctx, idx) => const SizedBox(width: 8),
+                        separatorBuilder: (ctx, idx) =>
+                            const SizedBox(width: 8),
                         itemBuilder: (context, i) {
                           final plan = controller.plans[i];
-                          final isSelected = controller.selectedPlan.value?.id == plan.id;
+                          final isSelected =
+                              controller.selectedPlan.value?.id == plan.id;
                           return ChoiceChip(
-                            label: Text(plan.titre, style: AppTextStyles.bodySmall),
+                            label: Text(
+                              plan.titre,
+                              style: AppTextStyles.bodySmall,
+                            ),
                             selected: isSelected,
                             onSelected: (_) => controller.selectPlan(plan),
                             selectedColor: AppColors.primary,
                             labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.textPrimary,
+                              color: isSelected
+                                  ? Colors.white
+                                  : AppColors.textPrimary,
                             ),
                           );
                         },
@@ -114,7 +137,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                   OutlinedButton.icon(
                     onPressed: () => _showCreatePlanDialog(context),
                     icon: const Icon(Icons.add),
-                    label: const Text('Nouveau plan'),
+                    label: Text('Nouveau plan'.tr),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 44),
                       side: const BorderSide(color: AppColors.primary),
@@ -135,8 +158,8 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
     final Color statutColor = plan.statut == 'actif'
         ? AppColors.statusPresent
         : plan.statut == 'archive'
-            ? AppColors.textSecondary
-            : AppColors.primary;
+        ? AppColors.textSecondary
+        : AppColors.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,27 +185,42 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                         Text(plan.titre, style: AppTextStyles.sectionTitle),
                         const SizedBox(height: 4),
                         Text(
-                          '${plan.etapesTerminees} / ${plan.totalEtapes} étapes complétées',
+                          '${plan.etapesTerminees} / ${plan.totalEtapes} étapes complétées'.tr,
                           style: AppTextStyles.bodySmall,
                         ),
                       ],
                     ),
                   ),
                   PopupMenuButton<String>(
-                    onSelected: (val) => controller.updatePlanStatut(plan.id, val),
+                    onSelected: (val) =>
+                        controller.updatePlanStatut(plan.id, val),
                     itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'actif', child: Text('Actif')),
-                      const PopupMenuItem(value: 'suspendu', child: Text('Suspendu')),
-                      const PopupMenuItem(value: 'archive', child: Text('Archivé')),
+                      PopupMenuItem(value: 'actif', child: Text('Actif'.tr)),
+                      PopupMenuItem(
+                        value: 'suspendu',
+                        child: Text('Suspendu'.tr),
+                      ),
+                      PopupMenuItem(
+                        value: 'archive',
+                        child: Text('Archivé'.tr),
+                      ),
                     ],
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         StatusBadge.custom(
-                          label: plan.statut == 'actif' ? 'Actif' : plan.statut == 'archive' ? 'Archivé' : 'Suspendu',
+                          label: plan.statut == 'actif'
+                              ? 'Actif'.tr
+                              : plan.statut == 'archive'
+                              ? 'Archivé'.tr
+                              : 'Suspendu'.tr,
                           color: statutColor,
                         ),
-                        const Icon(Icons.arrow_drop_down, size: 18, color: AppColors.textSecondary),
+                        const Icon(
+                          Icons.arrow_drop_down,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        ),
                       ],
                     ),
                   ),
@@ -197,8 +235,10 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
               ),
               const SizedBox(height: 8),
               Text(
-                '${(plan.progression * 100).toInt()}% accompli',
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                '${(plan.progression * 100).toInt()}% accompli'.tr,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
@@ -209,9 +249,12 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SectionHeader(title: 'Étapes du plan', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+            SectionHeader(
+              title: 'Étapes du plan'.tr,
+              padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+            ),
 
-            Text('${etapes.length} étapes', style: AppTextStyles.bodySmall),
+            Text('${etapes.length} étapes'.tr, style: AppTextStyles.bodySmall),
           ],
         ),
         const SizedBox(height: 12),
@@ -220,19 +263,24 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
         if (etapes.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: Text('Aucune étape définie.', style: AppTextStyles.bodySmall),
+            child: Text(
+              'Aucune étape définie.'.tr,
+              style: AppTextStyles.bodySmall,
+            ),
           )
         else
-          ...etapes.map((etape) => Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: _buildEtapeCard(context, plan, etape),
-              )),
+          ...etapes.map(
+            (etape) => Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: _buildEtapeCard(context, plan, etape),
+            ),
+          ),
 
         // Add step button
         OutlinedButton.icon(
           onPressed: () => _showAddEtapeDialog(context),
           icon: const Icon(Icons.add),
-          label: const Text('Ajouter une étape'),
+          label: Text('Ajouter une étape'.tr),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 48),
             side: const BorderSide(color: AppColors.primary),
@@ -243,7 +291,11 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
     );
   }
 
-  Widget _buildEtapeCard(BuildContext context, PlanTherapeutiqueModel plan, EtapePlanTherapeutiqueModel etape) {
+  Widget _buildEtapeCard(
+    BuildContext context,
+    PlanTherapeutiqueModel plan,
+    EtapePlanTherapeutiqueModel etape,
+  ) {
     Color statusColor;
     IconData statusIcon;
     switch (etape.statut) {
@@ -268,7 +320,10 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.cardShadow,
         border: etape.statut == 'en_cours'
-            ? Border.all(color: AppColors.primary.withValues(alpha: 0.3), width: 1.5)
+            ? Border.all(
+                color: AppColors.primary.withValues(alpha: 0.3),
+                width: 1.5,
+              )
             : null,
       ),
       child: Column(
@@ -281,7 +336,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 child: Row(
                   children: [
                     Text(
-                      '${etape.ordre}.',
+                      '${etape.ordre}.'.tr,
                       style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.bold,
@@ -291,7 +346,9 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                     Expanded(
                       child: Text(
                         etape.titre,
-                        style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -310,19 +367,26 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             children: [
               // Change statut dropdown
               PopupMenuButton<String>(
-                onSelected: (val) => controller.updateEtapeStatut(plan.id, etape.id, val),
+                onSelected: (val) =>
+                    controller.updateEtapeStatut(plan.id, etape.id, val),
                 itemBuilder: (_) => [
-                  const PopupMenuItem(value: 'a_faire', child: Text('À faire')),
-                  const PopupMenuItem(value: 'en_cours', child: Text('En cours')),
-                  const PopupMenuItem(value: 'fait', child: Text('Terminé')),
+                  PopupMenuItem(value: 'a_faire', child: Text('À faire'.tr)),
+                  PopupMenuItem(
+                    value: 'en_cours',
+                    child: Text('En cours'.tr),
+                  ),
+                  PopupMenuItem(value: 'fait', child: Text('Terminé'.tr)),
                 ],
                 child: Row(
                   children: [
                     Icon(statusIcon, size: 14, color: statusColor),
                     const SizedBox(width: 4),
                     Text(
-                      'Changer statut',
-                      style: AppTextStyles.bodySmall.copyWith(color: statusColor, fontWeight: FontWeight.w600),
+                      'Changer statut'.tr,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -330,14 +394,22 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
               Row(
                 children: [
                   InkWell(
-                    onTap: () => controller.convertEtapeToTache(plan.id, etape.id),
+                    onTap: () =>
+                        controller.convertEtapeToTache(plan.id, etape.id),
                     child: Row(
                       children: [
-                        const Icon(Icons.arrow_forward_rounded, size: 14, color: AppColors.primary),
+                        const Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
                         const SizedBox(width: 4),
                         Text(
-                          'Tâche',
-                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+                          'Tâche'.tr,
+                          style: AppTextStyles.bodySmall.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),
@@ -345,7 +417,11 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                   const SizedBox(width: 12),
                   InkWell(
                     onTap: () => controller.deleteEtape(plan.id, etape.id),
-                    child: const Icon(Icons.delete_outline_rounded, size: 18, color: AppColors.error),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: AppColors.error,
+                    ),
                   ),
                 ],
               ),
@@ -359,7 +435,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
   void _showCreatePlanDialog(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Créer un plan thérapeutique'),
+        title: Text('Créer un plan thérapeutique'.tr),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -371,32 +447,34 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
               ),
             ),
             const SizedBox(height: 12),
-            Obx(() => DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Statut'),
-                  initialValue: controller.statutPlan.value,
-                  items: const [
-                    DropdownMenuItem(value: 'actif', child: Text('Actif')),
-                    DropdownMenuItem(value: 'suspendu', child: Text('Suspendu')),
-                    DropdownMenuItem(value: 'archive', child: Text('Archivé')),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) controller.statutPlan.value = val;
-                  },
-                )),
+            Obx(
+              () => DropdownButtonFormField<String>(
+                decoration: InputDecoration(labelText: 'Statut'.tr),
+                initialValue: controller.statutPlan.value,
+                items: [
+                  DropdownMenuItem(value: 'actif', child: Text('Actif'.tr)),
+                  DropdownMenuItem(value: 'suspendu', child: Text('Suspendu'.tr)),
+                  DropdownMenuItem(value: 'archive', child: Text('Archivé'.tr)),
+                ],
+                onChanged: (val) {
+                  if (val != null) controller.statutPlan.value = val;
+                },
+              ),
+            ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Annuler'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               controller.createPlan();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-            child: const Text('Créer'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Créer'.tr),
           ),
         ],
       ),
@@ -406,7 +484,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
   void _showAddEtapeDialog(BuildContext context) {
     Get.dialog(
       AlertDialog(
-        title: const Text('Ajouter une étape'),
+        title: Text('Ajouter une étape'.tr),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -421,38 +499,40 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             TextField(
               controller: controller.etapeDescController,
               maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'Description',
+              decoration: InputDecoration(
+                labelText: 'Description'.tr,
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
-            Obx(() => DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Statut'),
-                  initialValue: controller.statutEtape.value,
-                  items: const [
-                    DropdownMenuItem(value: 'a_faire', child: Text('À faire')),
-                    DropdownMenuItem(value: 'en_cours', child: Text('En cours')),
-                    DropdownMenuItem(value: 'fait', child: Text('Terminé')),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) controller.statutEtape.value = val;
-                  },
-                )),
+            Obx(
+              () => DropdownButtonFormField<String>(
+                decoration: InputDecoration(labelText: 'Statut'.tr),
+                initialValue: controller.statutEtape.value,
+                items: [
+                  DropdownMenuItem(value: 'a_faire', child: Text('À faire'.tr)),
+                  DropdownMenuItem(value: 'en_cours', child: Text('En cours'.tr)),
+                  DropdownMenuItem(value: 'fait', child: Text('Terminé'.tr)),
+                ],
+                onChanged: (val) {
+                  if (val != null) controller.statutEtape.value = val;
+                },
+              ),
+            ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Annuler'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               controller.addEtape();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-            child: const Text('Ajouter'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: Text('Ajouter'.tr),
           ),
         ],
       ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/patient_info_controller.dart';
 import '../../routes/app_routes.dart';
@@ -20,7 +20,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
       backgroundColor: AppColors.scaffold,
       body: Obx(() {
         if (controller.status.value == 'loading') {
-          return const Scaffold(body: StatePlaceholder(type: StatePlaceholderType.loading));
+          return const Scaffold(
+            body: StatePlaceholder(type: StatePlaceholderType.loading),
+          );
         }
         if (controller.status.value == 'error') {
           return Scaffold(
@@ -42,49 +44,83 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: AppColors.oceanGradient,
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(32),
+                  ),
                   boxShadow: AppColors.heroShadow,
                 ),
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(32),
+                  ),
                   child: Stack(
                     children: [
                       Positioned.fill(
                         child: CustomPaint(
                           painter: ZenWavePainter(
-                            waveColor: AppColors.secondary.withValues(alpha: 0.25),
-                            accentColor: AppColors.secondaryLight.withValues(alpha: 0.15),
+                            waveColor: AppColors.secondary.withValues(
+                              alpha: 0.25,
+                            ),
+                            accentColor: AppColors.secondaryLight.withValues(
+                              alpha: 0.15,
+                            ),
                           ),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 24),
+                        padding: const EdgeInsets.only(
+                          top: 50,
+                          left: 16,
+                          right: 16,
+                          bottom: 24,
+                        ),
                         child: Column(
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
+                                  icon: const Icon(
+                                    Icons.arrow_back_ios_new_rounded,
+                                    color: Colors.white,
+                                    size: 22,
+                                  ),
                                   onPressed: () => Get.back(),
                                 ),
                                 Text(
-                                  'Dossier Patient',
-                                  style: AppTextStyles.iosHeadline.copyWith(color: Colors.white),
+                                  'Dossier Patient'.tr,
+                                  style: AppTextStyles.iosHeadline.copyWith(
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 Row(
                                   children: [
                                     IconButton(
-                                      icon: const Icon(Icons.edit_rounded, color: Colors.white, size: 22),
+                                      icon: const Icon(
+                                        Icons.edit_rounded,
+                                        color: Colors.white,
+                                        size: 22,
+                                      ),
                                       onPressed: () async {
-                                        final res = await Get.toNamed(AppRoutes.editPatient, arguments: controller.patientId);
-                                        if (res == true) controller.loadPatientInfo();
+                                        final res = await Get.toNamed(
+                                          AppRoutes.editPatient,
+                                          arguments: controller.patientId,
+                                        );
+                                        if (res == true)
+                                          controller.loadPatientInfo();
                                       },
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.medical_services_outlined, color: Colors.white, size: 22),
+                                      icon: const Icon(
+                                        Icons.medical_services_outlined,
+                                        color: Colors.white,
+                                        size: 22,
+                                      ),
                                       onPressed: () async {
-                                        await Get.toNamed(AppRoutes.dossierMedical, arguments: controller.patientId);
+                                        await Get.toNamed(
+                                          AppRoutes.dossierMedical,
+                                          arguments: controller.patientId,
+                                        );
                                         controller.loadPatientInfo();
                                       },
                                     ),
@@ -98,10 +134,15 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 Container(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2.5),
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2.5,
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.18),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.18,
+                                        ),
                                         blurRadius: 10,
                                       ),
                                     ],
@@ -115,7 +156,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         p?.fullName ?? 'Patient',
@@ -126,39 +168,66 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                       ),
                                       const SizedBox(height: 3),
                                       Text(
-                                        '${p?.age ?? ""} ans "¢ Né(e) le ${p?.dateNaissance ?? ""}',
-                                        style: AppTextStyles.iosFootnote.copyWith(
-                                          color: Colors.white.withValues(alpha: 0.85),
-                                        ),
+                                        '${p?.age ?? ""} ans • Né(e) le ${p?.dateNaissance ?? ""}'.tr,
+                                        style: AppTextStyles.iosFootnote
+                                            .copyWith(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.85,
+                                              ),
+                                            ),
                                       ),
                                       const SizedBox(height: 8),
                                       InkWell(
-                                        onTap: () => _showStatusDialog(context, p?.estActif ?? true),
+                                        onTap: () => _showStatusDialog(
+                                          context,
+                                          p?.estActif ?? true,
+                                        ),
                                         borderRadius: BorderRadius.circular(20),
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: Colors.white.withValues(alpha: 0.20),
-                                            borderRadius: BorderRadius.circular(20),
-                                            border: Border.all(color: Colors.white.withValues(alpha: 0.35)),
+                                            color: Colors.white.withValues(
+                                              alpha: 0.20,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.35,
+                                              ),
+                                            ),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               PulseDot(
-                                                color: p?.estActif == true ? Colors.white : AppColors.accentCoral,
+                                                color: p?.estActif == true
+                                                    ? Colors.white
+                                                    : AppColors.accentCoral,
                                                 size: 7,
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                p?.estActif == true ? 'Suivi Actif' : 'Inactif',
-                                                style: AppTextStyles.iosCaption2.copyWith(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w700,
-                                                ),
+                                                p?.estActif == true
+                                                    ? 'Suivi Actif'
+                                                    : 'Inactif',
+                                                style: AppTextStyles.iosCaption2
+                                                    .copyWith(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                    ),
                                               ),
                                               const SizedBox(width: 4),
-                                              const Icon(Icons.expand_more_rounded, size: 14, color: Colors.white70),
+                                              const Icon(
+                                                Icons.expand_more_rounded,
+                                                size: 14,
+                                                color: Colors.white70,
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -183,7 +252,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                   children: [
                     // Parent lié card
                     _buildSectionCard(
-                      title: 'Parent lié',
+                      title: 'Parent lié'.tr,
                       icon: Icons.phone_outlined,
                       actionLabel: 'Créer nouveau',
                       onActionTap: () => Get.toNamed(AppRoutes.editParent),
@@ -192,18 +261,26 @@ class PatientInfoView extends GetView<PatientInfoController> {
                         children: [
                           if (controller.parents.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                              ),
                               child: Text(
-                                'Aucun parent associé à  ce patient.',
+                                'Aucun parent associé à  ce patient.'.tr,
                                 style: AppTextStyles.bodySmall,
                               ),
                             )
                           else
                             ...controller.parents.map((pParent) {
                               final parent = pParent.parent;
-                              final name = parent != null ? parent.fullName : 'Parent inconnu';
-                              final phone = parent != null ? (parent.telephone ?? 'Pas de numéro') : 'Pas de numéro';
-                              final initials = parent != null ? parent.initials : 'P';
+                              final name = parent != null
+                                  ? parent.fullName
+                                  : 'Parent inconnu';
+                              final phone = parent != null
+                                  ? (parent.telephone ?? 'Pas de numéro')
+                                  : 'Pas de numéro';
+                              final initials = parent != null
+                                  ? parent.initials
+                                  : 'P';
                               final role = pParent.roleLabel;
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
@@ -213,7 +290,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: InkWell(
-                                  onTap: () => Get.toNamed(AppRoutes.editParent, arguments: pParent.parentId),
+                                  onTap: () => Get.toNamed(
+                                    AppRoutes.editParent,
+                                    arguments: pParent.parentId,
+                                  ),
                                   child: Row(
                                     children: [
                                       PatientAvatar(
@@ -223,17 +303,28 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '$name ($role)',
-                                              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                                              '$name ($role)'.tr,
+                                              style: AppTextStyles.bodyMedium
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                             ),
-                                            Text(phone, style: AppTextStyles.bodySmall),
+                                            Text(
+                                              phone,
+                                              style: AppTextStyles.bodySmall,
+                                            ),
                                           ],
                                         ),
                                       ),
-                                      const Icon(Icons.edit_rounded, color: AppColors.primary, size: 16),
+                                      const Icon(
+                                        Icons.edit_rounded,
+                                        color: AppColors.primary,
+                                        size: 16,
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -241,9 +332,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                             }),
                           const SizedBox(height: 8),
                           OutlinedButton.icon(
-                            onPressed: () => _showAssociateParentDialog(context),
+                            onPressed: () =>
+                                _showAssociateParentDialog(context),
                             icon: const Icon(Icons.link_rounded, size: 16),
-                            label: const Text('Associer un parent existant'),
+                            label: Text('Associer un parent existant'.tr),
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 38),
                               side: const BorderSide(color: AppColors.primary),
@@ -257,31 +349,47 @@ class PatientInfoView extends GetView<PatientInfoController> {
 
                     // Plan Thérapeutique preview card
                     _buildSectionCard(
-                      title: 'Plan thérapeutique',
+                      title: 'Plan thérapeutique'.tr,
                       icon: Icons.assignment_rounded,
                       actionLabel: 'Voir tout',
                       onActionTap: () async {
-                        await Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId);
+                        await Get.toNamed(
+                          AppRoutes.planTherapeutique,
+                          arguments: controller.patientId,
+                        );
                         controller.loadPatientInfo();
                       },
                       child: controller.plans.isEmpty
                           ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                              ),
                               child: Column(
                                 children: [
-                                  Text('Aucun plan thérapeutique.', style: AppTextStyles.bodySmall),
+                                  Text(
+                                    'Aucun plan thérapeutique.'.tr,
+                                    style: AppTextStyles.bodySmall,
+                                  ),
                                   const SizedBox(height: 8),
                                   OutlinedButton.icon(
                                     onPressed: () async {
-                                      await Get.toNamed(AppRoutes.planTherapeutique, arguments: controller.patientId);
+                                      await Get.toNamed(
+                                        AppRoutes.planTherapeutique,
+                                        arguments: controller.patientId,
+                                      );
                                       controller.loadPatientInfo();
                                     },
                                     icon: const Icon(Icons.add, size: 14),
-                                    label: const Text('Créer un plan'),
+                                    label: Text('Créer un plan'.tr),
                                     style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size(double.infinity, 36),
+                                      minimumSize: const Size(
+                                        double.infinity,
+                                        36,
+                                      ),
                                       foregroundColor: AppColors.primary,
-                                      side: const BorderSide(color: AppColors.primary),
+                                      side: const BorderSide(
+                                        color: AppColors.primary,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -292,15 +400,20 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 final Color statColor = plan.statut == 'actif'
                                     ? AppColors.statusPresent
                                     : plan.statut == 'termine'
-                                        ? AppColors.primary
-                                        : AppColors.textSecondary;
+                                    ? AppColors.primary
+                                    : AppColors.textSecondary;
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 10.0),
                                   child: _buildStepTile(
                                     number: plan.statut == 'actif' ? '▶' : '✓',
                                     title: plan.titre,
-                                    subtitle: '${plan.etapesTerminees}/${plan.totalEtapes} étapes',
-                                    statusLabel: plan.statut == 'actif' ? 'Actif' : plan.statut == 'termine' ? 'Terminé' : 'Archivé',
+                                    subtitle:
+                                        '${plan.etapesTerminees}/${plan.totalEtapes} étapes'.tr,
+                                    statusLabel: plan.statut == 'actif'
+                                        ? 'Actif'.tr
+                                        : plan.statut == 'termine'
+                                        ? 'Terminé'.tr
+                                        : 'Archivé'.tr,
                                     statusColor: statColor,
                                     progress: plan.progression,
                                   ),
@@ -312,22 +425,28 @@ class PatientInfoView extends GetView<PatientInfoController> {
 
                     // Historique des séances card
                     _buildSectionCard(
-                      title: 'Historique des séances',
+                      title: 'Historique des séances'.tr,
                       icon: Icons.access_time_rounded,
                       actionLabel: 'Tout voir',
                       onActionTap: () async {
-                        await Get.toNamed(AppRoutes.historiqueSeancesPatient, arguments: controller.patientId);
+                        await Get.toNamed(
+                          AppRoutes.historiqueSeancesPatient,
+                          arguments: controller.patientId,
+                        );
                         controller.loadPatientInfo();
                       },
                       child: Column(
                         children: [
                           _buildSeanceTypeItem(
                             icon: Icons.calendar_month_rounded,
-                            label: 'Séances individuelles',
+                            label: 'Séances individuelles'.tr,
                             onTap: () async {
                               await Get.toNamed(
                                 AppRoutes.historiqueSeancesPatient,
-                                arguments: {'id': controller.patientId, 'type': 'individuel'},
+                                arguments: {
+                                  'id': controller.patientId,
+                                  'type': 'individuel',
+                                },
                               );
                               controller.loadPatientInfo();
                             },
@@ -335,11 +454,14 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           const SizedBox(height: 8),
                           _buildSeanceTypeItem(
                             icon: Icons.groups_rounded,
-                            label: 'Séances groupe',
+                            label: 'Séances groupe'.tr,
                             onTap: () async {
                               await Get.toNamed(
                                 AppRoutes.historiqueSeancesPatient,
-                                arguments: {'id': controller.patientId, 'type': 'groupe'},
+                                arguments: {
+                                  'id': controller.patientId,
+                                  'type': 'groupe',
+                                },
                               );
                               controller.loadPatientInfo();
                             },
@@ -351,91 +473,128 @@ class PatientInfoView extends GetView<PatientInfoController> {
 
                     // ── Historique des Statuts & Réactivations ──
                     _buildSectionCard(
-                      title: 'Historique des Statuts',
-                      subtitle: 'Suivi des activations et notes',
+                      title: 'Historique des Statuts'.tr,
+                      subtitle: 'Suivi des activations et notes'.tr,
                       icon: Icons.history_rounded,
                       actionLabel: 'Gérer',
                       onActionTap: () async {
-                        await Get.toNamed(AppRoutes.statutHistorique, arguments: controller.patientId);
+                        await Get.toNamed(
+                          AppRoutes.statutHistorique,
+                          arguments: controller.patientId,
+                        );
                         controller.loadPatientInfo();
                       },
                       child: controller.statutHistorique.isEmpty
                           ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                              ),
                               child: Text(
-                                'Aucun changement de statut enregistré.',
+                                'Aucun changement de statut enregistré.'.tr,
                                 style: AppTextStyles.bodySmall,
                               ),
                             )
                           : Column(
-                              children: controller.statutHistorique.take(3).map((hist) {
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.fieldBackground,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: AppColors.border, width: 0.8),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          StatusBadge.active(
-                                            label: hist.isActif ? 'Actif (Réactivé)' : 'Inactif (Désactivé)',
-                                          ),
-                                          Text(
-                                            hist.dateChangement.length >= 10
-                                                ? hist.dateChangement.substring(0, 10)
-                                                : hist.dateChangement,
-                                            style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
+                              children: controller.statutHistorique.take(3).map(
+                                (hist) {
+                                  return Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.fieldBackground,
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: AppColors.border,
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            StatusBadge.active(
+                                              label: hist.isActif
+                                                  ? 'Actif (Réactivé)'
+                                                  : 'Inactif (Désactivé)',
+                                            ),
+                                            Text(
+                                              hist.dateChangement.length >= 10
+                                                  ? hist.dateChangement
+                                                        .substring(0, 10)
+                                                  : hist.dateChangement,
+                                              style: AppTextStyles.iosCaption2
+                                                  .copyWith(
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                        if (hist.noteDegradation != null &&
+                                            hist
+                                                .noteDegradation!
+                                                .isNotEmpty) ...[
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.surface,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                color: AppColors.borderLight,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.sticky_note_2_outlined,
+                                                  size: 16,
+                                                  color: AppColors.secondary,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    hist.noteDegradation!,
+                                                    style: AppTextStyles
+                                                        .bodySmall
+                                                        .copyWith(
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
-                                      ),
-                                      if (hist.noteDegradation != null && hist.noteDegradation!.isNotEmpty) ...[
-                                        const SizedBox(height: 8),
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.surface,
-                                            borderRadius: BorderRadius.circular(10),
-                                            border: Border.all(color: AppColors.borderLight),
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              const Icon(Icons.sticky_note_2_outlined, size: 16, color: AppColors.secondary),
-                                              const SizedBox(width: 8),
-                                              Expanded(
-                                                child: Text(
-                                                  hist.noteDegradation!,
-                                                  style: AppTextStyles.bodySmall.copyWith(fontStyle: FontStyle.italic),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
+                                    ),
+                                  );
+                                },
+                              ).toList(),
                             ),
                     ),
                     const SizedBox(height: 16),
 
                     // Notes section
                     _buildSectionCard(
-                      title: 'Notes & Observations',
+                      title: 'Notes & Observations'.tr,
                       icon: Icons.note_alt_outlined,
                       headerWidget: ElevatedButton.icon(
                         onPressed: () async {
-                          await Get.toNamed(AppRoutes.notesPatient, arguments: controller.patientId);
+                          await Get.toNamed(
+                            AppRoutes.notesPatient,
+                            arguments: controller.patientId,
+                          );
                           controller.loadPatientInfo();
                         },
                         icon: const Icon(Icons.add, size: 16),
-                        label: const Text('Note'),
+                        label: Text('Note'.tr),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           minimumSize: const Size(80, 32),
@@ -444,9 +603,11 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       ),
                       child: controller.notes.isEmpty
                           ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 8.0,
+                              ),
                               child: Text(
-                                'Aucune note pour ce patient.',
+                                'Aucune note pour ce patient.'.tr,
                                 style: AppTextStyles.bodySmall,
                               ),
                             )
@@ -463,7 +624,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
 
                     // Planning récurrent toggle section
                     _buildSectionCard(
-                      title: 'Planning récurrent',
+                      title: 'Planning récurrent'.tr,
                       icon: Icons.sync_rounded,
                       child: Column(
                         children: [
@@ -473,8 +634,14 @@ class PatientInfoView extends GetView<PatientInfoController> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Créneaux automatiques', style: AppTextStyles.bodyMedium),
-                                  Text('Planification de séances individuelles', style: AppTextStyles.bodySmall),
+                                  Text(
+                                    'Créneaux automatiques'.tr,
+                                    style: AppTextStyles.bodyMedium,
+                                  ),
+                                  Text(
+                                    'Planification de séances individuelles'.tr,
+                                    style: AppTextStyles.bodySmall,
+                                  ),
                                 ],
                               ),
                               Switch(value: true, onChanged: (v) {}),
@@ -483,11 +650,14 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           const SizedBox(height: 12),
                           ElevatedButton.icon(
                             onPressed: () async {
-                              await Get.toNamed(AppRoutes.planningRecurrent, arguments: controller.patientId);
+                              await Get.toNamed(
+                                AppRoutes.planningRecurrent,
+                                arguments: controller.patientId,
+                              );
                               controller.loadPatientInfo();
                             },
                             icon: const Icon(Icons.tune_rounded),
-                            label: const Text('Définir les créneaux'),
+                            label: Text('Définir les créneaux'.tr),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.secondary,
                               foregroundColor: Colors.white,
@@ -502,8 +672,14 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // Supprimer le patient Action Button
                     TextButton.icon(
                       onPressed: () => controller.deletePatient(),
-                      icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
-                      label: Text('Supprimer le patient', style: AppTextStyles.buttonDestructive),
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.error,
+                      ),
+                      label: Text(
+                        'Supprimer le patient'.tr,
+                        style: AppTextStyles.buttonDestructive,
+                      ),
                     ),
                   ],
                 ),
@@ -547,7 +723,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(title, style: AppTextStyles.sectionTitle),
-                      if (subtitle != null) Text(subtitle, style: AppTextStyles.bodySmall),
+                      if (subtitle != null)
+                        Text(subtitle, style: AppTextStyles.bodySmall),
                     ],
                   ),
                 ],
@@ -555,7 +732,13 @@ class PatientInfoView extends GetView<PatientInfoController> {
               if (actionLabel != null && onActionTap != null)
                 TextButton(
                   onPressed: onActionTap,
-                  child: Text(actionLabel, style: AppTextStyles.bodySmall.copyWith(color: AppColors.secondary, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    actionLabel,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.secondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ?headerWidget,
             ],
@@ -587,7 +770,12 @@ class PatientInfoView extends GetView<PatientInfoController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$number. $title', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                '$number. $title'.tr,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               StatusBadge.custom(label: statusLabel, color: statusColor),
             ],
           ),
@@ -630,7 +818,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
             ),
             const SizedBox(width: 12),
             Expanded(child: Text(label, style: AppTextStyles.bodyMedium)),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textSecondary,
+            ),
           ],
         ),
       ),
@@ -654,14 +845,18 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 Text(note.contenu, style: AppTextStyles.body),
                 const SizedBox(height: 4),
                 Text(
-                  '${note.auteurNom} | ${note.dateCreation ?? ""}',
+                  '${note.auteurNom} | ${note.dateCreation ?? ""}'.tr,
                   style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                 ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 20),
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              color: AppColors.error,
+              size: 20,
+            ),
             onPressed: () => controller.deleteNote(note.id),
           ),
         ],
@@ -671,7 +866,11 @@ class PatientInfoView extends GetView<PatientInfoController> {
 
   void _showAssociateParentDialog(BuildContext context) {
     if (controller.availableParents.isEmpty) {
-      Get.snackbar('Info', 'Aucun parent enregistré sur le système.', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Info',
+        'Aucun parent enregistré sur le système.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -679,33 +878,52 @@ class PatientInfoView extends GetView<PatientInfoController> {
 
     SearchablePicker.showSingle<dynamic>(
       context: context,
-      title: 'Associer un parent / tuteur',
-      items: controller.availableParents.map((p) => SearchableItem<dynamic>(
-        value: p.id,
-        label: '${p.prenom} ${p.nom}',
-        subtitle: p.telephone != null && p.telephone!.isNotEmpty ? p.telephone : 'Parent / Tuteur',
-        initials: '${p.prenom.isNotEmpty ? p.prenom[0] : ""}${p.nom.isNotEmpty ? p.nom[0] : ""}'.toUpperCase(),
-      )).toList(),
+      title: 'Associer un parent / tuteur'.tr,
+      items: controller.availableParents
+          .map(
+            (p) => SearchableItem<dynamic>(
+              value: p.id,
+              label: '${p.prenom} ${p.nom}'.tr,
+              subtitle: p.telephone != null && p.telephone!.isNotEmpty
+                  ? p.telephone
+                  : 'Parent / Tuteur',
+              initials:
+                  '${p.prenom.isNotEmpty ? p.prenom[0] : ""}${p.nom.isNotEmpty ? p.nom[0] : ""}'
+                      .toUpperCase(),
+            ),
+          )
+          .toList(),
       onSelected: (parentId) {
         if (parentId == null) return;
         // Prompt for family role
         Get.dialog(
           AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: Text('Rôle familial', style: AppTextStyles.iosTitle2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: Text('Rôle familial'.tr, style: AppTextStyles.iosTitle2),
             content: StatefulBuilder(
               builder: (ctx, setDialogState) => DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Lien de parenté'),
                 initialValue: selectedRole,
-                items: const [
-                  DropdownMenuItem(value: 'pere', child: Text('Père')),
-                  DropdownMenuItem(value: 'mere', child: Text('Mère')),
-                  DropdownMenuItem(value: 'tuteur', child: Text('Tuteur légal')),
-                  DropdownMenuItem(value: 'grand_pere', child: Text('Grand-père')),
-                  DropdownMenuItem(value: 'grand_mere', child: Text('Grand-mère')),
-                  DropdownMenuItem(value: 'oncle', child: Text('Oncle')),
-                  DropdownMenuItem(value: 'tante', child: Text('Tante')),
-                  DropdownMenuItem(value: 'autre', child: Text('Autre')),
+                items: [
+                  DropdownMenuItem(value: 'pere', child: Text('Père'.tr)),
+                  DropdownMenuItem(value: 'mere', child: Text('Mère'.tr)),
+                  DropdownMenuItem(
+                    value: 'tuteur',
+                    child: Text('Tuteur légal'.tr),
+                  ),
+                  DropdownMenuItem(
+                    value: 'grand_pere',
+                    child: Text('Grand-père'.tr),
+                  ),
+                  DropdownMenuItem(
+                    value: 'grand_mere',
+                    child: Text('Grand-mère'.tr),
+                  ),
+                  DropdownMenuItem(value: 'oncle', child: Text('Oncle'.tr)),
+                  DropdownMenuItem(value: 'tante', child: Text('Tante'.tr)),
+                  DropdownMenuItem(value: 'autre', child: Text('Autre'.tr)),
                 ],
                 onChanged: (val) {
                   if (val != null) setDialogState(() => selectedRole = val);
@@ -715,14 +933,14 @@ class PatientInfoView extends GetView<PatientInfoController> {
             actions: [
               TextButton(
                 onPressed: () => Get.back(),
-                child: const Text('Annuler'),
+                child: Text('Annuler'.tr),
               ),
               ElevatedButton(
                 onPressed: () {
                   Get.back();
                   controller.associateParent(parentId, selectedRole);
                 },
-                child: const Text('Confirmer l\'association'),
+                child: const Text('Confirmer l\'.trassociation'),
               ),
             ],
           ),
@@ -737,7 +955,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
       AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
-          isCurrentlyActive ? 'Désactiver le patient ?' : 'Réactiver le patient ?',
+          isCurrentlyActive
+              ? 'Désactiver le patient ?'
+              : 'Réactiver le patient ?',
           style: AppTextStyles.iosTitle2,
         ),
         content: Column(
@@ -755,22 +975,21 @@ class PatientInfoView extends GetView<PatientInfoController> {
               TextFormField(
                 controller: noteCtrl,
                 maxLines: 3,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Note clinique / Dégradation',
-                  hintText: 'Préciser les motifs ou observations cliniques...',
+                  hintText: 'Préciser les motifs ou observations cliniques...'.tr,
                 ),
               ),
             ],
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Annuler'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: isCurrentlyActive ? AppColors.error : AppColors.primary,
+              backgroundColor: isCurrentlyActive
+                  ? AppColors.error
+                  : AppColors.primary,
             ),
             onPressed: () {
               final note = noteCtrl.text.trim();
@@ -786,3 +1005,4 @@ class PatientInfoView extends GetView<PatientInfoController> {
     );
   }
 }
+

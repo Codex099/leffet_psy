@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import '../../controllers/auth_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 
 /// Page de connexion épurée, moderne et en français.
-/// Inspirée fidèlement de la maquette avec en-tête en vague océanique et badge logo circulaire.
+/// Inspirée fidèlement de la maquette avec le logo centré et un style "pill".
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -19,9 +20,10 @@ class _LoginViewState extends State<LoginView> {
   final controller = Get.find<AuthController>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _storage = const FlutterSecureStorage();
 
   final _obscurePassword = true.obs;
-  final _rememberMe = true.obs;
+  final _rememberMe = false.obs;
 
   final FocusNode _usernameFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
@@ -37,6 +39,15 @@ class _LoginViewState extends State<LoginView> {
     _passwordFocus.addListener(() {
       _isPasswordFocused.value = _passwordFocus.hasFocus;
     });
+    _loadSavedUsername();
+  }
+
+  Future<void> _loadSavedUsername() async {
+    final savedUsername = await _storage.read(key: 'saved_username');
+    if (savedUsername != null && savedUsername.isNotEmpty) {
+      _usernameController.text = savedUsername;
+      _rememberMe.value = true;
+    }
   }
 
   @override
@@ -48,7 +59,7 @@ class _LoginViewState extends State<LoginView> {
     super.dispose();
   }
 
-  void _handleSubmit() {
+  void _handleSubmit() async {
     HapticFeedback.mediumImpact();
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
@@ -65,167 +76,122 @@ class _LoginViewState extends State<LoginView> {
       );
       return;
     }
+
+    if (_rememberMe.value) {
+      await _storage.write(key: 'saved_username', value: username);
+    } else {
+      await _storage.delete(key: 'saved_username');
+    }
+
     controller.login(username, password);
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final headerHeight = size.height * 0.38;
-
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: SizedBox(
-          height: size.height,
-          child: Stack(
-            children: [
-              // ── 1. En-Tête Bleu avec Courbe & Vague Asymétrique ─────────────
-              ClipPath(
-                clipper: _WaveHeaderClipper(),
-                child: Container(
-                  height: headerHeight,
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF032B45),
-                        Color(0xFF064973),
-                        Color(0xFF0A5C8F),
-                      ],
-                    ),
-                  ),
-                  child: CustomPaint(
-                    size: Size(size.width, headerHeight),
-                    painter: _TopographyPainter(),
-                  ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
                 ),
-              ),
-
-              // ── 2. Badge Logo Circulaire en Chevauchement ──────────────────
-              Positioned(
-                top: headerHeight * 0.62,
-                right: 28,
-                child: Container(
-                  width: 114,
-                  height: 114,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF064973).withValues(alpha: 0.22),
-                        blurRadius: 24,
-                        offset: const Offset(0, 10),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                    border: Border.all(
-                      color: const Color(0xFFE8F2F8),
-                      width: 3.5,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
-                        errorBuilder: (ctx, e, st) => const Icon(
-                          Icons.psychology_rounded,
-                          size: 48,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-                    .animate()
-                    .fadeIn(duration: 600.ms)
-                    .scale(begin: const Offset(0.7, 0.7), curve: Curves.easeOutBack),
-              ),
-
-              // ── 3. Contenu & Formulaire de Connexion ───────────────────────
-              Positioned.fill(
-                top: headerHeight * 0.88,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Titre « Connexion » avec barre de soulignement
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Connexion',
-                            style: AppTextStyles.iosLargeTitleHero.copyWith(
-                              color: const Color(0xFF062338),
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.6,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Container(
-                            width: 44,
-                            height: 4,
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 20),
+                        
+                        // ── 1. Logo dans un cercle ─────────────────────────────
+                        Center(
+                          child: Container(
+                            width: 180,
+                            height: 180,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF064973),
-                              borderRadius: BorderRadius.circular(2),
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  blurRadius: 32,
+                                  offset: const Offset(0, 12),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: const Color(0xFFF1F5F9),
+                                width: 3,
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                          .animate()
-                          .fadeIn(duration: 500.ms)
-                          .slideX(begin: -0.1, curve: Curves.easeOut),
-
-                      const SizedBox(height: 28),
-
-                      // ── Champ 1 : Identifiant / Email ─────────────────────
-                      Text(
-                        'Email / Nom d\'utilisateur',
-                        style: AppTextStyles.iosCaption1.copyWith(
-                          color: const Color(0xFF4A6B7F),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                            child: ClipOval(
+                              child: Padding(
+                                padding: const EdgeInsets.all(0),
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  width: 160,
+                                  height: 160,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (ctx, e, st) => const Icon(
+                                    Icons.psychology_rounded,
+                                    size: 100,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ).animate().scale(duration: 800.ms, curve: Curves.easeOutBack),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Obx(() => _buildCleanInputField(
+
+                        const SizedBox(height: 24),
+
+                        // ── 2. Titles ───────────────────────────────────────────────────
+                        Text(
+                          'Connexion'.tr,
+                          style: AppTextStyles.iosLargeTitleHero.copyWith(
+                            color: const Color(0xFF1E293B),
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                          ),
+                        ).animate().fadeIn(duration: 500.ms).slideX(begin: -0.1),
+                        
+                        const SizedBox(height: 8),
+                        
+                        Text(
+                          'Veuillez vous connecter pour continuer.'.tr,
+                          style: AppTextStyles.iosSubhead.copyWith(
+                            color: const Color(0xFF64748B),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ).animate().fadeIn(duration: 500.ms, delay: 100.ms).slideX(begin: -0.1),
+
+                        const SizedBox(height: 36),
+
+                        // ── 3. Username Field ───────────────────────────────────────────
+                        Obx(
+                          () => _buildMockupInputField(
                             controller: _usernameController,
                             focusNode: _usernameFocus,
                             isFocused: _isUsernameFocused.value,
-                            hint: 'demo@email.com ou admin',
-                            icon: Icons.mail_outline_rounded,
+                            hint: 'Email ou nom d\'utilisateur',
+                            icon: Icons.person_outline_rounded,
                             textInputAction: TextInputAction.next,
-                          )),
+                          ),
+                        ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideX(begin: -0.1),
 
-                      const SizedBox(height: 22),
+                        const SizedBox(height: 16),
 
-                      // ── Champ 2 : Mot de passe ────────────────────────────
-                      Text(
-                        'Mot de passe',
-                        style: AppTextStyles.iosCaption1.copyWith(
-                          color: const Color(0xFF4A6B7F),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Obx(() => _buildCleanInputField(
+                        // ── 4. Password Field ───────────────────────────────────────────
+                        Obx(
+                          () => _buildMockupInputField(
                             controller: _passwordController,
                             focusNode: _passwordFocus,
                             isFocused: _isPasswordFocused.value,
-                            hint: '••••••••',
+                            hint: 'Mot de passe',
                             icon: Icons.lock_outline_rounded,
                             obscureText: _obscurePassword.value,
                             textInputAction: TextInputAction.done,
@@ -235,347 +201,233 @@ class _LoginViewState extends State<LoginView> {
                                 _obscurePassword.value
                                     ? Icons.visibility_off_outlined
                                     : Icons.visibility_outlined,
-                                size: 20,
-                                color: const Color(0xFF9EBDCE),
+                                size: 22,
+                                color: const Color(0xFF64748B),
                               ),
                               onPressed: () {
                                 HapticFeedback.selectionClick();
                                 _obscurePassword.toggle();
                               },
                             ),
-                          )),
+                          ),
+                        ).animate().fadeIn(duration: 500.ms, delay: 300.ms).slideX(begin: -0.1),
 
-                      const SizedBox(height: 14),
+                        const SizedBox(height: 20),
 
-                      // ── Options : Se souvenir & Mot de passe oublié ────────
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Se souvenir de moi
-                          InkWell(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              _rememberMe.toggle();
-                            },
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
+                        // ── 5. Remember Me Switch ───────────────────────────────────────
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Se souvenir de moi'.tr,
+                              style: AppTextStyles.iosFootnote.copyWith(
+                                color: const Color(0xFF1E293B),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                            Obx(
+                              () => Transform.scale(
+                                scale: 0.8,
+                                child: Switch(
+                                  value: _rememberMe.value,
+                                  onChanged: (val) {
+                                    HapticFeedback.selectionClick();
+                                    _rememberMe.value = val;
+                                  },
+                                  activeColor: Colors.white,
+                                  activeTrackColor: AppColors.primary,
+                                  inactiveTrackColor: const Color(0xFFE2E8F0),
+                                  inactiveThumbColor: Colors.white,
+                                  trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ).animate().fadeIn(duration: 500.ms, delay: 400.ms),
+
+                        // Error Message
+                        Obx(() {
+                          if (controller.errorMessage.isNotEmpty) {
+                            return Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(top: 16),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.error.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               child: Row(
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Obx(() => Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: BoxDecoration(
-                                          color: _rememberMe.value
-                                              ? const Color(0xFF064973)
-                                              : Colors.white,
-                                          borderRadius: BorderRadius.circular(5),
-                                          border: Border.all(
-                                            color: _rememberMe.value
-                                                ? const Color(0xFF064973)
-                                                : const Color(0xFFBED5E1),
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        child: _rememberMe.value
-                                            ? const Icon(
-                                                Icons.check_rounded,
-                                                size: 13,
-                                                color: Colors.white,
-                                              )
-                                            : null,
-                                      )),
+                                  const Icon(Icons.error_outline_rounded, size: 18, color: AppColors.error),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    'Se souvenir de moi',
+                                  Expanded(
+                                    child: Text(
+                                      controller.errorMessage.value,
+                                      style: AppTextStyles.iosFootnote.copyWith(
+                                        color: AppColors.error,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ).animate().fadeIn(duration: 300.ms).shakeX();
+                          }
+                          return const SizedBox.shrink();
+                        }),
+
+                        const Spacer(), // Pousse le bouton vers le bas
+                        const SizedBox(height: 32),
+
+                        // ── 6. Sign In Button ───────────────────────────────────────────
+                        Obx(() {
+                          final isLoading = controller.isLoading.value;
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : _handleSubmit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(28), // Pill shape
+                                ),
+                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                  : Text(
+                                      'Se connecter'.tr,
+                                      style: AppTextStyles.iosHeadline.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                            ),
+                          );
+                        }).animate().fadeIn(duration: 500.ms, delay: 500.ms).slideY(begin: 0.1),
+
+                        const SizedBox(height: 32),
+
+                        // ── 7. Sign Up Link ─────────────────────────────────────────────
+                        Center(
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.snackbar(
+                                'Information',
+                                'Veuillez contacter l\'administrateur pour créer un compte.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: AppColors.primary,
+                                colorText: Colors.white,
+                                margin: const EdgeInsets.all(16),
+                                borderRadius: 14,
+                              );
+                            },
+                            child: Text.rich(
+                              TextSpan(
+                                text: 'Vous n\'avez pas de compte ? ',
+                                style: AppTextStyles.iosFootnote.copyWith(
+                                  color: const Color(0xFF64748B),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'S\'inscrire',
                                     style: AppTextStyles.iosFootnote.copyWith(
-                                      color: const Color(0xFF4A6B7F),
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12.5,
+                                      color: AppColors.primary,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                           ),
-
-                          // Mot de passe oublié
-                          GestureDetector(
-                            onTap: () {
-                              Get.snackbar(
-                                'Assistance',
-                                'Veuillez contacter l\'administrateur pour réinitialiser votre mot de passe.',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: const Color(0xFF064973),
-                                colorText: Colors.white,
-                                margin: const EdgeInsets.all(16),
-                                borderRadius: 14,
-                              );
-                            },
-                            child: Text(
-                              'Mot de passe oublié ?',
-                              style: AppTextStyles.iosFootnote.copyWith(
-                                color: const Color(0xFF064973),
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // ── Message d'erreur éventuel ─────────────────────────
-                      Obx(() {
-                        if (controller.errorMessage.isNotEmpty) {
-                          return Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.only(top: 14),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: AppColors.error.withValues(alpha: 0.10),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColors.error.withValues(alpha: 0.30),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.error_outline_rounded,
-                                  size: 18,
-                                  color: AppColors.error,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    controller.errorMessage.value,
-                                    style: AppTextStyles.iosFootnote.copyWith(
-                                      color: AppColors.error,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ).animate().fadeIn(duration: 300.ms).shakeX();
-                        }
-                        return const SizedBox.shrink();
-                      }),
-
-                      const SizedBox(height: 32),
-
-                      // ── Bouton Principal « Se connecter » ──────────────────
-                      Obx(() {
-                        final isLoading = controller.isLoading.value;
-                        return Container(
-                          width: double.infinity,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF064973),
-                                Color(0xFF0A5C8F),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF064973).withValues(alpha: 0.35),
-                                blurRadius: 18,
-                                offset: const Offset(0, 7),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: isLoading ? null : _handleSubmit,
-                              borderRadius: BorderRadius.circular(16),
-                              splashColor: Colors.white.withValues(alpha: 0.15),
-                              child: Center(
-                                child: isLoading
-                                    ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                              Colors.white),
-                                        ),
-                                      )
-                                    : Text(
-                                        'Se connecter',
-                                        style: AppTextStyles.iosHeadline.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 16,
-                                          letterSpacing: 0.3,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-
-                      const SizedBox(height: 24),
-
-                      // ── Pied de page ──────────────────────────────────────
-                      Center(
-                        child: Text.rich(
-                          TextSpan(
-                            text: 'Vous n\'avez pas de compte ? ',
-                            style: AppTextStyles.iosFootnote.copyWith(
-                              color: const Color(0xFF7B98A9),
-                              fontSize: 13,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: 'Accès Praticien',
-                                style: AppTextStyles.iosFootnote.copyWith(
-                                  color: const Color(0xFF064973),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                        ).animate().fadeIn(duration: 500.ms, delay: 600.ms),
+                        
+                        const SizedBox(height: 12),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
-  // ─── Champ de Saisie avec Ligne de Soulignement Épurée ─────────────────────
-  Widget _buildCleanInputField({
+  // ── Input Field Widget (Mockup Style) ───────────────────────────────────
+  Widget _buildMockupInputField({
     required TextEditingController controller,
     required FocusNode focusNode,
     required bool isFocused,
     required String hint,
     required IconData icon,
     bool obscureText = false,
+    TextInputAction textInputAction = TextInputAction.next,
+    void Function(String)? onSubmitted,
     Widget? suffix,
-    TextInputAction? textInputAction,
-    ValueChanged<String>? onSubmitted,
   }) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isFocused
-                  ? const Color(0xFF064973)
-                  : const Color(0xFF9EBDCE),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              width: 1.2,
-              height: 18,
-              color: const Color(0xFFD3E4EC),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: TextField(
-                controller: controller,
-                focusNode: focusNode,
-                obscureText: obscureText,
-                textInputAction: textInputAction,
-                onSubmitted: onSubmitted,
-                style: AppTextStyles.iosBody.copyWith(
-                  color: const Color(0xFF062338),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9), // Light grey background
+        borderRadius: BorderRadius.circular(28), // Pill shape
+        border: Border.all(
+          color: isFocused ? AppColors.primary : Colors.transparent,
+          width: 1.5,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 22,
+            color: isFocused ? AppColors.primary : const Color(0xFF94A3B8),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              focusNode: focusNode,
+              obscureText: obscureText,
+              textInputAction: textInputAction,
+              onSubmitted: onSubmitted,
+              style: AppTextStyles.iosBody.copyWith(
+                color: const Color(0xFF1E293B),
+                fontWeight: FontWeight.w500,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                hintText: hint,
+                hintStyle: AppTextStyles.iosBody.copyWith(
+                  color: const Color(0xFF94A3B8),
                 ),
-                cursorColor: const Color(0xFF064973),
-                decoration: InputDecoration(
-                  hintText: hint,
-                  hintStyle: AppTextStyles.iosSubhead.copyWith(
-                    color: const Color(0xFFBED5E1),
-                    fontWeight: FontWeight.w400,
-                  ),
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                ),
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
               ),
             ),
-            ?suffix,
-          ],
-        ),
-        const SizedBox(height: 6),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: isFocused ? 2.0 : 1.2,
-          color: isFocused ? const Color(0xFF064973) : const Color(0xFFD3E4EC),
-        ),
-      ],
+          ),
+          if (suffix != null) suffix,
+        ],
+      ),
     );
   }
 }
 
-// ─── Découpe de Vague Asymétrique en Haut de Page ──────────────────────────────
-class _WaveHeaderClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.lineTo(0, size.height * 0.68);
-
-    // Vague fluide descendant vers la droite sous le logo
-    path.cubicTo(
-      size.width * 0.30,
-      size.height * 0.64,
-      size.width * 0.58,
-      size.height * 0.98,
-      size.width,
-      size.height * 0.86,
-    );
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-// ─── Lignes Topographiques Décoratives en Arrière-Plan ─────────────────────────
-class _TopographyPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF75AABF).withValues(alpha: 0.16)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
-
-    for (int i = 1; i <= 6; i++) {
-      final p = Path();
-      final yOffset = size.height * (0.13 * i);
-      p.moveTo(0, yOffset);
-      p.cubicTo(
-        size.width * 0.25,
-        yOffset - 22,
-        size.width * 0.55,
-        yOffset + 30,
-        size.width,
-        yOffset - 12,
-      );
-      canvas.drawPath(p, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
-}

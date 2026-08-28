@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
+import '../models/employee_model.dart';
 import '../models/seance_model.dart';
 import '../services/cache_manager.dart';
+import '../services/employee_service.dart';
 import '../services/seance_service.dart';
 
 import '../utils/json_utils.dart';
@@ -9,6 +11,7 @@ import 'agenda_controller.dart';
 
 class PlanningRecurrentController extends GetxController {
   final PlanningRecurrentService _planningService = PlanningRecurrentService();
+  final EmployeeService _employeeService = EmployeeService();
 
   final Rx<PatientPlanningRecurrentModel?> planning = Rx<PatientPlanningRecurrentModel?>(null);
   final RxString status = 'loading'.obs;
@@ -18,6 +21,9 @@ class PlanningRecurrentController extends GetxController {
   final heureDebut = '09:00'.obs;
   final heureFin = '09:45'.obs;
   final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
+
+  final employees = <EmployeeModel>[].obs;
+  final selectedEmployeeIds = <dynamic>[].obs;
 
   dynamic patientId;
 
@@ -60,6 +66,7 @@ class PlanningRecurrentController extends GetxController {
     } else {
       _loadFromCache();
       loadPlanning();
+      loadEmployees();
     }
   }
 
@@ -75,8 +82,20 @@ class PlanningRecurrentController extends GetxController {
       }).toList();
       if (cached.heureDebut.isNotEmpty) heureDebut.value = cached.heureDebut;
       if (cached.heureFin.isNotEmpty) heureFin.value = cached.heureFin;
+      if (cached.employeIds != null) {
+        selectedEmployeeIds.assignAll(cached.employeIds!);
+      } else if (cached.employeId != null) {
+        selectedEmployeeIds.assignAll([cached.employeId]);
+      }
       status.value = 'success';
     }
+  }
+
+  Future<void> loadEmployees() async {
+    try {
+      final list = await _employeeService.getEmployees();
+      employees.assignAll(list);
+    } catch (_) {}
   }
 
   void setModeCreneaux(String mode) {
@@ -126,6 +145,11 @@ class PlanningRecurrentController extends GetxController {
       if (loaded?.heureFin != null && loaded!.heureFin.isNotEmpty) {
         heureFin.value = loaded.heureFin;
       }
+      if (loaded?.employeIds != null) {
+        selectedEmployeeIds.assignAll(loaded!.employeIds!);
+      } else if (loaded?.employeId != null) {
+        selectedEmployeeIds.assignAll([loaded!.employeId]);
+      }
 
       if (loaded != null) {
         AppCacheManager.set<PatientPlanningRecurrentModel>(
@@ -161,6 +185,7 @@ class PlanningRecurrentController extends GetxController {
           'jours_semaine': fullDays,
           'heure_debut': heureDebut.value,
           'heure_fin': heureFin.value,
+          'employe_ids': selectedEmployeeIds.toList(),
         });
 
         try {
@@ -177,6 +202,7 @@ class PlanningRecurrentController extends GetxController {
             'jours_semaine': [fullDay],
             'heure_debut': start,
             'heure_fin': end,
+            'employe_ids': selectedEmployeeIds.toList(),
           });
 
           try {

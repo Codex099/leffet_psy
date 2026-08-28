@@ -23,8 +23,8 @@ class PatientsListeView extends GetView<PatientsListeController> {
       backgroundColor: AppColors.scaffold,
       extendBody: true,
       appBar: CreativeAppBar(
-        title: 'Dossiers Patients',
-        subtitle: 'Cabinet PsyCare',
+        title: 'Dossiers Patients'.tr,
+        subtitle: 'Cabinet PsyCare'.tr,
         actions: [
           BouncyTap(
             onTap: () async {
@@ -51,86 +51,91 @@ class PatientsListeView extends GetView<PatientsListeController> {
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
       body: SafeArea(
         bottom: false,
-        child: Column(
-          children: [
-            // ── Search Bar Premium ─────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight, width: 0.7),
-                  boxShadow: AppColors.softShadow,
-                ),
-                child: TextField(
-                  onChanged: (val) => controller.search(val),
-                  style: AppTextStyles.iosBody.copyWith(
-                    fontWeight: FontWeight.w500,
+        child: RefreshIndicator(
+          onRefresh: () async => controller.loadPatients(),
+          color: AppColors.primary,
+          backgroundColor: Colors.white,
+          strokeWidth: 2.5,
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: 120),
+            children: [
+              // ── Search Bar Premium ─────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                child: Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.borderLight, width: 0.7),
+                    boxShadow: AppColors.softShadow,
                   ),
-                  decoration: InputDecoration(
-                    hintText: 'Rechercher un patient...',
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(
-                      color: AppColors.textHint,
+                  child: TextField(
+                    onChanged: (val) => controller.search(val),
+                    style: AppTextStyles.iosBody.copyWith(
+                      fontWeight: FontWeight.w500,
                     ),
-                    prefixIcon: const Icon(
-                      Icons.search_rounded,
-                      size: 22,
-                      color: AppColors.secondary,
+                    decoration: InputDecoration(
+                      hintText: 'Rechercher un patient...'.tr,
+                      hintStyle: AppTextStyles.iosSubhead.copyWith(
+                        color: AppColors.textHint,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search_rounded,
+                        size: 22,
+                        color: AppColors.secondary,
+                      ),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      isDense: true,
                     ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    isDense: true,
                   ),
-                ),
-              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
-            ),
+                ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
+              ),
 
-            // ── Filtres Segmented ──────────────────────────────────────────
-            Obx(() {
-              int selectedIndex = 0;
-              if (controller.actifFilter.value == true) selectedIndex = 1;
-              if (controller.actifFilter.value == false) selectedIndex = 2;
+              // ── Filtres Segmented ──────────────────────────────────────────
+              Obx(() {
+                int selectedIndex = 0;
+                if (controller.actifFilter.value == true) selectedIndex = 1;
+                if (controller.actifFilter.value == false) selectedIndex = 2;
 
-              return IosSegmentedControl<int>(
-                segments: const {0: 'Tous', 1: 'Suivi actif', 2: 'Inactifs'},
-                selectedValue: selectedIndex,
-                onValueChanged: (idx) {
-                  if (idx == 0) controller.setActifFilter(null);
-                  if (idx == 1) controller.setActifFilter(true);
-                  if (idx == 2) controller.setActifFilter(false);
-                },
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              );
-            }),
+                return IosSegmentedControl<int>(
+                  segments: const {0: 'Tous', 1: 'Suivi actif', 2: 'Inactifs'},
+                  selectedValue: selectedIndex,
+                  onValueChanged: (idx) {
+                    if (idx == 0) controller.setActifFilter(null);
+                    if (idx == 1) controller.setActifFilter(true);
+                    if (idx == 2) controller.setActifFilter(false);
+                  },
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                );
+              }),
 
-            // ── Compteur ──────────────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Obx(
-                    () => Text(
-                      '${controller.filteredPatients.length} patient(s)',
-                      style: AppTextStyles.iosCaption2.copyWith(
-                        color: AppColors.textTertiary,
-                        fontWeight: FontWeight.w600,
+              // ── Compteur ──────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Obx(
+                      () => Text(
+                        '${controller.filteredPatients.length} patient(s)'.tr,
+                        style: AppTextStyles.iosCaption2.copyWith(
+                          color: AppColors.textTertiary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // ── Liste Patients ─────────────────────────────────────────────
-            Expanded(
-              child: Obx(() {
+              // ── Liste Patients ─────────────────────────────────────────────
+              Obx(() {
                 if (controller.status.value == 'loading') {
-                  return ShimmerListLoader(count: 6);
+                  return const ShimmerListLoader(count: 6);
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -141,34 +146,38 @@ class PatientsListeView extends GetView<PatientsListeController> {
 
                 final list = controller.filteredPatients;
                 if (list.isEmpty) {
+                  final isInactive = controller.actifFilter.value == false;
                   return StatePlaceholder.empty(
-                    title: 'Aucun patient trouvé',
-                    message:
-                        'Vous pouvez créer un nouveau dossier dès maintenant.',
-                    actionLabel: '+ Créer un dossier',
-                    onAction: () async {
-                      final res = await Get.toNamed(AppRoutes.editPatient);
-                      if (res == true) controller.loadPatients();
-                    },
+                    title: isInactive
+                        ? 'Aucun patient inactif'
+                        : 'Aucun patient trouvé',
+                    message: isInactive
+                        ? 'Il n\'y a aucun patient inactif dans votre liste.'
+                        : 'Vous pouvez créer un nouveau dossier dès maintenant.',
+                    actionLabel: isInactive ? null : 'Créer un dossier',
+                    onAction: isInactive
+                        ? null
+                        : () async {
+                            final res = await Get.toNamed(
+                              AppRoutes.editPatient,
+                            );
+                            if (res == true) controller.loadPatients();
+                          },
                   );
                 }
 
-                return RefreshIndicator(
-                  onRefresh: () async => controller.loadPatients(),
-                  color: AppColors.primary,
-                  backgroundColor: Colors.white,
-                  strokeWidth: 2.5,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 6, bottom: 120),
-                    itemCount: list.length,
-                    itemBuilder: (context, index) {
-                      return _buildPatientCard(list[index], index);
-                    },
-                  ),
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(top: 6),
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    return _buildPatientCard(list[index], index);
+                  },
                 );
               }),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -234,7 +243,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                             const SizedBox(height: 3),
                             Text(
                               patient.ageFormatted != null
-                                  ? '${patient.ageFormatted} "¢ ${patient.sexeLabel}'
+                                  ? '${patient.ageFormatted} • ${patient.sexeLabel}'
                                   : patient.sexeLabel,
                               style: AppTextStyles.iosFootnote.copyWith(
                                 color: AppColors.textTertiary,
@@ -275,6 +284,8 @@ class ShimmerListLoader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.only(top: 6, bottom: 20),
       itemCount: count,
       itemBuilder: (_, i) => Padding(
@@ -321,3 +332,4 @@ class ShimmerListLoader extends StatelessWidget {
     );
   }
 }
+

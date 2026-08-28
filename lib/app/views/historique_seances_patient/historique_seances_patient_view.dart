@@ -7,16 +7,17 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../models/seance_model.dart';
 
-class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientController> {
+class HistoriqueSeancesPatientView
+    extends GetView<HistoriqueSeancesPatientController> {
   const HistoriqueSeancesPatientView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      appBar: const CreativeAppBar(
-        title: 'Historique des Séances',
-        subtitle: 'Consultations & Bilans',
+      appBar: CreativeAppBar(
+        title: 'Historique des Séances'.tr,
+        subtitle: 'Consultations & Bilans'.tr,
         showBackButton: true,
       ),
       body: SafeArea(
@@ -32,7 +33,7 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
                   const SizedBox(width: 8),
                   _buildFilterChip('Individuelles', 'individuel'),
                   const SizedBox(width: 8),
-                  _buildFilterChip('Groupe', 'groupe'),
+                  _buildFilterChip('Groupe'.tr, 'groupe'),
                 ],
               ),
             ),
@@ -41,7 +42,9 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return const StatePlaceholder(type: StatePlaceholderType.loading);
+                  return const StatePlaceholder(
+                    type: StatePlaceholderType.loading,
+                  );
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -50,10 +53,14 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
                   );
                 }
 
-                final showIndividuel = controller.activeFilter.value != 'groupe';
-                final showGroupe = controller.activeFilter.value != 'individuel';
+                final showIndividuel =
+                    controller.activeFilter.value != 'groupe';
+                final showGroupe =
+                    controller.activeFilter.value != 'individuel';
 
-                final hasContent = (showIndividuel && controller.seancesIndividuelles.isNotEmpty) ||
+                final hasContent =
+                    (showIndividuel &&
+                        controller.seancesIndividuelles.isNotEmpty) ||
                     (showGroupe && controller.seancesGroupe.isNotEmpty);
 
                 if (!hasContent) {
@@ -67,24 +74,35 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
                   padding: const EdgeInsets.all(16),
                   children: [
                     // Individual sessions
-                    if (showIndividuel && controller.seancesIndividuelles.isNotEmpty) ...[
-                      _buildSectionHeader('Séances individuelles', Icons.calendar_month_rounded),
+                    if (showIndividuel &&
+                        controller.seancesIndividuelles.isNotEmpty) ...[
+                      _buildSectionHeader(
+                        'Séances individuelles'.tr,
+                        Icons.calendar_month_rounded,
+                      ),
                       const SizedBox(height: 8),
-                      ...controller.seancesIndividuelles.map((s) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _buildIndividuelCard(s),
-                          )),
+                      ...controller.seancesIndividuelles.map(
+                        (s) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _buildIndividuelCard(s),
+                        ),
+                      ),
                       const SizedBox(height: 16),
                     ],
 
                     // Group sessions
                     if (showGroupe && controller.seancesGroupe.isNotEmpty) ...[
-                      _buildSectionHeader('Séances de groupe', Icons.groups_rounded),
+                      _buildSectionHeader(
+                        'Séances de groupe',
+                        Icons.groups_rounded,
+                      ),
                       const SizedBox(height: 8),
-                      ...controller.seancesGroupe.map((s) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _buildGroupeCard(s),
-                          )),
+                      ...controller.seancesGroupe.map(
+                        (s) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _buildGroupeCard(s),
+                        ),
+                      ),
                     ],
                   ],
                 );
@@ -179,19 +197,25 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Séance individuelle',
-                  style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                  'Séance individuelle'.tr,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$date  Â·  $heureDebut "“ $heureFin',
+                  '$date  Â·  $heureDebut "“ $heureFin'.tr,
                   style: AppTextStyles.bodySmall,
                 ),
                 if (s.statutPresence != null)
                   Text(
-                    s.statutPresence == 'present' ? 'âœ… Présent' : 'âŒ Absent',
+                    s.statutPresence == 'present'
+                        ? 'âœ… Présent'
+                        : 'âŒ Absent',
                     style: AppTextStyles.bodySmall.copyWith(
-                      color: s.statutPresence == 'present' ? AppColors.statusPresent : AppColors.error,
+                      color: s.statutPresence == 'present'
+                          ? AppColors.statusPresent
+                          : AppColors.error,
                     ),
                   ),
               ],
@@ -205,7 +229,10 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
             ),
             child: Text(
               statutLabel,
-              style: AppTextStyles.bodySmall.copyWith(color: statutColor, fontWeight: FontWeight.w600),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: statutColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -218,7 +245,8 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
     final heureDebut = s['heure_debut'] as String? ?? '';
     final heureFin = s['heure_fin'] as String? ?? '';
     final statut = s['statut'] as String? ?? 'planifiee';
-    final groupeNom = (s['groupe'] as Map<String, dynamic>?)?['nom'] as String? ?? 'Groupe';
+    final groupeNom =
+        (s['groupe'] as Map<String, dynamic>?)?['nom'] as String? ?? 'Groupe'.tr;
 
     Color statutColor;
     String statutLabel;
@@ -251,7 +279,11 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
               color: AppColors.secondary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.groups_rounded, color: AppColors.secondary, size: 22),
+            child: Icon(
+              Icons.groups_rounded,
+              color: AppColors.secondary,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -260,11 +292,13 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
               children: [
                 Text(
                   groupeNom,
-                  style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$date  Â·  $heureDebut "“ $heureFin',
+                  '$date  Â·  $heureDebut "“ $heureFin'.tr,
                   style: AppTextStyles.bodySmall,
                 ),
               ],
@@ -278,7 +312,10 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
             ),
             child: Text(
               statutLabel,
-              style: AppTextStyles.bodySmall.copyWith(color: statutColor, fontWeight: FontWeight.w600),
+              style: AppTextStyles.bodySmall.copyWith(
+                color: statutColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

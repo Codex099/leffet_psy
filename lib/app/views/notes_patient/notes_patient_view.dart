@@ -16,9 +16,9 @@ class NotesPatientView extends GetView<NotesPatientController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      appBar: const CreativeAppBar(
-        title: 'Notes Cliniques',
-        subtitle: 'Suivi et Évolutions',
+      appBar: CreativeAppBar(
+        title: 'Notes Cliniques'.tr,
+        subtitle: 'Suivi et Évolutions'.tr,
         showBackButton: true,
       ),
       body: SafeArea(
@@ -48,13 +48,13 @@ class NotesPatientView extends GetView<NotesPatientController> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Ajouter une note',
+                            'Ajouter une note'.tr,
                             style: AppTextStyles.sectionTitle,
                           ),
                           const SizedBox(height: 12),
                           AppTextField(
                             label: '',
-                            hintText: 'Saisir une observation clinique...',
+                            hintText: 'Saisir une observation clinique...'.tr,
                             maxLines: 3,
                             controller: controller.contenuController,
                           ),
@@ -86,7 +86,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                               label: Text(
                                 controller.isSaving.value
                                     ? 'Enregistrement...'
-                                    : 'Enregistrer',
+                                    : 'Enregistrer'.tr,
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
@@ -99,7 +99,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                     ),
                     const SizedBox(height: 20),
                     SectionHeader(
-                      title: 'Historique des notes',
+                      title: 'Historique des notes'.tr,
                       icon: Icons.note_alt_rounded,
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
                     ),
@@ -132,7 +132,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: StatePlaceholder.empty(
-                      title: 'Aucune note',
+                      title: 'Aucune note'.tr,
                       message:
                           'Ajoutez des observations cliniques pour ce patient.',
                     ),
@@ -167,7 +167,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${controller.auteurDe(note)} | ${controller.dateDe(note)}',
+                                    '${controller.auteurDe(note)} | ${controller.dateDe(note)}'.tr,
                                     style: AppTextStyles.bodySmall.copyWith(
                                       fontSize: 11,
                                     ),

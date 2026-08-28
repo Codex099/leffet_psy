@@ -14,9 +14,9 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      appBar: const CreativeAppBar(
-        title: 'Historique des Statuts',
-        subtitle: 'Suivi Clinique & Réactivations',
+      appBar: CreativeAppBar(
+        title: 'Historique des Statuts'.tr,
+        subtitle: 'Suivi Clinique & Réactivations'.tr,
         showBackButton: true,
       ),
       body: SafeArea(
@@ -38,14 +38,16 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
                   }
                   if (controller.historique.isEmpty) {
                     return StatePlaceholder.empty(
-                      title: 'Aucun historique',
-                      message: 'Aucun changement de statut enregistré pour ce patient.',
+                      title: 'Aucun historique'.tr,
+                      message:
+                          'Aucun changement de statut enregistré pour ce patient.',
                     );
                   }
 
                   return ListView.separated(
                     itemCount: controller.historique.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = controller.historique[index];
                       return Container(
@@ -60,10 +62,16 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: AppColors.secondaryLight.withValues(alpha: 0.5),
+                                color: AppColors.secondaryLight.withValues(
+                                  alpha: 0.5,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.history_rounded, color: AppColors.primary, size: 20),
+                              child: const Icon(
+                                Icons.history_rounded,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
                             ),
                             const SizedBox(width: 14),
                             Expanded(
@@ -71,19 +79,32 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(item.statut, style: AppTextStyles.cardName),
-                                      StatusBadge.custom(label: item.statut, color: AppColors.primary),
+                                      Text(
+                                        item.statut,
+                                        style: AppTextStyles.cardName,
+                                      ),
+                                      StatusBadge.custom(
+                                        label: item.statut,
+                                        color: AppColors.primary,
+                                      ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(item.dateChangement, style: AppTextStyles.bodySmall),
-                                  if (item.noteDegradation != null && item.noteDegradation!.isNotEmpty) ...[
+                                  Text(
+                                    item.dateChangement,
+                                    style: AppTextStyles.bodySmall,
+                                  ),
+                                  if (item.noteDegradation != null &&
+                                      item.noteDegradation!.isNotEmpty) ...[
                                     const SizedBox(height: 6),
                                     Text(
-                                      'Note: ${item.noteDegradation}',
-                                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                                      'Note: ${item.noteDegradation}'.tr,
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        color: AppColors.error,
+                                      ),
                                     ),
                                   ],
                                 ],

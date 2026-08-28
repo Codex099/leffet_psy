@@ -22,15 +22,15 @@ class EditParentController extends GetxController {
   final RxString errorMessage = ''.obs;
 
   // Dropdown choices
-  static const List<Map<String, String>> roleChoices = [
-    {'value': 'pere', 'label': 'Père'},
-    {'value': 'mere', 'label': 'Mère'},
-    {'value': 'tuteur', 'label': 'Tuteur légal'},
-    {'value': 'oncle', 'label': 'Oncle'},
-    {'value': 'tante', 'label': 'Tante'},
-    {'value': 'grand_pere', 'label': 'Grand-père'},
-    {'value': 'grand_mere', 'label': 'Grand-mère'},
-    {'value': 'autre', 'label': 'Autre'},
+  static List<Map<String, String>> roleChoices = [
+    {'value': 'pere', 'label': 'Père'.tr},
+    {'value': 'mere', 'label': 'Mère'.tr},
+    {'value': 'tuteur', 'label': 'Tuteur légal'.tr},
+    {'value': 'oncle', 'label': 'Oncle'.tr},
+    {'value': 'tante', 'label': 'Tante'.tr},
+    {'value': 'grand_pere', 'label': 'Grand-père'.tr},
+    {'value': 'grand_mere', 'label': 'Grand-mère'.tr},
+    {'value': 'autre', 'label': 'Autre'.tr},
   ];
 
   @override
@@ -112,7 +112,7 @@ class EditParentController extends GetxController {
       } else if (e.response?.statusCode == 422) {
         errorMessage.value = 'Veuillez renseigner un numéro de téléphone valide et l\'état civil.';
       } else {
-        errorMessage.value = e.message ?? 'Erreur lors de l\'enregistrement.';
+        errorMessage.value = e.message ?? 'Erreur lors de l\'.trenregistrement.';
       }
       Get.snackbar(
         'Erreur',

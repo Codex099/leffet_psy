@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class PlanTherapeutiqueModel {
@@ -108,12 +109,12 @@ class EtapePlanTherapeutiqueModel {
   String get statutLabel {
     switch (statut) {
       case 'a_faire':
-        return 'À faire';
+        return 'À faire'.tr;
       case 'en_cours':
-        return 'En cours';
+        return 'En cours'.tr;
       case 'fait':
       case 'termine':
-        return 'Terminé';
+        return 'Terminé'.tr;
       default:
         return statut;
     }

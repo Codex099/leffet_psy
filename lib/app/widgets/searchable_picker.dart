@@ -127,7 +127,7 @@ class SearchablePickerField<T> extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '${selectedValues!.length}',
+                      '${selectedValues!.length}'.tr,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -295,7 +295,7 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                 if (widget.selected != null)
                   TextButton(
                     onPressed: () => widget.onSelected(null),
-                    child: const Text('Effacer', style: TextStyle(color: AppColors.error)),
+                    child: Text('Effacer'.tr, style: TextStyle(color: AppColors.error)),
                   ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
@@ -320,7 +320,7 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                 onChanged: (val) => setState(() => _query = val),
                 style: AppTextStyles.iosBody,
                 decoration: InputDecoration(
-                  hintText: 'Rechercher...',
+                  hintText: 'Rechercher...'.tr,
                   hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
                   prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.primary),
                   suffixIcon: _query.isNotEmpty
@@ -345,9 +345,9 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
           // Items List
           Expanded(
             child: filtered.isEmpty
-                ? const StatePlaceholder(
+                ? StatePlaceholder(
                     type: StatePlaceholderType.empty,
-                    title: 'Aucun résultat',
+                    title: 'Aucun résultat'.tr,
                     message: 'Aucun élément ne correspond à votre recherche.',
                   )
                 : ListView.separated(
@@ -539,7 +539,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                     children: [
                       Text(widget.title, style: AppTextStyles.screenTitleMedium),
                       Text(
-                        '${_selected.length} sélectionné${_selected.length > 1 ? 's' : ''}',
+                        '${_selected.length} sélectionné${_selected.length > 1 ? '.trs' : ''}',
                         style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
                       ),
                     ],
@@ -572,7 +572,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                 onChanged: (val) => setState(() => _query = val),
                 style: AppTextStyles.iosBody,
                 decoration: InputDecoration(
-                  hintText: 'Rechercher...',
+                  hintText: 'Rechercher...'.tr,
                   hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
                   prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.primary),
                   suffixIcon: _query.isNotEmpty
@@ -597,9 +597,9 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
           // Items List
           Expanded(
             child: filtered.isEmpty
-                ? const StatePlaceholder(
+                ? StatePlaceholder(
                     type: StatePlaceholderType.empty,
-                    title: 'Aucun résultat',
+                    title: 'Aucun résultat'.tr,
                     message: 'Aucun élément ne correspond à votre recherche.',
                   )
                 : ListView.separated(
@@ -688,7 +688,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
             child: AppButton(
-              label: 'Confirmer la sélection (${_selected.length})',
+              label: 'Confirmer la sélection (${_selected.length})'.tr,
               onPressed: () => widget.onConfirm(_selected.toList()),
             ),
           ),
