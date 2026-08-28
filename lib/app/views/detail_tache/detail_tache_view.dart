@@ -140,9 +140,9 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                           return const Center(child: CircularProgressIndicator(strokeWidth: 2));
                         }
                         return SearchablePickerField<dynamic>(
-                          label: 'Assigner à',
+                          label: 'Assigner à ',
                           hintText: 'Sélectionner un praticien...',
-                          title: 'Assigner la tâche à',
+                          title: 'Assigner la tâche à ',
                           leadingIcon: Icons.badge_outlined,
                           selectedValue: controller.assigneA.value,
                           items: controller.availableEmployees.map((emp) {
@@ -163,7 +163,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                 // ── Lien Patient Optionnel ──
                 IosCard(
                   title: 'Patient Lié (Optionnel)',
-                  subtitle: 'Associer cette tâche à un suivi clinique',
+                  subtitle: 'Associer cette tâche à  un suivi clinique',
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
@@ -211,7 +211,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                   child: Column(
                     children: [
                       AppButton(
-                        label: controller.isNew ? 'Créer la tâche' : 'Mettre à jour la tâche',
+                        label: controller.isNew ? 'Créer la tâche' : 'Mettre à  jour la tâche',
                         icon: Icons.check_circle_outline_rounded,
                         onPressed: () => controller.saveTache(),
                       ),

@@ -49,7 +49,7 @@ class TachesView extends GetView<TachesController> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Filter Segmented Control (Assignées à moi / Toutes) ──
+            // ── Filter Segmented Control (Assignées à  moi / Toutes) ──
             Obx(() => IosSegmentedControl<bool>(
                   segments: const {
                     false: 'Toutes les tâches',
@@ -77,7 +77,7 @@ class TachesView extends GetView<TachesController> {
                     title: 'Aucune tâche pour le moment',
                     message: controller.filterAssignesAMoi.value
                         ? 'Aucune tâche ne vous est assignée actuellement.'
-                        : 'Créez une tâche pour suivre les actions à réaliser.',
+                        : 'Créez une tâche pour suivre les actions à  réaliser.',
                     actionLabel: '+ Nouvelle tâche',
                     onAction: () async {
                       final res = await Get.toNamed(AppRoutes.detailTache);
@@ -149,7 +149,7 @@ class TachesView extends GetView<TachesController> {
         ),
       ),
       title: t.titre,
-      subtitle: "${t.description != null && t.description!.isNotEmpty ? '${t.description!} · ' : ''}${t.dateEcheance != null ? 'Échéance : ${t.dateEcheance}' : ''}",
+      subtitle: "${t.description != null && t.description!.isNotEmpty ? '${t.description!} Â· ' : ''}${t.dateEcheance != null ? 'Échéance : ${t.dateEcheance}' : ''}",
       showChevron: true,
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

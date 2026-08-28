@@ -8,6 +8,7 @@ import '../../widgets/app_text_field.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/searchable_picker.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_section_header.dart';
 
 class EditPatientView extends GetView<EditPatientController> {
   const EditPatientView({super.key});
@@ -111,7 +112,7 @@ class EditPatientView extends GetView<EditPatientController> {
     );
   }
 
-  // ── STEP 1 — Informations personnelles ──
+  // ── STEP 1 "” Informations personnelles ──
   Widget _buildStep1(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -175,7 +176,8 @@ class EditPatientView extends GetView<EditPatientController> {
           const SizedBox(height: 20),
 
           _sectionCard(children: [
-            Text('Identité', style: AppTextStyles.sectionTitle),
+            SectionHeader(title: 'Identité', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
             const SizedBox(height: 16),
             AppTextField(
               label: 'Prénom *',
@@ -238,7 +240,7 @@ class EditPatientView extends GetView<EditPatientController> {
                 )),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Nombre de frères/sœurs',
+              label: 'Nombre de frères/sÅ“urs',
               hintText: '0',
               keyboardType: TextInputType.number,
               controller: controller.nombreFreresSoeursController,
@@ -257,7 +259,7 @@ class EditPatientView extends GetView<EditPatientController> {
     );
   }
 
-  // ── STEP 2 — Dossier médical (Informations médicales complètes) ──
+  // ── STEP 2 "” Dossier médical (Informations médicales complètes) ──
   Widget _buildStep2(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -283,14 +285,14 @@ class EditPatientView extends GetView<EditPatientController> {
             const SizedBox(height: 16),
 
             AppTextField(
-              label: 'Antécédents médicaux (السوابق المرضية)',
+              label: 'Antécédents médicaux (Ø§Ù„Ø³ÙˆØ§Ø¨Ù‚ Ø§Ù„Ù…Ø±Ø¶ÙŠØ©)',
               hintText: 'Ex. Pathologies, chirurgies, hospitalisations...',
               maxLines: 3,
               controller: controller.antecedentsMedicauxController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Médicaments pris (الأدوية المتناولة)',
+              label: 'Médicaments pris (Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…ØªÙ†Ø§ÙˆÙ„Ø©)',
               hintText: 'Ex. Liste des traitements actuels et posologie...',
               maxLines: 3,
               controller: controller.medicamentsPrisController,
@@ -305,7 +307,8 @@ class EditPatientView extends GetView<EditPatientController> {
                 const Icon(Icons.history_edu_outlined,
                     color: AppColors.primary, size: 20),
                 const SizedBox(width: 8),
-                Text('Historique du cas', style: AppTextStyles.sectionTitle),
+                SectionHeader(title: 'Historique du cas', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
               ],
             ),
             const SizedBox(height: 4),
@@ -315,8 +318,8 @@ class EditPatientView extends GetView<EditPatientController> {
             ),
             const SizedBox(height: 16),
 
-            // Date de la cas / historique (tاريخ الحالة)
-            Text('Date du cas (تاريخ الحالة)', style: AppTextStyles.fieldLabel),
+            // Date de la cas / historique (tØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)
+            Text('Date du cas (ØªØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)', style: AppTextStyles.fieldLabel),
             const SizedBox(height: 6),
             Obx(() => InkWell(
                   onTap: () async {
@@ -364,56 +367,56 @@ class EditPatientView extends GetView<EditPatientController> {
             const SizedBox(height: 14),
 
             AppTextField(
-              label: 'Naissance (الولادة)',
+              label: 'Naissance (Ø§Ù„ÙˆÙ„Ø§Ø¯Ø©)',
               hintText: 'Conditions de naissance, déroulement...',
               maxLines: 2,
               controller: controller.naissanceController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Développement psychomoteur (النمو النفسي الحركي)',
+              label: 'Développement psychomoteur (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù†ÙØ³ÙŠ Ø§Ù„Ø­Ø±ÙƒÙŠ)',
               hintText: 'Marche, motricité fine et globale...',
               maxLines: 2,
               controller: controller.developpementPsychomoteurController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Comportement auditif (السلوك السمعي)',
+              label: 'Comportement auditif (Ø§Ù„Ø³Ù„ÙˆÙƒ Ø§Ù„Ø³Ù…Ø¹ÙŠ)',
               hintText: 'Réaction aux sons, écoute...',
               maxLines: 2,
               controller: controller.comportementAuditifController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Développement langagier (النمو اللغوي)',
+              label: 'Développement langagier (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù„ØºÙˆÙŠ)',
               hintText: 'Premiers mots, niveau de langage...',
               maxLines: 2,
               controller: controller.developpementLangagierController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Adaptation sociale (التكيف الاجتماعي)',
+              label: 'Adaptation sociale (Ø§Ù„ØªÙƒÙŠÙ Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠ)',
               hintText: 'Relations sociales, comportements en groupe...',
               maxLines: 2,
               controller: controller.adaptationSocialeController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Autonomie (الاستقلالية)',
+              label: 'Autonomie (Ø§Ù„Ø§Ø³ØªÙ‚Ù„Ø§Ù„ÙŠØ©)',
               hintText: 'Habillage, hygiène, alimentation...',
               maxLines: 2,
               controller: controller.autonomieController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Aspect sanitaire / médical (الجانب الصحي)',
+              label: 'Aspect sanitaire / médical (Ø§Ù„Ø¬Ø§Ù†Ø¨ Ø§Ù„ØµØ­ÙŠ)',
               hintText: 'Bilan de santé général...',
               maxLines: 2,
               controller: controller.aspectSanitaireController,
             ),
             const SizedBox(height: 14),
             AppTextField(
-              label: 'Stade de scolarisation (مرحلة التمدرس)',
+              label: 'Stade de scolarisation (Ù…Ø±Ø­Ù„Ø© Ø§Ù„ØªÙ…Ø¯Ø±Ø³)',
               hintText: 'Niveau d\'études, intégration scolaire...',
               maxLines: 2,
               controller: controller.stadeScolarisationController,
@@ -425,7 +428,7 @@ class EditPatientView extends GetView<EditPatientController> {
     );
   }
 
-  // ── STEP 3 — Tuteur / Parent ──
+  // ── STEP 3 "” Tuteur / Parent ──
   Widget _buildStep3(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -439,9 +442,10 @@ class EditPatientView extends GetView<EditPatientController> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Tuteur légal / Parent', style: AppTextStyles.sectionTitle),
+                    SectionHeader(title: 'Tuteur légal / Parent', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                     const SizedBox(height: 4),
-                    Text('Associez un parent à ce patient.', style: AppTextStyles.bodySmall),
+                    Text('Associez un parent à  ce patient.', style: AppTextStyles.bodySmall),
                   ],
                 ),
                 TextButton.icon(
@@ -517,7 +521,7 @@ class EditPatientView extends GetView<EditPatientController> {
     );
   }
 
-  // ── STEP 4 — Finalisation ──
+  // ── STEP 4 "” Finalisation ──
   Widget _buildStep4() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -525,42 +529,44 @@ class EditPatientView extends GetView<EditPatientController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionCard(children: [
-            Text('Récapitulatif', style: AppTextStyles.sectionTitle),
+            SectionHeader(title: 'Récapitulatif', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
             const SizedBox(height: 12),
             Obx(() => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _recapRow('Prénom', controller.prenomController.text.isNotEmpty
-                        ? controller.prenomController.text : '—'),
+                        ? controller.prenomController.text : '"”'),
                     const Divider(),
                     _recapRow('Nom', controller.nomController.text.isNotEmpty
-                        ? controller.nomController.text : '—'),
+                        ? controller.nomController.text : '"”'),
                     const Divider(),
                     _recapRow('Date de naissance',
                         controller.dateNaissance.value.isNotEmpty
-                            ? controller.dateNaissance.value : '—'),
+                            ? controller.dateNaissance.value : '"”'),
                     const Divider(),
                     _recapRow('Sexe', controller.sexe.value),
                     const Divider(),
                     _recapRow('Photo',
-                        controller.photoUrl.value.isNotEmpty ? '✓ Ajoutée' : '—'),
+                        controller.photoUrl.value.isNotEmpty ? '✓ Ajoutée' : '"”'),
                     const Divider(),
                     _recapRow('Dossier médical',
-                        controller.antecedentsMedicauxController.text.isNotEmpty || controller.dateCas.value.isNotEmpty ? '✓ Renseigné' : '—'),
+                        controller.antecedentsMedicauxController.text.isNotEmpty || controller.dateCas.value.isNotEmpty ? '✓ Renseigné' : '"”'),
                     const Divider(),
                     _recapRow('Parent lié',
                         controller.selectedParentId.value != null
                             ? controller.availableParents
                                 .firstWhereOrNull(
                                     (p) => p.id == controller.selectedParentId.value)
-                                ?.fullName ?? '—'
-                            : '—'),
+                                ?.fullName ?? '"”'
+                            : '"”'),
                   ],
                 )),
           ]),
           const SizedBox(height: 16),
           _sectionCard(children: [
-            Text('Plan thérapeutique', style: AppTextStyles.sectionTitle),
+            SectionHeader(title: 'Plan thérapeutique', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
             const SizedBox(height: 8),
             Text('Souhaitez-vous créer un plan thérapeutique pour ce patient après l\'enregistrement ?',
                 style: AppTextStyles.bodySmall),
@@ -677,7 +683,8 @@ class EditPatientView extends GetView<EditPatientController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Ajouter une photo', style: AppTextStyles.sectionTitle),
+            SectionHeader(title: 'Ajouter une photo', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
@@ -723,7 +730,8 @@ class EditPatientView extends GetView<EditPatientController> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Créer un nouveau parent', style: AppTextStyles.sectionTitle),
+                SectionHeader(title: 'Créer un nouveau parent', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                 const SizedBox(height: 14),
                 TextFormField(
                   decoration: const InputDecoration(

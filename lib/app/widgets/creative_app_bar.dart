@@ -86,8 +86,8 @@ class _GradientAppBar extends StatelessWidget {
             children: [
               if (showBackButton)
                 _BackButton(isOnDark: true)
-              else if (leading != null)
-                leading!,
+              else
+                ?leading,
               const SizedBox(width: 8),
               Expanded(
                 child: Column(
@@ -161,8 +161,8 @@ class _FrostedAppBar extends StatelessWidget {
                 children: [
                   if (showBackButton)
                     _BackButton(isOnDark: false)
-                  else if (leading != null)
-                    leading!,
+                  else
+                    ?leading,
                   const SizedBox(width: 8),
                   Expanded(
                     child: subtitle != null
@@ -234,8 +234,9 @@ class _BackButtonState extends State<_BackButton> {
         decoration: BoxDecoration(
           color: widget.isOnDark
               ? Colors.white.withValues(alpha: _pressed ? 0.3 : 0.18)
-              : AppColors.fieldBackground
-                  .withValues(alpha: _pressed ? 0.7 : 1.0),
+              : AppColors.fieldBackground.withValues(
+                  alpha: _pressed ? 0.7 : 1.0,
+                ),
           shape: BoxShape.circle,
         ),
         child: Icon(

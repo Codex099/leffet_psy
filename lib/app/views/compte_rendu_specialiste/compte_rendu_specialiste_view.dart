@@ -520,7 +520,7 @@ class CompteRenduSpecialisteView extends GetView<CompteRenduSpecialisteControlle
 
                 // Message du rappel
                 Text(
-                  'Action de suivi à rappeler',
+                  'Action de suivi à  rappeler',
                   style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,

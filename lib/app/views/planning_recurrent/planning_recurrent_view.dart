@@ -7,6 +7,7 @@ import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_section_header.dart';
 
 class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
   const PlanningRecurrentView({super.key});
@@ -35,7 +36,10 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 12.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -50,12 +54,10 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.calendar_today_outlined, color: AppColors.primary, size: 20),
-                          const SizedBox(width: 8),
-                          Text('Jours de la semaine', style: AppTextStyles.sectionTitle),
-                        ],
+                      SectionHeader(
+                        title: 'Jours de la semaine',
+                        icon: Icons.calendar_today_outlined,
+                        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                       ),
                       const SizedBox(height: 14),
                       Wrap(
@@ -81,77 +83,102 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.tune_rounded, color: AppColors.primary, size: 20),
+                          const Icon(
+                            Icons.tune_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
-                          Text('Type d\'horaires', style: AppTextStyles.sectionTitle),
+                          Text(
+                            'Type d\'horaires',
+                            style: AppTextStyles.sectionTitle,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Obx(() => Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => controller.setModeCreneaux('fixe'),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: controller.modeCreneaux.value == 'fixe'
+                      Obx(
+                        () => Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => controller.setModeCreneaux('fixe'),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        controller.modeCreneaux.value == 'fixe'
+                                        ? AppColors.primary
+                                        : AppColors.fieldBackground,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          controller.modeCreneaux.value ==
+                                              'fixe'
                                           ? AppColors.primary
-                                          : AppColors.fieldBackground,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: controller.modeCreneaux.value == 'fixe'
-                                            ? AppColors.primary
-                                            : AppColors.border,
-                                      ),
+                                          : AppColors.border,
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        'Horaires Fixes',
-                                        style: AppTextStyles.iosCaption1.copyWith(
-                                          color: controller.modeCreneaux.value == 'fixe'
-                                              ? Colors.white
-                                              : AppColors.textPrimary,
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Horaires Fixes',
+                                      style: AppTextStyles.iosCaption1.copyWith(
+                                        color:
+                                            controller.modeCreneaux.value ==
+                                                'fixe'
+                                            ? Colors.white
+                                            : AppColors.textPrimary,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => controller.setModeCreneaux('ponctuel'),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: controller.modeCreneaux.value == 'ponctuel'
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () =>
+                                    controller.setModeCreneaux('ponctuel'),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        controller.modeCreneaux.value ==
+                                            'ponctuel'
+                                        ? AppColors.primary
+                                        : AppColors.fieldBackground,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          controller.modeCreneaux.value ==
+                                              'ponctuel'
                                           ? AppColors.primary
-                                          : AppColors.fieldBackground,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: controller.modeCreneaux.value == 'ponctuel'
-                                            ? AppColors.primary
-                                            : AppColors.border,
-                                      ),
+                                          : AppColors.border,
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        'Ponctuel / Par Jour',
-                                        style: AppTextStyles.iosCaption1.copyWith(
-                                          color: controller.modeCreneaux.value == 'ponctuel'
-                                              ? Colors.white
-                                              : AppColors.textPrimary,
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'Ponctuel / Par Jour',
+                                      style: AppTextStyles.iosCaption1.copyWith(
+                                        color:
+                                            controller.modeCreneaux.value ==
+                                                'ponctuel'
+                                            ? Colors.white
+                                            : AppColors.textPrimary,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
-                          )),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -170,12 +197,10 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
-                              const SizedBox(width: 8),
-                              Text('Horaires Fixes (Communs)', style: AppTextStyles.sectionTitle),
-                            ],
+                          SectionHeader(
+                            title: 'Horaires Fixes (Communs)',
+                            icon: Icons.access_time_rounded,
+                            padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                           ),
                           const SizedBox(height: 14),
                           Row(
@@ -184,8 +209,11 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                                 child: AppTextField(
                                   label: 'Heure de début',
                                   hintText: '09:00',
-                                  controller: TextEditingController(text: controller.heureDebut.value),
-                                  onChanged: (v) => controller.heureDebut.value = v,
+                                  controller: TextEditingController(
+                                    text: controller.heureDebut.value,
+                                  ),
+                                  onChanged: (v) =>
+                                      controller.heureDebut.value = v,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -193,8 +221,11 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                                 child: AppTextField(
                                   label: 'Heure de fin',
                                   hintText: '09:45',
-                                  controller: TextEditingController(text: controller.heureFin.value),
-                                  onChanged: (v) => controller.heureFin.value = v,
+                                  controller: TextEditingController(
+                                    text: controller.heureFin.value,
+                                  ),
+                                  onChanged: (v) =>
+                                      controller.heureFin.value = v,
                                 ),
                               ),
                             ],
@@ -215,17 +246,17 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
-                            const SizedBox(width: 8),
-                            Text('Horaires Personnalisés par Jour', style: AppTextStyles.sectionTitle),
-                          ],
+                        SectionHeader(
+                          title: 'Horaires Personnalisés par Jour',
+                          icon: Icons.access_time_rounded,
+                          padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                         ),
                         const SizedBox(height: 14),
                         if (controller.selectedDays.isEmpty)
-                          Text('Sélectionnez des jours ci-dessus pour définir leurs horaires.',
-                              style: AppTextStyles.bodySmall)
+                          Text(
+                            'Sélectionnez des jours ci-dessus pour définir leurs horaires.',
+                            style: AppTextStyles.bodySmall,
+                          )
                         else
                           ...controller.selectedDays.map((d) {
                             final start = controller.getSlotStartForDay(d);
@@ -240,9 +271,14 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                               child: Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primary.withValues(alpha: 0.12),
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.12,
+                                      ),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
@@ -258,8 +294,11 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                                     child: AppTextField(
                                       label: 'Début',
                                       hintText: '09:00',
-                                      controller: TextEditingController(text: start),
-                                      onChanged: (v) => controller.updateSlotForDay(d, debut: v),
+                                      controller: TextEditingController(
+                                        text: start,
+                                      ),
+                                      onChanged: (v) => controller
+                                          .updateSlotForDay(d, debut: v),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -267,8 +306,11 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                                     child: AppTextField(
                                       label: 'Fin',
                                       hintText: '09:45',
-                                      controller: TextEditingController(text: end),
-                                      onChanged: (v) => controller.updateSlotForDay(d, fin: v),
+                                      controller: TextEditingController(
+                                        text: end,
+                                      ),
+                                      onChanged: (v) => controller
+                                          .updateSlotForDay(d, fin: v),
                                     ),
                                   ),
                                 ],
@@ -292,16 +334,17 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.person_outline, color: AppColors.primary, size: 20),
-                          const SizedBox(width: 8),
-                          Text('Psychologue assigné', style: AppTextStyles.sectionTitle),
-                        ],
+                      SectionHeader(
+                        title: 'Psychologue assigné',
+                        icon: Icons.person_outline,
+                        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.fieldBackground,
                           borderRadius: BorderRadius.circular(30),
@@ -311,7 +354,10 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                           children: [
                             Text('Dr. Moreau', style: AppTextStyles.bodyMedium),
                             const SizedBox(width: 4),
-                            const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary),
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: AppColors.primary,
+                            ),
                           ],
                         ),
                       ),

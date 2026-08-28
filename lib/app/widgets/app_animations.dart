@@ -39,15 +39,19 @@ class _FadeSlideInState extends State<FadeSlideIn>
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration);
 
-    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _opacity = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     final dy = widget.axis == Axis.vertical ? widget.slideOffset / 100.0 : 0.0;
-    final dx = widget.axis == Axis.horizontal ? widget.slideOffset / 100.0 : 0.0;
-    _slide = Tween<Offset>(begin: Offset(dx, dy), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    final dx = widget.axis == Axis.horizontal
+        ? widget.slideOffset / 100.0
+        : 0.0;
+    _slide = Tween<Offset>(
+      begin: Offset(dx, dy),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     if (widget.delay == Duration.zero) {
       _controller.forward();
@@ -136,9 +140,10 @@ class _AnimatedCounterState extends State<AnimatedCounter>
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration);
-    _animation = Tween<double>(begin: 0, end: widget.value.toDouble()).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: widget.value.toDouble(),
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _controller.forward();
   }
 
@@ -146,10 +151,13 @@ class _AnimatedCounterState extends State<AnimatedCounter>
   void didUpdateWidget(AnimatedCounter oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value != widget.value) {
-      _animation = Tween<double>(
-        begin: _animation.value,
-        end: widget.value.toDouble(),
-      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+      _animation =
+          Tween<double>(
+            begin: _animation.value,
+            end: widget.value.toDouble(),
+          ).animate(
+            CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+          );
       _controller
         ..reset()
         ..forward();
@@ -166,10 +174,8 @@ class _AnimatedCounterState extends State<AnimatedCounter>
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (context, _) => Text(
-        _animation.value.round().toString(),
-        style: widget.style,
-      ),
+      builder: (context, _) =>
+          Text(_animation.value.round().toString(), style: widget.style),
     );
   }
 }
@@ -206,7 +212,11 @@ class _SpringScaleState extends State<SpringScale>
       reverseDuration: const Duration(milliseconds: 200),
     );
     _scale = Tween<double>(begin: 1.0, end: widget.scaleFactor).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeIn, reverseCurve: Curves.elasticOut),
+      CurvedAnimation(
+        parent: _ctrl,
+        curve: Curves.easeIn,
+        reverseCurve: Curves.elasticOut,
+      ),
     );
   }
 
@@ -228,7 +238,8 @@ class _SpringScaleState extends State<SpringScale>
       behavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
         animation: _scale,
-        builder: (_, child) => Transform.scale(scale: _scale.value, child: child),
+        builder: (_, child) =>
+            Transform.scale(scale: _scale.value, child: child),
         child: widget.child,
       ),
     );
@@ -265,9 +276,10 @@ class _ShimmerBoxState extends State<ShimmerBox>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     )..repeat();
-    _shimmer = Tween<double>(begin: -2.0, end: 2.0).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOutSine),
-    );
+    _shimmer = Tween<double>(
+      begin: -2.0,
+      end: 2.0,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOutSine));
   }
 
   @override

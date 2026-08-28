@@ -42,7 +42,8 @@ class AccueilView extends GetView<AccueilController> {
                 Expanded(
                   child: StatePlaceholder.error(
                     message: controller.errorMessage.value,
-                    onAction: () => controller.loadDashboard(forceRefresh: true),
+                    onAction: () =>
+                        controller.loadDashboard(forceRefresh: true),
                   ),
                 ),
               ],
@@ -59,22 +60,37 @@ class AccueilView extends GetView<AccueilController> {
                 const SizedBox(height: 16),
 
                 // ── Quick Actions ────────────────────────────────────────────
-                _buildQuickActions().animate(delay: 100.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+                _buildQuickActions()
+                    .animate(delay: 100.ms)
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: 0.15),
                 const SizedBox(height: 18),
 
                 // ── Métriques ────────────────────────────────────────────────
-                _buildMetrics().animate(delay: 200.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+                _buildMetrics()
+                    .animate(delay: 200.ms)
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: 0.15),
                 const SizedBox(height: 14),
 
                 // ── Lien Comptes-Rendus ──────────────────────────────────────
-                _buildCompteRenduBanner().animate(delay: 280.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+                _buildCompteRenduBanner()
+                    .animate(delay: 280.ms)
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: 0.15),
                 const SizedBox(height: 18),
 
                 // ── Séances du Jour ──────────────────────────────────────────
-                _buildSeancesCard().animate(delay: 350.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+                _buildSeancesCard()
+                    .animate(delay: 350.ms)
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: 0.15),
 
                 // ── Espaces de Travail ───────────────────────────────────────
-                _buildWorkspaces().animate(delay: 450.ms).fadeIn(duration: 500.ms).slideY(begin: 0.15),
+                _buildWorkspaces()
+                    .animate(delay: 450.ms)
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: 0.15),
               ],
             ),
           );
@@ -90,114 +106,126 @@ class AccueilView extends GetView<AccueilController> {
     final formattedDate = DateFormat('EEEE d MMMM', 'fr_FR').format(today);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.oceanGradient,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: AppColors.glowShadow,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: Stack(
-            children: [
-              // Vagues décoratives
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: ZenWavePainter(
-                    waveColor: AppColors.secondary.withValues(alpha: 0.20),
-                    accentColor: AppColors.secondaryLight.withValues(alpha: 0.12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: AppColors.oceanGradient,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: AppColors.glowShadow,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Stack(
+                children: [
+                  // Vagues décoratives
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: ZenWavePainter(
+                        waveColor: AppColors.secondary.withValues(alpha: 0.20),
+                        accentColor: AppColors.secondaryLight.withValues(
+                          alpha: 0.12,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top row
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Date badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.25),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const PulseDot(color: Colors.white, size: 6),
-                              const SizedBox(width: 7),
-                              Text(
-                                _capitalize(formattedDate),
-                                style: AppTextStyles.iosCaption2.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 11,
+                        // Top row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Date badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.25),
                                 ),
                               ),
-                            ],
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const PulseDot(color: Colors.white, size: 6),
+                                  const SizedBox(width: 7),
+                                  Text(
+                                    _capitalize(formattedDate),
+                                    style: AppTextStyles.iosCaption2.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Avatar profil
+                            BouncyTap(
+                              onTap: () => Get.toNamed(AppRoutes.profil),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.20,
+                                      ),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: PatientAvatar(
+                                  initials: user?.initials ?? 'U',
+                                  radius: 19,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        // Greeting
+                        Text(
+                          user != null
+                              ? 'Bonjour, ${user.prenom} 👋'
+                              : 'Bonjour 👋',
+                          style: AppTextStyles.iosLargeTitle.copyWith(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
                           ),
                         ),
-                        // Avatar profil
-                        BouncyTap(
-                          onTap: () => Get.toNamed(AppRoutes.profil),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2.5),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.20),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: PatientAvatar(
-                              initials: user?.initials ?? 'U',
-                              radius: 19,
-                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Voici le résumé de vos consultations du jour.',
+                          style: AppTextStyles.iosSubhead.copyWith(
+                            color: Colors.white.withValues(alpha: 0.85),
+                            fontSize: 14,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
-                    // Greeting
-                    Text(
-                      user != null
-                          ? 'Bonjour, ${user.prenom} 👋'
-                          : 'Bonjour 👋',
-                      style: AppTextStyles.iosLargeTitle.copyWith(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Voici le résumé de vos consultations du jour.',
-                      style: AppTextStyles.iosSubhead.copyWith(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ).animate().fadeIn(duration: 700.ms).slideY(begin: -0.08, curve: Curves.easeOut);
+        )
+        .animate()
+        .fadeIn(duration: 700.ms)
+        .slideY(begin: -0.08, curve: Curves.easeOut);
   }
 
   // ─── Quick Actions ───────────────────────────────────────────────────────────
@@ -538,7 +566,10 @@ class AccueilView extends GetView<AccueilController> {
                 BouncyTap(
                   onTap: () => Get.toNamed(AppRoutes.creationSeance),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 22,
+                      vertical: 11,
+                    ),
                     decoration: BoxDecoration(
                       gradient: AppColors.oceanGradient,
                       borderRadius: BorderRadius.circular(22),
@@ -584,9 +615,15 @@ class AccueilView extends GetView<AccueilController> {
               showChevron: true,
               onTap: () async {
                 if (s.isGroupe) {
-                  await Get.toNamed(AppRoutes.compteRenduGroupe, arguments: s.id);
+                  await Get.toNamed(
+                    AppRoutes.compteRenduGroupe,
+                    arguments: s.id,
+                  );
                 } else {
-                  await Get.toNamed(AppRoutes.compteRenduSeance, arguments: s.id);
+                  await Get.toNamed(
+                    AppRoutes.compteRenduSeance,
+                    arguments: s.id,
+                  );
                 }
                 controller.loadDashboard(forceRefresh: true);
               },
@@ -603,32 +640,44 @@ class AccueilView extends GetView<AccueilController> {
       title: 'Espaces de travail',
       children: [
         IosCardTile(
-          leading: _iconBox(Icons.folder_shared_rounded, AppColors.oceanGradient),
+          leading: _iconBox(
+            Icons.folder_shared_rounded,
+            AppColors.oceanGradient,
+          ),
           title: 'Dossiers Patients',
           subtitle: 'Consulter et rechercher vos dossiers',
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.patientsListe),
         ),
         IosCardTile(
-          leading: _iconBox(Icons.calendar_month_rounded, const LinearGradient(
-            colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
-          )),
+          leading: _iconBox(
+            Icons.calendar_month_rounded,
+            const LinearGradient(
+              colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
+            ),
+          ),
           title: 'Planning & Agenda',
           subtitle: 'Vue globale jour et semaine',
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.agenda),
         ),
         IosCardTile(
-          leading: _iconBox(Icons.person_outline_rounded, const LinearGradient(
-            colors: [Color(0xFF064973), Color(0xFF1A7CB0)],
-          )),
+          leading: _iconBox(
+            Icons.person_outline_rounded,
+            const LinearGradient(
+              colors: [Color(0xFF064973), Color(0xFF1A7CB0)],
+            ),
+          ),
           title: 'Séances Individuelles',
           subtitle: 'Consultations & créneaux',
           showChevron: true,
           onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
         ),
         IosCardTile(
-          leading: _iconBox(Icons.groups_rounded, AppColors.groupHeaderGradient),
+          leading: _iconBox(
+            Icons.groups_rounded,
+            AppColors.groupHeaderGradient,
+          ),
           title: 'Groupes & Ateliers',
           subtitle: 'Séances collectives et participants',
           showChevron: true,
@@ -643,9 +692,12 @@ class AccueilView extends GetView<AccueilController> {
         ),
         if (user?.role == 'admin')
           IosCardTile(
-            leading: _iconBox(Icons.badge_rounded, const LinearGradient(
-              colors: [Color(0xFFA62929), Color(0xFFD93636)],
-            )),
+            leading: _iconBox(
+              Icons.badge_rounded,
+              const LinearGradient(
+                colors: [Color(0xFFA62929), Color(0xFFD93636)],
+              ),
+            ),
             title: 'Gestion de l\'Équipe',
             subtitle: 'Comptes praticiens et permissions',
             showChevron: true,

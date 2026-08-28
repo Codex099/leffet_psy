@@ -184,12 +184,12 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$date  ·  $heureDebut – $heureFin',
+                  '$date  Â·  $heureDebut "“ $heureFin',
                   style: AppTextStyles.bodySmall,
                 ),
                 if (s.statutPresence != null)
                   Text(
-                    s.statutPresence == 'present' ? '✅ Présent' : '❌ Absent',
+                    s.statutPresence == 'present' ? 'âœ… Présent' : 'âŒ Absent',
                     style: AppTextStyles.bodySmall.copyWith(
                       color: s.statutPresence == 'present' ? AppColors.statusPresent : AppColors.error,
                     ),
@@ -264,7 +264,7 @@ class HistoriqueSeancesPatientView extends GetView<HistoriqueSeancesPatientContr
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$date  ·  $heureDebut – $heureFin',
+                  '$date  Â·  $heureDebut "“ $heureFin',
                   style: AppTextStyles.bodySmall,
                 ),
               ],

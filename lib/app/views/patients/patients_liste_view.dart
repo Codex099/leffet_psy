@@ -96,11 +96,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
               if (controller.actifFilter.value == false) selectedIndex = 2;
 
               return IosSegmentedControl<int>(
-                segments: const {
-                  0: 'Tous',
-                  1: 'Suivi actif',
-                  2: 'Inactifs',
-                },
+                segments: const {0: 'Tous', 1: 'Suivi actif', 2: 'Inactifs'},
                 selectedValue: selectedIndex,
                 onValueChanged: (idx) {
                   if (idx == 0) controller.setActifFilter(null);
@@ -117,13 +113,15 @@ class PatientsListeView extends GetView<PatientsListeController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Obx(() => Text(
-                        '${controller.filteredPatients.length} patient(s)',
-                        style: AppTextStyles.iosCaption2.copyWith(
-                          color: AppColors.textTertiary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )),
+                  Obx(
+                    () => Text(
+                      '${controller.filteredPatients.length} patient(s)',
+                      style: AppTextStyles.iosCaption2.copyWith(
+                        color: AppColors.textTertiary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -145,7 +143,8 @@ class PatientsListeView extends GetView<PatientsListeController> {
                 if (list.isEmpty) {
                   return StatePlaceholder.empty(
                     title: 'Aucun patient trouvé',
-                    message: 'Vous pouvez créer un nouveau dossier dès maintenant.',
+                    message:
+                        'Vous pouvez créer un nouveau dossier dès maintenant.',
                     actionLabel: '+ Créer un dossier',
                     onAction: () async {
                       final res = await Get.toNamed(AppRoutes.editPatient);
@@ -178,87 +177,97 @@ class PatientsListeView extends GetView<PatientsListeController> {
   Widget _buildPatientCard(PatientModel patient, int index) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-      child: BouncyTap(
-        onTap: () async {
-          await Get.toNamed(AppRoutes.patientInfo, arguments: patient.id);
-          controller.loadPatients();
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderLight, width: 0.6),
-            boxShadow: AppColors.cardShadow,
-          ),
-          child: Row(
-            children: [
-              // Avatar + indicateur statut
-              Stack(
-                children: [
-                  PatientAvatar(
-                    photoUrl: patient.photoUrl,
-                    initials: patient.initials,
-                    radius: 24,
+      child:
+          BouncyTap(
+                onTap: () async {
+                  await Get.toNamed(
+                    AppRoutes.patientInfo,
+                    arguments: patient.id,
+                  );
+                  controller.loadPatients();
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.borderLight,
+                      width: 0.6,
+                    ),
+                    boxShadow: AppColors.cardShadow,
                   ),
-                  if (patient.actif)
-                    const Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: PulseDot(color: AppColors.secondary, size: 9),
-                    ),
-                ],
-              ),
-              const SizedBox(width: 14),
-              // Info patient
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      patient.fullName,
-                      style: AppTextStyles.iosHeadline.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                  child: Row(
+                    children: [
+                      // Avatar + indicateur statut
+                      Stack(
+                        children: [
+                          PatientAvatar(
+                            photoUrl: patient.photoUrl,
+                            initials: patient.initials,
+                            radius: 24,
+                          ),
+                          if (patient.actif)
+                            const Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: PulseDot(
+                                color: AppColors.secondary,
+                                size: 9,
+                              ),
+                            ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      patient.ageFormatted != null
-                          ? '${patient.ageFormatted} • ${patient.sexeLabel}'
-                          : patient.sexeLabel,
-                      style: AppTextStyles.iosFootnote.copyWith(
-                        color: AppColors.textTertiary,
+                      const SizedBox(width: 14),
+                      // Info patient
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              patient.fullName,
+                              style: AppTextStyles.iosHeadline.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              patient.ageFormatted != null
+                                  ? '${patient.ageFormatted} "¢ ${patient.sexeLabel}'
+                                  : patient.sexeLabel,
+                              style: AppTextStyles.iosFootnote.copyWith(
+                                color: AppColors.textTertiary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      // Badge + chevron
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          StatusBadge.active(label: patient.statutLabel),
+                          const SizedBox(height: 6),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            size: 18,
+                            color: AppColors.iosSystemGray3,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              // Badge + chevron
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  StatusBadge.active(label: patient.statutLabel),
-                  const SizedBox(height: 6),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: AppColors.iosSystemGray3,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      )
-          .animate(delay: Duration(milliseconds: 50 * (index % 10)))
-          .fadeIn(duration: 400.ms)
-          .slideX(begin: 0.05, curve: Curves.easeOut),
+              )
+              .animate(delay: Duration(milliseconds: 50 * (index % 10)))
+              .fadeIn(duration: 400.ms)
+              .slideX(begin: 0.05, curve: Curves.easeOut),
     );
   }
 }
 
-// Shimmer loader — imported from app_animations via state_placeholder
+// Shimmer loader "” imported from app_animations via state_placeholder
 class ShimmerListLoader extends StatelessWidget {
   final int count;
   const ShimmerListLoader({super.key, required this.count});
@@ -270,30 +279,33 @@ class ShimmerListLoader extends StatelessWidget {
       itemCount: count,
       itemBuilder: (_, i) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: AppColors.softShadow,
-          ),
-          child: Row(
-            children: [
-              _shimmer(48, 48, 24),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _shimmer(double.infinity, 14, 7),
-                    const SizedBox(height: 8),
-                    _shimmer(100, 11, 6),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ).animate(delay: Duration(milliseconds: i * 80)).fadeIn(duration: 400.ms),
+        child:
+            Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: AppColors.softShadow,
+                  ),
+                  child: Row(
+                    children: [
+                      _shimmer(48, 48, 24),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _shimmer(double.infinity, 14, 7),
+                            const SizedBox(height: 8),
+                            _shimmer(100, 11, 6),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                .animate(delay: Duration(milliseconds: i * 80))
+                .fadeIn(duration: 400.ms),
       ),
     );
   }

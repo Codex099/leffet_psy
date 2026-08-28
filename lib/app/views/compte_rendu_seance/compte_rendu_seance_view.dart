@@ -9,6 +9,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/media_picker_widget.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_section_header.dart';
 
 class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
   const CompteRenduSeanceView({super.key});
@@ -57,7 +58,8 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                         children: [
                           const Icon(Icons.description_outlined, color: AppColors.primary, size: 20),
                           const SizedBox(width: 8),
-                          Text('Résumé / notes de la séance', style: AppTextStyles.sectionTitle),
+                          SectionHeader(title: 'Résumé / notes de la séance', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -116,10 +118,11 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                         children: [
                           const Icon(Icons.attach_file_rounded, color: AppColors.primary, size: 20),
                           const SizedBox(width: 8),
-                          Text('Pièces jointes', style: AppTextStyles.sectionTitle),
+                          SectionHeader(title: 'Pièces jointes', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                         ],
                       ),
-                      Text('Ajouter une photo ou une vidéo liée à la séance', style: AppTextStyles.bodySmall),
+                      Text('Ajouter une photo ou une vidéo liée à  la séance', style: AppTextStyles.bodySmall),
                       const SizedBox(height: 14),
                       MediaPickerWidget(
                         initialMediaUrls: controller.medias,

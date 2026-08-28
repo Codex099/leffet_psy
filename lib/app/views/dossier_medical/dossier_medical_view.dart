@@ -100,14 +100,14 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                             ),
                             if (d?.dateMaj != null)
                               Text(
-                                'Mis à jour le ${d!.dateMaj}${d.misAJourPar != null ? " par ${d.misAJourPar}" : ""}',
+                                'Mis à  jour le ${d!.dateMaj}${d.misAJourPar != null ? " par ${d.misAJourPar}" : ""}',
                                 style: AppTextStyles.bodySmall.copyWith(
                                   color: Colors.white.withValues(alpha: 0.7),
                                 ),
                               )
                             else
                               Text(
-                                'Aucune mise à jour enregistrée',
+                                'Aucune mise à  jour enregistrée',
                                 style: AppTextStyles.bodySmall.copyWith(
                                   color: Colors.white.withValues(alpha: 0.7),
                                 ),
@@ -171,7 +171,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       icon: Icons.pregnant_woman_outlined,
                     ),
                     _InfoItem(
-                      label: 'Nombre de frères/sœurs',
+                      label: 'Nombre de frères/sÅ“urs',
                       value: d?.nombreFreresSoeurs?.toString(),
                       icon: Icons.people_alt_outlined,
                     ),
@@ -459,7 +459,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                         children: [
                           Expanded(
                             child: AppTextField(
-                              label: 'Nb frères/sœurs',
+                              label: 'Nb frères/sÅ“urs',
                               hintText: 'Ex: 2',
                               controller: controller.nombreFreresSoeursController,
                               keyboardType: TextInputType.number,
@@ -536,7 +536,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       const SizedBox(height: 16),
                       if (d?.misAJourPar != null)
                         Text(
-                          'Mis à jour par ${d!.misAJourPar} le ${d.dateMaj ?? ""}',
+                          'Mis à  jour par ${d!.misAJourPar} le ${d.dateMaj ?? ""}',
                           style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                         ),
                     ],

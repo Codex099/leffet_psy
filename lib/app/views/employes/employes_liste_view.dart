@@ -117,7 +117,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                               radius: 20,
                             ),
                             title: emp.fullName,
-                            subtitle: "${emp.telephone ?? emp.username} · ${emp.patientsAssignesIds?.length ?? 0} patient(s) assigné(s)",
+                            subtitle: "${emp.telephone ?? emp.username} Â· ${emp.patientsAssignesIds?.length ?? 0} patient(s) assigné(s)",
                             showChevron: true,
                             trailing: StatusBadge.active(label: emp.roleLabel),
                             onTap: () async {

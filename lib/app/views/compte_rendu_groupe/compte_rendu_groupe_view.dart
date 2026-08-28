@@ -8,6 +8,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/media_picker_widget.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_section_header.dart';
 
 class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
   const CompteRenduGroupeView({super.key});
@@ -56,7 +57,8 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                           StatusBadge.active(label: 'Séance du jour'),
                         ],
                       ),
-                      Text('Atelier compétences sociales', style: AppTextStyles.sectionTitle),
+                      SectionHeader(title: 'Atelier compétences sociales', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -74,7 +76,8 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Liste des participants', style: AppTextStyles.sectionTitle),
+                    SectionHeader(title: 'Liste des participants', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                     TextButton(
                       onPressed: () {},
                       child: const Text('Présence rapide'),
@@ -102,7 +105,8 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Note générale de la séance', style: AppTextStyles.sectionTitle),
+                      SectionHeader(title: 'Note générale de la séance', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                       const SizedBox(height: 12),
                       AppTextField(
                         label: '',
@@ -129,10 +133,11 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                         children: [
                           const Icon(Icons.attach_file_rounded, color: AppColors.primary, size: 20),
                           const SizedBox(width: 8),
-                          Text('Pièces jointes', style: AppTextStyles.sectionTitle),
+                          SectionHeader(title: 'Pièces jointes', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                         ],
                       ),
-                      Text('Ajouter une photo ou une vidéo liée à la séance', style: AppTextStyles.bodySmall),
+                      Text('Ajouter une photo ou une vidéo liée à  la séance', style: AppTextStyles.bodySmall),
                       const SizedBox(height: 14),
                       MediaPickerWidget(
                         initialMediaUrls: controller.medias,

@@ -6,6 +6,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_section_header.dart';
 
 class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
   const PlanTherapeutiqueView({super.key});
@@ -75,7 +76,8 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 ] else ...[
                   // Plan selector if multiple plans
                   if (controller.plans.length > 1) ...[
-                    Text('Sélectionner un plan', style: AppTextStyles.sectionTitle),
+                    SectionHeader(title: 'Sélectionner un plan', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 40,
@@ -207,7 +209,8 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Étapes du plan', style: AppTextStyles.sectionTitle),
+            SectionHeader(title: 'Étapes du plan', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
             Text('${etapes.length} étapes', style: AppTextStyles.bodySmall),
           ],
         ),

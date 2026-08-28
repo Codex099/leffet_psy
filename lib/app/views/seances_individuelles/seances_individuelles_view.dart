@@ -168,8 +168,8 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
         ? group.prochaineSeance!.heureDebut.substring(0, 5)
         : (group.prochaineSeance?.heureDebut ?? '');
     final nextStr = hasNext
-        ? '${group.prochaineSeance!.date} à $nextTime'
-        : 'Aucune séance à venir';
+        ? '${group.prochaineSeance!.date} à  $nextTime'
+        : 'Aucune séance à  venir';
 
     return IosCard(
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
@@ -181,7 +181,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
           ),
           title: group.patientName,
           subtitle: hasNext
-              ? 'Prochain RDV : $nextStr · ${group.totalAVenir} séance(s) prévue(s)'
+              ? 'Prochain RDV : $nextStr Â· ${group.totalAVenir} séance(s) prévue(s)'
               : '${group.totalRealisees} séance(s) effectuée(s)',
           showChevron: true,
           trailing: Container(
@@ -194,7 +194,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
             ),
             child: Text(
               group.totalAVenir > 0
-                  ? '${group.totalAVenir} à venir'
+                  ? '${group.totalAVenir} à  venir'
                   : 'Historique',
               style: AppTextStyles.iosCaption2.copyWith(
                 color: group.totalAVenir > 0
@@ -264,7 +264,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           style: AppTextStyles.iosTitle3.copyWith(fontWeight: FontWeight.w800),
                         ),
                         Text(
-                          '${group.totalAVenir} séance(s) à venir · ${group.totalRealisees} réalisée(s)',
+                          '${group.totalAVenir} séance(s) à  venir Â· ${group.totalRealisees} réalisée(s)',
                           style: AppTextStyles.iosCaption1.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
@@ -369,7 +369,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           ),
                         ),
                         title: Text(
-                          '${s.date} · ${s.heureDebut} — ${s.heureFin}',
+                          '${s.date} Â· ${s.heureDebut} "” ${s.heureFin}',
                           style: AppTextStyles.iosSubhead.copyWith(fontWeight: FontWeight.w700),
                         ),
                         subtitle: Text(
@@ -425,7 +425,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
     );
   }
 
-  /// Modal Bottom Sheet pour modifier/reporter le rendez-vous d'une séance ou accéder à son compte-rendu
+  /// Modal Bottom Sheet pour modifier/reporter le rendez-vous d'une séance ou accéder à  son compte-rendu
   void _openModifierSeanceModal(BuildContext context, SeanceModel s) {
     final RxString selectedDate = s.date.obs;
     final RxString selectedDebut = s.heureDebut.length >= 5 ? s.heureDebut.substring(0, 5).obs : s.heureDebut.obs;
@@ -882,7 +882,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   ],
                 ),
                 Text(
-                  'Programmez des rendez-vous réguliers (ex: chaque lundi et mercredi à 10h).',
+                  'Programmez des rendez-vous réguliers (ex: chaque lundi et mercredi à  10h).',
                   style: AppTextStyles.iosCaption1.copyWith(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 16),

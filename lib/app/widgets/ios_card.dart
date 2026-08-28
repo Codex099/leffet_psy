@@ -40,7 +40,8 @@ class IosCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding:
+          margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -133,7 +134,8 @@ class _IosCardHero extends IosCard {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding:
+          margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -149,16 +151,16 @@ class _IosCardHero extends IosCard {
                   // Hero header
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       gradient: gradient ?? AppColors.oceanGradient,
                     ),
                     child: Row(
                       children: [
-                        if (icon != null) ...[
-                          icon!,
-                          const SizedBox(width: 12),
-                        ],
+                        if (icon != null) ...[icon!, const SizedBox(width: 12)],
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +286,8 @@ class _IosCardTileState extends State<IosCardTile> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  if (widget.subtitle != null && widget.subtitle!.isNotEmpty) ...[
+                  if (widget.subtitle != null &&
+                      widget.subtitle!.isNotEmpty) ...[
                     const SizedBox(height: 3),
                     Text(
                       widget.subtitle!,

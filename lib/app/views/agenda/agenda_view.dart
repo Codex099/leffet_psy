@@ -61,36 +61,45 @@ class AgendaView extends GetView<AgendaController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Titre Mois Année
-                  Obx(() => InkWell(
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: controller.selectedDate.value,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2030),
-                          );
-                          if (picked != null) {
-                            controller.selectDate(picked);
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(10),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                          child: Row(
-                            children: [
-                              Text(
-                                controller.monthYearTitle,
-                                style: AppTextStyles.iosTitle3.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.arrow_drop_down_rounded, color: AppColors.primary, size: 22),
-                            ],
-                          ),
+                  Obx(
+                    () => InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: controller.selectedDate.value,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2030),
+                        );
+                        if (picked != null) {
+                          controller.selectDate(picked);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 2,
                         ),
-                      )),
+                        child: Row(
+                          children: [
+                            Text(
+                              controller.monthYearTitle,
+                              style: AppTextStyles.iosTitle3.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.arrow_drop_down_rounded,
+                              color: AppColors.primary,
+                              size: 22,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
 
                   // Bouton Aujourd'hui & Flèches navigation
                   Row(
@@ -105,7 +114,10 @@ class AgendaView extends GetView<AgendaController> {
                                 controller.goToToday();
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   gradient: AppColors.oceanGradient,
                                   borderRadius: BorderRadius.circular(14),
@@ -134,9 +146,16 @@ class AgendaView extends GetView<AgendaController> {
                           decoration: BoxDecoration(
                             color: AppColors.surface,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.border, width: 0.8),
+                            border: Border.all(
+                              color: AppColors.border,
+                              width: 0.8,
+                            ),
                           ),
-                          child: const Icon(Icons.chevron_left_rounded, size: 20, color: AppColors.textPrimary),
+                          child: const Icon(
+                            Icons.chevron_left_rounded,
+                            size: 20,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -150,9 +169,16 @@ class AgendaView extends GetView<AgendaController> {
                           decoration: BoxDecoration(
                             color: AppColors.surface,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.border, width: 0.8),
+                            border: Border.all(
+                              color: AppColors.border,
+                              width: 0.8,
+                            ),
                           ),
-                          child: const Icon(Icons.chevron_right_rounded, size: 20, color: AppColors.textPrimary),
+                          child: const Icon(
+                            Icons.chevron_right_rounded,
+                            size: 20,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ),
                     ],
@@ -180,11 +206,23 @@ class AgendaView extends GetView<AgendaController> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: weekDays.map((day) {
                     final bool isSelected =
-                        selected.year == day.year && selected.month == day.month && selected.day == day.day;
+                        selected.year == day.year &&
+                        selected.month == day.month &&
+                        selected.day == day.day;
                     final bool isToday =
-                        now.year == day.year && now.month == day.month && now.day == day.day;
+                        now.year == day.year &&
+                        now.month == day.month &&
+                        now.day == day.day;
                     final bool hasSessions = controller.hasSessionsOn(day);
-                    final dayShorts = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'];
+                    final dayShorts = [
+                      'LUN',
+                      'MAR',
+                      'MER',
+                      'JEU',
+                      'VEN',
+                      'SAM',
+                      'DIM',
+                    ];
                     final dayName = dayShorts[day.weekday - 1];
 
                     return Expanded(
@@ -199,23 +237,30 @@ class AgendaView extends GetView<AgendaController> {
                           margin: const EdgeInsets.symmetric(horizontal: 2),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           decoration: BoxDecoration(
-                            gradient: isSelected ? AppColors.oceanGradient : null,
+                            gradient: isSelected
+                                ? AppColors.oceanGradient
+                                : null,
                             color: isSelected
                                 ? null
                                 : isToday
-                                    ? AppColors.primaryLight.withValues(alpha: 0.15)
-                                    : Colors.transparent,
+                                ? AppColors.primaryLight.withValues(alpha: 0.15)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(14),
                             border: isToday && !isSelected
-                                ? Border.all(color: AppColors.primary, width: 1.2)
+                                ? Border.all(
+                                    color: AppColors.primary,
+                                    width: 1.2,
+                                  )
                                 : null,
                             boxShadow: isSelected
                                 ? [
                                     BoxShadow(
-                                      color: AppColors.primary.withValues(alpha: 0.25),
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.25,
+                                      ),
                                       blurRadius: 6,
                                       offset: const Offset(0, 3),
-                                    )
+                                    ),
                                   ]
                                 : null,
                           ),
@@ -241,8 +286,8 @@ class AgendaView extends GetView<AgendaController> {
                                   color: isSelected
                                       ? Colors.white
                                       : isToday
-                                          ? AppColors.primary
-                                          : AppColors.textPrimary,
+                                      ? AppColors.primary
+                                      : AppColors.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -253,7 +298,9 @@ class AgendaView extends GetView<AgendaController> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: hasSessions
-                                      ? (isSelected ? AppColors.accentCoral : AppColors.primary)
+                                      ? (isSelected
+                                            ? AppColors.accentCoral
+                                            : AppColors.primary)
                                       : Colors.transparent,
                                 ),
                               ),
@@ -268,21 +315,25 @@ class AgendaView extends GetView<AgendaController> {
             }),
 
             // ── Mode Switcher (Jour / Semaine complète) ──
-            Obx(() => IosSegmentedControl<String>(
-                  segments: const {
-                    'Jour': 'Vue Journée',
-                    'Semaine': 'Semaine Complète',
-                  },
-                  selectedValue: controller.activeMode.value,
-                  onValueChanged: (mode) => controller.setMode(mode),
-                  margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                )),
+            Obx(
+              () => IosSegmentedControl<String>(
+                segments: const {
+                  'Jour': 'Vue Journée',
+                  'Semaine': 'Semaine Complète',
+                },
+                selectedValue: controller.activeMode.value,
+                onValueChanged: (mode) => controller.setMode(mode),
+                margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              ),
+            ),
 
             // ── Contenu Séances ──
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(message: 'Chargement des consultations...');
+                  return StatePlaceholder.loading(
+                    message: 'Chargement des consultations...',
+                  );
                 }
                 if (controller.status.value == 'error') {
                   return StatePlaceholder.error(
@@ -311,7 +362,8 @@ class AgendaView extends GetView<AgendaController> {
     if (daySessions.isEmpty) {
       return StatePlaceholder.empty(
         title: 'Aucune consultation',
-        message: 'Aucun rendez-vous prévu pour le ${controller.formattedSelectedDate}.',
+        message:
+            'Aucun rendez-vous prévu pour le ${controller.formattedSelectedDate}.',
         actionLabel: '+ Planifier un rendez-vous',
         onAction: () async {
           final res = await Get.toNamed(AppRoutes.creationSeance);
@@ -340,7 +392,10 @@ class AgendaView extends GetView<AgendaController> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     gradient: AppColors.oceanGradient,
                     borderRadius: BorderRadius.circular(10),
@@ -397,7 +452,10 @@ class AgendaView extends GetView<AgendaController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -448,7 +506,11 @@ class AgendaView extends GetView<AgendaController> {
                     color: AppColors.primaryLight.withValues(alpha: 0.20),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.groups_rounded, color: AppColors.primary, size: 24),
+                  child: const Icon(
+                    Icons.groups_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
                 )
               : PatientAvatar(
                   photoUrl: session.photoUrl,
@@ -456,14 +518,21 @@ class AgendaView extends GetView<AgendaController> {
                   radius: 21,
                 ),
           title: session.title,
-          subtitle: '${session.heureDebut} — ${session.heureFin}${session.isGroupe && session.participants != null ? " • ${session.participants!.length} participant(s)" : ""}',
+          subtitle:
+              '${session.heureDebut} - ${session.heureFin}${session.isGroupe && session.participants != null ? " • ${session.participants!.length} participant(s)" : ""}',
           showChevron: true,
           trailing: StatusBadge.active(label: session.statutLabel),
           onTap: () async {
             if (session.isGroupe) {
-              await Get.toNamed(AppRoutes.compteRenduGroupe, arguments: session.id);
+              await Get.toNamed(
+                AppRoutes.compteRenduGroupe,
+                arguments: session.id,
+              );
             } else {
-              await Get.toNamed(AppRoutes.compteRenduSeance, arguments: session.id);
+              await Get.toNamed(
+                AppRoutes.compteRenduSeance,
+                arguments: session.id,
+              );
             }
             controller.loadAgenda(forceRefresh: true);
           },

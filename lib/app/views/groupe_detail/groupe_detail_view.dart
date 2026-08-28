@@ -153,7 +153,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                       return IosCardTile(
                         leading: const Icon(Icons.calendar_today_rounded, color: AppColors.primary, size: 20),
                         title: 'Tous les ${jour.toUpperCase()}',
-                        subtitle: '$debut — $fin',
+                        subtitle: '$debut "” $fin',
                       );
                     }),
                 ],
@@ -162,7 +162,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
               // ── Membres & Participants ──
               IosCard(
                 title: 'Membres Inscrits (${patientsList.length})',
-                subtitle: 'Patients associés à ce groupe clinique',
+                subtitle: 'Patients associés à  ce groupe clinique',
                 children: [
                   if (patientsList.isEmpty)
                     const IosCardTile(

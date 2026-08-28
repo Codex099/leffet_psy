@@ -29,6 +29,16 @@ class AppColors {
   static const Color frostedGlassColor = Color(0xDCFFFFFF);
   static const Color surfaceCard = Color(0xFFFAFCFE);
 
+  /// Surface variante légèrement teintée
+  static const Color surfaceVariant = Color(0xFFE8F2F8);
+
+  /// Ultra-light primaire — fond des chips actives, tags sélectionnés
+  static const Color primaryUltraLight = Color(0xFFEBF4FA);
+
+  // ─── Shimmer Premium ──────────────────────────────────────────────────────
+  static const Color shimmerBase = Color(0xFFE8EFF4);
+  static const Color shimmerHighlight = Color(0xFFF5F9FC);
+
   // ─── Glassmorphism ─────────────────────────────────────────────────────────
   static const Color glassWhite = Color(0xEEFFFFFF);
   static const Color glassWhiteMedium = Color(0xCCFFFFFF);
@@ -171,87 +181,87 @@ class AppColors {
 
   // ─── Ombres Premium ───────────────────────────────────────────────────────
   static List<BoxShadow> get cardShadow => [
-        BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.07),
-          blurRadius: 20,
-          offset: const Offset(0, 6),
-          spreadRadius: 0,
-        ),
-        BoxShadow(
-          color: const Color(0xFF75AABF).withValues(alpha: 0.05),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF064973).withValues(alpha: 0.07),
+      blurRadius: 20,
+      offset: const Offset(0, 6),
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: const Color(0xFF75AABF).withValues(alpha: 0.05),
+      blurRadius: 8,
+      offset: const Offset(0, 2),
+    ),
+  ];
 
   static List<BoxShadow> get softShadow => [
-        BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.06),
-          blurRadius: 14,
-          offset: const Offset(0, 4),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF064973).withValues(alpha: 0.06),
+      blurRadius: 14,
+      offset: const Offset(0, 4),
+    ),
+  ];
 
   static List<BoxShadow> get heroShadow => [
-        BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.22),
-          blurRadius: 36,
-          offset: const Offset(0, 12),
-          spreadRadius: 2,
-        ),
-        BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.10),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF064973).withValues(alpha: 0.22),
+      blurRadius: 36,
+      offset: const Offset(0, 12),
+      spreadRadius: 2,
+    ),
+    BoxShadow(
+      color: const Color(0xFF064973).withValues(alpha: 0.10),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+  ];
 
   static List<BoxShadow> get accentShadow => [
-        BoxShadow(
-          color: const Color(0xFFD93636).withValues(alpha: 0.28),
-          blurRadius: 22,
-          offset: const Offset(0, 7),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFFD93636).withValues(alpha: 0.28),
+      blurRadius: 22,
+      offset: const Offset(0, 7),
+    ),
+  ];
 
   static List<BoxShadow> get glowShadow => [
-        BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.30),
-          blurRadius: 40,
-          offset: const Offset(0, 16),
-          spreadRadius: 4,
-        ),
-        BoxShadow(
-          color: const Color(0xFF75AABF).withValues(alpha: 0.20),
-          blurRadius: 20,
-          offset: const Offset(0, 6),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF064973).withValues(alpha: 0.30),
+      blurRadius: 40,
+      offset: const Offset(0, 16),
+      spreadRadius: 4,
+    ),
+    BoxShadow(
+      color: const Color(0xFF75AABF).withValues(alpha: 0.20),
+      blurRadius: 20,
+      offset: const Offset(0, 6),
+    ),
+  ];
 
   static List<BoxShadow> get floatingShadow => [
-        BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.16),
-          blurRadius: 30,
-          offset: const Offset(0, 10),
-          spreadRadius: 0,
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 6,
-          offset: const Offset(0, 2),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF064973).withValues(alpha: 0.16),
+      blurRadius: 30,
+      offset: const Offset(0, 10),
+      spreadRadius: 0,
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.04),
+      blurRadius: 6,
+      offset: const Offset(0, 2),
+    ),
+  ];
 
   static List<BoxShadow> get glassShadow => [
-        BoxShadow(
-          color: const Color(0xFF064973).withValues(alpha: 0.12),
-          blurRadius: 24,
-          offset: const Offset(0, 8),
-        ),
-        BoxShadow(
-          color: Colors.white.withValues(alpha: 0.80),
-          blurRadius: 1,
-          offset: const Offset(0, -1),
-        ),
-      ];
+    BoxShadow(
+      color: const Color(0xFF064973).withValues(alpha: 0.12),
+      blurRadius: 24,
+      offset: const Offset(0, 8),
+    ),
+    BoxShadow(
+      color: Colors.white.withValues(alpha: 0.80),
+      blurRadius: 1,
+      offset: const Offset(0, -1),
+    ),
+  ];
 }

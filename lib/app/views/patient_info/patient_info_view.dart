@@ -126,7 +126,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                       ),
                                       const SizedBox(height: 3),
                                       Text(
-                                        '${p?.age ?? ""} ans • Né(e) le ${p?.dateNaissance ?? ""}',
+                                        '${p?.age ?? ""} ans "¢ Né(e) le ${p?.dateNaissance ?? ""}',
                                         style: AppTextStyles.iosFootnote.copyWith(
                                           color: Colors.white.withValues(alpha: 0.85),
                                         ),
@@ -194,7 +194,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 8.0),
                               child: Text(
-                                'Aucun parent associé à ce patient.',
+                                'Aucun parent associé à  ce patient.',
                                 style: AppTextStyles.bodySmall,
                               ),
                             )
@@ -746,8 +746,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
           children: [
             Text(
               isCurrentlyActive
-                  ? 'Le statut du patient passera à Inactif. Une entrée sera ajoutée dans l\'historique des statuts.'
-                  : 'Le statut du patient repassera à Actif. Vous pouvez consigner une observation ou note clinique pour cette réactivation.',
+                  ? 'Le statut du patient passera à  Inactif. Une entrée sera ajoutée dans l\'historique des statuts.'
+                  : 'Le statut du patient repassera à  Actif. Vous pouvez consigner une observation ou note clinique pour cette réactivation.',
               style: AppTextStyles.bodySmall,
             ),
             if (!isCurrentlyActive) ...[

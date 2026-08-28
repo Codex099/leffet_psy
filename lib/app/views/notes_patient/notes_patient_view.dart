@@ -7,6 +7,7 @@ import '../../widgets/app_text_field.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/media_picker_widget.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_section_header.dart';
 
 class NotesPatientView extends GetView<NotesPatientController> {
   const NotesPatientView({super.key});
@@ -27,7 +28,10 @@ class NotesPatientView extends GetView<NotesPatientController> {
           ),
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 12.0,
+              ),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +47,10 @@ class NotesPatientView extends GetView<NotesPatientController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Ajouter une note', style: AppTextStyles.sectionTitle),
+                          Text(
+                            'Ajouter une note',
+                            style: AppTextStyles.sectionTitle,
+                          ),
                           const SizedBox(height: 12),
                           AppTextField(
                             label: '',
@@ -52,39 +59,50 @@ class NotesPatientView extends GetView<NotesPatientController> {
                             controller: controller.contenuController,
                           ),
                           const SizedBox(height: 12),
-                          Obx(() => MediaPickerWidget(
-                                key: ValueKey(controller.formResetToken.value),
-                                initialMediaUrls: controller.medias,
-                                onMediasChanged: (urls) =>
-                                    controller.medias.value = urls,
-                              )),
+                          Obx(
+                            () => MediaPickerWidget(
+                              key: ValueKey(controller.formResetToken.value),
+                              initialMediaUrls: controller.medias,
+                              onMediasChanged: (urls) =>
+                                  controller.medias.value = urls,
+                            ),
+                          ),
                           const SizedBox(height: 12),
-                          Obx(() => ElevatedButton.icon(
-                                onPressed: controller.isSaving.value
-                                    ? null
-                                    : () => controller.addNote(),
-                                icon: controller.isSaving.value
-                                    ? const SizedBox(
-                                        width: 18,
-                                        height: 18,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2, color: Colors.white),
-                                      )
-                                    : const Icon(Icons.add),
-                                label: Text(controller.isSaving.value
+                          Obx(
+                            () => ElevatedButton.icon(
+                              onPressed: controller.isSaving.value
+                                  ? null
+                                  : () => controller.addNote(),
+                              icon: controller.isSaving.value
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Icon(Icons.add),
+                              label: Text(
+                                controller.isSaving.value
                                     ? 'Enregistrement...'
-                                    : 'Enregistrer'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  minimumSize: const Size(double.infinity, 44),
-                                ),
-                              )),
+                                    : 'Enregistrer',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                minimumSize: const Size(double.infinity, 44),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Text('Historique des notes', style: AppTextStyles.sectionTitle),
-                    const SizedBox(height: 10),
+                    SectionHeader(
+                      title: 'Historique des notes',
+                      icon: Icons.note_alt_rounded,
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
+                    ),
                   ],
                 ),
               ),
@@ -124,87 +142,88 @@ class NotesPatientView extends GetView<NotesPatientController> {
               return SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final note = controller.notes[index];
-                      final medias = controller.mediasDe(note);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: AppColors.softShadow,
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      note['contenu'] as String? ?? '',
-                                      style: AppTextStyles.body,
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final note = controller.notes[index];
+                    final medias = controller.mediasDe(note);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: AppColors.softShadow,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    note['contenu'] as String? ?? '',
+                                    style: AppTextStyles.body,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${controller.auteurDe(note)} | ${controller.dateDe(note)}',
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      fontSize: 11,
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '${controller.auteurDe(note)} | ${controller.dateDe(note)}',
-                                      style: AppTextStyles.bodySmall
-                                          .copyWith(fontSize: 11),
-                                    ),
-                                    if (medias.isNotEmpty) ...[
-                                      const SizedBox(height: 10),
-                                      SizedBox(
-                                        height: 64,
-                                        child: ListView.separated(
-                                          scrollDirection: Axis.horizontal,
-                                          itemCount: medias.length,
-                                          separatorBuilder: (_, _) =>
-                                              const SizedBox(width: 8),
-                                          itemBuilder: (_, i) => ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            child: Image.network(
-                                              medias[i],
-                                              width: 64,
-                                              height: 64,
-                                              fit: BoxFit.cover,
-                                              errorBuilder: (_, _, _) =>
-                                                  Container(
-                                                width: 64,
-                                                height: 64,
-                                                color:
-                                                    AppColors.fieldBackground,
-                                                child: const Icon(
-                                                  Icons.broken_image_outlined,
-                                                  size: 20,
+                                  ),
+                                  if (medias.isNotEmpty) ...[
+                                    const SizedBox(height: 10),
+                                    SizedBox(
+                                      height: 64,
+                                      child: ListView.separated(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: medias.length,
+                                        separatorBuilder: (_, _) =>
+                                            const SizedBox(width: 8),
+                                        itemBuilder: (_, i) => ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image.network(
+                                            medias[i],
+                                            width: 64,
+                                            height: 64,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, _, _) =>
+                                                Container(
+                                                  width: 64,
+                                                  height: 64,
                                                   color:
-                                                      AppColors.textSecondary,
+                                                      AppColors.fieldBackground,
+                                                  child: const Icon(
+                                                    Icons.broken_image_outlined,
+                                                    size: 20,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
                                           ),
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ],
-                                ),
+                                ],
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline_rounded,
-                                    color: AppColors.error),
-                                onPressed: () =>
-                                    controller.deleteNote(note['id']),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline_rounded,
+                                color: AppColors.error,
                               ),
-                            ],
-                          ),
+                              onPressed: () =>
+                                  controller.deleteNote(note['id']),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    childCount: controller.notes.length,
-                  ),
+                      ),
+                    );
+                  }, childCount: controller.notes.length),
                 ),
               );
             }),

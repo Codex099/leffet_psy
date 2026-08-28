@@ -6,6 +6,7 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/creative_app_bar.dart';
+import '../../widgets/app_section_header.dart';
 
 class EditParentView extends GetView<EditParentController> {
   const EditParentView({super.key});
@@ -67,7 +68,8 @@ class EditParentView extends GetView<EditParentController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Informations de contact', style: AppTextStyles.sectionTitle),
+                      SectionHeader(title: 'Informations de contact', padding: const EdgeInsets.fromLTRB(4, 16, 4, 8)),
+
                       const SizedBox(height: 16),
                       AppTextField(
                         label: 'Prénom',
@@ -146,7 +148,7 @@ class EditParentView extends GetView<EditParentController> {
                       label: controller.status.value == 'loading'
                           ? 'Enregistrement...'
                           : isEditMode
-                              ? 'Mettre à jour'
+                              ? 'Mettre à  jour'
                               : 'Enregistrer le parent',
                       onPressed: controller.status.value == 'loading'
                           ? null

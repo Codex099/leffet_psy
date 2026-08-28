@@ -93,7 +93,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   return StatePlaceholder.empty(
                     title: query.isNotEmpty ? 'Aucun résultat' : 'Aucun parent enregistré',
                     message: query.isNotEmpty
-                        ? 'Aucun parent ne correspond à "$query".'
+                        ? 'Aucun parent ne correspond à  "$query".'
                         : 'Ajoutez des parents pour les associer aux fiches des patients.',
                     actionLabel: '+ Nouveau parent',
                     onAction: () => Get.toNamed(AppRoutes.editParent),

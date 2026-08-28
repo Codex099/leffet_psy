@@ -96,7 +96,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  // Orbe 1 — Bleu primaire
+                  // Orbe 1 "” Bleu primaire
                   Positioned(
                     top: size.height * (-0.1 + _auroraAnim.value * 0.08),
                     left: size.width * (-0.2 + _auroraAnim.value * 0.05),
@@ -114,7 +114,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  // Orbe 2 — Secondaire ciel
+                  // Orbe 2 "” Secondaire ciel
                   Positioned(
                     top: size.height * (0.35 + _auroraAnim.value * 0.06),
                     right: size.width * (-0.3 + _auroraAnim.value * 0.04),
@@ -132,7 +132,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  // Orbe 3 — Givré bas
+                  // Orbe 3 "” Givré bas
                   Positioned(
                     bottom: size.height * (-0.05 - _auroraAnim.value * 0.03),
                     left: size.width * 0.1,
@@ -326,7 +326,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                               Obx(() => _buildDarkField(
                                     controller: _passwordController,
                                     label: 'Mot de passe',
-                                    hint: '••••••••',
+                                    hint: '"¢"¢"¢"¢"¢"¢"¢"¢',
                                     icon: Icons.lock_outline_rounded,
                                     obscureText: _obscurePassword.value,
                                     suffix: IconButton(
@@ -436,7 +436,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                                                   ),
                                                   const SizedBox(width: 10),
                                                   Text(
-                                                    'Accéder à l\'espace',
+                                                    'Accéder à  l\'espace',
                                                     style: AppTextStyles.iosHeadline.copyWith(
                                                       color: Colors.white,
                                                       fontWeight: FontWeight.w700,
@@ -489,7 +489,7 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
                     const SizedBox(height: 6),
 
                     Text(
-                      'PsyCare v1.0 • Accès réservé au personnel autorisé',
+                      'PsyCare v1.0 "¢ Accès réservé au personnel autorisé',
                       style: AppTextStyles.iosCaption2.copyWith(
                         color: Colors.white.withValues(alpha: 0.28),
                         fontSize: 10,

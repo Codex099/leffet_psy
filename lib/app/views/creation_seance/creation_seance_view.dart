@@ -191,7 +191,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
         return SearchableItem<dynamic>(
           value: g.id,
           label: g.nom,
-          subtitle: '${g.typeLabel} • ${g.membresCount} membre(s)',
+          subtitle: '${g.typeLabel} "¢ ${g.membresCount} membre(s)',
           initials: g.initials,
         );
       }).toList(),

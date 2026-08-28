@@ -35,7 +35,7 @@ class _EditEmployeViewState extends State<EditEmployeView> {
     _usernameCtrl = TextEditingController(text: controller.username.value);
     _passwordCtrl = TextEditingController(text: controller.password.value);
 
-    // Écouter les mises à jour asynchrones du contrôleur
+    // Écouter les mises à  jour asynchrones du contrôleur
     ever(controller.prenom, (v) {
       if (_prenomCtrl.text != v) _prenomCtrl.text = v;
     });
@@ -157,7 +157,7 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                           const SizedBox(height: 14),
                           AppTextField(
                             label: isEditMode ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe initial *',
-                            hintText: '••••••••',
+                            hintText: '"¢"¢"¢"¢"¢"¢"¢"¢',
                             obscureText: true,
                             controller: _passwordCtrl,
                             onChanged: (v) => controller.password.value = v,

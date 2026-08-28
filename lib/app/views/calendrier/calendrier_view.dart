@@ -101,7 +101,7 @@ class CalendrierView extends GetView<CalendrierController> {
                             ),
                           ),
                           title: ev.titre,
-                          subtitle: "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' · ${ev.description}' : ''}",
+                          subtitle: "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' Â· ${ev.description}' : ''}",
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -279,7 +279,7 @@ class CalendrierView extends GetView<CalendrierController> {
                 ),
                 const SizedBox(height: 24),
                 AppButton(
-                  label: ev != null ? 'Mettre à jour' : 'Enregistrer',
+                  label: ev != null ? 'Mettre à  jour' : 'Enregistrer',
                   onPressed: () async {
                     if (formKey.currentState?.validate() == true) {
                       final success = await controller.saveEvenement();

@@ -160,7 +160,7 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                   return StatePlaceholder.empty(
                     title: 'Aucune séance trouvée',
                     message: controller.selectedTab.value == 'en_attente'
-                        ? 'Tous vos comptes-rendus cliniques sont à jour !'
+                        ? 'Tous vos comptes-rendus cliniques sont à  jour !'
                         : 'Aucune séance ne correspond aux critères sélectionnés.',
                     actionLabel: '+ Planifier une séance',
                     onAction: () async {
@@ -270,7 +270,7 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                   radius: 21,
                 ),
           title: session.title,
-          subtitle: '${session.date} · ${session.heureDebut} — ${session.heureFin}${session.isGroupe ? " • Atelier Collectif" : " • Individuel"}',
+          subtitle: '${session.date} • ${session.heureDebut} - ${session.heureFin}${session.isGroupe ? " • Atelier Collectif" : " • Individuel"}',
           showChevron: true,
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

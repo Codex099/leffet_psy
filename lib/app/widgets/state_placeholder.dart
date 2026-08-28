@@ -102,7 +102,9 @@ class StatePlaceholder extends StatelessWidget {
     final iconBgColor = isError
         ? AppColors.logoCoralLight
         : AppColors.secondaryLight.withValues(alpha: 0.35);
-    final iconData = isError ? Icons.cloud_off_rounded : Icons.folder_open_rounded;
+    final iconData = isError
+        ? Icons.cloud_off_rounded
+        : Icons.folder_open_rounded;
     final displayMessage = isError ? sanitizeErrorMessage(message) : message;
 
     return Center(
@@ -147,7 +149,9 @@ class StatePlaceholder extends StatelessWidget {
                     Text(
                       title!,
                       style: AppTextStyles.iosTitle3.copyWith(
-                        color: isError ? AppColors.textPrimary : AppColors.primary,
+                        color: isError
+                            ? AppColors.textPrimary
+                            : AppColors.primary,
                         fontWeight: FontWeight.w700,
                       ),
                       textAlign: TextAlign.center,
@@ -186,7 +190,9 @@ class StatePlaceholder extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                isError ? Icons.refresh_rounded : Icons.add_rounded,
+                                isError
+                                    ? Icons.refresh_rounded
+                                    : Icons.add_rounded,
                                 size: 18,
                                 color: Colors.white,
                               ),

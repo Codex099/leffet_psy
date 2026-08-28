@@ -30,10 +30,30 @@ class _AppBottomNavState extends State<AppBottomNav>
   int _currentIndex = 0;
 
   static const _items = [
-    _NavItem(Icons.home_outlined, Icons.home_rounded, 'Accueil', AppRoutes.accueil),
-    _NavItem(Icons.people_outline_rounded, Icons.people_alt_rounded, 'Patients', AppRoutes.patientsListe),
-    _NavItem(Icons.calendar_today_outlined, Icons.calendar_month_rounded, 'Agenda', AppRoutes.agenda),
-    _NavItem(Icons.person_outline_rounded, Icons.person_rounded, 'Profil', AppRoutes.profil),
+    _NavItem(
+      Icons.home_outlined,
+      Icons.home_rounded,
+      'Accueil',
+      AppRoutes.accueil,
+    ),
+    _NavItem(
+      Icons.people_outline_rounded,
+      Icons.people_alt_rounded,
+      'Patients',
+      AppRoutes.patientsListe,
+    ),
+    _NavItem(
+      Icons.calendar_today_outlined,
+      Icons.calendar_month_rounded,
+      'Agenda',
+      AppRoutes.agenda,
+    ),
+    _NavItem(
+      Icons.person_outline_rounded,
+      Icons.person_rounded,
+      'Profil',
+      AppRoutes.profil,
+    ),
   ];
 
   @override
@@ -44,10 +64,13 @@ class _AppBottomNavState extends State<AppBottomNav>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _pillPosition = Tween<double>(
-      begin: _currentIndex.toDouble(),
-      end: _currentIndex.toDouble(),
-    ).animate(CurvedAnimation(parent: _pillController, curve: Curves.easeOutCubic));
+    _pillPosition =
+        Tween<double>(
+          begin: _currentIndex.toDouble(),
+          end: _currentIndex.toDouble(),
+        ).animate(
+          CurvedAnimation(parent: _pillController, curve: Curves.easeOutCubic),
+        );
   }
 
   @override
@@ -60,10 +83,13 @@ class _AppBottomNavState extends State<AppBottomNav>
     if (index == _currentIndex) return;
     HapticFeedback.selectionClick();
 
-    _pillPosition = Tween<double>(
-      begin: _pillPosition.value,
-      end: index.toDouble(),
-    ).animate(CurvedAnimation(parent: _pillController, curve: Curves.easeOutCubic));
+    _pillPosition =
+        Tween<double>(
+          begin: _pillPosition.value,
+          end: index.toDouble(),
+        ).animate(
+          CurvedAnimation(parent: _pillController, curve: Curves.easeOutCubic),
+        );
 
     _pillController
       ..reset()
@@ -111,7 +137,10 @@ class _AppBottomNavState extends State<AppBottomNav>
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.95),
                       borderRadius: BorderRadius.circular(40),
@@ -147,7 +176,9 @@ class _AppBottomNavState extends State<AppBottomNav>
                                       borderRadius: BorderRadius.circular(32),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.primary.withValues(alpha: 0.35),
+                                          color: AppColors.primary.withValues(
+                                            alpha: 0.35,
+                                          ),
                                           blurRadius: 14,
                                           offset: const Offset(0, 4),
                                         ),
@@ -167,12 +198,17 @@ class _AppBottomNavState extends State<AppBottomNav>
                                     onTap: () => _navigateTo(index),
                                     behavior: HitTestBehavior.opaque,
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         AnimatedSwitcher(
-                                          duration: const Duration(milliseconds: 200),
+                                          duration: const Duration(
+                                            milliseconds: 200,
+                                          ),
                                           child: Icon(
-                                            isSelected ? item.selectedIcon : item.icon,
+                                            isSelected
+                                                ? item.selectedIcon
+                                                : item.icon,
                                             key: ValueKey(isSelected),
                                             color: isSelected
                                                 ? Colors.white
@@ -182,16 +218,19 @@ class _AppBottomNavState extends State<AppBottomNav>
                                         ),
                                         const SizedBox(height: 2),
                                         AnimatedDefaultTextStyle(
-                                          duration: const Duration(milliseconds: 200),
-                                          style: AppTextStyles.iosCaption2.copyWith(
-                                            color: isSelected
-                                                ? Colors.white
-                                                : AppColors.textTertiary,
-                                            fontWeight: isSelected
-                                                ? FontWeight.w700
-                                                : FontWeight.w500,
-                                            fontSize: 10,
+                                          duration: const Duration(
+                                            milliseconds: 200,
                                           ),
+                                          style: AppTextStyles.iosCaption2
+                                              .copyWith(
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : AppColors.textTertiary,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.w700
+                                                    : FontWeight.w500,
+                                                fontSize: 10,
+                                              ),
                                           child: Text(item.label),
                                         ),
                                       ],
