@@ -7,7 +7,7 @@ class ApiConfig {
   // ─── Base URL ──────────────────────────────────────────────────────────────
   /// URL de base du backend FastAPI.
   /// Modifier cette valeur pour pointer vers staging/production.
-  static const String baseUrl = 'https://perspectives-external-loud-textbook.trycloudflare.com';
+  static const String baseUrl = 'http://127.0.0.1:8000';
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────
   static const int connectTimeoutMs = 20000;

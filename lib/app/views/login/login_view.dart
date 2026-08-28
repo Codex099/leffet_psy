@@ -1,5 +1,3 @@
-import 'dart:ui';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -8,6 +6,8 @@ import '../../controllers/auth_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 
+/// Page de connexion épurée, moderne et en français.
+/// Inspirée fidèlement de la maquette avec en-tête en vague océanique et badge logo circulaire.
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
 
@@ -15,36 +15,36 @@ class LoginView extends StatefulWidget {
   State<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
+class _LoginViewState extends State<LoginView> {
   final controller = Get.find<AuthController>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _obscurePassword = true.obs;
 
-  // Aurora animation
-  late final AnimationController _auroraController;
-  late final Animation<double> _auroraAnim;
+  final _obscurePassword = true.obs;
+  final _rememberMe = true.obs;
+
+  final FocusNode _usernameFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
+  final RxBool _isUsernameFocused = false.obs;
+  final RxBool _isPasswordFocused = false.obs;
 
   @override
   void initState() {
     super.initState();
-    _auroraController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    );
-    if (!Get.testMode) {
-      _auroraController.repeat(reverse: true);
-    }
-    _auroraAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _auroraController, curve: Curves.easeInOut),
-    );
+    _usernameFocus.addListener(() {
+      _isUsernameFocused.value = _usernameFocus.hasFocus;
+    });
+    _passwordFocus.addListener(() {
+      _isPasswordFocused.value = _passwordFocus.hasFocus;
+    });
   }
 
   @override
   void dispose() {
+    _usernameFocus.dispose();
+    _passwordFocus.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
-    _auroraController.dispose();
     super.dispose();
   }
 
@@ -71,529 +71,511 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final headerHeight = size.height * 0.38;
 
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
-      body: Stack(
-        children: [
-          // ── Aurora Background Animé ──────────────────────────────────────
-          AnimatedBuilder(
-            animation: _auroraAnim,
-            builder: (context, _) {
-              return Stack(
-                children: [
-                  // Base gradient fond profond
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF021A2D),
-                          Color(0xFF032B45),
-                          Color(0xFF064973),
-                        ],
-                      ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: SizedBox(
+          height: size.height,
+          child: Stack(
+            children: [
+              // ── 1. En-Tête Bleu avec Courbe & Vague Asymétrique ─────────────
+              ClipPath(
+                clipper: _WaveHeaderClipper(),
+                child: Container(
+                  height: headerHeight,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF032B45),
+                        Color(0xFF064973),
+                        Color(0xFF0A5C8F),
+                      ],
                     ),
                   ),
-                  // Orbe 1 "” Bleu primaire
-                  Positioned(
-                    top: size.height * (-0.1 + _auroraAnim.value * 0.08),
-                    left: size.width * (-0.2 + _auroraAnim.value * 0.05),
-                    child: Container(
-                      width: size.width * 0.85,
-                      height: size.width * 0.85,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            AppColors.primaryLight.withValues(alpha: 0.45),
-                            AppColors.primary.withValues(alpha: 0.0),
-                          ],
-                        ),
+                  child: CustomPaint(
+                    size: Size(size.width, headerHeight),
+                    painter: _TopographyPainter(),
+                  ),
+                ),
+              ),
+
+              // ── 2. Badge Logo Circulaire en Chevauchement ──────────────────
+              Positioned(
+                top: headerHeight * 0.62,
+                right: 28,
+                child: Container(
+                  width: 114,
+                  height: 114,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF064973).withValues(alpha: 0.22),
+                        blurRadius: 24,
+                        offset: const Offset(0, 10),
                       ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: const Color(0xFFE8F2F8),
+                      width: 3.5,
                     ),
                   ),
-                  // Orbe 2 "” Secondaire ciel
-                  Positioned(
-                    top: size.height * (0.35 + _auroraAnim.value * 0.06),
-                    right: size.width * (-0.3 + _auroraAnim.value * 0.04),
-                    child: Container(
-                      width: size.width * 0.75,
-                      height: size.width * 0.75,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            AppColors.secondary.withValues(alpha: 0.30),
-                            AppColors.secondary.withValues(alpha: 0.0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Orbe 3 "” Givré bas
-                  Positioned(
-                    bottom: size.height * (-0.05 - _auroraAnim.value * 0.03),
-                    left: size.width * 0.1,
-                    child: Container(
-                      width: size.width * 0.70,
-                      height: size.width * 0.70,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            AppColors.secondaryLight.withValues(alpha: 0.18),
-                            AppColors.secondaryLight.withValues(alpha: 0.0),
-                          ],
+                  child: ClipOval(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                        errorBuilder: (ctx, e, st) => const Icon(
+                          Icons.psychology_rounded,
+                          size: 48,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
                   ),
-                  // Voile de bruit subtil (patterns)
-                  CustomPaint(
-                    size: size,
-                    painter: _AuroraNoisePainter(
-                      progress: _auroraAnim.value,
-                      color: AppColors.secondary.withValues(alpha: 0.08),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                )
+                    .animate()
+                    .fadeIn(duration: 600.ms)
+                    .scale(begin: const Offset(0.7, 0.7), curve: Curves.easeOutBack),
+              ),
 
-          // ── Contenu Principal ────────────────────────────────────────────
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // ── Logo Hero ──────────────────────────────────────────
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.25),
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.4),
-                            blurRadius: 40,
-                            offset: const Offset(0, 14),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(28),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Image.asset(
-                              'assets/images/logo.png',
-                              fit: BoxFit.contain,
-                              errorBuilder: (ctx, e, st) => const Icon(
-                                Icons.psychology_rounded,
-                                size: 48,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 800.ms, curve: Curves.easeOut)
-                        .scale(begin: const Offset(0.6, 0.6), curve: Curves.easeOutBack),
-
-                    const SizedBox(height: 20),
-
-                    // ── Titre ──────────────────────────────────────────────
-                    Text(
-                      'PsyCare',
-                      style: AppTextStyles.iosLargeTitle.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 34,
-                        letterSpacing: -0.8,
-                      ),
-                    )
-                        .animate(delay: 200.ms)
-                        .fadeIn(duration: 700.ms)
-                        .slideY(begin: 0.3, curve: Curves.easeOut),
-
-                    const SizedBox(height: 6),
-
-                    Text(
-                      'Plateforme Clinique & Suivi Thérapeutique',
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.iosSubhead.copyWith(
-                        color: Colors.white.withValues(alpha: 0.75),
-                        fontSize: 14,
-                      ),
-                    )
-                        .animate(delay: 350.ms)
-                        .fadeIn(duration: 600.ms),
-
-                    const SizedBox(height: 12),
-
-                    // ── Badge Espace Sécurisé ──────────────────────────────
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.22),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+              // ── 3. Contenu & Formulaire de Connexion ───────────────────────
+              Positioned.fill(
+                top: headerHeight * 0.88,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Titre « Connexion » avec barre de soulignement
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.verified_user_rounded,
-                            size: 13,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(width: 6),
                           Text(
-                            'Espace Professionnel Sécurisé',
-                            style: AppTextStyles.iosCaption1.copyWith(
-                              color: Colors.white.withValues(alpha: 0.92),
-                              fontWeight: FontWeight.w600,
+                            'Connexion',
+                            style: AppTextStyles.iosLargeTitleHero.copyWith(
+                              color: const Color(0xFF062338),
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.6,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            width: 44,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF064973),
+                              borderRadius: BorderRadius.circular(2),
                             ),
                           ),
                         ],
+                      )
+                          .animate()
+                          .fadeIn(duration: 500.ms)
+                          .slideX(begin: -0.1, curve: Curves.easeOut),
+
+                      const SizedBox(height: 28),
+
+                      // ── Champ 1 : Identifiant / Email ─────────────────────
+                      Text(
+                        'Email / Nom d\'utilisateur',
+                        style: AppTextStyles.iosCaption1.copyWith(
+                          color: const Color(0xFF4A6B7F),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
                       ),
-                    )
-                        .animate(delay: 450.ms)
-                        .fadeIn(duration: 500.ms),
+                      const SizedBox(height: 6),
+                      Obx(() => _buildCleanInputField(
+                            controller: _usernameController,
+                            focusNode: _usernameFocus,
+                            isFocused: _isUsernameFocused.value,
+                            hint: 'demo@email.com ou admin',
+                            icon: Icons.mail_outline_rounded,
+                            textInputAction: TextInputAction.next,
+                          )),
 
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 22),
 
-                    // ── Formulaire Glass ──────────────────────────────────
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.11),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.22),
-                              width: 1.2,
+                      // ── Champ 2 : Mot de passe ────────────────────────────
+                      Text(
+                        'Mot de passe',
+                        style: AppTextStyles.iosCaption1.copyWith(
+                          color: const Color(0xFF4A6B7F),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Obx(() => _buildCleanInputField(
+                            controller: _passwordController,
+                            focusNode: _passwordFocus,
+                            isFocused: _isPasswordFocused.value,
+                            hint: '••••••••',
+                            icon: Icons.lock_outline_rounded,
+                            obscureText: _obscurePassword.value,
+                            textInputAction: TextInputAction.done,
+                            onSubmitted: (_) => _handleSubmit(),
+                            suffix: IconButton(
+                              icon: Icon(
+                                _obscurePassword.value
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                size: 20,
+                                color: const Color(0xFF9EBDCE),
+                              ),
+                              onPressed: () {
+                                HapticFeedback.selectionClick();
+                                _obscurePassword.toggle();
+                              },
                             ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Connexion Praticien',
-                                style: AppTextStyles.iosTitle3.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Saisissez vos identifiants pour accéder aux dossiers.',
-                                style: AppTextStyles.iosFootnote.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                              ),
-                              const SizedBox(height: 22),
+                          )),
 
-                              // Champ Identifiant
-                              _buildDarkField(
-                                controller: _usernameController,
-                                label: 'Identifiant',
-                                hint: 'Dr. Martin ou admin',
-                                icon: Icons.badge_outlined,
-                              ),
-                              const SizedBox(height: 14),
+                      const SizedBox(height: 14),
 
-                              // Champ Mot de passe
-                              Obx(() => _buildDarkField(
-                                    controller: _passwordController,
-                                    label: 'Mot de passe',
-                                    hint: '"¢"¢"¢"¢"¢"¢"¢"¢',
-                                    icon: Icons.lock_outline_rounded,
-                                    obscureText: _obscurePassword.value,
-                                    suffix: IconButton(
-                                      icon: Icon(
-                                        _obscurePassword.value
-                                            ? Icons.visibility_off_outlined
-                                            : Icons.visibility_outlined,
-                                        size: 20,
-                                        color: Colors.white.withValues(alpha: 0.65),
-                                      ),
-                                      onPressed: () {
-                                        HapticFeedback.selectionClick();
-                                        _obscurePassword.toggle();
-                                      },
-                                    ),
-                                  )),
-
-                              const SizedBox(height: 14),
-
-                              // Erreur auth
-                              Obx(() {
-                                if (controller.errorMessage.isNotEmpty) {
-                                  return Container(
-                                    width: double.infinity,
-                                    margin: const EdgeInsets.only(bottom: 14),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 14, vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.error.withValues(alpha: 0.18),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: AppColors.error.withValues(alpha: 0.35),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.error_outline_rounded,
-                                          size: 17,
-                                          color: Color(0xFFFF8080),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            controller.errorMessage.value,
-                                            style: AppTextStyles.iosFootnote.copyWith(
-                                              color: const Color(0xFFFF9999),
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                      // ── Options : Se souvenir & Mot de passe oublié ────────
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Se souvenir de moi
+                          InkWell(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              _rememberMe.toggle();
+                            },
+                            borderRadius: BorderRadius.circular(8),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Obx(() => Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: BoxDecoration(
+                                          color: _rememberMe.value
+                                              ? const Color(0xFF064973)
+                                              : Colors.white,
+                                          borderRadius: BorderRadius.circular(5),
+                                          border: Border.all(
+                                            color: _rememberMe.value
+                                                ? const Color(0xFF064973)
+                                                : const Color(0xFFBED5E1),
+                                            width: 1.5,
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ).animate().fadeIn(duration: 300.ms).shakeX();
-                                }
-                                return const SizedBox.shrink();
-                              }),
-
-                              // Bouton Connexion
-                              Obx(() {
-                                final isLoading = controller.isLoading.value;
-                                return Container(
-                                  width: double.infinity,
-                                  height: 52,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF0A5C8F),
-                                        Color(0xFF75AABF),
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(26),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.primary.withValues(alpha: 0.5),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: isLoading ? null : _handleSubmit,
-                                      borderRadius: BorderRadius.circular(26),
-                                      splashColor: Colors.white.withValues(alpha: 0.15),
-                                      child: Center(
-                                        child: isLoading
-                                            ? const SizedBox(
-                                                width: 22,
-                                                height: 22,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2.5,
-                                                  valueColor:
-                                                      AlwaysStoppedAnimation<Color>(
-                                                          Colors.white),
-                                                ),
+                                        child: _rememberMe.value
+                                            ? const Icon(
+                                                Icons.check_rounded,
+                                                size: 13,
+                                                color: Colors.white,
                                               )
-                                            : Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  const Icon(
-                                                    Icons.login_rounded,
-                                                    size: 20,
-                                                    color: Colors.white,
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Text(
-                                                    'Accéder à  l\'espace',
-                                                    style: AppTextStyles.iosHeadline.copyWith(
-                                                      color: Colors.white,
-                                                      fontWeight: FontWeight.w700,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                      ),
+                                            : null,
+                                      )),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Se souvenir de moi',
+                                    style: AppTextStyles.iosFootnote.copyWith(
+                                      color: const Color(0xFF4A6B7F),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12.5,
                                     ),
                                   ),
-                                );
-                              }),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Mot de passe oublié
+                          GestureDetector(
+                            onTap: () {
+                              Get.snackbar(
+                                'Assistance',
+                                'Veuillez contacter l\'administrateur pour réinitialiser votre mot de passe.',
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: const Color(0xFF064973),
+                                colorText: Colors.white,
+                                margin: const EdgeInsets.all(16),
+                                borderRadius: 14,
+                              );
+                            },
+                            child: Text(
+                              'Mot de passe oublié ?',
+                              style: AppTextStyles.iosFootnote.copyWith(
+                                color: const Color(0xFF064973),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // ── Message d'erreur éventuel ─────────────────────────
+                      Obx(() {
+                        if (controller.errorMessage.isNotEmpty) {
+                          return Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(top: 14),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.error.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppColors.error.withValues(alpha: 0.30),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.error_outline_rounded,
+                                  size: 18,
+                                  color: AppColors.error,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    controller.errorMessage.value,
+                                    style: AppTextStyles.iosFootnote.copyWith(
+                                      color: AppColors.error,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ).animate().fadeIn(duration: 300.ms).shakeX();
+                        }
+                        return const SizedBox.shrink();
+                      }),
+
+                      const SizedBox(height: 32),
+
+                      // ── Bouton Principal « Se connecter » ──────────────────
+                      Obx(() {
+                        final isLoading = controller.isLoading.value;
+                        return Container(
+                          width: double.infinity,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFF064973),
+                                Color(0xFF0A5C8F),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF064973).withValues(alpha: 0.35),
+                                blurRadius: 18,
+                                offset: const Offset(0, 7),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: isLoading ? null : _handleSubmit,
+                              borderRadius: BorderRadius.circular(16),
+                              splashColor: Colors.white.withValues(alpha: 0.15),
+                              child: Center(
+                                child: isLoading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                              Colors.white),
+                                        ),
+                                      )
+                                    : Text(
+                                        'Se connecter',
+                                        style: AppTextStyles.iosHeadline.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                          letterSpacing: 0.3,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+
+                      const SizedBox(height: 24),
+
+                      // ── Pied de page ──────────────────────────────────────
+                      Center(
+                        child: Text.rich(
+                          TextSpan(
+                            text: 'Vous n\'avez pas de compte ? ',
+                            style: AppTextStyles.iosFootnote.copyWith(
+                              color: const Color(0xFF7B98A9),
+                              fontSize: 13,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Accès Praticien',
+                                style: AppTextStyles.iosFootnote.copyWith(
+                                  color: const Color(0xFF064973),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ),
-                    )
-                        .animate(delay: 550.ms)
-                        .fadeIn(duration: 700.ms)
-                        .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-
-                    const SizedBox(height: 28),
-
-                    // ── Footer Sécurité ────────────────────────────────────
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.shield_outlined,
-                          size: 13,
-                          color: Colors.white.withValues(alpha: 0.45),
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Text(
-                            'Données cliniques protégées & chiffrées de bout en bout',
-                            style: AppTextStyles.iosCaption2.copyWith(
-                              color: Colors.white.withValues(alpha: 0.45),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    )
-                        .animate(delay: 900.ms)
-                        .fadeIn(duration: 600.ms),
-
-                    const SizedBox(height: 6),
-
-                    Text(
-                      'PsyCare v1.0 "¢ Accès réservé au personnel autorisé',
-                      style: AppTextStyles.iosCaption2.copyWith(
-                        color: Colors.white.withValues(alpha: 0.28),
-                        fontSize: 10,
-                      ),
-                      textAlign: TextAlign.center,
-                    ).animate(delay: 1000.ms).fadeIn(duration: 600.ms),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildDarkField({
+  // ─── Champ de Saisie avec Ligne de Soulignement Épurée ─────────────────────
+  Widget _buildCleanInputField({
     required TextEditingController controller,
-    required String label,
+    required FocusNode focusNode,
+    required bool isFocused,
     required String hint,
     required IconData icon,
     bool obscureText = false,
     Widget? suffix,
+    TextInputAction? textInputAction,
+    ValueChanged<String>? onSubmitted,
   }) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTextStyles.iosCaption1.copyWith(
-            color: Colors.white.withValues(alpha: 0.80),
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.3,
-          ),
-        ),
-        const SizedBox(height: 7),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.20),
-              width: 1,
+        Row(
+          children: [
+            Icon(
+              icon,
+              size: 20,
+              color: isFocused
+                  ? const Color(0xFF064973)
+                  : const Color(0xFF9EBDCE),
             ),
-          ),
-          child: TextField(
-            controller: controller,
-            obscureText: obscureText,
-            style: AppTextStyles.iosBody.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
+            const SizedBox(width: 10),
+            Container(
+              width: 1.2,
+              height: 18,
+              color: const Color(0xFFD3E4EC),
             ),
-            cursorColor: AppColors.secondary,
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: AppTextStyles.iosSubhead.copyWith(
-                color: Colors.white.withValues(alpha: 0.40),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                obscureText: obscureText,
+                textInputAction: textInputAction,
+                onSubmitted: onSubmitted,
+                style: AppTextStyles.iosBody.copyWith(
+                  color: const Color(0xFF062338),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+                cursorColor: const Color(0xFF064973),
+                decoration: InputDecoration(
+                  hintText: hint,
+                  hintStyle: AppTextStyles.iosSubhead.copyWith(
+                    color: const Color(0xFFBED5E1),
+                    fontWeight: FontWeight.w400,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                ),
               ),
-              prefixIcon: Icon(icon, size: 20,
-                  color: Colors.white.withValues(alpha: 0.65)),
-              suffixIcon: suffix,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 14),
             ),
-          ),
+            ?suffix,
+          ],
+        ),
+        const SizedBox(height: 6),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: isFocused ? 2.0 : 1.2,
+          color: isFocused ? const Color(0xFF064973) : const Color(0xFFD3E4EC),
         ),
       ],
     );
   }
 }
 
-// ─── Aurora Noise Painter ─────────────────────────────────────────────────────
-class _AuroraNoisePainter extends CustomPainter {
-  final double progress;
-  final Color color;
-
-  _AuroraNoisePainter({required this.progress, required this.color});
-
+// ─── Découpe de Vague Asymétrique en Haut de Page ──────────────────────────────
+class _WaveHeaderClipper extends CustomClipper<Path> {
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height * 0.68);
 
-    final path = Path()
-      ..moveTo(0, size.height * (0.55 + math.sin(progress * math.pi) * 0.06))
-      ..cubicTo(
-        size.width * 0.25,
-        size.height * (0.45 + math.cos(progress * math.pi) * 0.05),
-        size.width * 0.65,
-        size.height * (0.68 + math.sin(progress * math.pi * 1.3) * 0.06),
-        size.width,
-        size.height * (0.52 + math.cos(progress * math.pi * 0.8) * 0.04),
-      )
-      ..lineTo(size.width, 0)
-      ..lineTo(0, 0)
-      ..close();
-
-    canvas.drawPath(path, paint);
+    // Vague fluide descendant vers la droite sous le logo
+    path.cubicTo(
+      size.width * 0.30,
+      size.height * 0.64,
+      size.width * 0.58,
+      size.height * 0.98,
+      size.width,
+      size.height * 0.86,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
   }
 
   @override
-  bool shouldRepaint(_AuroraNoisePainter old) => old.progress != progress;
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+// ─── Lignes Topographiques Décoratives en Arrière-Plan ─────────────────────────
+class _TopographyPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF75AABF).withValues(alpha: 0.16)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+
+    for (int i = 1; i <= 6; i++) {
+      final p = Path();
+      final yOffset = size.height * (0.13 * i);
+      p.moveTo(0, yOffset);
+      p.cubicTo(
+        size.width * 0.25,
+        yOffset - 22,
+        size.width * 0.55,
+        yOffset + 30,
+        size.width,
+        yOffset - 12,
+      );
+      canvas.drawPath(p, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

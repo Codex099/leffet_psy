@@ -128,12 +128,33 @@ class AccueilView extends GetView<AccueilController> {
                       ),
                     ),
                   ),
+                  // ── Logo Clinique Intégral & Centré en Arrière-Plan (Sans Rogne / Sans Animation) ──
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          child: Opacity(
+                            opacity: 0.22,
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.contain,
+                              alignment: Alignment.center,
+                              filterQuality: FilterQuality.high,
+                              errorBuilder: (ctx, e, st) => const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Top row
+                        // Top row : Date badge à gauche, Profil à droite
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -166,6 +187,7 @@ class AccueilView extends GetView<AccueilController> {
                                 ],
                               ),
                             ),
+
                             // Avatar profil
                             BouncyTap(
                               onTap: () => Get.toNamed(AppRoutes.profil),
@@ -195,24 +217,25 @@ class AccueilView extends GetView<AccueilController> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        // Greeting
+                        // Greeting Clinique
                         Text(
-                          user != null
-                              ? 'Bonjour, ${user.prenom} 👋'
-                              : 'Bonjour 👋',
+                          'clinique l\'Effet de Papillon 🦋',
                           style: AppTextStyles.iosLargeTitle.copyWith(
                             color: Colors.white,
-                            fontSize: 26,
+                            fontSize: 24,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: -0.5,
+                            letterSpacing: -0.4,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Voici le résumé de vos consultations du jour.',
+                          user != null
+                              ? 'Espace clinique de suivi thérapeutique • Dr. ${user.prenom}'
+                              : 'Espace clinique de suivi & prise en charge thérapeutique.',
                           style: AppTextStyles.iosSubhead.copyWith(
-                            color: Colors.white.withValues(alpha: 0.85),
-                            fontSize: 14,
+                            color: Colors.white.withValues(alpha: 0.88),
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ],
@@ -252,7 +275,8 @@ class AccueilView extends GetView<AccueilController> {
                 child: _quickAction(
                   label: 'Nouveau Patient',
                   icon: Icons.person_add_rounded,
-                  gradient: AppColors.oceanGradient,
+                  gradient: AppColors.emeraldGradient,
+                  glowColor: const Color(0xFF059669),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.editPatient);
                     if (res == true) controller.loadDashboard();
@@ -263,10 +287,9 @@ class AccueilView extends GetView<AccueilController> {
               Expanded(
                 child: _quickAction(
                   label: 'Planifier Séance',
-                  icon: Icons.add_alarm_rounded,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
-                  ),
+                  icon: Icons.calendar_month_rounded,
+                  gradient: AppColors.violetGradient,
+                  glowColor: const Color(0xFF4F46E5),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.creationSeance);
                     if (res == true) controller.loadDashboard();
@@ -282,7 +305,8 @@ class AccueilView extends GetView<AccueilController> {
                 child: _quickAction(
                   label: 'Nouvelle Tâche',
                   icon: Icons.task_alt_rounded,
-                  gradient: AppColors.accentGradient,
+                  gradient: AppColors.coralGlowGradient,
+                  glowColor: const Color(0xFFE11D48),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.detailTache);
                     if (res == true) controller.loadDashboard();
@@ -294,9 +318,8 @@ class AccueilView extends GetView<AccueilController> {
                 child: _quickAction(
                   label: 'Nouveau Groupe',
                   icon: Icons.groups_rounded,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF075F8C), Color(0xFFADCCD9)],
-                  ),
+                  gradient: AppColors.amberGoldGradient,
+                  glowColor: const Color(0xFFD97706),
                   onTap: () async {
                     final res = await Get.toNamed(AppRoutes.editGroupe);
                     if (res == true) controller.loadDashboard();
@@ -314,6 +337,7 @@ class AccueilView extends GetView<AccueilController> {
     required String label,
     required IconData icon,
     required Gradient gradient,
+    required Color glowColor,
     required VoidCallback onTap,
   }) {
     return BouncyTap(
@@ -325,9 +349,9 @@ class AccueilView extends GetView<AccueilController> {
           borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withValues(alpha: 0.20),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
+              color: glowColor.withValues(alpha: 0.32),
+              blurRadius: 18,
+              offset: const Offset(0, 7),
             ),
           ],
         ),
@@ -337,18 +361,23 @@ class AccueilView extends GetView<AccueilController> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.20),
+                color: Colors.white.withValues(alpha: 0.22),
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.35),
+                  width: 0.8,
+                ),
               ),
               child: Icon(icon, color: Colors.white, size: 20),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
               label,
               style: AppTextStyles.iosFootnote.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
-                fontSize: 13,
+                fontSize: 13.5,
+                letterSpacing: 0.1,
               ),
             ),
           ],
@@ -368,7 +397,7 @@ class AccueilView extends GetView<AccueilController> {
               title: 'Séances aujourd\'hui',
               value: controller.seancesPrevuesCount.value,
               icon: Icons.calendar_today_rounded,
-              gradient: AppColors.oceanGradient,
+              gradient: AppColors.violetGradient,
               onTap: () => Get.toNamed(AppRoutes.agenda),
             ),
           ),
@@ -378,9 +407,7 @@ class AccueilView extends GetView<AccueilController> {
               title: 'Patients suivis',
               value: controller.totalPatients.value,
               icon: Icons.people_alt_rounded,
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
-              ),
+              gradient: AppColors.emeraldGradient,
               onTap: () => Get.toNamed(AppRoutes.patientsListe),
             ),
           ),
@@ -417,7 +444,13 @@ class AccueilView extends GetView<AccueilController> {
                   decoration: BoxDecoration(
                     gradient: gradient,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: AppColors.softShadow,
+                    boxShadow: [
+                      BoxShadow(
+                        color: (gradient is LinearGradient ? gradient.colors.first : AppColors.primary).withValues(alpha: 0.28),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Icon(icon, color: Colors.white, size: 18),
                 ),
@@ -470,9 +503,15 @@ class AccueilView extends GetView<AccueilController> {
               Container(
                 padding: const EdgeInsets.all(11),
                 decoration: BoxDecoration(
-                  gradient: AppColors.oceanGradient,
+                  gradient: AppColors.indigoGradient,
                   borderRadius: BorderRadius.circular(14),
-                  boxShadow: AppColors.softShadow,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.35),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.assignment_turned_in_rounded,
@@ -504,7 +543,7 @@ class AccueilView extends GetView<AccueilController> {
               ),
               Container(
                 padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.fieldBackground,
                   shape: BoxShape.circle,
                 ),
@@ -571,9 +610,15 @@ class AccueilView extends GetView<AccueilController> {
                       vertical: 11,
                     ),
                     decoration: BoxDecoration(
-                      gradient: AppColors.oceanGradient,
+                      gradient: AppColors.violetGradient,
                       borderRadius: BorderRadius.circular(22),
-                      boxShadow: AppColors.softShadow,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF7C3AED).withValues(alpha: 0.35),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
                     child: Text(
                       '+ Planifier une séance',
@@ -595,8 +640,15 @@ class AccueilView extends GetView<AccueilController> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        gradient: AppColors.groupHeaderGradient,
+                        gradient: AppColors.amberGoldGradient,
                         borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFD97706).withValues(alpha: 0.30),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.groups_rounded,
@@ -642,7 +694,7 @@ class AccueilView extends GetView<AccueilController> {
         IosCardTile(
           leading: _iconBox(
             Icons.folder_shared_rounded,
-            AppColors.oceanGradient,
+            AppColors.azureGradient,
           ),
           title: 'Dossiers Patients',
           subtitle: 'Consulter et rechercher vos dossiers',
@@ -652,9 +704,7 @@ class AccueilView extends GetView<AccueilController> {
         IosCardTile(
           leading: _iconBox(
             Icons.calendar_month_rounded,
-            const LinearGradient(
-              colors: [Color(0xFF0A5C8F), Color(0xFF75AABF)],
-            ),
+            AppColors.violetGradient,
           ),
           title: 'Planning & Agenda',
           subtitle: 'Vue globale jour et semaine',
@@ -664,9 +714,7 @@ class AccueilView extends GetView<AccueilController> {
         IosCardTile(
           leading: _iconBox(
             Icons.person_outline_rounded,
-            const LinearGradient(
-              colors: [Color(0xFF064973), Color(0xFF1A7CB0)],
-            ),
+            AppColors.emeraldGradient,
           ),
           title: 'Séances Individuelles',
           subtitle: 'Consultations & créneaux',
@@ -676,7 +724,7 @@ class AccueilView extends GetView<AccueilController> {
         IosCardTile(
           leading: _iconBox(
             Icons.groups_rounded,
-            AppColors.groupHeaderGradient,
+            AppColors.amberGoldGradient,
           ),
           title: 'Groupes & Ateliers',
           subtitle: 'Séances collectives et participants',
@@ -684,7 +732,7 @@ class AccueilView extends GetView<AccueilController> {
           onTap: () => Get.toNamed(AppRoutes.groupesListe),
         ),
         IosCardTile(
-          leading: _iconBox(Icons.task_alt_rounded, AppColors.accentGradient),
+          leading: _iconBox(Icons.task_alt_rounded, AppColors.coralGlowGradient),
           title: 'Tâches & Actions',
           subtitle: 'Suivi de vos actions cliniques',
           showChevron: true,
@@ -694,9 +742,7 @@ class AccueilView extends GetView<AccueilController> {
           IosCardTile(
             leading: _iconBox(
               Icons.badge_rounded,
-              const LinearGradient(
-                colors: [Color(0xFFA62929), Color(0xFFD93636)],
-              ),
+              AppColors.fuchsiaGradient,
             ),
             title: 'Gestion de l\'Équipe',
             subtitle: 'Comptes praticiens et permissions',
