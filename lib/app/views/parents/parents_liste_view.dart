@@ -183,13 +183,25 @@ class ParentsListeView extends GetView<ParentsListeController> {
               children: [
                 PatientAvatar(initials: parent.initials, radius: 28),
                 const SizedBox(width: 14),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(parent.fullName, style: AppTextStyles.iosTitle2),
-                    if (parent.etatCivil != null && parent.etatCivil!.isNotEmpty)
-                      Text('État civil : ${parent.etatCivil}', style: AppTextStyles.iosFootnote),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        parent.fullName,
+                        style: AppTextStyles.iosTitle2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (parent.etatCivil != null && parent.etatCivil!.isNotEmpty)
+                        Text(
+                          'État civil : ${parent.etatCivil}',
+                          style: AppTextStyles.iosFootnote,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),

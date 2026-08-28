@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../models/groupe_model.dart';
 import '../models/patient_model.dart';
+import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../services/groupe_service.dart';
 import '../services/patient_service.dart';
@@ -412,6 +413,10 @@ class EditGroupeController extends GetxController {
           } catch (_) {}
         }
       }
+
+      AppCacheManager.invalidateTag(CacheTags.groupes);
+      AppCacheManager.invalidateTag(CacheTags.seances);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
 
       try {
         if (Get.isRegistered<AgendaController>()) {

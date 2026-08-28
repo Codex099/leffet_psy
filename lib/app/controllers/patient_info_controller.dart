@@ -3,6 +3,7 @@ import '../models/patient_model.dart';
 import '../models/parent_model.dart';
 import '../models/patient_statut_historique_model.dart';
 import '../models/plan_therapeutique_model.dart';
+import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../services/parent_service.dart';
 import '../services/plan_therapeutique_service.dart';
@@ -28,6 +29,8 @@ class PatientInfoController extends GetxController {
 
   dynamic patientId;
 
+  static const _cacheDuration = Duration(minutes: 5);
+
   @override
   void onInit() {
     super.onInit();
@@ -36,20 +39,53 @@ class PatientInfoController extends GetxController {
       status.value = 'error';
       errorMessage.value = 'Identifiant du patient non spécifié.';
     } else {
+      _loadFromCache();
       loadPatientInfo();
     }
   }
 
-  Future<void> loadPatientInfo() async {
+  void _loadFromCache() {
+    if (patientId == null) return;
+    final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.patientInfo(patientId));
+    if (cached != null) {
+      if (cached['patient'] is PatientModel) {
+        patient.value = cached['patient'] as PatientModel;
+      }
+      if (cached['parents'] is List<PatientParentModel>) {
+        parents.value = cached['parents'] as List<PatientParentModel>;
+      }
+      if (cached['plans'] is List<PlanTherapeutiqueModel>) {
+        plans.value = cached['plans'] as List<PlanTherapeutiqueModel>;
+      }
+      if (cached['notes'] is List<NotePatientModel>) {
+        notes.value = cached['notes'] as List<NotePatientModel>;
+      }
+      if (cached['statutHistorique'] is List<PatientStatutHistoriqueModel>) {
+        statutHistorique.value = cached['statutHistorique'] as List<PatientStatutHistoriqueModel>;
+      }
+      status.value = 'success';
+    }
+  }
+
+  Future<void> loadPatientInfo({bool forceRefresh = false}) async {
     if (patientId == null) return;
     final id = patientId!;
-    try {
+
+    final cacheKey = CacheKeys.patientInfo(id);
+    if (AppCacheManager.isFresh(cacheKey) && !forceRefresh && patient.value != null) {
+      return;
+    }
+
+    if (patient.value == null) {
       status.value = 'loading';
-      
+    }
+
+    try {
       // Appel principal essentiel : données du patient
-      patient.value = await _patientService.getPatient(id);
-      
-      // Sous-ressources chargées de manière isolée pour éviter qu'une erreur ne bloque l'écran
+      final loadedPatient = await _patientService.getPatient(id);
+      patient.value = loadedPatient;
+
+      // Sous-ressources chargées en parallèle
       await Future.wait([
         _loadParents(id),
         _loadPlans(id),
@@ -58,12 +94,30 @@ class PatientInfoController extends GetxController {
         _loadAvailableParents(),
       ]);
 
+      // Sauvegarde dans le cache
+      AppCacheManager.set<Map<String, dynamic>>(
+        cacheKey,
+        {
+          'patient': loadedPatient,
+          'parents': parents.toList(),
+          'plans': plans.toList(),
+          'notes': notes.toList(),
+          'statutHistorique': statutHistorique.toList(),
+        },
+        ttl: _cacheDuration,
+        tags: {CacheTags.patients},
+      );
+
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = 'Impossible de charger le dossier patient : $e';
-      status.value = 'error';
+      if (patient.value == null) {
+        errorMessage.value = 'Impossible de charger le dossier patient : $e';
+        status.value = 'error';
+      }
     }
   }
+
+  Future<void> refreshData() => loadPatientInfo(forceRefresh: true);
 
   Future<void> _loadParents(dynamic id) async {
     try {
@@ -110,7 +164,8 @@ class PatientInfoController extends GetxController {
     if (patientId == null) return;
     try {
       await _patientService.addParentToPatient(patientId!, parentId: parentId, role: role);
-      await loadPatientInfo();
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      await loadPatientInfo(forceRefresh: true);
       Get.snackbar('Succès', 'Parent associé avec succès', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'associer le parent : $e', snackPosition: SnackPosition.BOTTOM);
@@ -143,7 +198,9 @@ class PatientInfoController extends GetxController {
         } catch (_) {}
       }
 
-      await loadPatientInfo();
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
+      await loadPatientInfo(forceRefresh: true);
       _notifyGlobalControllers();
       Get.snackbar(
         'Statut mis à jour',
@@ -164,7 +221,8 @@ class PatientInfoController extends GetxController {
         'contenu': contenu.trim(),
         'date': todayStr,
       });
-      await loadPatientInfo();
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      await loadPatientInfo(forceRefresh: true);
       _notifyGlobalControllers();
       Get.snackbar('Succès', 'Note enregistrée avec succès', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
@@ -176,6 +234,8 @@ class PatientInfoController extends GetxController {
     if (patientId == null) return;
     try {
       await _patientService.deletePatient(patientId!);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
       _notifyGlobalControllers();
       Get.back();
       Get.snackbar('Succès', 'Patient supprimé', snackPosition: SnackPosition.BOTTOM);
@@ -187,7 +247,8 @@ class PatientInfoController extends GetxController {
   Future<void> deleteNote(dynamic noteId) async {
     try {
       await _noteService.deleteNote(noteId);
-      await loadPatientInfo();
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      await loadPatientInfo(forceRefresh: true);
       _notifyGlobalControllers();
       Get.snackbar('Succès', 'Note supprimée', snackPosition: SnackPosition.BOTTOM);
     } catch (_) {
@@ -198,12 +259,12 @@ class PatientInfoController extends GetxController {
   void _notifyGlobalControllers() {
     try {
       if (Get.isRegistered<PatientsListeController>()) {
-        Get.find<PatientsListeController>().loadPatients();
+        Get.find<PatientsListeController>().loadPatients(forceRefresh: true);
       }
     } catch (_) {}
     try {
       if (Get.isRegistered<AccueilController>()) {
-        Get.find<AccueilController>().loadDashboard();
+        Get.find<AccueilController>().loadDashboard(forceRefresh: true);
       }
     } catch (_) {}
   }

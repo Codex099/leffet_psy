@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/parent_model.dart';
 import '../models/patient_model.dart';
+import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../services/parent_service.dart';
 import '../services/upload_service.dart';
@@ -355,19 +356,22 @@ class EditPatientController extends GetxController {
 
   // Step 4: Finish & optional plan
   Future<void> _finishWizard() async {
+    AppCacheManager.invalidateTag(CacheTags.patients);
+    AppCacheManager.invalidateTag(CacheTags.dashboard);
+
     try {
       if (Get.isRegistered<PatientsListeController>()) {
-        Get.find<PatientsListeController>().loadPatients();
+        Get.find<PatientsListeController>().loadPatients(forceRefresh: true);
       }
     } catch (_) {}
     try {
       if (Get.isRegistered<PatientInfoController>()) {
-        Get.find<PatientInfoController>().loadPatientInfo();
+        Get.find<PatientInfoController>().loadPatientInfo(forceRefresh: true);
       }
     } catch (_) {}
     try {
       if (Get.isRegistered<AccueilController>()) {
-        Get.find<AccueilController>().loadDashboard();
+        Get.find<AccueilController>().loadDashboard(forceRefresh: true);
       }
     } catch (_) {}
 

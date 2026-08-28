@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import '../config/api_config.dart';
 import '../models/employee_model.dart';
+import 'cache_manager.dart';
 import 'dio_client.dart';
 
 class AuthService {
@@ -44,6 +45,7 @@ class AuthService {
   Future<void> logout() async {
     await _storage.delete(key: ApiConfig.secureKeyToken);
     await _storage.delete(key: ApiConfig.secureKeyUser);
+    AppCacheManager.clearAll();
     DioClient.reset();
   }
 

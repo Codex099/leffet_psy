@@ -90,9 +90,9 @@ class StatePlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     // ── Loading: Shimmer skeleton ────────────────────────────────────────────
     if (type == StatePlaceholderType.loading) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 20),
-        child: ShimmerListLoader(count: 5),
+      return const Padding(
+        padding: EdgeInsets.only(top: 16),
+        child: ShimmerListLoader(count: 3, scrollable: true),
       );
     }
 

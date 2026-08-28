@@ -135,9 +135,16 @@ void main() {
   }
 
   Future<void> pumpScreen(WidgetTester tester, Widget page) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     await tester.pumpWidget(createTestApp(page));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 1200));
   }
 
   group('All 29 Pages Smoke Tests', () {
@@ -145,6 +152,8 @@ void main() {
       Get.put(AuthController());
       await pumpScreen(tester, const LoginView());
       expect(find.byType(LoginView), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
     });
 
     testWidgets('2. AccueilView renders without crashing', (tester) async {

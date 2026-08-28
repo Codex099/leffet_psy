@@ -7,7 +7,7 @@ class ApiConfig {
   // ─── Base URL ──────────────────────────────────────────────────────────────
   /// URL de base du backend FastAPI.
   /// Modifier cette valeur pour pointer vers staging/production.
-  static const String baseUrl = 'https://tokyo-year-freight-indices.trycloudflare.com';
+  static const String baseUrl = 'https://inline-labeled-interested-novel.trycloudflare.com';
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────
   static const int connectTimeoutMs = 20000;

@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' hide Response;
 import '../config/api_config.dart';
 import '../routes/app_routes.dart';
+import 'cache_manager.dart';
 
 /// Client Dio centralisé avec intercepteurs JWT.
 /// - Injecte automatiquement le token Bearer dans chaque requête
@@ -98,6 +99,7 @@ class _AuthInterceptor extends Interceptor {
   Future<void> _handleUnauthorized() async {
     await _storage.delete(key: ApiConfig.secureKeyToken);
     await _storage.delete(key: ApiConfig.secureKeyUser);
+    AppCacheManager.clearAll();
     DioClient.reset();
     // Redirige vers login en effaçant toute la pile de navigation
     Get.offAllNamed(AppRoutes.login);

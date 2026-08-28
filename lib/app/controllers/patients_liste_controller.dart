@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import '../models/patient_model.dart';
+import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 
 class PatientsListeController extends GetxController {
@@ -19,23 +20,21 @@ class PatientsListeController extends GetxController {
 
   Timer? _debounceTimer;
 
-  /// Cache TTL — 5 minutes
-  DateTime? _lastLoaded;
   static const _cacheDuration = Duration(minutes: 5);
-  bool get _isFresh =>
-      _lastLoaded != null &&
-      DateTime.now().difference(_lastLoaded!) < _cacheDuration;
 
   @override
   void onInit() {
     super.onInit();
+    _loadFromCache();
     loadPatients();
   }
 
   @override
   void onReady() {
     super.onReady();
-    if (!_isFresh) loadPatients();
+    if (!AppCacheManager.isFresh(CacheKeys.patientsList)) {
+      loadPatients();
+    }
   }
 
   @override
@@ -44,10 +43,24 @@ class PatientsListeController extends GetxController {
     super.onClose();
   }
 
+  void _loadFromCache() {
+    final cached = AppCacheManager.get<List<PatientModel>>(CacheKeys.patientsList);
+    if (cached != null && cached.isNotEmpty) {
+      allPatients.value = cached;
+      status.value = 'success';
+    }
+  }
+
   Future<void> loadPatients({bool forceRefresh = false}) async {
-    if (_isFresh && !forceRefresh) return;
-    try {
+    if (AppCacheManager.isFresh(CacheKeys.patientsList) && !forceRefresh && allPatients.isNotEmpty) {
+      return;
+    }
+
+    if (allPatients.isEmpty) {
       status.value = 'loading';
+    }
+
+    try {
       final list = await _patientService.getPatients(
         actif: null,
         search: null,
@@ -61,12 +74,21 @@ class PatientsListeController extends GetxController {
           uniquePatients.add(p);
         }
       }
+
       allPatients.value = uniquePatients;
-      _lastLoaded = DateTime.now();
+      AppCacheManager.set<List<PatientModel>>(
+        CacheKeys.patientsList,
+        uniquePatients,
+        ttl: _cacheDuration,
+        tags: {CacheTags.patients},
+      );
+
       status.value = uniquePatients.isEmpty ? 'empty' : 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (allPatients.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
 
@@ -116,7 +138,7 @@ class PatientsListeController extends GetxController {
 
   void search(String query) {
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 200), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 180), () {
       searchQuery.value = query;
     });
   }

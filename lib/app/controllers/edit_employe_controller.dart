@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../models/patient_model.dart';
+import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../services/patient_service.dart';
 import '../utils/json_utils.dart';
@@ -133,9 +134,11 @@ class EditEmployeController extends GetxController {
         await _employeeService.assignPatients(saved.id, selectedPatientIds.toList());
       }
 
+      AppCacheManager.invalidateTag(CacheTags.employes);
+
       try {
         if (Get.isRegistered<EmployesListeController>()) {
-          Get.find<EmployesListeController>().loadEmployees();
+          Get.find<EmployesListeController>().loadEmployees(forceRefresh: true);
         }
       } catch (_) {}
 

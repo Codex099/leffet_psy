@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../models/patient_model.dart';
 import '../models/tache_model.dart';
+import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../services/patient_service.dart';
 import '../services/tache_service.dart';
@@ -41,13 +42,35 @@ class DetailTacheController extends GetxController {
     _loadPatients();
     final id = extractIdParam(Get.arguments, Get.parameters);
     if (id != null) {
+      _loadFromCache(id);
       loadTache(id);
     } else {
       status.value = 'success';
     }
   }
 
+  void _loadFromCache(dynamic id) {
+    final cached = AppCacheManager.get<TacheModel>(CacheKeys.tacheDetail(id));
+    if (cached != null) {
+      tache.value = cached;
+      titre.value = cached.titre;
+      description.value = cached.description ?? '';
+      priorite.value = cached.priorite;
+      statut.value = cached.statut;
+      assigneA.value = cached.assigneA;
+      patientId.value = cached.patientId;
+      dateEcheance.value = cached.dateEcheance ?? '';
+      status.value = 'success';
+    }
+  }
+
   Future<void> _loadEmployees() async {
+    final cached = AppCacheManager.get<List<EmployeeModel>>(CacheKeys.employesList);
+    if (cached != null && cached.isNotEmpty) {
+      availableEmployees.value = cached;
+      employeesStatus.value = 'success';
+      return;
+    }
     try {
       employeesStatus.value = 'loading';
       final list = await _employeeService.getEmployees();
@@ -59,15 +82,28 @@ class DetailTacheController extends GetxController {
   }
 
   Future<void> _loadPatients() async {
+    final cached = AppCacheManager.get<List<PatientModel>>(CacheKeys.patientsList);
+    if (cached != null && cached.isNotEmpty) {
+      availablePatients.value = cached.where((p) => p.estActif).toList();
+      return;
+    }
     try {
       final list = await _patientService.getPatients(actif: true);
       availablePatients.value = list;
     } catch (_) {}
   }
 
-  Future<void> loadTache(dynamic id) async {
-    try {
+  Future<void> loadTache(dynamic id, {bool forceRefresh = false}) async {
+    final cacheKey = CacheKeys.tacheDetail(id);
+    if (AppCacheManager.isFresh(cacheKey) && !forceRefresh && tache.value != null) {
+      return;
+    }
+
+    if (tache.value == null) {
       status.value = 'loading';
+    }
+
+    try {
       final t = await _tacheService.getTache(id);
       tache.value = t;
       titre.value = t.titre;
@@ -77,10 +113,20 @@ class DetailTacheController extends GetxController {
       assigneA.value = t.assigneA;
       patientId.value = t.patientId;
       dateEcheance.value = t.dateEcheance ?? '';
+
+      AppCacheManager.set<TacheModel>(
+        cacheKey,
+        t,
+        ttl: const Duration(minutes: 5),
+        tags: {CacheTags.taches},
+      );
+
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (tache.value == null) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
 
@@ -105,6 +151,7 @@ class DetailTacheController extends GetxController {
     try {
       final updated = await _tacheService.updateTache(id, {'statut': newStatut});
       tache.value = updated;
+      AppCacheManager.invalidateTag(CacheTags.taches);
       Get.snackbar('Statut mis à jour', _statutLabel(newStatut),
           snackPosition: SnackPosition.BOTTOM, duration: const Duration(seconds: 2));
     } catch (_) {
@@ -146,6 +193,8 @@ class DetailTacheController extends GetxController {
         Get.snackbar('Succès', 'Tâche mise à jour.', snackPosition: SnackPosition.BOTTOM);
       }
 
+      AppCacheManager.invalidateTag(CacheTags.taches);
+
       try {
         if (Get.isRegistered<TachesController>()) {
           Get.find<TachesController>().loadTaches(forceRefresh: true);
@@ -163,6 +212,7 @@ class DetailTacheController extends GetxController {
     if (tache.value == null) return;
     try {
       await _tacheService.deleteTache(tache.value!.id);
+      AppCacheManager.invalidateTag(CacheTags.taches);
       try {
         if (Get.isRegistered<TachesController>()) {
           Get.find<TachesController>().loadTaches(forceRefresh: true);

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../models/evenement_calendrier_model.dart';
+import '../services/cache_manager.dart';
 import '../services/calendrier_service.dart';
 
 class CalendrierController extends GetxController {
@@ -16,10 +17,29 @@ class CalendrierController extends GetxController {
   final date = ''.obs;
   final notifierJours = 3.obs;
 
+  static const _cacheDuration = Duration(minutes: 10);
+
   @override
   void onInit() {
     super.onInit();
+    _loadFromCache();
     loadEvenements();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    if (!AppCacheManager.isFresh(CacheKeys.calendrierEvents)) {
+      loadEvenements();
+    }
+  }
+
+  void _loadFromCache() {
+    final cached = AppCacheManager.get<List<EvenementCalendrierModel>>(CacheKeys.calendrierEvents);
+    if (cached != null && cached.isNotEmpty) {
+      evenements.value = cached;
+      status.value = 'success';
+    }
   }
 
   void resetForm([EvenementCalendrierModel? ev]) {
@@ -39,17 +59,36 @@ class CalendrierController extends GetxController {
     }
   }
 
-  Future<void> loadEvenements() async {
-    try {
+  Future<void> loadEvenements({bool forceRefresh = false}) async {
+    if (AppCacheManager.isFresh(CacheKeys.calendrierEvents) && !forceRefresh && evenements.isNotEmpty) {
+      return;
+    }
+
+    if (evenements.isEmpty) {
       status.value = 'loading';
+    }
+
+    try {
       final list = await _calendrierService.getEvenements();
       evenements.value = list;
+
+      AppCacheManager.set<List<EvenementCalendrierModel>>(
+        CacheKeys.calendrierEvents,
+        list,
+        ttl: _cacheDuration,
+        tags: {CacheTags.calendrier},
+      );
+
       status.value = list.isEmpty ? 'empty' : 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (evenements.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
+
+  Future<void> refreshData() => loadEvenements(forceRefresh: true);
 
   Future<bool> saveEvenement() async {
     if (titre.value.trim().isEmpty) {
@@ -79,7 +118,8 @@ class CalendrierController extends GetxController {
         Get.snackbar('Succès', 'Événement créé', snackPosition: SnackPosition.BOTTOM);
       }
 
-      loadEvenements();
+      AppCacheManager.invalidateTag(CacheTags.calendrier);
+      loadEvenements(forceRefresh: true);
       return true;
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'enregistrer l\'événement : $e',
@@ -91,7 +131,8 @@ class CalendrierController extends GetxController {
   Future<void> deleteEvenement(dynamic id) async {
     try {
       await _calendrierService.deleteEvenement(id);
-      loadEvenements();
+      AppCacheManager.invalidateTag(CacheTags.calendrier);
+      loadEvenements(forceRefresh: true);
       Get.snackbar('Succès', 'Événement supprimé', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer l\'événement', snackPosition: SnackPosition.BOTTOM);

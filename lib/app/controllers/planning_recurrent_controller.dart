@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../models/seance_model.dart';
+import '../services/cache_manager.dart';
 import '../services/seance_service.dart';
 
 import '../utils/json_utils.dart';
@@ -13,13 +14,14 @@ class PlanningRecurrentController extends GetxController {
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
   final selectedDays = <String>[].obs;
-  // Mode : 'fixe' (mêmes heures) ou 'ponctuel' (heure par jour)
   final RxString modeCreneaux = 'fixe'.obs;
   final heureDebut = '09:00'.obs;
   final heureFin = '09:45'.obs;
   final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
 
   dynamic patientId;
+
+  static const _cacheDuration = Duration(minutes: 5);
 
   static const Map<String, String> dayToFull = {
     'lun': 'lundi',
@@ -56,7 +58,24 @@ class PlanningRecurrentController extends GetxController {
       status.value = 'error';
       errorMessage.value = 'Identifiant du patient non spécifié.';
     } else {
+      _loadFromCache();
       loadPlanning();
+    }
+  }
+
+  void _loadFromCache() {
+    if (patientId == null) return;
+    final cached = AppCacheManager.get<PatientPlanningRecurrentModel>(CacheKeys.patientPlanning(patientId));
+    if (cached != null) {
+      planning.value = cached;
+      final rawDays = cached.joursSemaine;
+      selectedDays.value = rawDays.map((d) {
+        final lower = d.toLowerCase();
+        return fullToShort[lower] ?? d;
+      }).toList();
+      if (cached.heureDebut.isNotEmpty) heureDebut.value = cached.heureDebut;
+      if (cached.heureFin.isNotEmpty) heureFin.value = cached.heureFin;
+      status.value = 'success';
     }
   }
 
@@ -81,28 +100,52 @@ class PlanningRecurrentController extends GetxController {
     daySlotsMap.refresh();
   }
 
-  Future<void> loadPlanning() async {
+  Future<void> loadPlanning({bool forceRefresh = false}) async {
     if (patientId == null) return;
-    try {
+    final cacheKey = CacheKeys.patientPlanning(patientId);
+
+    if (AppCacheManager.isFresh(cacheKey) && !forceRefresh && planning.value != null) {
+      return;
+    }
+
+    if (planning.value == null) {
       status.value = 'loading';
-      planning.value = await _planningService.getPlanningRecurrent(patientId!);
-      final rawDays = planning.value?.joursSemaine ?? [];
+    }
+
+    try {
+      final loaded = await _planningService.getPlanningRecurrent(patientId!);
+      planning.value = loaded;
+      final rawDays = loaded?.joursSemaine ?? [];
       selectedDays.value = rawDays.map((d) {
         final lower = d.toLowerCase();
         return fullToShort[lower] ?? d;
       }).toList();
-      if (planning.value?.heureDebut != null && planning.value!.heureDebut.isNotEmpty) {
-        heureDebut.value = planning.value!.heureDebut;
+      if (loaded?.heureDebut != null && loaded!.heureDebut.isNotEmpty) {
+        heureDebut.value = loaded.heureDebut;
       }
-      if (planning.value?.heureFin != null && planning.value!.heureFin.isNotEmpty) {
-        heureFin.value = planning.value!.heureFin;
+      if (loaded?.heureFin != null && loaded!.heureFin.isNotEmpty) {
+        heureFin.value = loaded.heureFin;
       }
+
+      if (loaded != null) {
+        AppCacheManager.set<PatientPlanningRecurrentModel>(
+          cacheKey,
+          loaded,
+          ttl: _cacheDuration,
+          tags: {CacheTags.patients, CacheTags.seances},
+        );
+      }
+
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (planning.value == null) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
+
+  Future<void> refreshData() => loadPlanning(forceRefresh: true);
 
   Future<void> savePlanning() async {
     if (patientId == null) return;
@@ -120,12 +163,10 @@ class PlanningRecurrentController extends GetxController {
           'heure_fin': heureFin.value,
         });
 
-        // Génération automatique des séances prévues sur l'agenda
         try {
           await _planningService.genererSeances(patientId!);
         } catch (_) {}
       } else {
-        // Mode Ponctuel / Par Jour
         for (final day in selectedDays) {
           final lower = day.toLowerCase();
           final fullDay = dayToFull[lower] ?? lower;
@@ -143,6 +184,10 @@ class PlanningRecurrentController extends GetxController {
           } catch (_) {}
         }
       }
+
+      AppCacheManager.invalidateTag(CacheTags.seances);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
 
       try {
         if (Get.isRegistered<AgendaController>()) {

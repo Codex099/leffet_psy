@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../models/patient_model.dart';
 import '../models/groupe_model.dart';
 import '../models/employee_model.dart';
+import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../services/groupe_service.dart';
 import '../services/employee_service.dart';
@@ -39,12 +40,39 @@ class CreationSeanceController extends GetxController {
     super.onInit();
     final now = DateTime.now();
     date.value = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    _loadFromCache();
     loadOptions();
+  }
+
+  void _loadFromCache() {
+    final cachedPatients = AppCacheManager.get<List<PatientModel>>(CacheKeys.patientsList);
+    if (cachedPatients != null && cachedPatients.isNotEmpty) {
+      patients.value = cachedPatients.where((p) => p.estActif).toList();
+      if (selectedPatientId.value == null && patients.isNotEmpty) {
+        selectedPatientId.value = patients.first.id;
+      }
+    }
+    final cachedGroupes = AppCacheManager.get<List<GroupeModel>>(CacheKeys.groupesList);
+    if (cachedGroupes != null && cachedGroupes.isNotEmpty) {
+      groupes.value = cachedGroupes;
+      if (selectedGroupeId.value == null && groupes.isNotEmpty) {
+        selectedGroupeId.value = groupes.first.id;
+      }
+    }
+    final cachedEmps = AppCacheManager.get<List<EmployeeModel>>(CacheKeys.employesList);
+    if (cachedEmps != null && cachedEmps.isNotEmpty) {
+      employees.value = cachedEmps;
+    }
+    if (patients.isNotEmpty || groupes.isNotEmpty) {
+      status.value = 'success';
+    }
   }
 
   Future<void> loadOptions() async {
     try {
-      status.value = 'loading';
+      if (patients.isEmpty && groupes.isEmpty) {
+        status.value = 'loading';
+      }
       final fetchedPatients = await _patientService.getPatients(actif: true);
       final fetchedGroupes = await _groupeService.getGroupes();
       final fetchedEmployees = await _employeeService.getEmployees();
@@ -53,12 +81,14 @@ class CreationSeanceController extends GetxController {
       groupes.value = fetchedGroupes;
       employees.value = fetchedEmployees;
 
-      if (patients.isNotEmpty) selectedPatientId.value = patients.first.id;
-      if (groupes.isNotEmpty) selectedGroupeId.value = groupes.first.id;
+      if (patients.isNotEmpty && selectedPatientId.value == null) selectedPatientId.value = patients.first.id;
+      if (groupes.isNotEmpty && selectedGroupeId.value == null) selectedGroupeId.value = groupes.first.id;
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (patients.isEmpty && groupes.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
 
@@ -114,6 +144,9 @@ class CreationSeanceController extends GetxController {
 
         await _seanceGroupeService.createSeanceGroupe(payload);
       }
+
+      AppCacheManager.invalidateTag(CacheTags.seances);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
 
       status.value = 'success';
       try {

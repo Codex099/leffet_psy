@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/dossier_medical_model.dart';
+import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../utils/json_utils.dart';
 
@@ -30,6 +31,8 @@ class DossierMedicalController extends GetxController {
   final aspectSanitaireController = TextEditingController();
   final stadeScolarisationController = TextEditingController();
 
+  static const _cacheDuration = Duration(minutes: 5);
+
   @override
   void onInit() {
     super.onInit();
@@ -38,6 +41,7 @@ class DossierMedicalController extends GetxController {
       status.value = 'error';
       errorMessage.value = 'Identifiant du patient non spécifié.';
     } else {
+      _loadFromCache();
       loadDossier();
     }
   }
@@ -61,12 +65,40 @@ class DossierMedicalController extends GetxController {
     super.onClose();
   }
 
-  Future<void> loadDossier() async {
+  void _loadFromCache() {
     if (patientId == null) return;
-    try {
-      status.value = 'loading';
-      dossier.value = await _patientService.getDossierMedical(patientId!);
+    final cached = AppCacheManager.get<DossierMedicalModel>(CacheKeys.patientDossier(patientId));
+    if (cached != null) {
+      dossier.value = cached;
       _fillControllers();
+      status.value = 'success';
+    }
+  }
+
+  Future<void> loadDossier({bool forceRefresh = false}) async {
+    if (patientId == null) return;
+    final cacheKey = CacheKeys.patientDossier(patientId);
+
+    if (AppCacheManager.isFresh(cacheKey) && !forceRefresh && dossier.value != null) {
+      return;
+    }
+
+    if (dossier.value == null) {
+      status.value = 'loading';
+    }
+
+    try {
+      final loaded = await _patientService.getDossierMedical(patientId!);
+      dossier.value = loaded;
+      _fillControllers();
+
+      AppCacheManager.set<DossierMedicalModel>(
+        cacheKey,
+        loaded,
+        ttl: _cacheDuration,
+        tags: {CacheTags.patients},
+      );
+
       status.value = 'success';
     } on DioException catch (e) {
       // 404 = dossier pas encore créé → formulaire vide, pas d'erreur bloquante
@@ -75,14 +107,20 @@ class DossierMedicalController extends GetxController {
         _clearControllers();
         status.value = 'success';
       } else {
-        errorMessage.value = e.message ?? e.toString();
-        status.value = 'error';
+        if (dossier.value == null) {
+          errorMessage.value = e.message ?? e.toString();
+          status.value = 'error';
+        }
       }
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (dossier.value == null) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
+
+  Future<void> refreshData() => loadDossier(forceRefresh: true);
 
   void _fillControllers() {
     antecedentsController.text = dossier.value?.antecedentsMedicaux ?? '';
@@ -138,9 +176,11 @@ class DossierMedicalController extends GetxController {
         'aspect_sanitaire': aspectSanitaireController.text.isNotEmpty ? aspectSanitaireController.text : null,
         'stade_scolarisation': stadeScolarisationController.text.isNotEmpty ? stadeScolarisationController.text : null,
       });
-      await loadDossier();
+
+      AppCacheManager.invalidate(CacheKeys.patientDossier(patientId));
+      await loadDossier(forceRefresh: true);
       isEditing.value = false;
-      Get.snackbar('Succès', 'Dossier médical mis à jour');
+      Get.snackbar('Succès', 'Dossier médical mis à jour', snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';

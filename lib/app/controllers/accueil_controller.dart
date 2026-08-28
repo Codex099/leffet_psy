@@ -4,6 +4,7 @@ import '../models/employee_model.dart';
 import '../models/seance_model.dart';
 import '../models/seance_groupe_model.dart';
 import '../services/auth_service.dart';
+import '../services/cache_manager.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 import '../services/patient_service.dart';
@@ -23,43 +24,65 @@ class AccueilController extends GetxController {
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
 
-  /// Cache TTL : 1 minute
-  DateTime? _lastLoaded;
-  static const _cacheDuration = Duration(minutes: 1);
-
-  bool get _isFresh =>
-      _lastLoaded != null &&
-      DateTime.now().difference(_lastLoaded!) < _cacheDuration;
+  static const _cacheDuration = Duration(minutes: 2);
 
   @override
   void onInit() {
     super.onInit();
+    _loadFromCache();
     loadDashboard();
   }
 
-  /// Appelée à chaque retour sur l'onglet — ne charge que si cache expiré.
   @override
   void onReady() {
     super.onReady();
-    if (!_isFresh) loadDashboard();
+    if (!AppCacheManager.isFresh(CacheKeys.dashboard)) {
+      loadDashboard();
+    }
+  }
+
+  void _loadFromCache() {
+    final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.dashboard);
+    if (cached != null) {
+      if (cached['user'] is EmployeeModel) {
+        currentUser.value = cached['user'] as EmployeeModel;
+      }
+      if (cached['seances'] is List<AgendaSessionItem>) {
+        prochainesSeances.value = cached['seances'] as List<AgendaSessionItem>;
+        seancesPrevuesCount.value = prochainesSeances.length;
+      }
+      if (cached['totalPatients'] is int) {
+        totalPatients.value = cached['totalPatients'] as int;
+      }
+      status.value = 'success';
+    }
   }
 
   Future<void> loadDashboard({bool forceRefresh = false}) async {
-    if (_isFresh && !forceRefresh) return;
-    try {
-      status.value = 'loading';
-      currentUser.value = await _authService.getMe();
+    // Si la donnée est fraîche et qu'on ne force pas, pas besoin d'appel réseau
+    if (AppCacheManager.isFresh(CacheKeys.dashboard) && !forceRefresh && prochainesSeances.isNotEmpty) {
+      return;
+    }
 
+    // N'affiche le loader plein écran que si on n'a absolument rien en mémoire
+    if (prochainesSeances.isEmpty && currentUser.value == null) {
+      status.value = 'loading';
+    }
+
+    try {
+      final userFuture = _authService.getMe();
       final todayStr = DateTime.now().toIso8601String().split('T').first;
       final results = await Future.wait([
+        userFuture,
         _seanceService.getSeances(date: todayStr),
         _seanceGroupeService.getSeancesGroupe(date: todayStr),
         _patientService.getPatients(actif: true),
       ]);
 
-      final indList = results[0] as List<SeanceModel>;
-      final grpList = results[1] as List<SeanceGroupeModel>;
-      final patients = results[2] as List<dynamic>;
+      final user = results[0] as EmployeeModel;
+      final indList = results[1] as List<SeanceModel>;
+      final grpList = results[2] as List<SeanceGroupeModel>;
+      final patients = results[3] as List<dynamic>;
 
       final unified = <AgendaSessionItem>[
         ...indList.map(AgendaSessionItem.fromIndividuelle),
@@ -69,16 +92,31 @@ class AccueilController extends GetxController {
       // Tri chronologique par heure de début
       unified.sort((a, b) => a.heureDebut.compareTo(b.heureDebut));
 
+      currentUser.value = user;
       prochainesSeances.value = unified;
       seancesPrevuesCount.value = unified.length;
       totalPatients.value = patients.length;
-
       alertesCount.value = 0;
-      _lastLoaded = DateTime.now();
+
+      // Sauvegarde dans le cache global
+      AppCacheManager.set<Map<String, dynamic>>(
+        CacheKeys.dashboard,
+        {
+          'user': user,
+          'seances': unified,
+          'totalPatients': patients.length,
+        },
+        ttl: _cacheDuration,
+        tags: {CacheTags.dashboard, CacheTags.seances, CacheTags.patients},
+      );
+
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      // Si on avait déjà des données en cache, on ne bloque pas l'écran
+      if (prochainesSeances.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
 

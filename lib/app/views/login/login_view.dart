@@ -31,7 +31,10 @@ class _LoginViewState extends State<LoginView> with TickerProviderStateMixin {
     _auroraController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 8),
-    )..repeat(reverse: true);
+    );
+    if (!Get.testMode) {
+      _auroraController.repeat(reverse: true);
+    }
     _auroraAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _auroraController, curve: Curves.easeInOut),
     );

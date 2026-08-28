@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../models/agenda_session_item.dart';
 import '../models/seance_model.dart';
 import '../models/seance_groupe_model.dart';
+import '../services/cache_manager.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 
@@ -20,29 +21,41 @@ class AgendaController extends GetxController {
   final RxString activeMode = 'Jour'.obs; // 'Jour' | 'Semaine'
   final Rx<DateTime> selectedDate = DateTime.now().obs;
 
-  DateTime? _lastLoaded;
-  static const _cacheDuration = Duration(minutes: 1);
-  bool get _isFresh =>
-      _lastLoaded != null &&
-      DateTime.now().difference(_lastLoaded!) < _cacheDuration;
+  static const _cacheDuration = Duration(minutes: 2);
 
   @override
   void onInit() {
     super.onInit();
+    _loadFromCache();
     loadAgenda();
   }
 
   @override
   void onReady() {
     super.onReady();
-    if (!_isFresh) loadAgenda();
+    if (!AppCacheManager.isFresh(CacheKeys.agendaAll)) {
+      loadAgenda();
+    }
+  }
+
+  void _loadFromCache() {
+    final cached = AppCacheManager.get<List<AgendaSessionItem>>(CacheKeys.agendaAll);
+    if (cached != null && cached.isNotEmpty) {
+      allSessions.value = cached;
+      status.value = 'success';
+    }
   }
 
   Future<void> loadAgenda({bool forceRefresh = false}) async {
-    if (_isFresh && !forceRefresh && allSessions.isNotEmpty) return;
+    if (AppCacheManager.isFresh(CacheKeys.agendaAll) && !forceRefresh && allSessions.isNotEmpty) {
+      return;
+    }
+
+    if (allSessions.isEmpty) {
+      status.value = 'loading';
+    }
 
     try {
-      status.value = 'loading';
       final results = await Future.wait([
         _seanceService.getSeances(),
         _seanceGroupeService.getSeancesGroupe(),
@@ -64,11 +77,19 @@ class AgendaController extends GetxController {
       });
 
       allSessions.value = unified;
-      _lastLoaded = DateTime.now();
+      AppCacheManager.set<List<AgendaSessionItem>>(
+        CacheKeys.agendaAll,
+        unified,
+        ttl: _cacheDuration,
+        tags: {CacheTags.seances, CacheTags.dashboard},
+      );
+
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (allSessions.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
   }
 

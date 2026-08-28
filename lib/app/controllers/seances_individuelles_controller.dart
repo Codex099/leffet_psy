@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/patient_model.dart';
 import '../models/seance_model.dart';
+import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../services/seance_service.dart';
 import 'accueil_controller.dart';
@@ -50,12 +52,15 @@ class SeancesIndividuellesController extends GetxController {
   // ── Formulaire Créneau Récurrent Patient ──
   final Rx<dynamic> selectedPatientId = Rx<dynamic>(null);
   final RxList<String> selectedDays = <String>['Lun', 'Mer'].obs;
-  // Mode des créneaux : 'fixe' (mêmes heures pour tous les jours) ou 'ponctuel' (heure personnalisée par jour)
   final RxString modeCreneaux = 'fixe'.obs;
   final RxString heureDebut = '10:00'.obs;
   final RxString heureFin = '10:45'.obs;
   final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
   final RxString patientSearchQuery = ''.obs;
+
+  Timer? _debounceTimer;
+
+  static const _cacheDuration = Duration(minutes: 2);
 
   static const List<String> allDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   static const List<String> allDayFullNames = [
@@ -82,13 +87,50 @@ class SeancesIndividuellesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _loadFromCache();
     loadData();
   }
 
-  Future<void> loadData({bool forceRefresh = false}) async {
-    try {
-      status.value = 'loading';
+  @override
+  void onReady() {
+    super.onReady();
+    if (!AppCacheManager.isFresh(CacheKeys.seancesIndivList)) {
+      loadData();
+    }
+  }
 
+  @override
+  void onClose() {
+    _debounceTimer?.cancel();
+    super.onClose();
+  }
+
+  void _loadFromCache() {
+    final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.seancesIndivList);
+    if (cached != null) {
+      if (cached['seances'] is List<SeanceModel>) {
+        allSeances.value = cached['seances'] as List<SeanceModel>;
+      }
+      if (cached['patients'] is List<PatientModel>) {
+        allPatients.value = cached['patients'] as List<PatientModel>;
+      }
+      if (allPatients.isNotEmpty && selectedPatientId.value == null) {
+        selectedPatientId.value = allPatients.first.id;
+      }
+      status.value = 'success';
+    }
+  }
+
+  Future<void> loadData({bool forceRefresh = false}) async {
+    if (AppCacheManager.isFresh(CacheKeys.seancesIndivList) && !forceRefresh && allSeances.isNotEmpty) {
+      return;
+    }
+
+    if (allSeances.isEmpty) {
+      status.value = 'loading';
+    }
+
+    try {
       final results = await Future.wait([
         _seanceService.getSeances(),
         _patientService.getPatients(),
@@ -97,7 +139,6 @@ class SeancesIndividuellesController extends GetxController {
       final seancesList = results[0] as List<SeanceModel>;
       final patientsList = results[1] as List<PatientModel>;
 
-      // Tri chronologique : séances à venir en premier, puis antéchronologique
       seancesList.sort((a, b) {
         final compDate = b.date.compareTo(a.date);
         if (compDate != 0) return compDate;
@@ -111,11 +152,32 @@ class SeancesIndividuellesController extends GetxController {
         selectedPatientId.value = patientsList.first.id;
       }
 
+      AppCacheManager.set<Map<String, dynamic>>(
+        CacheKeys.seancesIndivList,
+        {
+          'seances': seancesList,
+          'patients': patientsList,
+        },
+        ttl: _cacheDuration,
+        tags: {CacheTags.seances, CacheTags.patients},
+      );
+
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (allSeances.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
+  }
+
+  Future<void> refreshData() => loadData(forceRefresh: true);
+
+  void search(String query) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 180), () {
+      searchQuery.value = query;
+    });
   }
 
   /// Liste regroupée par Patient (1 seule carte par patient dans la liste)
@@ -223,10 +285,8 @@ class SeancesIndividuellesController extends GetxController {
     var list = allSeances.toList();
     final todayStr = DateTime.now().toIso8601String().split('T').first;
 
-    // Filtre par onglet
     if (activeTab.value == 'a_venir') {
       list = list.where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'realisee').toList();
-      // Tri du plus proche au plus lointain
       list.sort((a, b) {
         final d = a.date.compareTo(b.date);
         if (d != 0) return d;
@@ -236,7 +296,6 @@ class SeancesIndividuellesController extends GetxController {
       list = list.where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'realisee').toList();
     }
 
-    // Filtre par recherche
     final q = searchQuery.value.toLowerCase().trim();
     if (q.isNotEmpty) {
       list = list.where((s) {
@@ -294,7 +353,6 @@ class SeancesIndividuellesController extends GetxController {
 
   bool isDaySelected(String day) => selectedDays.contains(day);
 
-  /// Créer un créneau récurrent pour un patient (support Mode Fixe & Mode Ponctuel par jour)
   Future<bool> enregistrerCreneauRecurrent() async {
     if (selectedPatientId.value == null) {
       Get.snackbar('Erreur', 'Veuillez sélectionner un patient.', snackPosition: SnackPosition.BOTTOM);
@@ -315,12 +373,10 @@ class SeancesIndividuellesController extends GetxController {
           'heure_fin': heureFin.value,
         });
 
-        // Générer les séances sur l'agenda
         try {
           await _planningService.genererSeances(selectedPatientId.value);
         } catch (_) {}
       } else {
-        // Mode Ponctuel / Par Jour : Configurer et générer les séances pour chaque jour avec son horaire
         for (final day in selectedDays) {
           final fullDay = dayToFull[day] ?? day.toLowerCase();
           final start = getSlotStartForDay(day);
@@ -338,7 +394,9 @@ class SeancesIndividuellesController extends GetxController {
         }
       }
 
-      // Rafraîchir les contrôleurs
+      AppCacheManager.invalidateTag(CacheTags.seances);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
+
       await loadData(forceRefresh: true);
       try {
         if (Get.isRegistered<AgendaController>()) {
@@ -367,7 +425,6 @@ class SeancesIndividuellesController extends GetxController {
     }
   }
 
-  /// Reporter ou modifier les horaires / date / statut d'une séance individuelle
   Future<bool> modifierRendezVous({
     required SeanceModel seance,
     required String newDate,
@@ -377,14 +434,12 @@ class SeancesIndividuellesController extends GetxController {
   }) async {
     try {
       if (newDate == seance.date) {
-        // Même date -> simple update
         await _seanceService.updateSeance(seance.id, {
           'heure_debut': newHeureDebut,
           'heure_fin': newHeureFin,
           'statut': statut,
         });
       } else {
-        // Date différente -> recréation propre avec nouvelle date
         await _seanceService.deleteSeance(seance.id);
         await _seanceService.createSeance({
           'patient_id': seance.patientId,
@@ -396,6 +451,9 @@ class SeancesIndividuellesController extends GetxController {
           if (seance.descriptionEtat != null) 'description_etat': seance.descriptionEtat,
         });
       }
+
+      AppCacheManager.invalidateTag(CacheTags.seances);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
 
       await loadData(forceRefresh: true);
 
@@ -424,10 +482,11 @@ class SeancesIndividuellesController extends GetxController {
     }
   }
 
-  /// Supprimer une séance individuelle
   Future<bool> supprimerSeance(dynamic seanceId) async {
     try {
       await _seanceService.deleteSeance(seanceId);
+      AppCacheManager.invalidateTag(CacheTags.seances);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
       await loadData(forceRefresh: true);
 
       try {

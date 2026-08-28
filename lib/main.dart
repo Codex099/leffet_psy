@@ -4,6 +4,12 @@ import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Optimisation de la mémoire cache d'images (Pro Dev Best Practice)
+  // Évite les fuites de mémoire et les micro-saccades lors du défilement des listes avec photos
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 64 * 1024 * 1024; // 64 MB
+  PaintingBinding.instance.imageCache.maximumSize = 150; // max 150 images décodées en RAM
+
   await initializeDateFormatting('fr_FR', null);
   runApp(const PsyCareApp());
 }

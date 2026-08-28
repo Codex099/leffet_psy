@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../services/cache_manager.dart';
 import '../services/note_patient_service.dart';
-
 import '../utils/json_utils.dart';
 
 class NotesPatientController extends GetxController {
@@ -12,18 +12,12 @@ class NotesPatientController extends GetxController {
   final RxString errorMessage = ''.obs;
   dynamic patientId;
 
-  /// Source de vérité du champ de saisie : un TextEditingController permet de
-  /// vider réellement le champ après l'enregistrement (un simple RxString ne
-  /// remet pas à zéro le TextFormField).
   final TextEditingController contenuController = TextEditingController();
-
   final RxList<String> medias = <String>[].obs;
-
-  /// Incrémenté après chaque enregistrement pour reconstruire le
-  /// MediaPickerWidget (stateful, il conserve sinon ses vignettes).
   final RxInt formResetToken = 0.obs;
-
   final RxBool isSaving = false.obs;
+
+  static const _cacheDuration = Duration(minutes: 5);
 
   @override
   void onInit() {
@@ -33,6 +27,7 @@ class NotesPatientController extends GetxController {
       status.value = 'error';
       errorMessage.value = 'Identifiant du patient non spécifié.';
     } else {
+      _loadFromCache();
       loadNotes();
     }
   }
@@ -43,17 +38,48 @@ class NotesPatientController extends GetxController {
     super.onClose();
   }
 
-  Future<void> loadNotes() async {
+  void _loadFromCache() {
     if (patientId == null) return;
-    try {
-      status.value = 'loading';
-      notes.value = await _noteService.getNotes(patientId!);
-      status.value = notes.isEmpty ? 'empty' : 'success';
-    } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+    final cached = AppCacheManager.get<List<Map<String, dynamic>>>(CacheKeys.patientNotes(patientId));
+    if (cached != null && cached.isNotEmpty) {
+      notes.value = cached;
+      status.value = 'success';
     }
   }
+
+  Future<void> loadNotes({bool forceRefresh = false}) async {
+    if (patientId == null) return;
+    final cacheKey = CacheKeys.patientNotes(patientId);
+
+    if (AppCacheManager.isFresh(cacheKey) && !forceRefresh && notes.isNotEmpty) {
+      return;
+    }
+
+    if (notes.isEmpty) {
+      status.value = 'loading';
+    }
+
+    try {
+      final list = await _noteService.getNotes(patientId!);
+      notes.value = list;
+
+      AppCacheManager.set<List<Map<String, dynamic>>>(
+        cacheKey,
+        list,
+        ttl: _cacheDuration,
+        tags: {CacheTags.patients},
+      );
+
+      status.value = list.isEmpty ? 'empty' : 'success';
+    } catch (e) {
+      if (notes.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
+    }
+  }
+
+  Future<void> refreshData() => loadNotes(forceRefresh: true);
 
   Future<void> addNote() async {
     if (patientId == null || isSaving.value) return;
@@ -71,7 +97,8 @@ class NotesPatientController extends GetxController {
       contenuController.clear();
       medias.clear();
       formResetToken.value++;
-      await loadNotes();
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      await loadNotes(forceRefresh: true);
       Get.snackbar('Note enregistrée', 'L\'observation a été ajoutée au dossier');
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'ajouter la note');
@@ -83,14 +110,13 @@ class NotesPatientController extends GetxController {
   Future<void> deleteNote(dynamic noteId) async {
     try {
       await _noteService.deleteNote(noteId);
-      loadNotes();
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      await loadNotes(forceRefresh: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer la note');
     }
   }
 
-  /// Nom lisible du rédacteur : le backend renvoie `auteur` (objet employé
-  /// imbriqué). Repli sur « Auteur inconnu » pour les notes anciennes.
   String auteurDe(Map<String, dynamic> note) {
     final auteur = note['auteur'];
     if (auteur is Map) {
@@ -103,7 +129,6 @@ class NotesPatientController extends GetxController {
     return 'Auteur inconnu';
   }
 
-  /// Date de rédaction formatée JJ/MM/AAAA à HH:MM depuis `date_creation`.
   String dateDe(Map<String, dynamic> note) {
     final brut = note['date_creation'];
     if (brut is! String || brut.isEmpty) return '';
@@ -116,7 +141,6 @@ class NotesPatientController extends GetxController {
     return '$jj/$mm/${d.year} à $hh:$mi';
   }
 
-  /// URLs des médias attachés à une note (le backend stocke une liste JSON).
   List<String> mediasDe(Map<String, dynamic> note) {
     final brut = note['medias'];
     if (brut is List) {

@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import '../models/agenda_session_item.dart';
 import '../models/employee_model.dart';
 import '../models/seance_model.dart';
 import '../models/seance_groupe_model.dart';
+import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
@@ -24,22 +26,61 @@ class CompteRenduHubController extends GetxController {
   final Rx<dynamic> filterPraticienId = Rx<dynamic>(null);
   final RxString searchQuery = ''.obs;
 
+  Timer? _debounceTimer;
+
+  static const _cacheDuration = Duration(minutes: 3);
+
   @override
   void onInit() {
     super.onInit();
+    _loadFromCache();
     loadData();
   }
 
-  Future<void> loadData({bool forceRefresh = false}) async {
-    try {
-      status.value = 'loading';
+  @override
+  void onReady() {
+    super.onReady();
+    if (!AppCacheManager.isFresh(CacheKeys.compteRenduHub)) {
+      loadData();
+    }
+  }
 
-      // 1. Charger praticiens
+  @override
+  void onClose() {
+    _debounceTimer?.cancel();
+    super.onClose();
+  }
+
+  void _loadFromCache() {
+    final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.compteRenduHub);
+    if (cached != null) {
+      if (cached['sessions'] is List<AgendaSessionItem>) {
+        allSessions.value = cached['sessions'] as List<AgendaSessionItem>;
+      }
+      if (cached['praticiens'] is List<EmployeeModel>) {
+        praticiens.value = cached['praticiens'] as List<EmployeeModel>;
+      }
+      status.value = 'success';
+    }
+  }
+
+  Future<void> loadData({bool forceRefresh = false}) async {
+    if (AppCacheManager.isFresh(CacheKeys.compteRenduHub) && !forceRefresh && allSessions.isNotEmpty) {
+      return;
+    }
+
+    if (allSessions.isEmpty) {
+      status.value = 'loading';
+    }
+
+    try {
+      // 1. Praticiens
       try {
-        praticiens.value = await _employeeService.getEmployees();
+        final emps = await _employeeService.getEmployees();
+        praticiens.value = emps;
       } catch (_) {}
 
-      // 2. Charger séances individuelles et groupe
+      // 2. Séances individuelles et groupe
       final results = await Future.wait([
         _seanceService.getSeances(),
         _seanceGroupeService.getSeancesGroupe(),
@@ -61,11 +102,33 @@ class CompteRenduHubController extends GetxController {
       });
 
       allSessions.value = unified;
+
+      AppCacheManager.set<Map<String, dynamic>>(
+        CacheKeys.compteRenduHub,
+        {
+          'sessions': unified,
+          'praticiens': praticiens.toList(),
+        },
+        ttl: _cacheDuration,
+        tags: {CacheTags.seances, CacheTags.dashboard},
+      );
+
       status.value = 'success';
     } catch (e) {
-      errorMessage.value = e.toString();
-      status.value = 'error';
+      if (allSessions.isEmpty) {
+        errorMessage.value = e.toString();
+        status.value = 'error';
+      }
     }
+  }
+
+  Future<void> refreshData() => loadData(forceRefresh: true);
+
+  void search(String query) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 180), () {
+      searchQuery.value = query;
+    });
   }
 
   /// Liste filtrée selon l'onglet et les critères
@@ -88,7 +151,7 @@ class CompteRenduHubController extends GetxController {
 
     // 3. Filtrage par praticien
     if (filterPraticienId.value != null) {
-      // Vérifier si praticien assigné correspond
+      // Filtrer praticien si assigné
     }
 
     // 4. Recherche textuelle

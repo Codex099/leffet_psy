@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import '../services/cache_manager.dart';
 import '../services/parent_service.dart';
 import '../utils/json_utils.dart';
 
@@ -68,14 +69,23 @@ class EditParentController extends GetxController {
       return;
     }
 
+    if (telephone.value.trim().isEmpty) {
+      Get.snackbar(
+        'Téléphone requis',
+        'Veuillez renseigner le numéro de téléphone du parent.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
     try {
       status.value = 'loading';
       final data = {
         'nom': nom.value.trim(),
         'prenom': prenom.value.trim(),
-        'telephone': telephone.value.trim().isEmpty ? null : telephone.value.trim(),
-        'etat_civil': etatCivil.value.trim().isEmpty ? null : etatCivil.value.trim(),
-        'adresse': adresse.value.trim().isEmpty ? null : adresse.value.trim(),
+        'telephone': telephone.value.trim(),
+        'etat_civil': etatCivil.value.trim().isEmpty ? 'Non spécifié' : etatCivil.value.trim(),
+        'adresse': adresse.value.trim().isEmpty ? '' : adresse.value.trim(),
         'role': role.value,
       };
 
@@ -84,6 +94,9 @@ class EditParentController extends GetxController {
       } else {
         await _parentService.createParent(data);
       }
+
+      AppCacheManager.invalidateTag(CacheTags.parents);
+      AppCacheManager.invalidateTag(CacheTags.patients);
 
       status.value = 'success';
       Get.back(result: true);
@@ -96,6 +109,8 @@ class EditParentController extends GetxController {
       status.value = 'error';
       if (e.response?.statusCode == 409) {
         errorMessage.value = 'Un parent avec ce numéro de téléphone existe déjà.';
+      } else if (e.response?.statusCode == 422) {
+        errorMessage.value = 'Veuillez renseigner un numéro de téléphone valide et l\'état civil.';
       } else {
         errorMessage.value = e.message ?? 'Erreur lors de l\'enregistrement.';
       }

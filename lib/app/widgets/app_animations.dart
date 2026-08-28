@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
@@ -31,6 +32,7 @@ class _FadeSlideInState extends State<FadeSlideIn>
   late final AnimationController _controller;
   late final Animation<double> _opacity;
   late final Animation<Offset> _slide;
+  Timer? _delayTimer;
 
   @override
   void initState() {
@@ -50,7 +52,7 @@ class _FadeSlideInState extends State<FadeSlideIn>
     if (widget.delay == Duration.zero) {
       _controller.forward();
     } else {
-      Future.delayed(widget.delay, () {
+      _delayTimer = Timer(widget.delay, () {
         if (mounted) _controller.forward();
       });
     }
@@ -58,6 +60,7 @@ class _FadeSlideInState extends State<FadeSlideIn>
 
   @override
   void dispose() {
+    _delayTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -340,11 +343,13 @@ class ShimmerCard extends StatelessWidget {
 /// 5 cartes skeleton en cascade pour le chargement de liste.
 class ShimmerListLoader extends StatelessWidget {
   final int count;
-  const ShimmerListLoader({super.key, this.count = 5});
+  final bool scrollable;
+  const ShimmerListLoader({super.key, this.count = 4, this.scrollable = false});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final list = Column(
+      mainAxisSize: MainAxisSize.min,
       children: List.generate(
         count,
         (i) => FadeSlideIn(
@@ -353,6 +358,13 @@ class ShimmerListLoader extends StatelessWidget {
         ),
       ),
     );
+    if (scrollable) {
+      return SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: list,
+      );
+    }
+    return list;
   }
 }
 

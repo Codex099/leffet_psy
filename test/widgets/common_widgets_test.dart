@@ -110,12 +110,13 @@ void main() {
           ),
         ),
       );
+      await tester.pumpAndSettle();
 
       expect(find.text('Erreur réseau'), findsOneWidget);
       expect(find.text('Réessayer'), findsOneWidget);
 
-      await tester.tap(find.text('Réessayer'));
-      await tester.pump();
+      await tester.tap(find.text('Réessayer'), warnIfMissed: false);
+      await tester.pumpAndSettle();
       expect(retried, isTrue);
     });
 
