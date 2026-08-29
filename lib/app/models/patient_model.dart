@@ -140,7 +140,15 @@ class PatientModel {
   String? get ageFormatted {
     final a = age;
     if (a == null) return null;
-    return '$a ${'ans'.tr}';
+    final lang = Get.locale?.languageCode ?? 'fr';
+    if (lang == 'ar') {
+      if (a >= 3 && a <= 10) {
+        return '$a سنوات';
+      } else {
+        return '$a سنة';
+      }
+    }
+    return '$a ans';
   }
 
   PatientModel copyWith({

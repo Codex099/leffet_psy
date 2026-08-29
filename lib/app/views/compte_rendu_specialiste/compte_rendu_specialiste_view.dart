@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/compte_rendu_specialiste_controller.dart';
@@ -601,7 +601,7 @@ class CompteRenduSpecialisteView
 
                 // Message du rappel
                 Text(
-                  'Action de suivi à  rappeler'.tr,
+                  'Action de suivi à rappeler'.tr,
                   style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
@@ -821,3 +821,4 @@ class CompteRenduSpecialisteView
     );
   }
 }
+

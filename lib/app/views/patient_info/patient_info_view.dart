@@ -168,7 +168,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                       ),
                                       const SizedBox(height: 3),
                                       Text(
-                                        '${p?.age ?? ""} ${'ans'.tr} \u200E•\u200E ${'Né(e) le'.tr} ${p?.dateNaissance ?? ""}',
+                                        p?.ageFormatted != null
+                                            ? '${p!.ageFormatted} \u200E•\u200E ${'Né(e) le'.tr} ${p.dateNaissance ?? ""}'
+                                            : '${'Né(e) le'.tr} ${p?.dateNaissance ?? ""}',
                                         style: AppTextStyles.iosFootnote
                                             .copyWith(
                                               color: Colors.white.withValues(
