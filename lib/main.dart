@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'app.dart';
 
@@ -11,5 +12,15 @@ void main() async {
   PaintingBinding.instance.imageCache.maximumSize = 150; // max 150 images décodées en RAM
 
   await initializeDateFormatting('fr_FR', null);
-  runApp(const PsyCareApp());
+  await initializeDateFormatting('ar_DZ', null);
+  await initializeDateFormatting('ar', null);
+
+  // Charger la langue stockée en mémoire persistante
+  const storage = FlutterSecureStorage();
+  final savedLang = await storage.read(key: 'app_language');
+  final initialLocale = savedLang == 'ar'
+      ? const Locale('ar', 'DZ')
+      : const Locale('fr', 'FR');
+
+  runApp(PsyCareApp(initialLocale: initialLocale));
 }

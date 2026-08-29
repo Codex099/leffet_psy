@@ -7,7 +7,7 @@ class SeanceGroupeModel {
   final String date;
   final String heureDebut;
   final String heureFin;
-  final String statut; // 'planifiee' | 'realisee' | 'annulee'
+  final String statut; // 'planifiee' | 'faite' | 'annulee'
   final Map<String, dynamic>? groupe;
   final Map<String, dynamic>? employe;
   final List<SeanceGroupeParticipantModel>? participants;
@@ -56,7 +56,7 @@ class SeanceGroupeModel {
 
   String get groupeName => groupe?['nom'] as String? ?? '';
   bool get isPlanifiee => statut == 'planifiee';
-  bool get isRealisee => statut == 'realisee';
+  bool get isRealisee => statut == 'faite';
 }
 
 class SeanceGroupeParticipantModel {

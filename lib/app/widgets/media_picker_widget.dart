@@ -47,7 +47,7 @@ class _MediaPickerWidgetState extends State<MediaPickerWidget> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'.trupload : $e')),
+          SnackBar(content: Text('${'Erreur lors de l\'upload'.tr} : $e')),
         );
       }
     } finally {

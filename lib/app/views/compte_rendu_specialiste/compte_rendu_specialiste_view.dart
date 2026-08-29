@@ -250,8 +250,8 @@ class CompteRenduSpecialisteView
             () => IosSegmentedControl<String>(
               segments: const {
                 'present': 'Présent',
-                'absent_justifie': 'Excusé',
-                'absent_non_justifie': 'Absent',
+                'excuse': 'Excusé',
+                'absent': 'Absent',
               },
               selectedValue: controller.statutPresence.value,
               onValueChanged: (val) => controller.statutPresence.value = val,

@@ -92,4 +92,18 @@ class ParentsListeController extends GetxController {
       searchQuery.value = query;
     });
   }
+
+  Future<void> deleteParent(dynamic id) async {
+    try {
+      status.value = 'loading';
+      await _parentService.deleteParent(id);
+      AppCacheManager.invalidateTag(CacheTags.parents);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      await loadParents(forceRefresh: true);
+      Get.snackbar('Succès', 'Parent supprimé avec succès.'.tr, snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      status.value = 'success';
+      Get.snackbar('Erreur', 'Impossible de supprimer le parent : $e'.tr, snackPosition: SnackPosition.BOTTOM);
+    }
+  }
 }

@@ -111,7 +111,7 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Type d\'.trhoraires',
+                            'Type d\'horaires'.tr,
                             style: AppTextStyles.sectionTitle,
                           ),
                         ],

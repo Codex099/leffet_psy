@@ -37,7 +37,7 @@ class AppTheme {
 
     // ─── AppBar iOS Translucent ────────────────────────────────────────────
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.surface.withValues(alpha: 0.94),
+      backgroundColor: Colors.transparent,
       foregroundColor: AppColors.textPrimary,
       elevation: 0,
       scrolledUnderElevation: 0,

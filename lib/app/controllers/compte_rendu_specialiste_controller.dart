@@ -65,7 +65,7 @@ class CompteRenduSpecialisteController extends GetxController {
   final Rx<dynamic> selectedResponsableId = Rx<dynamic>(null);
 
   // Form fields - General
-  final RxString statutPresence = 'present'.obs; // 'present' | 'absent_justifie' | 'absent_non_justifie'
+  final RxString statutPresence = 'present'.obs; // 'present' | 'excuse' | 'absent'
   final RxString descriptionEtat = ''.obs; // Observations cliniques
   final RxString objectifsTravailles = ''.obs; // Objectifs de séance
   final Rx<dynamic> etapePlanId = Rx<dynamic>(null);
@@ -231,7 +231,7 @@ class CompteRenduSpecialisteController extends GetxController {
       if (isGroupe.value) {
         // Mise à jour de la séance de groupe
         await _seanceGroupeService.updateSeanceGroupe(seanceId, {
-          'statut': cloturer ? 'realisee' : 'prevue',
+          'statut': cloturer ? 'faite' : 'prevue',
           if (selectedResponsableId.value != null) 'employe_id': selectedResponsableId.value,
         });
 
@@ -249,7 +249,7 @@ class CompteRenduSpecialisteController extends GetxController {
         final payload = <String, dynamic>{
           'description_etat': descriptionEtat.value.trim(),
           'statut_presence': statutPresence.value,
-          'statut': cloturer ? 'realisee' : 'prevue',
+          'statut': cloturer ? 'faite' : 'prevue',
           if (etapePlanId.value != null) 'etape_plan_id': etapePlanId.value,
           if (selectedResponsableId.value != null) 'employe_id': selectedResponsableId.value,
           'medias': medias.toList(),

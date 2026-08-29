@@ -194,7 +194,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       icon: Icons.pregnant_woman_outlined,
                     ),
                     _InfoItem(
-                      label: 'Nombre de frères/sÅ“urs'.tr,
+                      label: 'Nombre de frères/sœurs'.tr,
                       value: d?.nombreFreresSoeurs?.toString(),
                       icon: Icons.people_alt_outlined,
                     ),

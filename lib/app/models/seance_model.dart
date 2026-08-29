@@ -7,7 +7,7 @@ class SeanceModel {
   final String date;
   final String heureDebut;
   final String heureFin;
-  final String statut; // 'planifiee' | 'realisee' | 'annulee'
+  final String statut; // 'planifiee' | 'faite' | 'annulee'
   final String? motifStatut;
   final String? statutPresence; // 'present' | 'absent'
   final String? descriptionEtat;
@@ -98,7 +98,7 @@ class SeanceModel {
       case 'planifiee':
       case 'prevue':
         return 'Planifiée';
-      case 'realisee':
+      case 'faite':
         return 'Réalisée';
       case 'annulee':
         return 'Annulée';
@@ -125,7 +125,7 @@ class SeanceModel {
 
   bool get isPresent => statutPresence == 'present';
   bool get isPlanifiee => statut == 'planifiee';
-  bool get isRealisee => statut == 'realisee';
+  bool get isRealisee => statut == 'faite';
   bool get isAnnulee => statut == 'annulee';
 }
 

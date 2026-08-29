@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../services/auth_service.dart';
 import '../services/cache_manager.dart';
+import '../services/employee_service.dart';
 import '../routes/app_routes.dart';
 
 class ProfilController extends GetxController {
@@ -71,6 +73,29 @@ class ProfilController extends GetxController {
   }
 
   Future<void> refreshData() => loadProfile(forceRefresh: true);
+
+  Future<bool> updateProfile({required String nom, required String prenom, String? telephone}) async {
+    final user = currentUser.value;
+    if (user == null) return false;
+    try {
+      final updated = await EmployeeService().updateEmployee(user.id, {
+        'nom': nom,
+        'prenom': prenom,
+        if (telephone != null && telephone.isNotEmpty) 'telephone': telephone,
+      });
+      currentUser.value = updated;
+      AppCacheManager.invalidate(CacheKeys.currentUser);
+      AppCacheManager.set<EmployeeModel>(
+        CacheKeys.currentUser,
+        updated,
+        ttl: const Duration(minutes: 10),
+        tags: {CacheTags.auth},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   Future<void> logout() async {
     await _authService.logout();

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../services/cache_manager.dart';
@@ -79,6 +80,35 @@ class EmployesListeController extends GetxController {
   }
 
   Future<void> refreshData() => loadEmployees(forceRefresh: true);
+
+  Future<void> deleteEmployee(dynamic id) async {
+    try {
+      await _employeeService.deleteEmployee(id);
+      employees.removeWhere((e) => e.id.toString() == id.toString());
+      AppCacheManager.invalidate(CacheKeys.employesList);
+      Get.snackbar(
+        'Supprimé',
+        'Le compte a été supprimé avec succès.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.shade600,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+        margin: const EdgeInsets.all(12),
+        borderRadius: 14,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        'Impossible de supprimer : ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade600,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 4),
+        margin: const EdgeInsets.all(12),
+        borderRadius: 14,
+      );
+    }
+  }
 
   void search(String query) {
     searchQuery.value = query;

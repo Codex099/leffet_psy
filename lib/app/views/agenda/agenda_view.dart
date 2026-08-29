@@ -128,7 +128,7 @@ class AgendaView extends GetView<AgendaController> {
                                     boxShadow: AppColors.softShadow,
                                   ),
                                   child: Text(
-                                    'Aujourd\'.trhui',
+                                    'Aujourd\'hui'.tr,
                                     style: AppTextStyles.iosCaption1.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
@@ -332,7 +332,7 @@ class AgendaView extends GetView<AgendaController> {
               Obx(() {
                 if (controller.status.value == 'loading') {
                   return StatePlaceholder.loading(
-                    message: 'Chargement des consultations...',
+                    message: 'Chargement des consultations...'.tr,
                   );
                 }
                 if (controller.status.value == 'error') {
@@ -362,9 +362,8 @@ class AgendaView extends GetView<AgendaController> {
     if (daySessions.isEmpty) {
       return StatePlaceholder.empty(
         title: 'Aucune consultation'.tr,
-        message:
-            'Aucun rendez-vous prévu pour le ${controller.formattedSelectedDate}.',
-        actionLabel: 'Planifier un rendez-vous',
+        message: 'Aucun rendez-vous prévu pour cette date.'.tr,
+        actionLabel: 'Planifier un rendez-vous'.tr,
         onAction: () async {
           final res = await Get.toNamed(AppRoutes.creationSeance);
           if (res == true) controller.loadAgenda(forceRefresh: true);
@@ -421,8 +420,8 @@ class AgendaView extends GetView<AgendaController> {
     if (weekSessions.isEmpty) {
       return StatePlaceholder.empty(
         title: 'Semaine libre'.tr,
-        message: 'Aucune consultation programmée pour cette semaine.',
-        actionLabel: 'Planifier un rendez-vous',
+        message: 'Aucune consultation programmée pour cette semaine.'.tr,
+        actionLabel: 'Planifier un rendez-vous'.tr,
         onAction: () async {
           final res = await Get.toNamed(AppRoutes.creationSeance);
           if (res == true) controller.loadAgenda(forceRefresh: true);
@@ -502,7 +501,7 @@ class AgendaView extends GetView<AgendaController> {
                 ),
           title: session.title,
           subtitle:
-              '${session.heureDebut} - ${session.heureFin}${session.isGroupe && session.participants != null ? " • ${session.participants!.length} participant(s)" : ""}'.tr,
+              '${session.heureDebut} - ${session.heureFin} • ${session.assignedEmployee.isNotEmpty ? session.assignedEmployee : "Non assigné".tr}${session.isGroupe && session.participants != null ? " • ${session.participants!.length} participant(s)" : ""}'.tr,
           showChevron: true,
           trailing: StatusBadge.active(label: session.statutLabel),
           onTap: () async {

@@ -150,7 +150,7 @@ class CalendrierView extends GetView<CalendrierController> {
     showCupertinoDialog(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        title: const Text('Supprimer l\'.trévénement'),
+        title: Text('Supprimer l\'événement'.tr),
         content: Text(
           'Êtes-vous sûr de vouloir supprimer cet événement du calendrier clinique ?'.tr,
         ),
@@ -207,13 +207,13 @@ class CalendrierView extends GetView<CalendrierController> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  ev != null ? 'Modifier l\'événement' : 'Nouvel événement',
+                  ev != null ? 'Modifier l\'événement'.tr : 'Nouvel événement'.tr,
                   style: AppTextStyles.iosTitle2,
                 ),
                 const SizedBox(height: 20),
                 AppTextField(
-                  label: 'Titre de l\'.trévénement *',
-                  hintText: 'Ex: Réunion d\'.tréquipe pluridisciplinaire',
+                  label: 'Titre de l\'événement *'.tr,
+                  hintText: 'Ex: Réunion d\'équipe pluridisciplinaire'.tr,
                   controller: titreTextCtrl,
                   onChanged: (v) => controller.titre.value = v,
                   validator: (v) {
@@ -235,7 +235,7 @@ class CalendrierView extends GetView<CalendrierController> {
                 Padding(
                   padding: const EdgeInsets.only(left: 4, bottom: 6),
                   child: Text(
-                    'Date de l\'.trévénement *',
+                    'Date de l\'événement *'.tr,
                     style: AppTextStyles.fieldLabel,
                   ),
                 ),
@@ -272,7 +272,7 @@ class CalendrierView extends GetView<CalendrierController> {
                         children: [
                           Text(
                             controller.date.value.isEmpty
-                                ? 'Sélectionner la date'
+                                ? 'Sélectionner la date'.tr
                                 : controller.date.value,
                             style: AppTextStyles.fieldValue,
                           ),
@@ -326,7 +326,7 @@ class CalendrierView extends GetView<CalendrierController> {
                 ),
                 const SizedBox(height: 24),
                 AppButton(
-                  label: ev != null ? 'Mettre à  jour' : 'Enregistrer'.tr,
+                  label: ev != null ? 'Mettre à jour'.tr : 'Enregistrer'.tr,
                   onPressed: () async {
                     if (formKey.currentState?.validate() == true) {
                       final success = await controller.saveEvenement();

@@ -163,7 +163,7 @@ void main() {
         'date': '2026-08-26',
         'heure_debut': '14:00',
         'heure_fin': '15:00',
-        'statut': 'realisee',
+        'statut': 'faite',
         'groupe': {'nom': 'Groupe Habiletés Sociales'},
         'participants': [
           {

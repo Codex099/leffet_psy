@@ -263,11 +263,30 @@ class ParentsListeView extends GetView<ParentsListeController> {
                       Get.back();
                       Get.toNamed(AppRoutes.editParent, arguments: parent.id);
                     },
-                    icon: const Icon(Icons.edit_rounded, size: 18),
+                    icon: const Icon(Icons.edit_rounded, size: 16),
                     label: Text('Modifier'.tr),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _confirmDeleteParent(context, parent.id, parent.fullName),
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      size: 16,
+                      color: AppColors.error,
+                    ),
+                    label: Text(
+                      'Supprimer'.tr,
+                      style: const TextStyle(color: AppColors.error, fontSize: 13),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                      side: const BorderSide(color: AppColors.error),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => Get.back(),
@@ -281,6 +300,44 @@ class ParentsListeView extends GetView<ParentsListeController> {
         ),
       ),
       isScrollControlled: true,
+    );
+  }
+
+  void _confirmDeleteParent(BuildContext context, dynamic id, String name) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text('Supprimer le parent'.tr,
+            style: AppTextStyles.iosHeadline
+                .copyWith(fontWeight: FontWeight.w800)),
+        content: Text(
+          'Voulez-vous vraiment supprimer le parent $name ? Cette action est irréversible.'.tr,
+          style: AppTextStyles.iosSubhead,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('Annuler'.tr,
+                style:
+                    AppTextStyles.iosBody.copyWith(color: AppColors.primary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back(); // close dialog
+              Get.back(); // close bottom sheet
+              controller.deleteParent(id);
+            },
+            child: Text(
+              'Supprimer'.tr,
+              style: AppTextStyles.iosBody.copyWith(
+                color: AppColors.error,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

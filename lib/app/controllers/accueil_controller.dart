@@ -84,9 +84,14 @@ class AccueilController extends GetxController {
       ]);
 
       final user = results[0] as EmployeeModel;
-      final indList = results[1] as List<SeanceModel>;
-      final grpList = results[2] as List<SeanceGroupeModel>;
+      List<SeanceModel> indList = results[1] as List<SeanceModel>;
+      List<SeanceGroupeModel> grpList = results[2] as List<SeanceGroupeModel>;
       final patients = results[3] as List<dynamic>;
+
+      final currentUserId = user.id.toString();
+
+      indList = indList.where((s) => s.employeIds.map((e) => e.toString()).contains(currentUserId)).toList();
+      grpList = grpList.where((s) => s.employeId?.toString() == currentUserId).toList();
 
       final unified = <AgendaSessionItem>[
         ...indList.map(AgendaSessionItem.fromIndividuelle),

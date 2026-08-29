@@ -158,7 +158,7 @@ class HistoriqueSeancesPatientView
     IconData statutIcon;
     String statutLabel;
     switch (statut) {
-      case 'realisee':
+      case 'faite':
         statutColor = AppColors.statusPresent;
         statutIcon = Icons.check_circle_rounded;
         statutLabel = 'Réalisée';
@@ -251,7 +251,7 @@ class HistoriqueSeancesPatientView
     Color statutColor;
     String statutLabel;
     switch (statut) {
-      case 'realisee':
+      case 'faite':
         statutColor = AppColors.statusPresent;
         statutLabel = 'Réalisée';
         break;

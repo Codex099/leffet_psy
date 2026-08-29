@@ -16,12 +16,12 @@ void main() {
       controller = AgendaController();
     });
 
-    test('currentWeekDays returns exactly 7 days starting from Monday', () {
+    test('currentWeekDays returns exactly 7 days starting from Sunday', () {
       controller.selectedDate.value = DateTime(2026, 8, 26); // Wednesday
       final week = controller.currentWeekDays;
       expect(week.length, 7);
-      expect(week.first.weekday, DateTime.monday);
-      expect(week.last.weekday, DateTime.sunday);
+      expect(week.first.weekday, DateTime.sunday);
+      expect(week.last.weekday, DateTime.saturday);
     });
 
     test('previousDay and nextDay updates selectedDate correctly', () {
@@ -56,27 +56,29 @@ void main() {
           id: 1,
           isGroupe: false,
           title: 'Patient 1',
-          subtitle: '10:00',
+          subtitle: '10:00 - 11:00',
           date: '2026-08-26',
           heureDebut: '10:00',
-          heureFin: '10:45',
-          duree: '45 min',
+          heureFin: '11:00',
+          duree: '1h',
           statut: 'planifiee',
           statutLabel: 'Planifiée',
           initials: 'P1',
+          assignedEmployee: 'Test Employé',
         ),
         AgendaSessionItem(
           id: 2,
-          isGroupe: false,
-          title: 'Patient 2',
-          subtitle: '11:00',
+          isGroupe: true,
+          title: 'Groupe 1',
+          subtitle: '11:00 - 12:00',
           date: '2026-08-27',
           heureDebut: '11:00',
-          heureFin: '11:45',
-          duree: '45 min',
-          statut: 'planifiee',
-          statutLabel: 'Planifiée',
-          initials: 'P2',
+          heureFin: '12:00',
+          duree: '1h',
+          statut: 'faite',
+          statutLabel: 'Réalisée',
+          initials: 'G1',
+          assignedEmployee: 'Test Employé',
         ),
       ];
 

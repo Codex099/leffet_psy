@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/patient_info_controller.dart';
 import '../../routes/app_routes.dart';
@@ -168,7 +168,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                       ),
                                       const SizedBox(height: 3),
                                       Text(
-                                        '${p?.age ?? ""} ans • Né(e) le ${p?.dateNaissance ?? ""}'.tr,
+                                        '${p?.age ?? ""} ${'ans'.tr} \u200E•\u200E ${'Né(e) le'.tr} ${p?.dateNaissance ?? ""}',
                                         style: AppTextStyles.iosFootnote
                                             .copyWith(
                                               color: Colors.white.withValues(
@@ -671,7 +671,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
 
                     // Supprimer le patient Action Button
                     TextButton.icon(
-                      onPressed: () => controller.deletePatient(),
+                      onPressed: () => _confirmDeletePatient(context),
                       icon: const Icon(
                         Icons.delete_outline_rounded,
                         color: AppColors.error,
@@ -940,7 +940,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                   Get.back();
                   controller.associateParent(parentId, selectedRole);
                 },
-                child: const Text('Confirmer l\'.trassociation'),
+                child: Text('Confirmer l\'association'.tr),
               ),
             ],
           ),
@@ -999,6 +999,43 @@ class PatientInfoView extends GetView<PatientInfoController> {
               );
             },
             child: Text(isCurrentlyActive ? 'Désactiver' : 'Réactiver'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeletePatient(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text('Supprimer le patient'.tr,
+            style: AppTextStyles.iosHeadline
+                .copyWith(fontWeight: FontWeight.w800)),
+        content: Text(
+          'Voulez-vous vraiment supprimer ce patient ? Cette action est irréversible et supprimera toutes ses données.'.tr,
+          style: AppTextStyles.iosSubhead,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('Annuler'.tr,
+                style:
+                    AppTextStyles.iosBody.copyWith(color: AppColors.primary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              controller.deletePatient();
+            },
+            child: Text(
+              'Supprimer'.tr,
+              style: AppTextStyles.iosBody.copyWith(
+                color: AppColors.error,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),

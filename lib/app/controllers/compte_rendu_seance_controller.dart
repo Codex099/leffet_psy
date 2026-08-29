@@ -52,7 +52,7 @@ class CompteRenduSeanceController extends GetxController {
         'description_etat': descriptionEtat.value,
         if (etapePlanId.value != null) 'etape_plan_id': etapePlanId.value,
         'medias': medias,
-        'statut': 'realisee',
+        'statut': 'faite',
       });
       Get.back();
       Get.snackbar('Succès', 'Rapport enregistré');

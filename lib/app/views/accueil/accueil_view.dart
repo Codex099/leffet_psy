@@ -103,7 +103,8 @@ class AccueilView extends GetView<AccueilController> {
   Widget _buildHeader(BuildContext context) {
     final user = controller.currentUser.value;
     final today = DateTime.now();
-    final formattedDate = DateFormat('EEEE d MMMM', 'fr_FR').format(today);
+    final String langCode = Get.locale?.languageCode ?? 'fr';
+    final formattedDate = DateFormat('EEEE d MMMM', langCode).format(today);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -218,7 +219,7 @@ class AccueilView extends GetView<AccueilController> {
                     const SizedBox(height: 16),
                     // Greeting Clinique
                     Text(
-                      'clinique l\'.trEffet de Papillon 🦋',
+                      'clinique l\'Effet de Papillon 🦋',
                       style: AppTextStyles.iosLargeTitle.copyWith(
                         color: Colors.white,
                         fontSize: 24,
@@ -229,8 +230,8 @@ class AccueilView extends GetView<AccueilController> {
                     const SizedBox(height: 4),
                     Text(
                       user != null
-                          ? 'Espace clinique de suivi thérapeutique • ${user.prenom}'
-                          : 'Espace clinique de suivi & prise en charge thérapeutique.',
+                          ? '${'Espace clinique de suivi thérapeutique'.tr} • ${user.prenom}'
+                          : 'Espace clinique de suivi & prise en charge thérapeutique.'.tr,
                       style: AppTextStyles.iosSubhead.copyWith(
                         color: Colors.white.withValues(alpha: 0.88),
                         fontSize: 13.5,
@@ -390,7 +391,7 @@ class AccueilView extends GetView<AccueilController> {
         children: [
           Expanded(
             child: _metricCard(
-              title: 'Séances aujourd\'.trhui',
+              title: 'Séances aujourd\'hui'.tr,
               value: controller.seancesPrevuesCount.value,
               icon: Icons.calendar_today_rounded,
               gradient: AppColors.primaryLogoGradient,
@@ -565,8 +566,8 @@ class AccueilView extends GetView<AccueilController> {
     return IosCard(
       title: 'Séances du jour'.tr,
       subtitle: controller.prochainesSeances.isNotEmpty
-          ? '${controller.prochainesSeances.length} rendez-vous programmé(s)'
-          : 'Planning libre aujourd\'hui',
+          ? '${controller.prochainesSeances.length} ${'rendez-vous programmé(s)'.tr}'
+          : 'Planning libre aujourd\'hui'.tr,
       children: [
         if (controller.prochainesSeances.isEmpty)
           Padding(
@@ -745,7 +746,7 @@ class AccueilView extends GetView<AccueilController> {
         if (user?.role == 'admin')
           IosCardTile(
             leading: _iconBox(Icons.badge_rounded, AppColors.coralLogoGradient),
-            title: 'Gestion de l\'.trÉquipe',
+            title: 'Gestion de l\'Équipe'.tr,
             subtitle: 'Comptes praticiens et permissions'.tr,
             showChevron: true,
             onTap: () => Get.toNamed(AppRoutes.employesListe),

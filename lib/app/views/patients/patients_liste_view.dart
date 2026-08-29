@@ -243,7 +243,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                             const SizedBox(height: 3),
                             Text(
                               patient.ageFormatted != null
-                                  ? '${patient.ageFormatted} • ${patient.sexeLabel}'
+                                  ? '${patient.ageFormatted} \u200E•\u200E ${patient.sexeLabel}'
                                   : patient.sexeLabel,
                               style: AppTextStyles.iosFootnote.copyWith(
                                 color: AppColors.textTertiary,

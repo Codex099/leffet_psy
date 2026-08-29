@@ -8,7 +8,8 @@ import 'app/theme/app_theme.dart';
 import 'app/translations/app_translations.dart';
 
 class PsyCareApp extends StatelessWidget {
-  const PsyCareApp({super.key});
+  final Locale initialLocale;
+  const PsyCareApp({super.key, this.initialLocale = const Locale('fr', 'FR')});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +21,16 @@ class PsyCareApp extends StatelessWidget {
       initialBinding: InitialBinding(),
       getPages: AppPages.routes,
       defaultTransition: Transition.cupertino,
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: child!,
+        );
+      },
       
       // ─── Localisation multilingue ─────────────────────────────────────────────
       translations: AppTranslations(),
-      locale: const Locale('fr', 'FR'),
+      locale: initialLocale,
       fallbackLocale: const Locale('fr', 'FR'),
       supportedLocales: const [
         Locale('fr', 'FR'),

@@ -280,7 +280,7 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
   }
 
   Widget _buildSessionCard(AgendaSessionItem session) {
-    final bool isDone = session.statut == 'realisee';
+    final bool isDone = session.statut == 'faite';
 
     return IosCard(
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),

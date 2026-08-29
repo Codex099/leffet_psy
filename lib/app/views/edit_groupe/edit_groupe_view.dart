@@ -50,7 +50,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: isEditMode ? 'Modifier le Groupe' : 'Nouveau Groupe'.tr,
+        title: isEditMode ? 'Modifier le Groupe'.tr : 'Nouveau Groupe'.tr,
         subtitle: 'Atelier Thérapeutique'.tr,
         showBackButton: true,
       ),
@@ -101,7 +101,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Sélectionnez le type d\'.trhoraires et les jours de tenue du groupe.',
+                    'Sélectionnez le type d\'horaires et les jours de tenue du groupe.'.tr,
                     style: AppTextStyles.bodySmall,
                   ),
                   const SizedBox(height: 14),
@@ -462,10 +462,10 @@ class _EditGroupeViewState extends State<EditGroupeView> {
               Obx(
                 () => AppButton(
                   label: controller.status.value == 'loading'
-                      ? 'Enregistrement...'
+                      ? 'Enregistrement...'.tr
                       : isEditMode
-                      ? 'Mettre à  jour le groupe'
-                      : 'Créer le groupe',
+                      ? 'Mettre à jour le groupe'.tr
+                      : 'Créer le groupe'.tr,
                   isLoading: controller.status.value == 'loading',
                   onPressed: controller.status.value == 'loading'
                       ? null
@@ -641,7 +641,7 @@ class _EditGroupeViewState extends State<EditGroupeView> {
               value: p.id,
               label: p.fullName,
               subtitle:
-                  '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}'.tr,
+                  '${p.age != null ? "${p.age} ${'ans'.tr} \u200E•\u200E " : ""}${p.isFille ? "Fille".tr : "Garçon".tr}',
               initials: p.initials,
             ),
           )

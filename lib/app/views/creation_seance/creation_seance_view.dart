@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/creation_seance_controller.dart';
 import '../../theme/app_colors.dart';
@@ -205,7 +205,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
           value: p.id,
           label: p.fullName,
           subtitle:
-              '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}'.tr,
+              '${p.age != null ? "${p.age} ${'ans'.tr} \u200E•\u200E " : ""}${p.isFille ? "Fille".tr : "Garçon".tr}',
           initials: p.initials,
         );
       }).toList(),
@@ -229,7 +229,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
         return SearchableItem<dynamic>(
           value: g.id,
           label: g.nom,
-          subtitle: '${g.typeLabel} • ${g.membresCount} membre(s)'.tr,
+          subtitle: '${g.typeLabel.tr} • ${g.membresCount} ${'membre(s)'.tr}',
           initials: g.initials,
         );
       }).toList(),

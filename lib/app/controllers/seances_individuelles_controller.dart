@@ -217,10 +217,10 @@ class SeancesIndividuellesController extends GetxController {
       final pPhoto = patient?.photoUrl ?? seanceList.first.photoUrl;
 
       final aVenirSeances = seanceList
-          .where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'realisee')
+          .where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'faite')
           .toList();
       final realiseesSeances = seanceList
-          .where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'realisee')
+          .where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'faite')
           .toList();
 
       final prochaine =
@@ -286,14 +286,14 @@ class SeancesIndividuellesController extends GetxController {
     final todayStr = DateTime.now().toIso8601String().split('T').first;
 
     if (activeTab.value == 'a_venir') {
-      list = list.where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'realisee').toList();
+      list = list.where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'faite').toList();
       list.sort((a, b) {
         final d = a.date.compareTo(b.date);
         if (d != 0) return d;
         return a.heureDebut.compareTo(b.heureDebut);
       });
     } else if (activeTab.value == 'historique') {
-      list = list.where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'realisee').toList();
+      list = list.where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'faite').toList();
     }
 
     final q = searchQuery.value.toLowerCase().trim();

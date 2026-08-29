@@ -20,7 +20,7 @@ class EditPatientView extends GetView<EditPatientController> {
       appBar: CreativeAppBar(
         title: controller.patientId == null
             ? 'Nouveau Patient'.tr
-            : 'Édition Patient',
+            : 'Édition Patient'.tr,
         subtitle: 'Dossier Clinique'.tr,
         showBackButton: true,
       ),
@@ -104,10 +104,10 @@ class EditPatientView extends GetView<EditPatientController> {
                       flex: 2,
                       child: AppButton(
                         label: controller.status.value == 'loading'
-                            ? 'En cours...'
+                            ? 'En cours...'.tr
                             : controller.currentStep.value == 4
                             ? 'Enregistrer le dossier'.tr
-                            : 'Étape suivante',
+                            : 'Étape suivante'.tr,
                         isLoading: controller.status.value == 'loading',
                         onPressed: controller.status.value == 'loading'
                             ? null
@@ -280,7 +280,7 @@ class EditPatientView extends GetView<EditPatientController> {
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Nombre de frères/sÅ“urs'.tr,
+                label: 'Nombre de frères/sœurs'.tr,
                 hintText: '0',
                 keyboardType: TextInputType.number,
                 controller: controller.nombreFreresSoeursController,
@@ -332,14 +332,14 @@ class EditPatientView extends GetView<EditPatientController> {
               const SizedBox(height: 16),
 
               AppTextField(
-                label: 'Antécédents médicaux (Ø§Ù„Ø³ÙˆØ§Ø¨Ù‚ Ø§Ù„Ù…Ø±Ø¶ÙŠØ©)'.tr,
+                label: 'Antécédents médicaux'.tr,
                 hintText: 'Ex. Pathologies, chirurgies, hospitalisations...'.tr,
                 maxLines: 3,
                 controller: controller.antecedentsMedicauxController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Médicaments pris (Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…ØªÙ†Ø§ÙˆÙ„Ø©)'.tr,
+                label: 'Médicaments pris'.tr,
                 hintText: 'Ex. Liste des traitements actuels et posologie...'.tr,
                 maxLines: 3,
                 controller: controller.medicamentsPrisController,
@@ -351,19 +351,10 @@ class EditPatientView extends GetView<EditPatientController> {
           // ── Card 2 : Historique du cas ──
           _sectionCard(
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.history_edu_outlined,
-                    color: AppColors.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  SectionHeader(
-                    title: 'Historique du cas'.tr,
-                    padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-                  ),
-                ],
+              SectionHeader(
+                title: 'Historique du cas'.tr,
+                icon: Icons.history_edu_outlined,
+                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
               ),
               const SizedBox(height: 4),
               Text(
@@ -372,9 +363,9 @@ class EditPatientView extends GetView<EditPatientController> {
               ),
               const SizedBox(height: 16),
 
-              // Date de la cas / historique (tØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)
+              // Date de la cas / historique (تاريخ الحالة)
               Text(
-                'Date du cas (ØªØ§Ø±ÙŠØ® Ø§Ù„Ø­Ø§Ù„Ø©)'.tr,
+                'Date du cas'.tr,
                 style: AppTextStyles.fieldLabel,
               ),
               const SizedBox(height: 6),
@@ -432,58 +423,57 @@ class EditPatientView extends GetView<EditPatientController> {
               const SizedBox(height: 14),
 
               AppTextField(
-                label: 'Naissance (Ø§Ù„ÙˆÙ„Ø§Ø¯Ø©)'.tr,
+                label: 'Naissance'.tr,
                 hintText: 'Conditions de naissance, déroulement...'.tr,
                 maxLines: 2,
                 controller: controller.naissanceController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label:
-                    'Développement psychomoteur (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù†ÙØ³ÙŠ Ø§Ù„Ø­Ø±ÙƒÙŠ)'.tr,
+                label: 'Développement psychomoteur'.tr,
                 hintText: 'Marche, motricité fine et globale...'.tr,
                 maxLines: 2,
                 controller: controller.developpementPsychomoteurController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Comportement auditif (Ø§Ù„Ø³Ù„ÙˆÙƒ Ø§Ù„Ø³Ù…Ø¹ÙŠ)'.tr,
+                label: 'Comportement auditif'.tr,
                 hintText: 'Réaction aux sons, écoute...'.tr,
                 maxLines: 2,
                 controller: controller.comportementAuditifController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Développement langagier (Ø§Ù„Ù†Ù…Ùˆ Ø§Ù„Ù„ØºÙˆÙŠ)'.tr,
+                label: 'Développement langagier'.tr,
                 hintText: 'Premiers mots, niveau de langage...'.tr,
                 maxLines: 2,
                 controller: controller.developpementLangagierController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Adaptation sociale (Ø§Ù„ØªÙƒÙŠÙ Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠ)'.tr,
+                label: 'Adaptation sociale'.tr,
                 hintText: 'Relations sociales, comportements en groupe...'.tr,
                 maxLines: 2,
                 controller: controller.adaptationSocialeController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Autonomie (Ø§Ù„Ø§Ø³ØªÙ‚Ù„Ø§Ù„ÙŠØ©)'.tr,
+                label: 'Autonomie'.tr,
                 hintText: 'Habillage, hygiène, alimentation...'.tr,
                 maxLines: 2,
                 controller: controller.autonomieController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Aspect sanitaire / médical (Ø§Ù„Ø¬Ø§Ù†Ø¨ Ø§Ù„ØµØ­ÙŠ)'.tr,
+                label: 'Aspect sanitaire'.tr,
                 hintText: 'Bilan de santé général...'.tr,
                 maxLines: 2,
                 controller: controller.aspectSanitaireController,
               ),
               const SizedBox(height: 14),
               AppTextField(
-                label: 'Stade de scolarisation (Ù…Ø±Ø­Ù„Ø© Ø§Ù„ØªÙ…Ø¯Ø±Ø³)'.tr,
-                hintText: 'Niveau d\'.trétudes, intégration scolaire...',
+                label: 'Stade de scolarisation'.tr,
+                hintText: 'Niveau d\'études, intégration scolaire...'.tr,
                 maxLines: 2,
                 controller: controller.stadeScolarisationController,
               ),
@@ -504,30 +494,16 @@ class EditPatientView extends GetView<EditPatientController> {
         children: [
           _sectionCard(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SectionHeader(
-                        title: 'Tuteur légal / Parent'.tr,
-                        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-                      ),
-
-                      const SizedBox(height: 4),
-                      Text(
-                        'Associez un parent à  ce patient.'.tr,
-                        style: AppTextStyles.bodySmall,
-                      ),
-                    ],
-                  ),
-                  TextButton.icon(
-                    onPressed: () => _showInlineParentDialog(context),
-                    icon: const Icon(Icons.person_add_rounded, size: 18),
-                    label: Text('+ Nouveau'.tr),
-                  ),
-                ],
+              SectionHeader(
+                title: 'Tuteur légal / Parent'.tr,
+                actionLabel: '+ Nouveau'.tr,
+                onAction: () => _showInlineParentDialog(context),
+                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Associez un parent à ce patient.'.tr,
+                style: AppTextStyles.bodySmall,
               ),
               const SizedBox(height: 16),
 
@@ -694,7 +670,7 @@ class EditPatientView extends GetView<EditPatientController> {
 
               const SizedBox(height: 8),
               Text(
-                'Souhaitez-vous créer un plan thérapeutique pour ce patient après l\'.trenregistrement ?',
+                'Souhaitez-vous créer un plan thérapeutique pour ce patient après l\'enregistrement ?'.tr,
                 style: AppTextStyles.bodySmall,
               ),
               const SizedBox(height: 12),
@@ -736,7 +712,7 @@ class EditPatientView extends GetView<EditPatientController> {
         ),
         child: Center(
           child: Text(
-            label,
+            label.tr,
             style: AppTextStyles.badge.copyWith(
               color: (isActive || isDone)
                   ? Colors.white

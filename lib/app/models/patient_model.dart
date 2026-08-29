@@ -99,9 +99,9 @@ class PatientModel {
   }
 
   String get sexeLabel {
-    if (isGarcon) return 'Garçon';
-    if (isFille) return 'Fille';
-    return sexe ?? '';
+    if (isGarcon) return 'Garçon'.tr;
+    if (isFille) return 'Fille'.tr;
+    return (sexe ?? '').tr;
   }
 
   String get backendSexe {
@@ -140,7 +140,7 @@ class PatientModel {
   String? get ageFormatted {
     final a = age;
     if (a == null) return null;
-    return '$a ans';
+    return '$a ${'ans'.tr}';
   }
 
   PatientModel copyWith({

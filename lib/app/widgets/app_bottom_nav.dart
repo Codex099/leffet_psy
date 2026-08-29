@@ -237,7 +237,7 @@ class _AppBottomNavState extends State<AppBottomNav>
                                                     : FontWeight.w500,
                                                 fontSize: 10,
                                               ),
-                                          child: Text(item.label),
+                                          child: Text(item.label.tr),
                                         ),
                                       ],
                                     ),

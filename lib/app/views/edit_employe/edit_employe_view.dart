@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/edit_employe_controller.dart';
 import '../../theme/app_colors.dart';
@@ -67,7 +67,7 @@ class _EditEmployeViewState extends State<EditEmployeView> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
-        title: isEditMode ? 'Modifier l\'employé' : 'Nouvel employé',
+        title: isEditMode ? 'Modifier l\'employé'.tr : 'Nouvel employé'.tr,
         subtitle: 'Équipe Clinique'.tr,
         showBackButton: true,
       ),
@@ -77,7 +77,7 @@ class _EditEmployeViewState extends State<EditEmployeView> {
               isEditMode &&
               controller.nom.value.isEmpty) {
             return StatePlaceholder.loading(
-              message: 'Chargement des données de l\'employé...',
+              message: 'Chargement des données de l\'employé...'.tr,
             );
           }
           if (controller.status.value == 'error') {
@@ -99,7 +99,7 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                     vertical: 4,
                   ),
                   child: Text(
-                    'RÔLE DE L\'.trEMPLOYÉ',
+                    'RÔLE DE L\'EMPLOYÉ'.tr,
                     style: AppTextStyles.iosCaption2,
                   ),
                 ),
@@ -155,15 +155,15 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                 IosCard(
                   title: 'Identifiants de connexion'.tr,
                   subtitle: isEditMode
-                      ? 'Laissez le mot de passe vide pour ne pas le changer.'
-                      : 'Mot de passe initial requis',
+                      ? 'Laissez le mot de passe vide pour ne pas le changer.'.tr
+                      : 'Mot de passe initial requis'.tr,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
                           AppTextField(
-                            label: 'Nom d\'.trutilisateur (login) *',
+                            label: 'Nom d\'utilisateur (login) *'.tr,
                             hintText: 'c.moreau'.tr,
                             controller: _usernameCtrl,
                             onChanged: (v) => controller.username.value = v,
@@ -171,8 +171,8 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                           const SizedBox(height: 14),
                           AppTextField(
                             label: isEditMode
-                                ? 'Nouveau mot de passe (optionnel)'
-                                : 'Mot de passe initial *',
+                                ? 'Nouveau mot de passe (optionnel)'.tr
+                                : 'Mot de passe initial *'.tr,
                             hintText: '••••••••',
                             obscureText: true,
                             controller: _passwordCtrl,
@@ -241,8 +241,8 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                   ),
                   child: AppButton(
                     label: isEditMode
-                        ? 'Enregistrer les modifications'
-                        : 'Créer l\'employé',
+                        ? 'Enregistrer les modifications'.tr
+                        : 'Créer l\'employé'.tr,
                     icon: Icons.check_circle_outline_rounded,
                     onPressed: () => controller.saveEmployee(),
                   ),

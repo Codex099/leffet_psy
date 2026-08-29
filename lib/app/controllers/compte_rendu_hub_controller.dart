@@ -137,9 +137,9 @@ class CompteRenduHubController extends GetxController {
 
     // 1. Filtrage par onglet de statut
     if (selectedTab.value == 'en_attente') {
-      list = list.where((s) => s.statut != 'realisee').toList();
+      list = list.where((s) => s.statut != 'faite').toList();
     } else if (selectedTab.value == 'rediges') {
-      list = list.where((s) => s.statut == 'realisee').toList();
+      list = list.where((s) => s.statut == 'faite').toList();
     }
 
     // 2. Filtrage par type
@@ -167,6 +167,6 @@ class CompteRenduHubController extends GetxController {
     return list;
   }
 
-  int get enAttenteCount => allSessions.where((s) => s.statut != 'realisee').length;
-  int get redigesCount => allSessions.where((s) => s.statut == 'realisee').length;
+  int get enAttenteCount => allSessions.where((s) => s.statut != 'faite').length;
+  int get redigesCount => allSessions.where((s) => s.statut == 'faite').length;
 }

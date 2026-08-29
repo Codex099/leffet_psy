@@ -362,7 +362,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   itemCount: group.seances.length,
                   itemBuilder: (c, idx) {
                     final s = group.seances[idx];
-                    final isDone = s.statut == 'realisee';
+                    final isDone = s.statut == 'faite';
                     final isCancelled = s.statut == 'annulee';
                     final typeLabel =
                         (s.descriptionEtat != null &&
@@ -803,7 +803,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildStatutOption(
-                          'realisee',
+                          'faite',
                           'Réalisée',
                           selectedStatut,
                         ),
@@ -1094,7 +1094,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
 
                 // 2. Type de Créneau (Fixe vs Ponctuel par jour)
                 Text(
-                  'Type d\'.trhoraires',
+                  'Type d\'horaires'.tr,
                   style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,

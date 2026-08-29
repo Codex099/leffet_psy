@@ -161,7 +161,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                       ),
                       title: 'Aucun créneau configuré'.tr,
                       subtitle:
-                          'Définissez les jours et heures dans l\'.trédition du groupe.',
+                          'Définissez les jours et heures dans l\'édition du groupe.'.tr,
                     )
                   else
                     ...planningList.map((slot) {

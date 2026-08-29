@@ -84,7 +84,7 @@ class GroupesListeView extends GetView<GroupesListeController> {
               child: Obx(() {
                 if (controller.status.value == 'loading') {
                   return StatePlaceholder.loading(
-                    message: 'Chargement des groupes...',
+                    message: 'Chargement des groupes...'.tr,
                   );
                 }
                 if (controller.status.value == 'error') {
@@ -97,8 +97,8 @@ class GroupesListeView extends GetView<GroupesListeController> {
                   return StatePlaceholder.empty(
                     title: 'Aucun groupe thérapeutique'.tr,
                     message:
-                        'Créez un groupe pour planifier des ateliers cliniques collectifs.',
-                    actionLabel: 'Créer un groupe',
+                        'Créez un groupe pour planifier des ateliers cliniques collectifs.'.tr,
+                    actionLabel: 'Créer un groupe'.tr,
                     onAction: () => Get.toNamed(AppRoutes.editGroupe),
                   );
                 }

@@ -202,7 +202,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                               value: p.id,
                               label: p.fullName,
                               subtitle:
-                                  '${p.age != null ? "${p.age} ans • " : ""}${p.isFille ? "Fille" : "Garçon"}'.tr,
+                                  '${p.age != null ? "${p.age} ${'ans'.tr} \u200E•\u200E " : ""}${p.isFille ? "Fille".tr : "Garçon".tr}',
                               initials: p.initials,
                             );
                           }).toList(),
@@ -224,9 +224,9 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                         color: AppColors.primary,
                         size: 20,
                       ),
-                      title: 'Date d\'.tréchéance',
+                      title: 'Date d\'échéance'.tr,
                       subtitle: controller.dateEcheance.value.isEmpty
-                          ? 'Aucune date fixée'
+                          ? 'Aucune date fixée'.tr
                           : controller.dateEcheance.value,
                       showChevron: true,
                       onTap: () => _pickDate(context),
@@ -244,8 +244,8 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                     children: [
                       AppButton(
                         label: controller.isNew
-                            ? 'Créer la tâche'
-                            : 'Mettre à  jour la tâche',
+                            ? 'Créer la tâche'.tr
+                            : 'Mettre à jour la tâche'.tr,
                         icon: Icons.check_circle_outline_rounded,
                         onPressed: () => controller.saveTache(),
                       ),

@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class EmployeeModel {
@@ -65,13 +66,13 @@ class EmployeeModel {
   String get roleLabel {
     switch (role) {
       case 'admin':
-        return 'Admin';
+        return 'Admin'.tr;
       case 'psychologue':
-        return 'Psychologue';
+        return 'Psychologue'.tr;
       case 'educatrice':
-        return 'Éducatrice';
+        return 'Éducatrice'.tr;
       default:
-        return role;
+        return role.tr;
     }
   }
 

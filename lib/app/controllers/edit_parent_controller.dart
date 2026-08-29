@@ -101,21 +101,21 @@ class EditParentController extends GetxController {
       status.value = 'success';
       Get.back(result: true);
       Get.snackbar(
-        'Succès',
-        parentId != null ? 'Parent mis à jour avec succès.' : 'Parent enregistré avec succès.',
+        'Succès'.tr,
+        parentId != null ? 'Parent mis à jour avec succès.'.tr : 'Parent enregistré avec succès.'.tr,
         snackPosition: SnackPosition.BOTTOM,
       );
     } on DioException catch (e) {
       status.value = 'error';
       if (e.response?.statusCode == 409) {
-        errorMessage.value = 'Un parent avec ce numéro de téléphone existe déjà.';
+        errorMessage.value = 'Un parent avec ce numéro de téléphone existe déjà.'.tr;
       } else if (e.response?.statusCode == 422) {
-        errorMessage.value = 'Veuillez renseigner un numéro de téléphone valide et l\'état civil.';
+        errorMessage.value = 'Veuillez renseigner un numéro de téléphone valide et l\'état civil.'.tr;
       } else {
-        errorMessage.value = e.message ?? 'Erreur lors de l\'.trenregistrement.';
+        errorMessage.value = e.message ?? 'Erreur lors de l\'enregistrement.'.tr;
       }
       Get.snackbar(
-        'Erreur',
+        'Erreur'.tr,
         errorMessage.value,
         snackPosition: SnackPosition.BOTTOM,
       );
