@@ -4,7 +4,7 @@ import 'seance_groupe_model.dart';
 
 /// Modèle unifié représentant une séance (individuelle ou de groupe) pour l'Agenda et le Dashboard.
 class AgendaSessionItem {
-  final dynamic id;
+ final dynamic id;
   final bool isGroupe;
   final String title;
   final String subtitle;
@@ -46,57 +46,57 @@ class AgendaSessionItem {
 
   factory AgendaSessionItem.fromIndividuelle(SeanceModel seance) {
     final fullName = seance.patientFullName.isNotEmpty ? seance.patientFullName : 'Patient #${seance.patientId ?? ""}';
-    final dur = seance.duree;
+   final dur = seance.duree;
     
     String assigned = '';
-    if (seance.employe != null) {
+   if (seance.employe != null) {
       final prenom = seance.employe!['prenom'] ?? '';
-      final nom = seance.employe!['nom'] ?? '';
-      assigned = '$prenom $nom'.trim();
-    }
+     final nom = seance.employe!['nom'] ?? '';
+     assigned = '$prenom $nom'.trim();
+   }
 
     return AgendaSessionItem(
       id: seance.id,
       isGroupe: false,
       title: fullName,
       subtitle: '${seance.heureDebut} — ${seance.heureFin}${dur.isNotEmpty ? ' ($dur)' : ''}',
-      date: seance.date,
+     date: seance.date,
       heureDebut: seance.heureDebut,
       heureFin: seance.heureFin,
       duree: dur.isNotEmpty ? dur : '45 min',
-      statut: seance.statut,
+     statut: seance.statut,
       statutLabel: seance.statutLabel,
       initials: fullName.isNotEmpty ? fullName[0].toUpperCase() : 'P',
-      assignedEmployee: assigned,
+     assignedEmployee: assigned,
       photoUrl: seance.patient?['photo'] as String?,
-      patientId: seance.patientId,
+     patientId: seance.patientId,
       rawPatient: seance.patient,
     );
   }
 
   factory AgendaSessionItem.fromGroupe(SeanceGroupeModel seance) {
     final name = seance.groupeName.isNotEmpty ? seance.groupeName : 'Groupe'.tr;
-    final dur = '45 min'; // Ou dynamiquement
-    
+   final dur = '45 min'; // Ou dynamiquement
+   
     String assigned = '';
-    if (seance.employe != null) {
+   if (seance.employe != null) {
       final prenom = seance.employe!['prenom'] ?? '';
-      final nom = seance.employe!['nom'] ?? '';
-      assigned = '$prenom $nom'.trim();
-    }
+     final nom = seance.employe!['nom'] ?? '';
+     assigned = '$prenom $nom'.trim();
+   }
 
     return AgendaSessionItem(
       id: seance.id,
       isGroupe: true,
       title: 'Groupe : $name'.tr,
-      subtitle: '${seance.heureDebut} — ${seance.heureFin} ($dur)',
-      date: seance.date,
+     subtitle: '${seance.heureDebut} — ${seance.heureFin} ($dur)',
+     date: seance.date,
       heureDebut: seance.heureDebut,
       heureFin: seance.heureFin,
       duree: dur,
       statut: seance.statut,
       statutLabel: 'Groupe'.tr,
-      initials: 'G',
+     initials: 'G',
       assignedEmployee: assigned,
       groupeId: seance.groupeId,
       participants: seance.participants,

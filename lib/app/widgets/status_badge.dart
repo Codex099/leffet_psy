@@ -5,7 +5,7 @@ import '../theme/app_text_styles.dart';
 
 /// Badges de statut colorés réutilisables (actif/inactif, assisté/absent/en attente).
 class StatusBadge extends StatelessWidget {
-  final String label;
+ final String label;
   final Color backgroundColor;
   final Color textColor;
 
@@ -17,7 +17,7 @@ class StatusBadge extends StatelessWidget {
   });
 
   factory StatusBadge.present({String label = 'Assisté'}) {
-    return StatusBadge(
+   return StatusBadge(
       label: label,
       backgroundColor: AppColors.statusPresentBg,
       textColor: AppColors.statusPresent,
@@ -25,7 +25,7 @@ class StatusBadge extends StatelessWidget {
   }
 
   factory StatusBadge.absent({String label = 'Absent'}) {
-    return StatusBadge(
+   return StatusBadge(
       label: label,
       backgroundColor: AppColors.statusAbsentBg,
       textColor: AppColors.statusAbsent,
@@ -33,7 +33,7 @@ class StatusBadge extends StatelessWidget {
   }
 
   factory StatusBadge.pending({String label = 'En attente'}) {
-    return StatusBadge(
+   return StatusBadge(
       label: label,
       backgroundColor: AppColors.statusPendingBg,
       textColor: AppColors.statusPending,
@@ -43,7 +43,7 @@ class StatusBadge extends StatelessWidget {
   factory StatusBadge.active({String? label}) {
     return StatusBadge(
       label: label ?? 'Actif'.tr,
-      backgroundColor: AppColors.statusActiveBg,
+     backgroundColor: AppColors.statusActiveBg,
       textColor: AppColors.statusActive,
     );
   }

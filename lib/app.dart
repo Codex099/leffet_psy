@@ -8,14 +8,14 @@ import 'app/theme/app_theme.dart';
 import 'app/translations/app_translations.dart';
 
 class PsyCareApp extends StatelessWidget {
-  final Locale initialLocale;
+ final Locale initialLocale;
   const PsyCareApp({super.key, this.initialLocale = const Locale('fr', 'FR')});
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'PsyCare',
-      debugShowCheckedModeBanner: false,
+     debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       initialRoute: AppRoutes.login,
       initialBinding: InitialBinding(),
@@ -32,10 +32,10 @@ class PsyCareApp extends StatelessWidget {
       translations: AppTranslations(),
       locale: initialLocale,
       fallbackLocale: const Locale('fr', 'FR'),
-      supportedLocales: const [
+     supportedLocales: const [
         Locale('fr', 'FR'),
-        Locale('ar', 'DZ'),
-        Locale('en', 'US'),
+       Locale('ar', 'DZ'),
+       Locale('en', 'US'),
       ],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

@@ -4,14 +4,14 @@ import '../models/employee_model.dart';
 import 'dio_client.dart';
 
 class EmployeeService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/employees — Liste des employés (admin)
   Future<List<EmployeeModel>> getEmployees({String? search}) async {
     final queryParams = <String, dynamic>{};
     if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
-    final response = await _dio.get(
+   final response = await _dio.get(
       ApiConfig.employees,
       queryParameters: queryParams,
     );

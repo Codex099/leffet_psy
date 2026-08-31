@@ -5,12 +5,12 @@ import '../services/seance_groupe_service.dart';
 import '../utils/json_utils.dart';
 
 class CompteRenduGroupeController extends GetxController {
-  final SeanceGroupeService _seanceService = SeanceGroupeService();
+ final SeanceGroupeService _seanceService = SeanceGroupeService();
 
   final Rx<SeanceGroupeModel?> seance = Rx<SeanceGroupeModel?>(null);
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final medias = <String>[].obs;
+ final RxString errorMessage = ''.obs;
+ final medias = <String>[].obs;
 
   dynamic seanceId;
 
@@ -20,8 +20,8 @@ class CompteRenduGroupeController extends GetxController {
     seanceId = extractIdParam(Get.arguments, Get.parameters);
     if (seanceId == null) {
       status.value = 'error';
-      errorMessage.value = 'Identifiant de séance de groupe non spécifié.';
-    } else {
+     errorMessage.value = 'Identifiant de séance de groupe non spécifié.';
+   } else {
       loadSeance();
     }
   }
@@ -30,7 +30,7 @@ class CompteRenduGroupeController extends GetxController {
     if (seanceId == null) return;
     try {
       status.value = 'loading';
-      try {
+     try {
         seance.value = await _seanceService.getSeanceGroupe(seanceId!);
       } catch (_) {
         // Fallback: seanceId peut être un groupe_id si venant de la fiche groupe
@@ -40,23 +40,23 @@ class CompteRenduGroupeController extends GetxController {
           seanceId = list.first.id;
         } else {
           // Création à la volée d'une séance pour aujourd'hui
-          final todayStr = DateTime.now().toIso8601String().split('T').first;
-          final created = await _seanceService.createSeanceGroupe({
+         final todayStr = DateTime.now().toIso8601String().split('T').first;
+         final created = await _seanceService.createSeanceGroupe({
             'groupe_id': seanceId,
-            'date': todayStr,
-            'heure_debut': '10:00',
-            'heure_fin': '10:45',
-            'statut': 'prevue',
-          });
+           'date': todayStr,
+           'heure_debut': '10:00',
+           'heure_fin': '10:45',
+           'statut': 'prevue',
+         });
           seance.value = created;
           seanceId = created.id;
         }
       }
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-    }
+   }
   }
 
   Future<void> togglePresence(dynamic patientId, bool isPresent) async {
@@ -64,7 +64,7 @@ class CompteRenduGroupeController extends GetxController {
     try {
       await _seanceService.updateParticipant(seanceId!, patientId, {
         'statut_presence': isPresent ? 'present' : 'absent',
-      });
+     });
       loadSeance();
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de modifier la présence');

@@ -5,33 +5,33 @@ import '../services/parent_service.dart';
 import '../utils/json_utils.dart';
 
 class EditParentController extends GetxController {
-  final ParentService _parentService = ParentService();
+ final ParentService _parentService = ParentService();
 
   // Mode: création (null) ou édition (id fourni)
   dynamic parentId;
 
   final nom = ''.obs;
-  final prenom = ''.obs;
-  final telephone = ''.obs;
-  final etatCivil = ''.obs;
-  final adresse = ''.obs;
-  // Rôle familial — valeurs supportées par le backend
+ final prenom = ''.obs;
+ final telephone = ''.obs;
+ final etatCivil = ''.obs;
+ final adresse = ''.obs;
+ // Rôle familial — valeurs supportées par le backend
   final role = 'pere'.obs;
 
-  final RxString status = 'success'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString status = 'success'.obs;
+ final RxString errorMessage = ''.obs;
 
-  // Dropdown choices
+ // Dropdown choices
   static List<Map<String, String>> roleChoices = [
     {'value': 'pere', 'label': 'Père'.tr},
-    {'value': 'mere', 'label': 'Mère'.tr},
-    {'value': 'tuteur', 'label': 'Tuteur légal'.tr},
-    {'value': 'oncle', 'label': 'Oncle'.tr},
-    {'value': 'tante', 'label': 'Tante'.tr},
-    {'value': 'grand_pere', 'label': 'Grand-père'.tr},
-    {'value': 'grand_mere', 'label': 'Grand-mère'.tr},
-    {'value': 'autre', 'label': 'Autre'.tr},
-  ];
+   {'value': 'mere', 'label': 'Mère'.tr},
+   {'value': 'tuteur', 'label': 'Tuteur légal'.tr},
+   {'value': 'oncle', 'label': 'Oncle'.tr},
+   {'value': 'tante', 'label': 'Tante'.tr},
+   {'value': 'grand_pere', 'label': 'Grand-père'.tr},
+   {'value': 'grand_mere', 'label': 'Grand-mère'.tr},
+   {'value': 'autre', 'label': 'Autre'.tr},
+ ];
 
   @override
   void onInit() {
@@ -46,25 +46,25 @@ class EditParentController extends GetxController {
   Future<void> _loadParent(dynamic id) async {
     try {
       status.value = 'loading';
-      final parent = await _parentService.getParent(id);
+     final parent = await _parentService.getParent(id);
       nom.value = parent.nom;
       prenom.value = parent.prenom;
       telephone.value = parent.telephone ?? '';
-      etatCivil.value = parent.etatCivil ?? '';
-      adresse.value = parent.adresse ?? '';
-      status.value = 'success';
-    } catch (e) {
+     etatCivil.value = parent.etatCivil ?? '';
+     adresse.value = parent.adresse ?? '';
+     status.value = 'success';
+   } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-    }
+   }
   }
 
   Future<void> saveParent() async {
     if (nom.value.trim().isEmpty || prenom.value.trim().isEmpty) {
       Get.snackbar(
         'Champs requis',
-        'Veuillez renseigner le prénom et le nom du parent.',
-        snackPosition: SnackPosition.BOTTOM,
+       'Veuillez renseigner le prénom et le nom du parent.',
+       snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
@@ -72,22 +72,22 @@ class EditParentController extends GetxController {
     if (telephone.value.trim().isEmpty) {
       Get.snackbar(
         'Téléphone requis',
-        'Veuillez renseigner le numéro de téléphone du parent.',
-        snackPosition: SnackPosition.BOTTOM,
+       'Veuillez renseigner le numéro de téléphone du parent.',
+       snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
 
     try {
       status.value = 'loading';
-      final data = {
+     final data = {
         'nom': nom.value.trim(),
-        'prenom': prenom.value.trim(),
-        'telephone': telephone.value.trim(),
-        'etat_civil': etatCivil.value.trim().isEmpty ? 'Non spécifié' : etatCivil.value.trim(),
-        'adresse': adresse.value.trim().isEmpty ? '' : adresse.value.trim(),
-        'role': role.value,
-      };
+       'prenom': prenom.value.trim(),
+       'telephone': telephone.value.trim(),
+       'etat_civil': etatCivil.value.trim().isEmpty ? 'Non spécifié' : etatCivil.value.trim(),
+       'adresse': adresse.value.trim().isEmpty ? '' : adresse.value.trim(),
+       'role': role.value,
+     };
 
       if (parentId != null) {
         await _parentService.updateParent(parentId!, data);
@@ -99,29 +99,29 @@ class EditParentController extends GetxController {
       AppCacheManager.invalidateTag(CacheTags.patients);
 
       status.value = 'success';
-      Get.back(result: true);
+     Get.back(result: true);
       Get.snackbar(
         'Succès'.tr,
-        parentId != null ? 'Parent mis à jour avec succès.'.tr : 'Parent enregistré avec succès.'.tr,
-        snackPosition: SnackPosition.BOTTOM,
+       parentId != null ? 'Parent mis à jour avec succès.'.tr : 'Parent enregistré avec succès.'.tr,
+       snackPosition: SnackPosition.BOTTOM,
       );
     } on DioException catch (e) {
       status.value = 'error';
-      if (e.response?.statusCode == 409) {
+     if (e.response?.statusCode == 409) {
         errorMessage.value = 'Un parent avec ce numéro de téléphone existe déjà.'.tr;
-      } else if (e.response?.statusCode == 422) {
+     } else if (e.response?.statusCode == 422) {
         errorMessage.value = 'Veuillez renseigner un numéro de téléphone valide et l\'état civil.'.tr;
-      } else {
+     } else {
         errorMessage.value = e.message ?? 'Erreur lors de l\'enregistrement.'.tr;
-      }
+     }
       Get.snackbar(
         'Erreur'.tr,
-        errorMessage.value,
+       errorMessage.value,
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       status.value = 'error';
-      errorMessage.value = e.toString();
+     errorMessage.value = e.toString();
       Get.snackbar('Erreur', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
     }
   }

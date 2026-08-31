@@ -15,17 +15,18 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
 class PatientsListeView extends GetView<PatientsListeController> {
-  const PatientsListeView({super.key});
+ const PatientsListeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       extendBody: true,
       appBar: CreativeAppBar(
         title: 'Dossiers Patients'.tr,
-        subtitle: 'Cabinet PsyCare'.tr,
-        actions: [
+       subtitle: 'Cabinet PsyCare'.tr,
+       actions: [
           BouncyTap(
             onTap: () async {
               final res = await Get.toNamed(AppRoutes.editPatient);
@@ -59,6 +60,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 120),
             children: [
+            const SizedBox(height: 90),
               // ── Search Bar Premium ─────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
@@ -77,7 +79,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                     ),
                     decoration: InputDecoration(
                       hintText: 'Rechercher un patient...'.tr,
-                      hintStyle: AppTextStyles.iosSubhead.copyWith(
+                     hintStyle: AppTextStyles.iosSubhead.copyWith(
                         color: AppColors.textHint,
                       ),
                       prefixIcon: const Icon(
@@ -103,7 +105,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
 
                 return IosSegmentedControl<int>(
                   segments: const {0: 'Tous', 1: 'Suivi actif', 2: 'Inactifs'},
-                  selectedValue: selectedIndex,
+                 selectedValue: selectedIndex,
                   onValueChanged: (idx) {
                     if (idx == 0) controller.setActifFilter(null);
                     if (idx == 1) controller.setActifFilter(true);
@@ -122,7 +124,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                     Obx(
                       () => Text(
                         '${controller.filteredPatients.length} patient(s)'.tr,
-                        style: AppTextStyles.iosCaption2.copyWith(
+                       style: AppTextStyles.iosCaption2.copyWith(
                           color: AppColors.textTertiary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -135,10 +137,10 @@ class PatientsListeView extends GetView<PatientsListeController> {
               // ── Liste Patients ─────────────────────────────────────────────
               Obx(() {
                 if (controller.status.value == 'loading') {
-                  return const ShimmerListLoader(count: 6);
+                 return const ShimmerListLoader(count: 6);
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadPatients(),
                   );
@@ -150,12 +152,12 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   return StatePlaceholder.empty(
                     title: isInactive
                         ? 'Aucun patient inactif'
-                        : 'Aucun patient trouvé',
-                    message: isInactive
+                       : 'Aucun patient trouvé',
+                   message: isInactive
                         ? 'Il n\'y a aucun patient inactif dans votre liste.'
-                        : 'Vous pouvez créer un nouveau dossier dès maintenant.',
-                    actionLabel: isInactive ? null : 'Créer un dossier',
-                    onAction: isInactive
+                       : 'Vous pouvez créer un nouveau dossier dès maintenant.',
+                   actionLabel: isInactive ? null : 'Créer un dossier',
+                   onAction: isInactive
                         ? null
                         : () async {
                             final res = await Get.toNamed(

@@ -12,24 +12,25 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
 
 class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
-  const CompteRenduSeanceView({super.key});
+ const CompteRenduSeanceView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Compte-rendu Séance'.tr,
-        subtitle: 'Bilan Clinique'.tr,
-        showBackButton: true,
+       subtitle: 'Bilan Clinique'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {
-            return const StatePlaceholder(type: StatePlaceholderType.loading);
+           return const StatePlaceholder(type: StatePlaceholderType.loading);
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(
+           return StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadSeance(),
             );
@@ -43,8 +44,9 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+            const SizedBox(height: 90),
                 StatusBadge.active(label: 'Séance individuelle'.tr),
-                const SizedBox(height: 16),
+               const SizedBox(height: 16),
 
                 // Résumé / notes Card
                 Container(
@@ -67,16 +69,16 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                           const SizedBox(width: 8),
                           SectionHeader(
                             title: 'Résumé / notes de la séance'.tr,
-                            padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                           padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       AppTextField(
                         label: '',
-                        hintText:
+                       hintText:
                             'Décrivez les échanges, observations, exercices réalisés et points de suivi...'.tr,
-                        maxLines: 5,
+                       maxLines: 5,
                         onChanged: (v) => controller.descriptionEtat.value = v,
                       ),
                       const SizedBox(height: 14),
@@ -90,7 +92,7 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                           const SizedBox(width: 8),
                           Text(
                             'Lien avec le plan thérapeutique'.tr,
-                            style: AppTextStyles.bodyMedium.copyWith(
+                           style: AppTextStyles.bodyMedium.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -107,7 +109,7 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                           child: DropdownButton<dynamic>(
                             hint: Text(
                               'Sélectionner une étape (optionnel)'.tr,
-                              style: AppTextStyles.fieldHint,
+                             style: AppTextStyles.fieldHint,
                             ),
                             isExpanded: true,
                             value: controller.etapePlanId.value,
@@ -115,15 +117,15 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                               DropdownMenuItem<dynamic>(
                                 value: null,
                                 child: Text('-- Aucune étape --'.tr),
-                              ),
+                             ),
                               DropdownMenuItem<dynamic>(
                                 value: 1,
                                 child: Text('Étape 1 : Évaluation initiale'.tr),
-                              ),
+                             ),
                               DropdownMenuItem<dynamic>(
                                 value: 2,
                                 child: Text('Étape 2 : Suivi émotionnel'.tr),
-                              ),
+                             ),
                             ],
                             onChanged: (val) =>
                                 controller.etapePlanId.value = val,
@@ -156,13 +158,13 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
                           const SizedBox(width: 8),
                           SectionHeader(
                             title: 'Pièces jointes'.tr,
-                            padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                           padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                           ),
                         ],
                       ),
                       Text(
-                        'Ajouter une photo ou une vidéo liée à  la séance'.tr,
-                        style: AppTextStyles.bodySmall,
+                        'Ajouter une photo ou une vidéo liée à la séance'.tr,
+                       style: AppTextStyles.bodySmall,
                       ),
                       const SizedBox(height: 14),
                       MediaPickerWidget(

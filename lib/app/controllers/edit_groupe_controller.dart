@@ -13,7 +13,7 @@ import 'agenda_controller.dart';
 
 /// Un créneau horaire pour un jour donné
 class DaySlot {
-  final String day;
+ final String day;
   final String heureDebut;
   final String heureFin;
 
@@ -37,61 +37,61 @@ class EditGroupeController extends GetxController {
 
   // Form fields
   final nom = ''.obs;
-  final description = ''.obs;
-  final typePlanning = 'fixe'.obs;
-  // Planning récurrent : liste de créneaux (un ou plusieurs par jour)
+ final description = ''.obs;
+ final typePlanning = 'fixe'.obs;
+ // Planning récurrent : liste de créneaux (un ou plusieurs par jour)
   final RxList<DaySlot> daySlots = <DaySlot>[].obs;
 
   // Mode des créneaux : 'fixe' (mêmes heures pour tous les jours) ou 'ponctuel' (heure personnalisée par jour)
-  final RxString modeCreneaux = 'fixe'.obs;
-  final RxString globalHeureDebut = '09:00'.obs;
-  final RxString globalHeureFin = '09:45'.obs;
+ final RxString modeCreneaux = 'fixe'.obs;
+ final RxString globalHeureDebut = '09:00'.obs;
+ final RxString globalHeureFin = '09:45'.obs;
 
-  // Employees — RxSet pour une réactivité correcte des checkboxes
+ // Employees — RxSet pour une réactivité correcte des checkboxes
   final RxList<EmployeeModel> availableEmployees = <EmployeeModel>[].obs;
   final RxSet<dynamic> selectedEmployeeIds = <dynamic>{}.obs;
   final RxString employeesStatus = 'loading'.obs;
 
-  // Patients in group (from API)
+ // Patients in group (from API)
   final RxList<Map<String, dynamic>> groupePatients = <Map<String, dynamic>>[].obs;
 
   // All patients for patient picker
   final RxList<PatientModel> allPatients = <PatientModel>[].obs;
   final RxString patientsStatus = 'loading'.obs;
 
-  final RxString status = 'success'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString status = 'success'.obs;
+ final RxString errorMessage = ''.obs;
 
-  // ── Jours de la semaine disponibles ──
+ // ── Jours de la semaine disponibles ──
   static const List<String> allDays = ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'];
-  static const List<String> allDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+ static const List<String> allDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-  static const Map<String, String> dayToFull = {
+ static const Map<String, String> dayToFull = {
     'lun': 'lundi',
-    'mar': 'mardi',
-    'mer': 'mercredi',
-    'jeu': 'jeudi',
-    'ven': 'vendredi',
-    'sam': 'samedi',
-    'dim': 'dimanche',
-    'lundi': 'lundi',
-    'mardi': 'mardi',
-    'mercredi': 'mercredi',
-    'jeudi': 'jeudi',
-    'vendredi': 'vendredi',
-    'samedi': 'samedi',
-    'dimanche': 'dimanche',
-  };
+   'mar': 'mardi',
+   'mer': 'mercredi',
+   'jeu': 'jeudi',
+   'ven': 'vendredi',
+   'sam': 'samedi',
+   'dim': 'dimanche',
+   'lundi': 'lundi',
+   'mardi': 'mardi',
+   'mercredi': 'mercredi',
+   'jeudi': 'jeudi',
+   'vendredi': 'vendredi',
+   'samedi': 'samedi',
+   'dimanche': 'dimanche',
+ };
 
   static const Map<String, String> fullToShort = {
     'lundi': 'lun',
-    'mardi': 'mar',
-    'mercredi': 'mer',
-    'jeudi': 'jeu',
-    'vendredi': 'ven',
-    'samedi': 'sam',
-    'dimanche': 'dim',
-  };
+   'mardi': 'mar',
+   'mercredi': 'mer',
+   'jeudi': 'jeu',
+   'vendredi': 'ven',
+   'samedi': 'sam',
+   'dimanche': 'dim',
+ };
 
   @override
   void onInit() {
@@ -111,10 +111,10 @@ class EditGroupeController extends GetxController {
   Future<void> _loadGroupe(dynamic id) async {
     try {
       status.value = 'loading';
-      final groupe = await _groupeService.getGroupe(id);
+     final groupe = await _groupeService.getGroupe(id);
       nom.value = groupe.nom;
       description.value = groupe.description ?? '';
-      typePlanning.value = groupe.typePlanning;
+     typePlanning.value = groupe.typePlanning;
       
       // Déduplication stricte par identifiant patient
       final rawPatients = groupe.patients ?? [];
@@ -122,7 +122,7 @@ class EditGroupeController extends GetxController {
       final uniquePatients = <Map<String, dynamic>>[];
       for (final p in rawPatients) {
         final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
-        if (pid != null && !seenIds.contains(pid)) {
+       if (pid != null && !seenIds.contains(pid)) {
           seenIds.add(pid);
           uniquePatients.add(p);
         }
@@ -133,12 +133,12 @@ class EditGroupeController extends GetxController {
       if (groupe.planningRecurrent != null && groupe.planningRecurrent!.isNotEmpty) {
         daySlots.value = groupe.planningRecurrent!.map((slot) {
           final rawDay = (slot['jour_semaine'] ?? '').toString().toLowerCase();
-          final shortDay = fullToShort[rawDay] ?? rawDay;
+         final shortDay = fullToShort[rawDay] ?? rawDay;
           return DaySlot(
             day: shortDay,
             heureDebut: slot['heure_debut'] ?? '09:00',
-            heureFin: slot['heure_fin'] ?? '09:45',
-          );
+           heureFin: slot['heure_fin'] ?? '09:45',
+         );
         }).toList();
       }
 
@@ -147,32 +147,32 @@ class EditGroupeController extends GetxController {
         selectedEmployeeIds.addAll(groupe.employeeIds!);
       }
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-    }
+   }
   }
 
   Future<void> _loadEmployees() async {
     try {
       employeesStatus.value = 'loading';
-      final list = await _employeeService.getEmployees();
+     final list = await _employeeService.getEmployees();
       availableEmployees.value = list;
       employeesStatus.value = 'success';
-    } catch (_) {
+   } catch (_) {
       employeesStatus.value = 'error';
-    }
+   }
   }
 
   Future<void> _loadAllPatients() async {
     try {
       patientsStatus.value = 'loading';
-      final list = await _patientService.getPatients(actif: true);
+     final list = await _patientService.getPatients(actif: true);
       allPatients.value = list;
       patientsStatus.value = 'success';
-    } catch (_) {
+   } catch (_) {
       patientsStatus.value = 'error';
-    }
+   }
   }
 
   // ──────────────────────────────────────────
@@ -202,7 +202,7 @@ class EditGroupeController extends GetxController {
   void setModeCreneaux(String mode) {
     modeCreneaux.value = mode;
     if (mode == 'fixe') {
-      for (int i = 0; i < daySlots.length; i++) {
+     for (int i = 0; i < daySlots.length; i++) {
         daySlots[i] = daySlots[i].copyWith(
           heureDebut: globalHeureDebut.value,
           heureFin: globalHeureFin.value,
@@ -215,7 +215,7 @@ class EditGroupeController extends GetxController {
   void updateGlobalStart(String val) {
     globalHeureDebut.value = val;
     if (modeCreneaux.value == 'fixe') {
-      for (int i = 0; i < daySlots.length; i++) {
+     for (int i = 0; i < daySlots.length; i++) {
         daySlots[i] = daySlots[i].copyWith(heureDebut: val);
       }
       daySlots.refresh();
@@ -225,7 +225,7 @@ class EditGroupeController extends GetxController {
   void updateGlobalEnd(String val) {
     globalHeureFin.value = val;
     if (modeCreneaux.value == 'fixe') {
-      for (int i = 0; i < daySlots.length; i++) {
+     for (int i = 0; i < daySlots.length; i++) {
         daySlots[i] = daySlots[i].copyWith(heureFin: val);
       }
       daySlots.refresh();
@@ -238,15 +238,15 @@ class EditGroupeController extends GetxController {
       daySlots.removeWhere((s) => s.day == day);
     } else {
       final start = modeCreneaux.value == 'fixe' ? globalHeureDebut.value : '09:00';
-      final end = modeCreneaux.value == 'fixe' ? globalHeureFin.value : '09:45';
-      daySlots.add(DaySlot(day: day, heureDebut: start, heureFin: end));
+     final end = modeCreneaux.value == 'fixe' ? globalHeureFin.value : '09:45';
+     daySlots.add(DaySlot(day: day, heureDebut: start, heureFin: end));
     }
     daySlots.refresh();
   }
 
   void addSlotForDay(String day) {
     daySlots.add(DaySlot(day: day, heureDebut: '09:00', heureFin: '09:45'));
-    daySlots.refresh();
+   daySlots.refresh();
   }
 
   void removeSlot(DaySlot slot) {
@@ -280,7 +280,7 @@ class EditGroupeController extends GetxController {
     if (targetId == null) return false;
     return groupePatients.any((p) {
       final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
-      return pid != null && pid == targetId;
+     return pid != null && pid == targetId;
     });
   }
 
@@ -289,7 +289,7 @@ class EditGroupeController extends GetxController {
     final toAdd = patientIds.where((pid) => !isPatientInGroupe(pid)).toSet().toList();
     if (toAdd.isEmpty) {
       Get.snackbar('Information', 'Ce(s) patient(s) font déjà partie de ce groupe.',
-          snackPosition: SnackPosition.BOTTOM);
+         snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -300,32 +300,32 @@ class EditGroupeController extends GetxController {
         if (pat != null) {
           groupePatients.add({
             'id': pat.id,
-            'nom': pat.nom,
-            'prenom': pat.prenom,
-          });
+           'nom': pat.nom,
+           'prenom': pat.prenom,
+         });
         }
       }
       groupePatients.refresh();
       Get.snackbar('Sélection', '${toAdd.length} patient(s) sélectionné(s) pour ce groupe.',
-          snackPosition: SnackPosition.BOTTOM);
+         snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
     try {
       status.value = 'loading';
-      for (final pid in toAdd) {
+     for (final pid in toAdd) {
         try {
           await _groupeService.addPatientToGroupe(groupeId!, pid);
         } catch (_) {}
       }
       await _loadGroupe(groupeId!);
       status.value = 'success';
-      Get.snackbar('Succès', '${toAdd.length} patient(s) ajouté(s) au groupe d\'un seul coup.',
-          snackPosition: SnackPosition.BOTTOM);
+     Get.snackbar('Succès', '${toAdd.length} patient(s) ajouté(s) au groupe d\'un seul coup.',
+         snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       status.value = 'error';
-      Get.snackbar('Erreur', e.toString(), snackPosition: SnackPosition.BOTTOM);
-    }
+     Get.snackbar('Erreur', e.toString(), snackPosition: SnackPosition.BOTTOM);
+   }
   }
 
   Future<void> addPatientToGroupe(dynamic patientId) async {
@@ -336,16 +336,16 @@ class EditGroupeController extends GetxController {
     final targetId = parseId(patientId)?.toString();
     if (groupeId == null) {
       groupePatients.removeWhere((p) => parseId(p['id'] ?? p['patient_id'])?.toString() == targetId);
-      groupePatients.refresh();
+     groupePatients.refresh();
       return;
     }
     try {
       await _groupeService.removePatientFromGroupe(groupeId!, patientId);
       await _loadGroupe(groupeId!);
       Get.snackbar('Succès', 'Patient retiré du groupe.', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       Get.snackbar('Erreur', e.toString(), snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   // ──────────────────────────────────────────
@@ -355,17 +355,17 @@ class EditGroupeController extends GetxController {
   Future<void> saveGroupe() async {
     if (nom.value.trim().isEmpty) {
       Get.snackbar('Champ requis', 'Le nom du groupe est obligatoire.',
-          snackPosition: SnackPosition.BOTTOM);
+         snackPosition: SnackPosition.BOTTOM);
       return;
     }
     try {
       status.value = 'loading';
-      final data = {
+     final data = {
         'nom': nom.value.trim(),
-        'description': description.value.trim().isEmpty ? null : description.value.trim(),
-        'type_planning': typePlanning.value,
-        if (selectedEmployeeIds.isNotEmpty) 'employee_ids': selectedEmployeeIds.toList(),
-      };
+       'description': description.value.trim().isEmpty ? null : description.value.trim(),
+       'type_planning': typePlanning.value,
+       if (selectedEmployeeIds.isNotEmpty) 'employee_ids': selectedEmployeeIds.toList(),
+     };
 
       final bool isNewGroup = (groupeId == null);
       GroupeModel saved;
@@ -380,7 +380,7 @@ class EditGroupeController extends GetxController {
       if (isNewGroup && groupePatients.isNotEmpty && groupeId != null) {
         for (final p in List.from(groupePatients)) {
           final pid = parseId(p['id'] ?? p['patient_id']);
-          if (pid != null) {
+         if (pid != null) {
             try {
               await _groupeService.addPatientToGroupe(groupeId!, pid);
             } catch (_) {}
@@ -395,21 +395,21 @@ class EditGroupeController extends GetxController {
           try {
             await _groupeService.setPlanningRecurrent(groupeId!, {
               'jour_semaine': fullDay,
-              'heure_debut': slot.heureDebut,
-              'heure_fin': slot.heureFin,
-            });
+             'heure_debut': slot.heureDebut,
+             'heure_fin': slot.heureFin,
+           });
 
             // Création de la séance de groupe pour le jour correspondant de la semaine
             final targetDate = _getNextWeekdayDate(slot.day);
             final dateStr = targetDate.toIso8601String().split('T').first;
-            await _seanceGroupeService.createSeanceGroupe({
+           await _seanceGroupeService.createSeanceGroupe({
               'groupe_id': groupeId!,
-              'date': dateStr,
-              'heure_debut': slot.heureDebut,
-              'heure_fin': slot.heureFin,
-              'statut': 'prevue',
-              if (selectedEmployeeIds.isNotEmpty) 'employe_id': selectedEmployeeIds.first,
-            });
+             'date': dateStr,
+             'heure_debut': slot.heureDebut,
+             'heure_fin': slot.heureFin,
+             'statut': 'prevue',
+             if (selectedEmployeeIds.isNotEmpty) 'employe_id': selectedEmployeeIds.first,
+           });
           } catch (_) {}
         }
       }
@@ -430,35 +430,35 @@ class EditGroupeController extends GetxController {
       } catch (_) {}
 
       status.value = 'success';
-      Get.back(result: true);
+     Get.back(result: true);
       Get.snackbar(
         'Succès',
-        groupeId != null ? 'Groupe mis à jour et créneaux planifiés.' : 'Groupe créé et créneaux planifiés.',
-        snackPosition: SnackPosition.BOTTOM,
+       groupeId != null ? 'Groupe mis à jour et créneaux planifiés.' : 'Groupe créé et créneaux planifiés.',
+       snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-      Get.snackbar('Erreur', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
-    }
+     Get.snackbar('Erreur', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
+   }
   }
 
   DateTime _getNextWeekdayDate(String dayStr) {
     final dayMap = {
       'lundi': DateTime.monday,
-      'lun': DateTime.monday,
-      'mardi': DateTime.tuesday,
-      'mar': DateTime.tuesday,
-      'mercredi': DateTime.wednesday,
-      'mer': DateTime.wednesday,
-      'jeudi': DateTime.thursday,
-      'jeu': DateTime.thursday,
-      'vendredi': DateTime.friday,
-      'ven': DateTime.friday,
-      'samedi': DateTime.saturday,
-      'sam': DateTime.saturday,
-      'dimanche': DateTime.sunday,
-      'dim': DateTime.sunday,
+     'lun': DateTime.monday,
+     'mardi': DateTime.tuesday,
+     'mar': DateTime.tuesday,
+     'mercredi': DateTime.wednesday,
+     'mer': DateTime.wednesday,
+     'jeudi': DateTime.thursday,
+     'jeu': DateTime.thursday,
+     'vendredi': DateTime.friday,
+     'ven': DateTime.friday,
+     'samedi': DateTime.saturday,
+     'sam': DateTime.saturday,
+     'dimanche': DateTime.sunday,
+     'dim': DateTime.sunday,
     };
     final targetWeekday = dayMap[dayStr.toLowerCase()] ?? DateTime.monday;
     final now = DateTime.now();

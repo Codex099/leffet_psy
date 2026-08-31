@@ -4,7 +4,7 @@ import '../models/seance_model.dart';
 import 'dio_client.dart';
 
 class SeanceService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/seances — Liste des séances (avec filtres optionnels)
   Future<List<SeanceModel>> getSeances({
@@ -14,10 +14,10 @@ class SeanceService {
   }) async {
     final queryParams = <String, dynamic>{};
     if (date != null) queryParams['date'] = date;
-    if (patientId != null) queryParams['patient_id'] = patientId;
-    if (employeId != null) queryParams['employe_id'] = employeId;
+   if (patientId != null) queryParams['patient_id'] = patientId;
+   if (employeId != null) queryParams['employe_id'] = employeId;
 
-    final response = await _dio.get(
+   final response = await _dio.get(
       ApiConfig.seances,
       queryParameters: queryParams,
     );
@@ -78,14 +78,14 @@ class PlanningRecurrentService {
   ) async {
     final now = DateTime.now();
     final todayStr = now.toIso8601String().split('T').first;
-    final payload = Map<String, dynamic>.from(data);
+   final payload = Map<String, dynamic>.from(data);
 
     // Champs obligatoires selon le schéma FastAPI
     payload['date_debut'] ??= todayStr;
-    payload['mode_generation'] ??= 'auto';
-    payload['horizon_jours'] ??= 30;
+   payload['mode_generation'] ??= 'auto';
+   payload['horizon_jours'] ??= 30;
 
-    final response = await _dio.post(
+   final response = await _dio.post(
       ApiConfig.patientPlanningRecurrent(patientId),
       data: payload,
     );
@@ -101,14 +101,14 @@ class PlanningRecurrentService {
   }) async {
     final now = DateTime.now();
     final dDebut = dateDebut ?? now.toIso8601String().split('T').first;
-    final dFin = dateFin ??
+   final dFin = dateFin ??
         now.add(const Duration(days: 30)).toIso8601String().split('T').first;
 
-    await _dio.post(
+   await _dio.post(
       ApiConfig.patientPlanningRecurrentGenerer(patientId),
       data: {
         'date_debut': dDebut,
-        'date_fin': dFin,
+       'date_fin': dFin,
       },
     );
   }

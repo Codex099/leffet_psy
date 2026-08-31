@@ -6,7 +6,7 @@ import '../theme/app_text_styles.dart';
 
 /// Avatar patient/employé réutilisable (initiales gradient ou photo réseau).
 class PatientAvatar extends StatelessWidget {
-  final String initials;
+ final String initials;
   final String? photoUrl;
   final double radius;
   final Color? backgroundColor;
@@ -26,12 +26,12 @@ class PatientAvatar extends StatelessWidget {
     final url = photoUrl!.trim();
 
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      final uri = Uri.tryParse(url);
+     final uri = Uri.tryParse(url);
       if (uri != null &&
           (uri.host == 'localhost' ||
-              uri.host == '127.0.0.1' ||
-              uri.host == '0.0.0.0')) {
-        final base = ApiConfig.baseUrl;
+             uri.host == '127.0.0.1' ||
+             uri.host == '0.0.0.0')) {
+       final base = ApiConfig.baseUrl;
         final baseUri = Uri.tryParse(base);
         if (baseUri != null) {
           final fixed = uri.replace(
@@ -46,10 +46,10 @@ class PatientAvatar extends StatelessWidget {
     }
 
     final base = ApiConfig.baseUrl.endsWith('/')
-        ? ApiConfig.baseUrl.substring(0, ApiConfig.baseUrl.length - 1)
+       ? ApiConfig.baseUrl.substring(0, ApiConfig.baseUrl.length - 1)
         : ApiConfig.baseUrl;
     final path = url.startsWith('/') ? url : '/$url';
-    return '$base$path';
+   return '$base$path';
   }
 
   // Choisit un gradient basé sur les initiales (déterministe, pour cohérence)

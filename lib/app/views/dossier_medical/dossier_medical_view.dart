@@ -9,7 +9,7 @@ import '../../widgets/app_text_field.dart';
 import '../../widgets/state_placeholder.dart';
 
 class DossierMedicalView extends GetView<DossierMedicalController> {
-  const DossierMedicalView({super.key});
+ const DossierMedicalView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +17,12 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
       backgroundColor: AppColors.scaffold,
       body: Obx(() {
         if (controller.status.value == 'loading') {
-          return const SafeArea(
+         return const SafeArea(
             child: StatePlaceholder(type: StatePlaceholderType.loading),
           );
         }
         if (controller.status.value == 'error') {
-          return SafeArea(
+         return SafeArea(
             child: StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadDossier(),
@@ -71,13 +71,13 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       children: [
                         Text(
                           'FICHE CLINIQUE'.tr,
-                          style: AppTextStyles.sectionKicker.copyWith(
+                         style: AppTextStyles.sectionKicker.copyWith(
                             color: Colors.white.withValues(alpha: 0.7),
                           ),
                         ),
                         Text(
                           'Dossier médical'.tr,
-                          style: AppTextStyles.screenTitleMedium.copyWith(
+                         style: AppTextStyles.screenTitleMedium.copyWith(
                             color: Colors.white,
                           ),
                         ),
@@ -86,7 +86,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                     IconButton(
                       icon: const Icon(Icons.edit_rounded, color: Colors.white),
                       tooltip: 'Modifier'.tr,
-                      onPressed: () => controller.isEditing.value = true,
+                     onPressed: () => controller.isEditing.value = true,
                     ),
                   ],
                 ),
@@ -117,21 +117,21 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                           children: [
                             Text(
                               'Informations médicales complètes'.tr,
-                              style: AppTextStyles.bodyMedium.copyWith(
+                             style: AppTextStyles.bodyMedium.copyWith(
                                 color: Colors.white,
                               ),
                             ),
                             if (d?.dateMaj != null)
                               Text(
-                                'Mis à  jour le ${d!.dateMaj}${d.misAJourPar != null ? " par ${d.misAJourPar}" : ""}'.tr,
-                                style: AppTextStyles.bodySmall.copyWith(
+                                'Mis à jour le ${d!.dateMaj}${d.misAJourPar != null ? " par ${d.misAJourPar}" : ""}'.tr,
+                               style: AppTextStyles.bodySmall.copyWith(
                                   color: Colors.white.withValues(alpha: 0.7),
                                 ),
                               )
                             else
                               Text(
-                                'Aucune mise à  jour enregistrée'.tr,
-                                style: AppTextStyles.bodySmall.copyWith(
+                                'Aucune mise à jour enregistrée'.tr,
+                               style: AppTextStyles.bodySmall.copyWith(
                                   color: Colors.white.withValues(alpha: 0.7),
                                 ),
                               ),
@@ -154,22 +154,22 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                 _buildInfoSection(
                   icon: Icons.history_edu_rounded,
                   title: 'Antécédents & Traitements'.tr,
-                  color: const Color(0xFF1565C0),
+                 color: const Color(0xFF1565C0),
                   colorBg: const Color(0xFFE3F2FD),
                   items: [
                     _InfoItem(
                       label: 'Antécédents médicaux'.tr,
-                      value: d?.antecedentsMedicaux,
+                     value: d?.antecedentsMedicaux,
                       icon: Icons.medical_services_outlined,
                     ),
                     _InfoItem(
                       label: 'Médicaments pris'.tr,
-                      value: d?.medicamentsPris,
+                     value: d?.medicamentsPris,
                       icon: Icons.medication_outlined,
                     ),
                     _InfoItem(
                       label: 'Date du cas'.tr,
-                      value: d?.dateCas,
+                     value: d?.dateCas,
                       icon: Icons.calendar_today_outlined,
                     ),
                   ],
@@ -180,37 +180,37 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                 _buildInfoSection(
                   icon: Icons.child_care_rounded,
                   title: 'Développement'.tr,
-                  color: const Color(0xFF2E7D32),
+                 color: const Color(0xFF2E7D32),
                   colorBg: const Color(0xFFE8F5E9),
                   items: [
                     _InfoItem(
                       label: 'Date de naissance'.tr,
-                      value: d?.dateNaissance,
+                     value: d?.dateNaissance,
                       icon: Icons.cake_outlined,
                     ),
                     _InfoItem(
                       label: 'Naissance'.tr,
-                      value: d?.naissance,
+                     value: d?.naissance,
                       icon: Icons.pregnant_woman_outlined,
                     ),
                     _InfoItem(
                       label: 'Nombre de frères/sœurs'.tr,
-                      value: d?.nombreFreresSoeurs?.toString(),
+                     value: d?.nombreFreresSoeurs?.toString(),
                       icon: Icons.people_alt_outlined,
                     ),
                     _InfoItem(
                       label: 'Rang dans la fratrie'.tr,
-                      value: d?.rangFratrie?.toString(),
+                     value: d?.rangFratrie?.toString(),
                       icon: Icons.format_list_numbered_rounded,
                     ),
                     _InfoItem(
                       label: 'Développement psychomoteur'.tr,
-                      value: d?.developpementPsychomoteur,
+                     value: d?.developpementPsychomoteur,
                       icon: Icons.directions_run_rounded,
                     ),
                     _InfoItem(
                       label: 'Développement langagier'.tr,
-                      value: d?.developpementLangagier,
+                     value: d?.developpementLangagier,
                       icon: Icons.record_voice_over_outlined,
                     ),
                   ],
@@ -221,22 +221,22 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                 _buildInfoSection(
                   icon: Icons.people_outline_rounded,
                   title: 'Comportement & Social'.tr,
-                  color: const Color(0xFF6A1B9A),
+                 color: const Color(0xFF6A1B9A),
                   colorBg: const Color(0xFFF3E5F5),
                   items: [
                     _InfoItem(
                       label: 'Comportement auditif'.tr,
-                      value: d?.comportementAuditif,
+                     value: d?.comportementAuditif,
                       icon: Icons.hearing_outlined,
                     ),
                     _InfoItem(
                       label: 'Adaptation sociale'.tr,
-                      value: d?.adaptationSociale,
+                     value: d?.adaptationSociale,
                       icon: Icons.group_outlined,
                     ),
                     _InfoItem(
                       label: 'Autonomie'.tr,
-                      value: d?.autonomie,
+                     value: d?.autonomie,
                       icon: Icons.self_improvement_rounded,
                     ),
                   ],
@@ -247,17 +247,17 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                 _buildInfoSection(
                   icon: Icons.school_rounded,
                   title: 'Santé & Scolarisation'.tr,
-                  color: const Color(0xFFE65100),
+                 color: const Color(0xFFE65100),
                   colorBg: const Color(0xFFFBE9E7),
                   items: [
                     _InfoItem(
                       label: 'Aspect sanitaire'.tr,
-                      value: d?.aspectSanitaire,
+                     value: d?.aspectSanitaire,
                       icon: Icons.health_and_safety_outlined,
                     ),
                     _InfoItem(
                       label: 'Stade de scolarisation'.tr,
-                      value: d?.stadeScolarisation,
+                     value: d?.stadeScolarisation,
                       icon: Icons.menu_book_outlined,
                     ),
                   ],
@@ -370,7 +370,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       )
                     : Text(
                         'Non renseigné'.tr,
-                        style: AppTextStyles.bodySmall.copyWith(
+                       style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textHint,
                           fontStyle: FontStyle.italic,
                         ),
@@ -413,13 +413,13 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                   children: [
                     Text(
                       'MODIFICATION'.tr,
-                      style: AppTextStyles.sectionKicker.copyWith(
+                     style: AppTextStyles.sectionKicker.copyWith(
                         color: Colors.white.withValues(alpha: 0.7),
                       ),
                     ),
                     Text(
                       'Dossier médical'.tr,
-                      style: AppTextStyles.screenTitleMedium.copyWith(
+                     style: AppTextStyles.screenTitleMedium.copyWith(
                         color: Colors.white,
                       ),
                     ),
@@ -450,18 +450,18 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       _buildEditSectionHeader(
                         icon: Icons.history_edu_rounded,
                         label: 'Antécédents & Traitements'.tr,
-                      ),
+                     ),
                       AppTextField(
                         label: 'Antécédents médicaux'.tr,
-                        hintText: 'Antécédents du patient...'.tr,
-                        controller: controller.antecedentsController,
+                       hintText: 'Antécédents du patient...'.tr,
+                       controller: controller.antecedentsController,
                         maxLines: 3,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Médicaments pris'.tr,
-                        hintText: 'Traitements en cours...'.tr,
-                        controller: controller.medicamentsController,
+                       hintText: 'Traitements en cours...'.tr,
+                       controller: controller.medicamentsController,
                         maxLines: 2,
                       ),
                       const SizedBox(height: 14),
@@ -469,7 +469,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       _buildDatePickerField(
                         context: context,
                         label: 'Date du cas'.tr,
-                        controller: controller.dateCasController,
+                       controller: controller.dateCasController,
                         firstDate: DateTime(2000),
                         lastDate: DateTime.now().add(const Duration(days: 365)),
                       ),
@@ -479,29 +479,29 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       _buildEditSectionHeader(
                         icon: Icons.child_care_rounded,
                         label: 'Développement'.tr,
-                      ),
+                     ),
                       // ── Date de naissance (DatePicker) ──
                       _buildDatePickerField(
                         context: context,
                         label: 'Date de naissance'.tr,
-                        controller: controller.dateNaissanceController,
+                       controller: controller.dateNaissanceController,
                         firstDate: DateTime(1950),
                         lastDate: DateTime.now(),
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Naissance'.tr,
-                        hintText: 'Conditions de naissance...'.tr,
-                        controller: controller.naissanceController,
+                       hintText: 'Conditions de naissance...'.tr,
+                       controller: controller.naissanceController,
                       ),
                       const SizedBox(height: 14),
                       Row(
                         children: [
                           Expanded(
                             child: AppTextField(
-                              label: 'Nb frères/sÅ“urs'.tr,
-                              hintText: 'Ex: 2'.tr,
-                              controller:
+                              label: 'Nb frères/sœurs'.tr,
+                             hintText: 'Ex: 2'.tr,
+                             controller:
                                   controller.nombreFreresSoeursController,
                               keyboardType: TextInputType.number,
                             ),
@@ -510,8 +510,8 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                           Expanded(
                             child: AppTextField(
                               label: 'Rang dans la fratrie'.tr,
-                              hintText: 'Ex: 1'.tr,
-                              controller: controller.rangFratrieController,
+                             hintText: 'Ex: 1'.tr,
+                             controller: controller.rangFratrieController,
                               keyboardType: TextInputType.number,
                             ),
                           ),
@@ -520,15 +520,15 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Développement psychomoteur'.tr,
-                        hintText: 'Marche, motricité...'.tr,
-                        controller: controller.devPsychomoteurController,
+                       hintText: 'Marche, motricité...'.tr,
+                       controller: controller.devPsychomoteurController,
                         maxLines: 2,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Développement langagier'.tr,
-                        hintText: 'Vocabulaire, compréhension...'.tr,
-                        controller: controller.devLangagierController,
+                       hintText: 'Vocabulaire, compréhension...'.tr,
+                       controller: controller.devLangagierController,
                         maxLines: 2,
                       ),
                       const SizedBox(height: 24),
@@ -537,24 +537,24 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       _buildEditSectionHeader(
                         icon: Icons.people_outline_rounded,
                         label: 'Comportement & Social'.tr,
-                      ),
+                     ),
                       AppTextField(
                         label: 'Comportement auditif'.tr,
-                        hintText: 'Réactions aux sons...'.tr,
-                        controller: controller.compAuditifController,
+                       hintText: 'Réactions aux sons...'.tr,
+                       controller: controller.compAuditifController,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Adaptation sociale'.tr,
-                        hintText: 'Relations avec les pairs...'.tr,
-                        controller: controller.adaptationSocialeController,
+                       hintText: 'Relations avec les pairs...'.tr,
+                       controller: controller.adaptationSocialeController,
                         maxLines: 2,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Autonomie'.tr,
-                        hintText: 'Habillage, hygiène...'.tr,
-                        controller: controller.autonomieController,
+                       hintText: 'Habillage, hygiène...'.tr,
+                       controller: controller.autonomieController,
                       ),
                       const SizedBox(height: 24),
 
@@ -562,23 +562,23 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       _buildEditSectionHeader(
                         icon: Icons.school_rounded,
                         label: 'Santé & Scolarisation'.tr,
-                      ),
+                     ),
                       AppTextField(
                         label: 'Aspect sanitaire'.tr,
-                        hintText: 'État général...'.tr,
-                        controller: controller.aspectSanitaireController,
+                       hintText: 'État général...'.tr,
+                       controller: controller.aspectSanitaireController,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Stade de scolarisation'.tr,
-                        hintText: 'Classe / Établissement...'.tr,
-                        controller: controller.stadeScolarisationController,
+                       hintText: 'Classe / Établissement...'.tr,
+                       controller: controller.stadeScolarisationController,
                       ),
                       const SizedBox(height: 16),
                       if (d?.misAJourPar != null)
                         Text(
-                          'Mis à  jour par ${d!.misAJourPar} le ${d.dateMaj ?? ""}'.tr,
-                          style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                          'Mis à jour par ${d!.misAJourPar} le ${d.dateMaj ?? ""}'.tr,
+                         style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                         ),
                     ],
                   ),
@@ -586,7 +586,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                 const SizedBox(height: 24),
                 AppButton(
                   label: 'Enregistrer le dossier'.tr,
-                  onPressed: () => controller.saveDossier(),
+                 onPressed: () => controller.saveDossier(),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -645,11 +645,11 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
               firstDate: firstDate,
               lastDate: lastDate,
               locale: const Locale('fr', 'FR'),
-            );
+           );
             if (picked != null) {
               controller.text =
                   '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-            }
+           }
           },
           borderRadius: BorderRadius.circular(14),
           child: Container(
@@ -669,7 +669,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       controller.text.isNotEmpty
                           ? controller.text
                           : 'Sélectionner une date',
-                      style: AppTextStyles.body.copyWith(
+                     style: AppTextStyles.body.copyWith(
                         color: controller.text.isNotEmpty
                             ? AppColors.textPrimary
                             : AppColors.textHint,

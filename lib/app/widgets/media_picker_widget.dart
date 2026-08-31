@@ -7,7 +7,7 @@ import '../theme/app_colors.dart';
 
 
 class MediaPickerWidget extends StatefulWidget {
-  final List<String> initialMediaUrls;
+ final List<String> initialMediaUrls;
   final ValueChanged<List<String>> onMediasChanged;
 
   const MediaPickerWidget({
@@ -48,7 +48,7 @@ class _MediaPickerWidgetState extends State<MediaPickerWidget> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${'Erreur lors de l\'upload'.tr} : $e')),
-        );
+       );
       }
     } finally {
       if (mounted) setState(() => _isUploading = false);
@@ -74,7 +74,7 @@ class _MediaPickerWidgetState extends State<MediaPickerWidget> {
                 onPressed: _isUploading ? null : () => _pickAndUpload(ImageSource.camera),
                 icon: const Icon(Icons.camera_alt_rounded),
                 label: Text('Prendre une photo'.tr),
-                style: ElevatedButton.styleFrom(
+               style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(0, 44),

@@ -10,7 +10,7 @@ import 'cache_manager.dart';
 /// - Gère les 401 : déconnexion automatique + redirection login
 /// - Gère les timeouts et erreurs réseau
 class DioClient {
-  static Dio? _instance;
+ static Dio? _instance;
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
@@ -30,7 +30,7 @@ class DioClient {
             const Duration(milliseconds: ApiConfig.receiveTimeoutMs),
         sendTimeout: const Duration(milliseconds: ApiConfig.sendTimeoutMs),
         headers: {'Content-Type': ApiConfig.contentType},
-        responseType: ResponseType.json,
+       responseType: ResponseType.json,
       ),
     );
 
@@ -39,7 +39,7 @@ class DioClient {
       _AuthInterceptor(_storage),
       _ErrorInterceptor(),
       if (const bool.fromEnvironment('dart.vm.product') == false)
-        LogInterceptor(
+       LogInterceptor(
           requestBody: true,
           responseBody: true,
           error: true,
@@ -61,8 +61,8 @@ class _PutToPatchInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (options.method.toUpperCase() == 'PUT') {
-      options.method = 'PATCH';
-    }
+     options.method = 'PATCH';
+   }
     handler.next(options);
   }
 }
@@ -70,7 +70,7 @@ class _PutToPatchInterceptor extends Interceptor {
 /// Intercepteur d'authentification JWT.
 /// Lit le token depuis flutter_secure_storage et l'ajoute à chaque requête.
 class _AuthInterceptor extends Interceptor {
-  final FlutterSecureStorage _storage;
+ final FlutterSecureStorage _storage;
 
   _AuthInterceptor(this._storage);
 
@@ -83,7 +83,7 @@ class _AuthInterceptor extends Interceptor {
     if (token != null && token.isNotEmpty) {
       options.headers[ApiConfig.headerAuthorization] =
           '${ApiConfig.tokenPrefix}$token';
-    }
+   }
     handler.next(options);
   }
 
@@ -108,7 +108,7 @@ class _AuthInterceptor extends Interceptor {
 
 /// Intercepteur d'erreurs pour normalisation des messages d'erreur.
 class _ErrorInterceptor extends Interceptor {
-  @override
+ @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     // Normalise le message d'erreur
     String message;
@@ -117,36 +117,36 @@ class _ErrorInterceptor extends Interceptor {
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
         message = 'Délai d\'attente dépassé. Vérifiez votre connexion.';
-        break;
+       break;
       case DioExceptionType.connectionError:
         message = 'Impossible de se connecter au serveur.';
-        break;
+       break;
       case DioExceptionType.badResponse:
         final status = err.response?.statusCode;
         if (status == 403) {
           message = 'Accès refusé pour cette action.';
-        } else if (status == 404) {
+       } else if (status == 404) {
           message = 'Ressource introuvable.';
-        } else if (status != null && status >= 500) {
+       } else if (status != null && status >= 500) {
           message = 'Erreur serveur. Veuillez réessayer.';
-        } else {
+       } else {
           final detail = err.response?.data?['detail'];
-          if (detail is String) {
+         if (detail is String) {
             message = detail;
           } else if (detail is List) {
             message = detail
                 .map((e) => e is Map ? (e['msg']?.toString() ?? e.toString()) : e.toString())
-                .join(', ');
-          } else if (detail != null) {
+               .join(', ');
+         } else if (detail != null) {
             message = detail.toString();
           } else {
             message = 'Une erreur est survenue.';
-          }
+         }
         }
         break;
       default:
         message = 'Erreur réseau. Vérifiez votre connexion.';
-    }
+   }
 
     // Recrée l'exception avec le message normalisé
     handler.next(
@@ -163,6 +163,6 @@ class _ErrorInterceptor extends Interceptor {
 
 /// Extension utilitaire pour extraire un message d'erreur d'une DioException
 extension DioErrorMessage on DioException {
-  String get errorMessage =>
+ String get errorMessage =>
       message ?? 'Une erreur inattendue est survenue.';
 }

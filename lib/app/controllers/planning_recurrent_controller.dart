@@ -10,17 +10,17 @@ import 'accueil_controller.dart';
 import 'agenda_controller.dart';
 
 class PlanningRecurrentController extends GetxController {
-  final PlanningRecurrentService _planningService = PlanningRecurrentService();
+ final PlanningRecurrentService _planningService = PlanningRecurrentService();
   final EmployeeService _employeeService = EmployeeService();
 
   final Rx<PatientPlanningRecurrentModel?> planning = Rx<PatientPlanningRecurrentModel?>(null);
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final selectedDays = <String>[].obs;
+ final RxString errorMessage = ''.obs;
+ final selectedDays = <String>[].obs;
   final RxString modeCreneaux = 'fixe'.obs;
-  final heureDebut = '09:00'.obs;
-  final heureFin = '09:45'.obs;
-  final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
+ final heureDebut = '09:00'.obs;
+ final heureFin = '09:45'.obs;
+ final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
 
   final employees = <EmployeeModel>[].obs;
   final selectedEmployeeIds = <dynamic>[].obs;
@@ -31,30 +31,30 @@ class PlanningRecurrentController extends GetxController {
 
   static const Map<String, String> dayToFull = {
     'lun': 'lundi',
-    'mar': 'mardi',
-    'mer': 'mercredi',
-    'jeu': 'jeudi',
-    'ven': 'vendredi',
-    'sam': 'samedi',
-    'dim': 'dimanche',
-    'lundi': 'lundi',
-    'mardi': 'mardi',
-    'mercredi': 'mercredi',
-    'jeudi': 'jeudi',
-    'vendredi': 'vendredi',
-    'samedi': 'samedi',
-    'dimanche': 'dimanche',
-  };
+   'mar': 'mardi',
+   'mer': 'mercredi',
+   'jeu': 'jeudi',
+   'ven': 'vendredi',
+   'sam': 'samedi',
+   'dim': 'dimanche',
+   'lundi': 'lundi',
+   'mardi': 'mardi',
+   'mercredi': 'mercredi',
+   'jeudi': 'jeudi',
+   'vendredi': 'vendredi',
+   'samedi': 'samedi',
+   'dimanche': 'dimanche',
+ };
 
   static const Map<String, String> fullToShort = {
     'lundi': 'Lun',
-    'mardi': 'Mar',
-    'mercredi': 'Mer',
-    'jeudi': 'Jeu',
-    'vendredi': 'Ven',
-    'samedi': 'Sam',
-    'dimanche': 'Dim',
-  };
+   'mardi': 'Mar',
+   'mercredi': 'Mer',
+   'jeudi': 'Jeu',
+   'vendredi': 'Ven',
+   'samedi': 'Sam',
+   'dimanche': 'Dim',
+ };
 
   @override
   void onInit() {
@@ -62,8 +62,8 @@ class PlanningRecurrentController extends GetxController {
     patientId = extractIdParam(Get.arguments, Get.parameters);
     if (patientId == null) {
       status.value = 'error';
-      errorMessage.value = 'Identifiant du patient non spécifié.';
-    } else {
+     errorMessage.value = 'Identifiant du patient non spécifié.';
+   } else {
       _loadFromCache();
       loadPlanning();
       loadEmployees();
@@ -88,7 +88,7 @@ class PlanningRecurrentController extends GetxController {
         selectedEmployeeIds.assignAll([cached.employeId]);
       }
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadEmployees() async {
@@ -104,18 +104,18 @@ class PlanningRecurrentController extends GetxController {
 
   String getSlotStartForDay(String day) {
     return daySlotsMap[day]?['debut'] ?? heureDebut.value;
-  }
+ }
 
   String getSlotEndForDay(String day) {
     return daySlotsMap[day]?['fin'] ?? heureFin.value;
-  }
+ }
 
   void updateSlotForDay(String day, {String? debut, String? fin}) {
     final cur = daySlotsMap[day] ?? {'debut': heureDebut.value, 'fin': heureFin.value};
-    daySlotsMap[day] = {
+   daySlotsMap[day] = {
       'debut': debut ?? cur['debut'] ?? heureDebut.value,
-      'fin': fin ?? cur['fin'] ?? heureFin.value,
-    };
+     'fin': fin ?? cur['fin'] ?? heureFin.value,
+   };
     daySlotsMap.refresh();
   }
 
@@ -129,7 +129,7 @@ class PlanningRecurrentController extends GetxController {
 
     if (planning.value == null) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final loaded = await _planningService.getPlanningRecurrent(patientId!);
@@ -161,11 +161,11 @@ class PlanningRecurrentController extends GetxController {
       }
 
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       if (planning.value == null) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -176,17 +176,17 @@ class PlanningRecurrentController extends GetxController {
     try {
       status.value = 'loading';
 
-      if (modeCreneaux.value == 'fixe') {
-        final fullDays = selectedDays.map((d) {
+     if (modeCreneaux.value == 'fixe') {
+       final fullDays = selectedDays.map((d) {
           final lower = d.toLowerCase();
           return dayToFull[lower] ?? lower;
         }).toList();
         await _planningService.setPlanningRecurrent(patientId!, {
           'jours_semaine': fullDays,
-          'heure_debut': heureDebut.value,
-          'heure_fin': heureFin.value,
-          'employe_ids': selectedEmployeeIds.toList(),
-        });
+         'heure_debut': heureDebut.value,
+         'heure_fin': heureFin.value,
+         'employe_ids': selectedEmployeeIds.toList(),
+       });
 
         try {
           await _planningService.genererSeances(patientId!);
@@ -200,10 +200,10 @@ class PlanningRecurrentController extends GetxController {
 
           await _planningService.setPlanningRecurrent(patientId!, {
             'jours_semaine': [fullDay],
-            'heure_debut': start,
-            'heure_fin': end,
-            'employe_ids': selectedEmployeeIds.toList(),
-          });
+           'heure_debut': start,
+           'heure_fin': end,
+           'employe_ids': selectedEmployeeIds.toList(),
+         });
 
           try {
             await _planningService.genererSeances(patientId!);
@@ -228,7 +228,7 @@ class PlanningRecurrentController extends GetxController {
 
       Get.back(result: true);
       Get.snackbar('Succès', 'Planning récurrent enregistré et séances générées sur l\'agenda',
-          snackPosition: SnackPosition.BOTTOM);
+         snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';

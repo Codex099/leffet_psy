@@ -7,12 +7,12 @@ import '../services/patient_service.dart';
 import '../utils/json_utils.dart';
 
 class DossierMedicalController extends GetxController {
-  final PatientService _patientService = PatientService();
+ final PatientService _patientService = PatientService();
 
   final Rx<DossierMedicalModel?> dossier = Rx<DossierMedicalModel?>(null);
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final RxBool isEditing = false.obs;
+ final RxString errorMessage = ''.obs;
+ final RxBool isEditing = false.obs;
   dynamic patientId;
 
   // Controllers pour les champs éditables
@@ -39,8 +39,8 @@ class DossierMedicalController extends GetxController {
     patientId = extractIdParam(Get.arguments, Get.parameters);
     if (patientId == null) {
       status.value = 'error';
-      errorMessage.value = 'Identifiant du patient non spécifié.';
-    } else {
+     errorMessage.value = 'Identifiant du patient non spécifié.';
+   } else {
       _loadFromCache();
       loadDossier();
     }
@@ -72,7 +72,7 @@ class DossierMedicalController extends GetxController {
       dossier.value = cached;
       _fillControllers();
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadDossier({bool forceRefresh = false}) async {
@@ -85,7 +85,7 @@ class DossierMedicalController extends GetxController {
 
     if (dossier.value == null) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final loaded = await _patientService.getDossierMedical(patientId!);
@@ -100,23 +100,23 @@ class DossierMedicalController extends GetxController {
       );
 
       status.value = 'success';
-    } on DioException catch (e) {
+   } on DioException catch (e) {
       // 404 = dossier pas encore créé → formulaire vide, pas d'erreur bloquante
       if (e.response?.statusCode == 404) {
         dossier.value = null;
         _clearControllers();
         status.value = 'success';
-      } else {
+     } else {
         if (dossier.value == null) {
           errorMessage.value = e.message ?? e.toString();
           status.value = 'error';
-        }
+       }
       }
     } catch (e) {
       if (dossier.value == null) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -124,20 +124,20 @@ class DossierMedicalController extends GetxController {
 
   void _fillControllers() {
     antecedentsController.text = dossier.value?.antecedentsMedicaux ?? '';
-    medicamentsController.text = dossier.value?.medicamentsPris ?? '';
-    dateCasController.text = dossier.value?.dateCas ?? '';
-    naissanceController.text = dossier.value?.naissance ?? '';
-    dateNaissanceController.text = dossier.value?.dateNaissance ?? '';
-    nombreFreresSoeursController.text = dossier.value?.nombreFreresSoeurs?.toString() ?? '';
-    rangFratrieController.text = dossier.value?.rangFratrie?.toString() ?? '';
-    devPsychomoteurController.text = dossier.value?.developpementPsychomoteur ?? '';
-    compAuditifController.text = dossier.value?.comportementAuditif ?? '';
-    devLangagierController.text = dossier.value?.developpementLangagier ?? '';
-    adaptationSocialeController.text = dossier.value?.adaptationSociale ?? '';
-    autonomieController.text = dossier.value?.autonomie ?? '';
-    aspectSanitaireController.text = dossier.value?.aspectSanitaire ?? '';
-    stadeScolarisationController.text = dossier.value?.stadeScolarisation ?? '';
-  }
+   medicamentsController.text = dossier.value?.medicamentsPris ?? '';
+   dateCasController.text = dossier.value?.dateCas ?? '';
+   naissanceController.text = dossier.value?.naissance ?? '';
+   dateNaissanceController.text = dossier.value?.dateNaissance ?? '';
+   nombreFreresSoeursController.text = dossier.value?.nombreFreresSoeurs?.toString() ?? '';
+   rangFratrieController.text = dossier.value?.rangFratrie?.toString() ?? '';
+   devPsychomoteurController.text = dossier.value?.developpementPsychomoteur ?? '';
+   compAuditifController.text = dossier.value?.comportementAuditif ?? '';
+   devLangagierController.text = dossier.value?.developpementLangagier ?? '';
+   adaptationSocialeController.text = dossier.value?.adaptationSociale ?? '';
+   autonomieController.text = dossier.value?.autonomie ?? '';
+   aspectSanitaireController.text = dossier.value?.aspectSanitaire ?? '';
+   stadeScolarisationController.text = dossier.value?.stadeScolarisation ?? '';
+ }
 
   void _clearControllers() {
     antecedentsController.clear();
@@ -160,28 +160,28 @@ class DossierMedicalController extends GetxController {
     if (patientId == null) return;
     try {
       status.value = 'loading';
-      await _patientService.updateDossierMedical(patientId!, {
+     await _patientService.updateDossierMedical(patientId!, {
         'antecedents_medicaux': antecedentsController.text.isNotEmpty ? antecedentsController.text : null,
-        'medicaments_pris': medicamentsController.text.isNotEmpty ? medicamentsController.text : null,
-        'date_cas': dateCasController.text.isNotEmpty ? dateCasController.text : null,
-        'naissance': naissanceController.text.isNotEmpty ? naissanceController.text : null,
-        'date_naissance': dateNaissanceController.text.isNotEmpty ? dateNaissanceController.text : null,
-        'nombre_freres_soeurs': nombreFreresSoeursController.text.isNotEmpty ? int.tryParse(nombreFreresSoeursController.text) : null,
-        'rang_fratrie': rangFratrieController.text.isNotEmpty ? int.tryParse(rangFratrieController.text) : null,
-        'developpement_psychomoteur': devPsychomoteurController.text.isNotEmpty ? devPsychomoteurController.text : null,
-        'comportement_auditif': compAuditifController.text.isNotEmpty ? compAuditifController.text : null,
-        'developpement_langagier': devLangagierController.text.isNotEmpty ? devLangagierController.text : null,
-        'adaptation_sociale': adaptationSocialeController.text.isNotEmpty ? adaptationSocialeController.text : null,
-        'autonomie': autonomieController.text.isNotEmpty ? autonomieController.text : null,
-        'aspect_sanitaire': aspectSanitaireController.text.isNotEmpty ? aspectSanitaireController.text : null,
-        'stade_scolarisation': stadeScolarisationController.text.isNotEmpty ? stadeScolarisationController.text : null,
-      });
+       'medicaments_pris': medicamentsController.text.isNotEmpty ? medicamentsController.text : null,
+       'date_cas': dateCasController.text.isNotEmpty ? dateCasController.text : null,
+       'naissance': naissanceController.text.isNotEmpty ? naissanceController.text : null,
+       'date_naissance': dateNaissanceController.text.isNotEmpty ? dateNaissanceController.text : null,
+       'nombre_freres_soeurs': nombreFreresSoeursController.text.isNotEmpty ? int.tryParse(nombreFreresSoeursController.text) : null,
+       'rang_fratrie': rangFratrieController.text.isNotEmpty ? int.tryParse(rangFratrieController.text) : null,
+       'developpement_psychomoteur': devPsychomoteurController.text.isNotEmpty ? devPsychomoteurController.text : null,
+       'comportement_auditif': compAuditifController.text.isNotEmpty ? compAuditifController.text : null,
+       'developpement_langagier': devLangagierController.text.isNotEmpty ? devLangagierController.text : null,
+       'adaptation_sociale': adaptationSocialeController.text.isNotEmpty ? adaptationSocialeController.text : null,
+       'autonomie': autonomieController.text.isNotEmpty ? autonomieController.text : null,
+       'aspect_sanitaire': aspectSanitaireController.text.isNotEmpty ? aspectSanitaireController.text : null,
+       'stade_scolarisation': stadeScolarisationController.text.isNotEmpty ? stadeScolarisationController.text : null,
+     });
 
       AppCacheManager.invalidate(CacheKeys.patientDossier(patientId));
       await loadDossier(forceRefresh: true);
       isEditing.value = false;
       Get.snackbar('Succès', 'Dossier médical mis à jour', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
     }

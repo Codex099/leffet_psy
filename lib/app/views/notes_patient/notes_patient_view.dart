@@ -10,16 +10,17 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
 
 class NotesPatientView extends GetView<NotesPatientController> {
-  const NotesPatientView({super.key});
+ const NotesPatientView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Notes Cliniques'.tr,
-        subtitle: 'Suivi et Évolutions'.tr,
-        showBackButton: true,
+       subtitle: 'Suivi et Évolutions'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -27,6 +28,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
             parent: BouncingScrollPhysics(),
           ),
           slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: 90)),
             SliverPadding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
@@ -49,13 +51,13 @@ class NotesPatientView extends GetView<NotesPatientController> {
                         children: [
                           Text(
                             'Ajouter une note'.tr,
-                            style: AppTextStyles.sectionTitle,
+                           style: AppTextStyles.sectionTitle,
                           ),
                           const SizedBox(height: 12),
                           AppTextField(
                             label: '',
-                            hintText: 'Saisir une observation clinique...'.tr,
-                            maxLines: 3,
+                           hintText: 'Saisir une observation clinique...'.tr,
+                           maxLines: 3,
                             controller: controller.contenuController,
                           ),
                           const SizedBox(height: 12),
@@ -86,8 +88,8 @@ class NotesPatientView extends GetView<NotesPatientController> {
                               label: Text(
                                 controller.isSaving.value
                                     ? 'Enregistrement...'
-                                    : 'Enregistrer'.tr,
-                              ),
+                                   : 'Enregistrer'.tr,
+                             ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
                                 minimumSize: const Size(double.infinity, 44),
@@ -100,7 +102,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                     const SizedBox(height: 20),
                     SectionHeader(
                       title: 'Historique des notes'.tr,
-                      icon: Icons.note_alt_rounded,
+                     icon: Icons.note_alt_rounded,
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
                     ),
                   ],
@@ -109,7 +111,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
             ),
             Obx(() {
               if (controller.status.value == 'loading') {
-                return SliverToBoxAdapter(
+               return SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: StatePlaceholder.loading(),
@@ -117,7 +119,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                 );
               }
               if (controller.status.value == 'error') {
-                return SliverToBoxAdapter(
+               return SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: StatePlaceholder.error(
@@ -133,9 +135,9 @@ class NotesPatientView extends GetView<NotesPatientController> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: StatePlaceholder.empty(
                       title: 'Aucune note'.tr,
-                      message:
+                     message:
                           'Ajoutez des observations cliniques pour ce patient.',
-                    ),
+                   ),
                   ),
                 );
               }
@@ -163,12 +165,12 @@ class NotesPatientView extends GetView<NotesPatientController> {
                                 children: [
                                   Text(
                                     note['contenu'] as String? ?? '',
-                                    style: AppTextStyles.body,
+                                   style: AppTextStyles.body,
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     '${controller.auteurDe(note)} | ${controller.dateDe(note)}'.tr,
-                                    style: AppTextStyles.bodySmall.copyWith(
+                                   style: AppTextStyles.bodySmall.copyWith(
                                       fontSize: 11,
                                     ),
                                   ),

@@ -4,7 +4,7 @@ import '../models/evenement_calendrier_model.dart';
 import 'dio_client.dart';
 
 class CalendrierService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/calendrier — Liste des événements
   Future<List<EvenementCalendrierModel>> getEvenements({
@@ -13,9 +13,9 @@ class CalendrierService {
   }) async {
     final queryParams = <String, dynamic>{};
     if (dateDebut != null) queryParams['date_debut'] = dateDebut;
-    if (dateFin != null) queryParams['date_fin'] = dateFin;
+   if (dateFin != null) queryParams['date_fin'] = dateFin;
 
-    final response = await _dio.get(
+   final response = await _dio.get(
       ApiConfig.calendrier,
       queryParameters: queryParams,
     );

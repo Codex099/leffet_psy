@@ -8,21 +8,23 @@ import '../../widgets/state_placeholder.dart';
 import '../../models/seance_model.dart';
 
 class HistoriqueSeancesPatientView
-    extends GetView<HistoriqueSeancesPatientController> {
+   extends GetView<HistoriqueSeancesPatientController> {
   const HistoriqueSeancesPatientView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Historique des Séances'.tr,
-        subtitle: 'Consultations & Bilans'.tr,
-        showBackButton: true,
+       subtitle: 'Consultations & Bilans'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 90),
             // Filter tabs
             Container(
               color: AppColors.surface,
@@ -30,11 +32,11 @@ class HistoriqueSeancesPatientView
               child: Row(
                 children: [
                   _buildFilterChip('Tous', 'tous'),
-                  const SizedBox(width: 8),
+                 const SizedBox(width: 8),
                   _buildFilterChip('Individuelles', 'individuel'),
-                  const SizedBox(width: 8),
+                 const SizedBox(width: 8),
                   _buildFilterChip('Groupe'.tr, 'groupe'),
-                ],
+               ],
               ),
             ),
 
@@ -42,12 +44,12 @@ class HistoriqueSeancesPatientView
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return const StatePlaceholder(
+                 return const StatePlaceholder(
                     type: StatePlaceholderType.loading,
                   );
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadHistorique(),
                   );
@@ -55,10 +57,10 @@ class HistoriqueSeancesPatientView
 
                 final showIndividuel =
                     controller.activeFilter.value != 'groupe';
-                final showGroupe =
+               final showGroupe =
                     controller.activeFilter.value != 'individuel';
 
-                final hasContent =
+               final hasContent =
                     (showIndividuel &&
                         controller.seancesIndividuelles.isNotEmpty) ||
                     (showGroupe && controller.seancesGroupe.isNotEmpty);
@@ -67,7 +69,7 @@ class HistoriqueSeancesPatientView
                   return const StatePlaceholder(
                     type: StatePlaceholderType.empty,
                     message: 'Aucune séance dans l\'historique.',
-                  );
+                 );
                 }
 
                 return ListView(
@@ -78,7 +80,7 @@ class HistoriqueSeancesPatientView
                         controller.seancesIndividuelles.isNotEmpty) ...[
                       _buildSectionHeader(
                         'Séances individuelles'.tr,
-                        Icons.calendar_month_rounded,
+                       Icons.calendar_month_rounded,
                       ),
                       const SizedBox(height: 8),
                       ...controller.seancesIndividuelles.map(
@@ -94,7 +96,7 @@ class HistoriqueSeancesPatientView
                     if (showGroupe && controller.seancesGroupe.isNotEmpty) ...[
                       _buildSectionHeader(
                         'Séances de groupe',
-                        Icons.groups_rounded,
+                       Icons.groups_rounded,
                       ),
                       const SizedBox(height: 8),
                       ...controller.seancesGroupe.map(
@@ -159,20 +161,20 @@ class HistoriqueSeancesPatientView
     String statutLabel;
     switch (statut) {
       case 'faite':
-        statutColor = AppColors.statusPresent;
+       statutColor = AppColors.statusPresent;
         statutIcon = Icons.check_circle_rounded;
         statutLabel = 'Réalisée';
-        break;
+       break;
       case 'annulee':
-        statutColor = AppColors.error;
+       statutColor = AppColors.error;
         statutIcon = Icons.cancel_rounded;
         statutLabel = 'Annulée';
-        break;
+       break;
       default:
         statutColor = AppColors.primary;
         statutIcon = Icons.schedule_rounded;
         statutLabel = 'Planifiée';
-    }
+   }
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -198,23 +200,23 @@ class HistoriqueSeancesPatientView
               children: [
                 Text(
                   'Séance individuelle'.tr,
-                  style: AppTextStyles.bodyMedium.copyWith(
+                 style: AppTextStyles.bodyMedium.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '$date  Â·  $heureDebut "“ $heureFin'.tr,
-                  style: AppTextStyles.bodySmall,
+                 style: AppTextStyles.bodySmall,
                 ),
                 if (s.statutPresence != null)
                   Text(
                     s.statutPresence == 'present'
-                        ? 'âœ… Présent'
-                        : 'âŒ Absent',
-                    style: AppTextStyles.bodySmall.copyWith(
+                       ? 'âœ… Présent'
+                       : 'âŒ Absent',
+                   style: AppTextStyles.bodySmall.copyWith(
                       color: s.statutPresence == 'present'
-                          ? AppColors.statusPresent
+                         ? AppColors.statusPresent
                           : AppColors.error,
                     ),
                   ),
@@ -242,27 +244,27 @@ class HistoriqueSeancesPatientView
 
   Widget _buildGroupeCard(Map<String, dynamic> s) {
     final date = s['date'] as String? ?? '';
-    final heureDebut = s['heure_debut'] as String? ?? '';
-    final heureFin = s['heure_fin'] as String? ?? '';
-    final statut = s['statut'] as String? ?? 'planifiee';
-    final groupeNom =
+   final heureDebut = s['heure_debut'] as String? ?? '';
+   final heureFin = s['heure_fin'] as String? ?? '';
+   final statut = s['statut'] as String? ?? 'planifiee';
+   final groupeNom =
         (s['groupe'] as Map<String, dynamic>?)?['nom'] as String? ?? 'Groupe'.tr;
 
-    Color statutColor;
+   Color statutColor;
     String statutLabel;
     switch (statut) {
       case 'faite':
-        statutColor = AppColors.statusPresent;
+       statutColor = AppColors.statusPresent;
         statutLabel = 'Réalisée';
-        break;
+       break;
       case 'annulee':
-        statutColor = AppColors.error;
+       statutColor = AppColors.error;
         statutLabel = 'Annulée';
-        break;
+       break;
       default:
         statutColor = AppColors.primary;
         statutLabel = 'Planifiée';
-    }
+   }
 
     return Container(
       padding: const EdgeInsets.all(14),

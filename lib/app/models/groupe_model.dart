@@ -1,10 +1,10 @@
 import '../utils/json_utils.dart';
 
 class GroupeModel {
-  final dynamic id;
+ final dynamic id;
   final String nom;
   final String typePlanning; // 'fixe' | 'ponctuel'
-  final String? description;
+ final String? description;
   final List<Map<String, dynamic>>? patients;
   final List<Map<String, dynamic>>? planningRecurrent;
   final List<dynamic>? employeeIds;
@@ -22,49 +22,49 @@ class GroupeModel {
   factory GroupeModel.fromJson(Map<String, dynamic> json) {
     return GroupeModel(
       id: parseId(json['id']),
-      nom: json['nom'] as String? ?? '',
-      typePlanning: json['type_planning'] as String? ?? 'ponctuel',
-      description: json['description'] as String?,
-      patients: (json['patients'] as List<dynamic>?)
-          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+     nom: json['nom'] as String? ?? '',
+     typePlanning: json['type_planning'] as String? ?? 'ponctuel',
+     description: json['description'] as String?,
+     patients: (json['patients'] as List<dynamic>?)
+         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
       planningRecurrent: (json['planning_recurrent'] as List<dynamic>?)
-          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
       employeeIds: (json['employees'] as List<dynamic>?)
-          ?.map((e) => parseId(e is Map ? e['id'] : e))
-          .toList(),
+         ?.map((e) => parseId(e is Map ? e['id'] : e))
+         .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'nom': nom,
-      'type_planning': typePlanning,
-      if (description != null) 'description': description,
-    };
+     'type_planning': typePlanning,
+     if (description != null) 'description': description,
+   };
   }
 
   bool get isFixe => typePlanning == 'fixe';
-  bool get estFixe => isFixe;
+ bool get estFixe => isFixe;
   String get typeLabel => isFixe ? 'Fixe' : 'Ponctuel';
-  int get membresCount {
+ int get membresCount {
     if (patients == null || patients!.isEmpty) return 0;
     final seen = <String>{};
     for (final p in patients!) {
       final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
-      if (pid != null) seen.add(pid);
+     if (pid != null) seen.add(pid);
     }
     return seen.isNotEmpty ? seen.length : patients!.length;
   }
 
   String get initials {
     final words = nom.split(' ');
-    if (words.length >= 2) {
+   if (words.length >= 2) {
       return '${words[0][0]}${words[1][0]}'.toUpperCase();
-    }
+   }
     return nom.isNotEmpty ? nom[0].toUpperCase() : 'G';
-  }
+ }
 }
 
 class GroupePlanningRecurrentModel {
@@ -85,18 +85,18 @@ class GroupePlanningRecurrentModel {
   factory GroupePlanningRecurrentModel.fromJson(Map<String, dynamic> json) {
     return GroupePlanningRecurrentModel(
       id: parseId(json['id']),
-      groupeId: parseId(json['groupe_id']),
-      jourSemaine: json['jour_semaine'] as String? ?? '',
-      heureDebut: json['heure_debut'] as String? ?? '',
-      heureFin: json['heure_fin'] as String? ?? '',
-    );
+     groupeId: parseId(json['groupe_id']),
+     jourSemaine: json['jour_semaine'] as String? ?? '',
+     heureDebut: json['heure_debut'] as String? ?? '',
+     heureFin: json['heure_fin'] as String? ?? '',
+   );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'jour_semaine': jourSemaine,
-      'heure_debut': heureDebut,
-      'heure_fin': heureFin,
+     'heure_debut': heureDebut,
+     'heure_fin': heureFin,
     };
   }
 }

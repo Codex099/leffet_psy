@@ -16,17 +16,18 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
 class AgendaView extends GetView<AgendaController> {
-  const AgendaView({super.key});
+ const AgendaView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       extendBody: true,
       appBar: CreativeAppBar(
         title: 'Planning & Agenda'.tr,
-        subtitle: 'Consultations Cliniques'.tr,
-        actions: [
+       subtitle: 'Consultations Cliniques'.tr,
+       actions: [
           BouncyTap(
             onTap: () async {
               final res = await Get.toNamed(AppRoutes.creationSeance);
@@ -58,6 +59,7 @@ class AgendaView extends GetView<AgendaController> {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 120),
             children: [
+            const SizedBox(height: 90),
               // ── En-tête Mois & Navigation Semaine ──
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
@@ -129,7 +131,7 @@ class AgendaView extends GetView<AgendaController> {
                                   ),
                                   child: Text(
                                     'Aujourd\'hui'.tr,
-                                    style: AppTextStyles.iosCaption1.copyWith(
+                                   style: AppTextStyles.iosCaption1.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -212,13 +214,13 @@ class AgendaView extends GetView<AgendaController> {
                           now.day == day.day;
                       final dayShorts = [
                         'LUN',
-                        'MAR',
-                        'MER',
-                        'JEU',
-                        'VEN',
-                        'SAM',
-                        'DIM',
-                      ];
+                       'MAR',
+                       'MER',
+                       'JEU',
+                       'VEN',
+                       'SAM',
+                       'DIM',
+                     ];
                       final dayName = dayShorts[day.weekday - 1];
                       final hasSessions = controller.hasSessionsOn(day);
 
@@ -278,7 +280,7 @@ class AgendaView extends GetView<AgendaController> {
                                 const SizedBox(height: 4),
                                 Text(
                                   '${day.day}'.tr,
-                                  style: AppTextStyles.iosHeadline.copyWith(
+                                 style: AppTextStyles.iosHeadline.copyWith(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
                                     color: isSelected
@@ -317,8 +319,8 @@ class AgendaView extends GetView<AgendaController> {
                 () => IosSegmentedControl<String>(
                   segments: const {
                     'Jour': 'Vue Journée',
-                    'Semaine': 'Semaine Complète',
-                  },
+                   'Semaine': 'Semaine Complète',
+                 },
                   selectedValue: controller.activeMode.value,
                   onValueChanged: (mode) => controller.setMode(mode),
                   margin: const EdgeInsets.symmetric(
@@ -331,19 +333,19 @@ class AgendaView extends GetView<AgendaController> {
               // ── Contenu Séances ──
               Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(
+                 return StatePlaceholder.loading(
                     message: 'Chargement des consultations...'.tr,
-                  );
+                 );
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadAgenda(forceRefresh: true),
                   );
                 }
 
                 if (controller.activeMode.value == 'Jour') {
-                  return _buildDayView(context);
+                 return _buildDayView(context);
                 } else {
                   return _buildWeekView(context);
                 }
@@ -362,9 +364,9 @@ class AgendaView extends GetView<AgendaController> {
     if (daySessions.isEmpty) {
       return StatePlaceholder.empty(
         title: 'Aucune consultation'.tr,
-        message: 'Aucun rendez-vous prévu pour cette date.'.tr,
-        actionLabel: 'Planifier un rendez-vous'.tr,
-        onAction: () async {
+       message: 'Aucun rendez-vous prévu pour cette date.'.tr,
+       actionLabel: 'Planifier un rendez-vous'.tr,
+       onAction: () async {
           final res = await Get.toNamed(AppRoutes.creationSeance);
           if (res == true) controller.loadAgenda(forceRefresh: true);
         },
@@ -396,7 +398,7 @@ class AgendaView extends GetView<AgendaController> {
                 ),
                 child: Text(
                   '${daySessions.length} séance${daySessions.length > 1 ? "s" : ""}'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                   ),
@@ -420,9 +422,9 @@ class AgendaView extends GetView<AgendaController> {
     if (weekSessions.isEmpty) {
       return StatePlaceholder.empty(
         title: 'Semaine libre'.tr,
-        message: 'Aucune consultation programmée pour cette semaine.'.tr,
-        actionLabel: 'Planifier un rendez-vous'.tr,
-        onAction: () async {
+       message: 'Aucune consultation programmée pour cette semaine.'.tr,
+       actionLabel: 'Planifier un rendez-vous'.tr,
+       onAction: () async {
           final res = await Get.toNamed(AppRoutes.creationSeance);
           if (res == true) controller.loadAgenda(forceRefresh: true);
         },
@@ -460,7 +462,7 @@ class AgendaView extends GetView<AgendaController> {
                   const SizedBox(width: 8),
                   Text(
                     '(${sessions.length})'.tr,
-                    style: AppTextStyles.iosCaption1.copyWith(
+                   style: AppTextStyles.iosCaption1.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),

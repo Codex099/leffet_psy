@@ -7,7 +7,7 @@ import 'state_placeholder.dart';
 
 /// Item metadata definition for SearchablePicker
 class SearchableItem<T> {
-  final T value;
+ final T value;
   final String label;
   final String? subtitle;
   final String? initials;
@@ -58,9 +58,9 @@ class SearchablePickerField<T> extends StatelessWidget {
       if (count == 1) {
         final item = items.firstWhereOrNull((i) => i.value == selectedValues!.first);
         return item?.label ?? '1 sélectionné';
-      }
+     }
       return '$count sélectionnés';
-    } else {
+   } else {
       if (selectedValue == null) return hintText;
       final item = items.firstWhereOrNull((i) => i.value == selectedValue);
       return item?.label ?? hintText;
@@ -128,7 +128,7 @@ class SearchablePickerField<T> extends StatelessWidget {
                     ),
                     child: Text(
                       '${selectedValues!.length}'.tr,
-                      style: const TextStyle(
+                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -244,7 +244,7 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
   final TextEditingController _searchCtrl = TextEditingController();
   String _query = '';
 
-  @override
+ @override
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
@@ -296,7 +296,7 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                   TextButton(
                     onPressed: () => widget.onSelected(null),
                     child: Text('Effacer'.tr, style: TextStyle(color: AppColors.error)),
-                  ),
+                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
                   onPressed: () => Navigator.pop(context),
@@ -321,7 +321,7 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                 style: AppTextStyles.iosBody,
                 decoration: InputDecoration(
                   hintText: 'Rechercher...'.tr,
-                  hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
+                 hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
                   prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.primary),
                   suffixIcon: _query.isNotEmpty
                       ? IconButton(
@@ -329,7 +329,7 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                           onPressed: () {
                             _searchCtrl.clear();
                             setState(() => _query = '');
-                          },
+                         },
                         )
                       : null,
                   border: InputBorder.none,
@@ -348,8 +348,8 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                 ? StatePlaceholder(
                     type: StatePlaceholderType.empty,
                     title: 'Aucun résultat'.tr,
-                    message: 'Aucun élément ne correspond à votre recherche.',
-                  )
+                   message: 'Aucun élément ne correspond à votre recherche.',
+                 )
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: filtered.length,
@@ -387,7 +387,7 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                                   child: Text(
                                     item.initials ??
                                         (item.label.isNotEmpty ? item.label[0].toUpperCase() : '?'),
-                                    style: TextStyle(
+                                   style: TextStyle(
                                       color: isSelected ? Colors.white : AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
@@ -460,7 +460,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
   late final Set<T> _selected;
   String _query = '';
 
-  @override
+ @override
   void initState() {
     super.initState();
     _selected = Set<T>.from(widget.initialSelected);
@@ -540,7 +540,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                       Text(widget.title, style: AppTextStyles.screenTitleMedium),
                       Text(
                         '${_selected.length} sélectionné${_selected.length > 1 ? '.trs' : ''}',
-                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
+                       style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
                       ),
                     ],
                   ),
@@ -548,7 +548,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                 TextButton(
                   onPressed: _selected.length == widget.items.length ? _clearAll : _selectAll,
                   child: Text(_selected.length == widget.items.length ? 'Tout décocher' : 'Tout sélectionner'),
-                ),
+               ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
                   onPressed: () => Navigator.pop(context),
@@ -573,7 +573,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                 style: AppTextStyles.iosBody,
                 decoration: InputDecoration(
                   hintText: 'Rechercher...'.tr,
-                  hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
+                 hintStyle: AppTextStyles.iosSubhead.copyWith(color: AppColors.textHint),
                   prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.primary),
                   suffixIcon: _query.isNotEmpty
                       ? IconButton(
@@ -581,7 +581,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                           onPressed: () {
                             _searchCtrl.clear();
                             setState(() => _query = '');
-                          },
+                         },
                         )
                       : null,
                   border: InputBorder.none,
@@ -600,8 +600,8 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                 ? StatePlaceholder(
                     type: StatePlaceholderType.empty,
                     title: 'Aucun résultat'.tr,
-                    message: 'Aucun élément ne correspond à votre recherche.',
-                  )
+                   message: 'Aucun élément ne correspond à votre recherche.',
+                 )
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     itemCount: filtered.length,
@@ -639,7 +639,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                                   child: Text(
                                     item.initials ??
                                         (item.label.isNotEmpty ? item.label[0].toUpperCase() : '?'),
-                                    style: TextStyle(
+                                   style: TextStyle(
                                       color: isSelected ? Colors.white : AppColors.primary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,

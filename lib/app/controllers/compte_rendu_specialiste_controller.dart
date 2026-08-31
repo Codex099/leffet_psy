@@ -16,12 +16,12 @@ import 'agenda_controller.dart';
 
 /// Participant model for group session report
 class ParticipantPresenceNote {
-  final dynamic patientId;
+ final dynamic patientId;
   final String patientNom;
   final String patientPrenom;
   final String? photoUrl;
   final RxString statutPresence; // 'present' | 'absent' | 'excuse'
-  final RxString noteIndividuelle;
+ final RxString noteIndividuelle;
 
   ParticipantPresenceNote({
     required this.patientId,
@@ -29,16 +29,16 @@ class ParticipantPresenceNote {
     required this.patientPrenom,
     this.photoUrl,
     String initialPresence = 'present',
-    String initialNote = '',
-  })  : statutPresence = initialPresence.obs,
+   String initialNote = '',
+ })  : statutPresence = initialPresence.obs,
         noteIndividuelle = initialNote.obs;
 
   String get fullName => '$patientPrenom $patientNom'.trim();
-  String get initials {
+ String get initials {
     final p = patientPrenom.isNotEmpty ? patientPrenom[0].toUpperCase() : '';
-    final n = patientNom.isNotEmpty ? patientNom[0].toUpperCase() : '';
-    return '$p$n'.isEmpty ? 'P' : '$p$n';
-  }
+   final n = patientNom.isNotEmpty ? patientNom[0].toUpperCase() : '';
+   return '$p$n'.isEmpty ? 'P' : '$p$n';
+ }
 }
 
 class CompteRenduSpecialisteController extends GetxController {
@@ -50,9 +50,9 @@ class CompteRenduSpecialisteController extends GetxController {
   final AuthService _authService = AuthService();
 
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString errorMessage = ''.obs;
 
-  // Session identification
+ // Session identification
   dynamic seanceId;
   final RxBool isGroupe = false.obs;
 
@@ -66,9 +66,9 @@ class CompteRenduSpecialisteController extends GetxController {
 
   // Form fields - General
   final RxString statutPresence = 'present'.obs; // 'present' | 'excuse' | 'absent'
-  final RxString descriptionEtat = ''.obs; // Observations cliniques
-  final RxString objectifsTravailles = ''.obs; // Objectifs de séance
-  final Rx<dynamic> etapePlanId = Rx<dynamic>(null);
+ final RxString descriptionEtat = ''.obs; // Observations cliniques
+ final RxString objectifsTravailles = ''.obs; // Objectifs de séance
+ final Rx<dynamic> etapePlanId = Rx<dynamic>(null);
   final RxList<EtapePlanTherapeutiqueModel> etapesDisponibles = <EtapePlanTherapeutiqueModel>[].obs;
   final RxList<String> medias = <String>[].obs;
 
@@ -78,9 +78,9 @@ class CompteRenduSpecialisteController extends GetxController {
   // ── Section Rappels & Notifications de Suivi ──
   final RxBool activerRappel = false.obs;
   final RxString rappelDate = ''.obs;
-  final RxString rappelMessage = ''.obs;
-  final RxString rappelPriorite = 'normale'.obs; // 'normale' | 'haute'
-  final RxBool notifierEquipe = true.obs;
+ final RxString rappelMessage = ''.obs;
+ final RxString rappelPriorite = 'normale'.obs; // 'normale' | 'haute'
+ final RxBool notifierEquipe = true.obs;
 
   @override
   void onInit() {
@@ -93,8 +93,8 @@ class CompteRenduSpecialisteController extends GetxController {
     final args = Get.arguments;
     if (args is Map) {
       seanceId = extractIdParam(args['seance_id'] ?? args['id'], Get.parameters);
-      isGroupe.value = args['is_groupe'] == true || args['type'] == 'groupe';
-    } else {
+     isGroupe.value = args['is_groupe'] == true || args['type'] == 'groupe';
+   } else {
       seanceId = extractIdParam(args, Get.parameters);
     }
   }
@@ -102,14 +102,14 @@ class CompteRenduSpecialisteController extends GetxController {
   Future<void> loadData() async {
     if (seanceId == null) {
       status.value = 'error';
-      errorMessage.value = 'Identifiant de séance non spécifié.';
-      return;
+     errorMessage.value = 'Identifiant de séance non spécifié.';
+     return;
     }
 
     try {
       status.value = 'loading';
 
-      // 1. Charger les praticiens
+     // 1. Charger les praticiens
       try {
         final emps = await _employeeService.getEmployees();
         praticiens.value = emps;
@@ -140,22 +140,22 @@ class CompteRenduSpecialisteController extends GetxController {
       if (rappelDate.value.isEmpty) {
         final j7 = DateTime.now().add(const Duration(days: 7));
         rappelDate.value = j7.toIso8601String().split('T').first;
-      }
+     }
 
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-    }
+   }
   }
 
   Future<void> _loadIndivSession() async {
     final s = await _seanceService.getSeance(seanceId);
     seanceIndiv.value = s;
     descriptionEtat.value = s.descriptionEtat ?? '';
-    medias.value = s.medias ?? [];
+   medias.value = s.medias ?? [];
     statutPresence.value = s.statutPresence ?? 'present';
-    if (s.employeIds.isNotEmpty) {
+   if (s.employeIds.isNotEmpty) {
       selectedResponsableId.value = s.employeIds.first;
     }
 
@@ -184,11 +184,11 @@ class CompteRenduSpecialisteController extends GetxController {
         parts.add(ParticipantPresenceNote(
           patientId: p.patientId,
           patientNom: pat['nom'] as String? ?? 'Patient',
-          patientPrenom: pat['prenom'] as String? ?? '',
-          photoUrl: pat['photo'] as String?,
-          initialPresence: (presence != null && presence.isNotEmpty) ? presence : 'present',
-          initialNote: p.descriptionEtat ?? '',
-        ));
+         patientPrenom: pat['prenom'] as String? ?? '',
+         photoUrl: pat['photo'] as String?,
+         initialPresence: (presence != null && presence.isNotEmpty) ? presence : 'present',
+         initialNote: p.descriptionEtat ?? '',
+       ));
       }
     }
     participants.value = parts;
@@ -198,29 +198,29 @@ class CompteRenduSpecialisteController extends GetxController {
   String get sessionTitle {
     if (isGroupe.value) {
       final name = seanceGroupe.value?.groupeName ?? 'Atelier Collectif';
-      return 'Atelier : $name';
-    }
+     return 'Atelier : $name';
+   }
     return seanceIndiv.value?.patientFullName ?? 'Consultation Individuelle'.tr;
-  }
+ }
 
   /// Date et heure formatées
   String get sessionDateTimeInfo {
     if (isGroupe.value) {
       final s = seanceGroupe.value;
       if (s == null) return '';
-      return '${s.date} · ${s.heureDebut} — ${s.heureFin}';
-    }
+     return '${s.date} · ${s.heureDebut} — ${s.heureFin}';
+   }
     final s = seanceIndiv.value;
     if (s == null) return '';
-    return '${s.date} · ${s.heureDebut} — ${s.heureFin} (${s.duree})';
-  }
+   return '${s.date} · ${s.heureDebut} — ${s.heureFin} (${s.duree})';
+ }
 
   /// Nom du responsable
   String get responsableNom {
     if (selectedResponsableId.value == null) return 'Non attribué';
-    final emp = praticiens.firstWhereOrNull((e) => e.id == selectedResponsableId.value);
+   final emp = praticiens.firstWhereOrNull((e) => e.id == selectedResponsableId.value);
     return emp?.fullName ?? 'Spécialiste Référent';
-  }
+ }
 
   /// Sauvegarder le compte-rendu clinique avec rappel
   Future<void> saveRapport({bool cloturer = true}) async {
@@ -228,32 +228,32 @@ class CompteRenduSpecialisteController extends GetxController {
     try {
       status.value = 'loading';
 
-      if (isGroupe.value) {
+     if (isGroupe.value) {
         // Mise à jour de la séance de groupe
         await _seanceGroupeService.updateSeanceGroupe(seanceId, {
           'statut': cloturer ? 'faite' : 'prevue',
-          if (selectedResponsableId.value != null) 'employe_id': selectedResponsableId.value,
-        });
+         if (selectedResponsableId.value != null) 'employe_id': selectedResponsableId.value,
+       });
 
         // Mise à jour individuelle des participants (présence + observation clinique)
         for (final part in participants) {
           try {
             await _seanceGroupeService.updateParticipant(seanceId, part.patientId, {
               'statut_presence': part.statutPresence.value,
-              'note_individuelle': part.noteIndividuelle.value.trim(),
-            });
+             'note_individuelle': part.noteIndividuelle.value.trim(),
+           });
           } catch (_) {}
         }
       } else {
         // Mise à jour de la séance individuelle
         final payload = <String, dynamic>{
           'description_etat': descriptionEtat.value.trim(),
-          'statut_presence': statutPresence.value,
-          'statut': cloturer ? 'faite' : 'prevue',
-          if (etapePlanId.value != null) 'etape_plan_id': etapePlanId.value,
-          if (selectedResponsableId.value != null) 'employe_id': selectedResponsableId.value,
-          'medias': medias.toList(),
-        };
+         'statut_presence': statutPresence.value,
+         'statut': cloturer ? 'faite' : 'prevue',
+         if (etapePlanId.value != null) 'etape_plan_id': etapePlanId.value,
+         if (selectedResponsableId.value != null) 'employe_id': selectedResponsableId.value,
+         'medias': medias.toList(),
+       };
         await _seanceService.updateSeance(seanceId, payload);
       }
 
@@ -262,19 +262,19 @@ class CompteRenduSpecialisteController extends GetxController {
         try {
           final tacheTitre = isGroupe.value
               ? '[Rappel Groupe] ${rappelMessage.value.trim()}'
-              : '[Rappel Patient] ${rappelMessage.value.trim()}';
+             : '[Rappel Patient] ${rappelMessage.value.trim()}';
 
-          await _tacheService.createTache({
+         await _tacheService.createTache({
             'titre': tacheTitre,
-            'description': 'Rappel généré suite au compte-rendu du $sessionDateTimeInfo.\nPraticien : $responsableNom\nObservations : ${descriptionEtat.value}',
-            'date_echeance': rappelDate.value.isNotEmpty ? rappelDate.value : null,
-            'priorite': rappelPriorite.value,
-            'statut': 'a_faire',
-            if (!isGroupe.value && seanceIndiv.value?.patientId != null)
+           'description': 'Rappel généré suite au compte-rendu du $sessionDateTimeInfo.\nPraticien : $responsableNom\nObservations : ${descriptionEtat.value}',
+           'date_echeance': rappelDate.value.isNotEmpty ? rappelDate.value : null,
+           'priorite': rappelPriorite.value,
+           'statut': 'a_faire',
+           if (!isGroupe.value && seanceIndiv.value?.patientId != null)
               'patient_id': seanceIndiv.value!.patientId,
-            if (selectedResponsableId.value != null)
+           if (selectedResponsableId.value != null)
               'assigne_a': selectedResponsableId.value,
-          });
+         });
         } catch (_) {}
       }
 
@@ -291,13 +291,13 @@ class CompteRenduSpecialisteController extends GetxController {
       } catch (_) {}
 
       status.value = 'success';
-      Get.back(result: true);
+     Get.back(result: true);
       Get.snackbar(
         'Compte-rendu enregistré',
-        activerRappel.value
+       activerRappel.value
             ? 'Le bilan a été validé et un rappel de suivi a été programmé.'
-            : 'Le bilan clinique a été enregistré avec succès.',
-        snackPosition: SnackPosition.BOTTOM,
+           : 'Le bilan clinique a été enregistré avec succès.',
+       snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.black.withValues(alpha: 0.80),
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
@@ -305,7 +305,7 @@ class CompteRenduSpecialisteController extends GetxController {
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-      Get.snackbar('Erreur', 'Impossible d\'enregistrer le compte-rendu : $e',
+     Get.snackbar('Erreur', 'Impossible d\'enregistrer le compte-rendu : $e',
           snackPosition: SnackPosition.BOTTOM);
     }
   }

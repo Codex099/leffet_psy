@@ -6,24 +6,24 @@ import '../services/plan_therapeutique_service.dart';
 import '../utils/json_utils.dart';
 
 class PlanTherapeutiqueController extends GetxController {
-  final PlanTherapeutiqueService _planService = PlanTherapeutiqueService();
+ final PlanTherapeutiqueService _planService = PlanTherapeutiqueService();
 
   final RxList<PlanTherapeutiqueModel> plans = <PlanTherapeutiqueModel>[].obs;
   final Rx<PlanTherapeutiqueModel?> selectedPlan = Rx<PlanTherapeutiqueModel?>(null);
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  dynamic patientId;
+ final RxString errorMessage = ''.obs;
+ dynamic patientId;
 
   // Form controllers for creating plan
   final TextEditingController titreController = TextEditingController();
   final RxString statutPlan = 'actif'.obs;
 
-  // Form controllers for adding step
+ // Form controllers for adding step
   final TextEditingController etapeTitreController = TextEditingController();
   final TextEditingController etapeDescController = TextEditingController();
   final RxString statutEtape = 'a_faire'.obs;
 
-  static const _cacheDuration = Duration(minutes: 5);
+ static const _cacheDuration = Duration(minutes: 5);
 
   @override
   void onInit() {
@@ -31,8 +31,8 @@ class PlanTherapeutiqueController extends GetxController {
     patientId = extractIdParam(Get.arguments, Get.parameters);
     if (patientId == null) {
       status.value = 'error';
-      errorMessage.value = 'Identifiant du patient non spécifié.';
-    } else {
+     errorMessage.value = 'Identifiant du patient non spécifié.';
+   } else {
       _loadFromCache();
       loadPlan();
     }
@@ -53,7 +53,7 @@ class PlanTherapeutiqueController extends GetxController {
       plans.value = cached;
       selectedPlan.value = cached.first;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadPlan({bool forceRefresh = false}) async {
@@ -66,7 +66,7 @@ class PlanTherapeutiqueController extends GetxController {
 
     if (plans.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final fetchedPlans = await _planService.getPlansPatient(patientId!);
@@ -110,15 +110,15 @@ class PlanTherapeutiqueController extends GetxController {
           selectedPlan.value = plans.first;
         }
         status.value = 'success';
-      } else {
+     } else {
         selectedPlan.value = null;
         status.value = 'empty';
-      }
+     }
     } catch (e) {
       if (plans.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -132,30 +132,30 @@ class PlanTherapeutiqueController extends GetxController {
     if (patientId == null || titreController.text.trim().isEmpty) return;
     try {
       status.value = 'loading';
-      await _planService.createPlan(patientId!, {
+     await _planService.createPlan(patientId!, {
         'titre': titreController.text.trim(),
-        'statut': statutPlan.value,
-      });
+       'statut': statutPlan.value,
+     });
       titreController.clear();
       AppCacheManager.invalidateTag(CacheTags.patients);
       Get.snackbar('Succès', 'Plan créé avec succès', snackPosition: SnackPosition.BOTTOM);
-      await loadPlan(forceRefresh: true);
+     await loadPlan(forceRefresh: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de créer le plan: $e', snackPosition: SnackPosition.BOTTOM);
-      status.value = 'error';
-      errorMessage.value = e.toString();
+     status.value = 'error';
+     errorMessage.value = e.toString();
     }
   }
 
   Future<void> updatePlanStatut(dynamic planId, String newStatut) async {
     try {
       await _planService.updatePlan(planId, {'statut': newStatut});
-      AppCacheManager.invalidateTag(CacheTags.patients);
+     AppCacheManager.invalidateTag(CacheTags.patients);
       Get.snackbar('Succès', 'Statut du plan mis à jour', snackPosition: SnackPosition.BOTTOM);
-      await loadPlan(forceRefresh: true);
+     await loadPlan(forceRefresh: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de modifier le statut du plan: $e', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> addEtape() async {
@@ -163,33 +163,33 @@ class PlanTherapeutiqueController extends GetxController {
     try {
       final currentEtapes = selectedPlan.value!.etapes ?? [];
       final statutVal = statutEtape.value == 'termine' ? 'fait' : statutEtape.value;
-      await _planService.createEtape(selectedPlan.value!.id, {
+     await _planService.createEtape(selectedPlan.value!.id, {
         'titre': etapeTitreController.text.trim(),
-        'description': etapeDescController.text.trim(),
-        'statut': statutVal,
-        'ordre': currentEtapes.length + 1,
-      });
+       'description': etapeDescController.text.trim(),
+       'statut': statutVal,
+       'ordre': currentEtapes.length + 1,
+     });
       etapeTitreController.clear();
       etapeDescController.clear();
       statutEtape.value = 'a_faire';
-      AppCacheManager.invalidateTag(CacheTags.patients);
+     AppCacheManager.invalidateTag(CacheTags.patients);
       Get.snackbar('Succès', 'Étape ajoutée', snackPosition: SnackPosition.BOTTOM);
-      await loadPlan(forceRefresh: true);
+     await loadPlan(forceRefresh: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'ajouter l\'étape: $e', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> updateEtapeStatut(dynamic planId, dynamic etapeId, String newStatut) async {
     try {
       final statutVal = newStatut == 'termine' ? 'fait' : newStatut;
-      await _planService.updateEtape(planId, etapeId, {'statut': statutVal});
-      AppCacheManager.invalidateTag(CacheTags.patients);
+     await _planService.updateEtape(planId, etapeId, {'statut': statutVal});
+     AppCacheManager.invalidateTag(CacheTags.patients);
       Get.snackbar('Succès', 'Statut de l\'étape mis à jour', snackPosition: SnackPosition.BOTTOM);
-      await loadPlan(forceRefresh: true);
+     await loadPlan(forceRefresh: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de mettre à jour le statut: $e', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> deleteEtape(dynamic planId, dynamic etapeId) async {
@@ -197,10 +197,10 @@ class PlanTherapeutiqueController extends GetxController {
       await _planService.deleteEtape(planId, etapeId);
       AppCacheManager.invalidateTag(CacheTags.patients);
       Get.snackbar('Succès', 'Étape supprimée', snackPosition: SnackPosition.BOTTOM);
-      await loadPlan(forceRefresh: true);
+     await loadPlan(forceRefresh: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer l\'étape', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> convertEtapeToTache(dynamic planId, dynamic etapeId) async {
@@ -208,7 +208,7 @@ class PlanTherapeutiqueController extends GetxController {
       await _planService.creerTacheDepuisEtape(planId, etapeId);
       AppCacheManager.invalidateTag(CacheTags.taches);
       Get.snackbar('Succès', 'Étape convertie en tâche', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       Get.snackbar('Erreur', 'Impossible de convertir en tâche', snackPosition: SnackPosition.BOTTOM);
     }
   }

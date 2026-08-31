@@ -1,16 +1,16 @@
 import '../utils/json_utils.dart';
 
 class SeanceModel {
-  final dynamic id;
+ final dynamic id;
   final dynamic patientId;
   final List<dynamic> employeIds;
   final String date;
   final String heureDebut;
   final String heureFin;
   final String statut; // 'planifiee' | 'faite' | 'annulee'
-  final String? motifStatut;
+ final String? motifStatut;
   final String? statutPresence; // 'present' | 'absent'
-  final String? descriptionEtat;
+ final String? descriptionEtat;
   final Map<String, dynamic>? reponsesQuestionnaire;
   final List<String>? medias;
   final Map<String, dynamic>? patient;
@@ -36,73 +36,73 @@ class SeanceModel {
   factory SeanceModel.fromJson(Map<String, dynamic> json) {
     return SeanceModel(
       id: parseId(json['id']),
-      patientId: parseId(json['patient_id']),
-      employeIds: (json['employe_ids'] as List<dynamic>?)
-              ?.map((e) => parseId(e))
+     patientId: parseId(json['patient_id']),
+     employeIds: (json['employe_ids'] as List<dynamic>?)
+             ?.map((e) => parseId(e))
               .toList() ??
           [],
       date: json['date'] as String? ?? '',
-      heureDebut: json['heure_debut'] as String? ?? '',
-      heureFin: json['heure_fin'] as String? ?? '',
-      statut: json['statut'] as String? ?? 'planifiee',
-      motifStatut: json['motif_statut'] as String?,
-      statutPresence: json['statut_presence'] as String?,
-      reponsesQuestionnaire: json['reponses_questionnaire'] is Map
-          ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
-          : null,
+     heureDebut: json['heure_debut'] as String? ?? '',
+     heureFin: json['heure_fin'] as String? ?? '',
+     statut: json['statut'] as String? ?? 'planifiee',
+     motifStatut: json['motif_statut'] as String?,
+     statutPresence: json['statut_presence'] as String?,
+     reponsesQuestionnaire: json['reponses_questionnaire'] is Map
+         ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
+         : null,
       medias: (json['medias'] as List<dynamic>?)
-          ?.map((e) => e.toString())
+         ?.map((e) => e.toString())
           .toList(),
       patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
-      employe: json['employe'] is Map ? Map<String, dynamic>.from(json['employe'] as Map) : null,
-    );
+     employe: json['employe'] is Map ? Map<String, dynamic>.from(json['employe'] as Map) : null,
+   );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'patient_id': patientId,
-      'employe_ids': employeIds,
-      'date': date,
-      'heure_debut': heureDebut,
-      'heure_fin': heureFin,
-      'statut': statut,
-      if (motifStatut != null) 'motif_statut': motifStatut,
-      if (statutPresence != null) 'statut_presence': statutPresence,
-      if (descriptionEtat != null) 'description_etat': descriptionEtat,
-      if (medias != null) 'medias': medias,
-    };
+     'employe_ids': employeIds,
+     'date': date,
+     'heure_debut': heureDebut,
+     'heure_fin': heureFin,
+     'statut': statut,
+     if (motifStatut != null) 'motif_statut': motifStatut,
+     if (statutPresence != null) 'statut_presence': statutPresence,
+     if (descriptionEtat != null) 'description_etat': descriptionEtat,
+     if (medias != null) 'medias': medias,
+   };
   }
 
   String get patientFullName {
     if (patient == null) return 'Patient';
-    final prenom = patient!['prenom'] ?? '';
-    final nom = patient!['nom'] ?? '';
-    final full = '$prenom $nom'.trim();
-    return full.isNotEmpty ? full : 'Patient';
-  }
+   final prenom = patient!['prenom'] ?? '';
+   final nom = patient!['nom'] ?? '';
+   final full = '$prenom $nom'.trim();
+   return full.isNotEmpty ? full : 'Patient';
+ }
 
   String get initials {
     if (patient == null) return 'P';
-    final prenom = (patient!['prenom'] as String? ?? '').trim();
-    final nom = (patient!['nom'] as String? ?? '').trim();
-    final p = prenom.isNotEmpty ? prenom[0].toUpperCase() : '';
-    final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
-    final res = '$p$n';
-    return res.isNotEmpty ? res : 'P';
-  }
+   final prenom = (patient!['prenom'] as String? ?? '').trim();
+   final nom = (patient!['nom'] as String? ?? '').trim();
+   final p = prenom.isNotEmpty ? prenom[0].toUpperCase() : '';
+   final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
+   final res = '$p$n';
+   return res.isNotEmpty ? res : 'P';
+ }
 
   String? get photoUrl => patient?['photo'] as String?;
 
-  String get statutLabel {
+ String get statutLabel {
     switch (statut) {
       case 'planifiee':
-      case 'prevue':
-        return 'Planifiée';
-      case 'faite':
-        return 'Réalisée';
-      case 'annulee':
-        return 'Annulée';
-      default:
+     case 'prevue':
+       return 'Planifiée';
+     case 'faite':
+       return 'Réalisée';
+     case 'annulee':
+       return 'Annulée';
+     default:
         return statut;
     }
   }
@@ -113,24 +113,24 @@ class SeanceModel {
       final fin = _parseTime(heureFin);
       final diff = fin.hour * 60 + fin.minute - debut.hour * 60 - debut.minute;
       return '$diff min';
-    } catch (_) {
+   } catch (_) {
       return '';
-    }
+   }
   }
 
   DateTime _parseTime(String time) {
     final parts = time.split(':');
-    return DateTime(2000, 1, 1, int.parse(parts[0]), int.parse(parts[1]));
+   return DateTime(2000, 1, 1, int.parse(parts[0]), int.parse(parts[1]));
   }
 
   bool get isPresent => statutPresence == 'present';
-  bool get isPlanifiee => statut == 'planifiee';
-  bool get isRealisee => statut == 'faite';
-  bool get isAnnulee => statut == 'annulee';
+ bool get isPlanifiee => statut == 'planifiee';
+ bool get isRealisee => statut == 'faite';
+ bool get isAnnulee => statut == 'annulee';
 }
 
 class PatientPlanningRecurrentModel {
-  final dynamic id;
+ final dynamic id;
   final dynamic patientId;
   final List<String> joursSemaine;
   final String heureDebut;
@@ -140,7 +140,7 @@ class PatientPlanningRecurrentModel {
   final dynamic employeId; // Conserved for backward compatibility
   final List<dynamic>? employeIds;
   final String? modeGeneration; // 'auto' | 'manuel'
-  final int? horizonJours;
+ final int? horizonJours;
 
   PatientPlanningRecurrentModel({
     required this.id,
@@ -159,35 +159,35 @@ class PatientPlanningRecurrentModel {
   factory PatientPlanningRecurrentModel.fromJson(Map<String, dynamic> json) {
     return PatientPlanningRecurrentModel(
       id: parseId(json['id']),
-      patientId: parseId(json['patient_id']),
-      joursSemaine: (json['jours_semaine'] as List<dynamic>?)
-              ?.map((e) => e as String)
+     patientId: parseId(json['patient_id']),
+     joursSemaine: (json['jours_semaine'] as List<dynamic>?)
+             ?.map((e) => e as String)
               .toList() ??
           [],
       heureDebut: json['heure_debut'] as String? ?? '',
-      heureFin: json['heure_fin'] as String? ?? '',
-      dateDebut: json['date_debut'] as String?,
-      dateFin: json['date_fin'] as String?,
-      employeId: parseId(json['employe_id']),
-      employeIds: json['employe_ids'] != null
-          ? (json['employe_ids'] as List).map((e) => parseId(e)).toList()
-          : (json['employe_id'] != null ? [parseId(json['employe_id'])] : []),
-      modeGeneration: json['mode_generation'] as String?,
-      horizonJours: parseNullableInt(json['horizon_jours']),
-    );
+     heureFin: json['heure_fin'] as String? ?? '',
+     dateDebut: json['date_debut'] as String?,
+     dateFin: json['date_fin'] as String?,
+     employeId: parseId(json['employe_id']),
+     employeIds: json['employe_ids'] != null
+         ? (json['employe_ids'] as List).map((e) => parseId(e)).toList()
+         : (json['employe_id'] != null ? [parseId(json['employe_id'])] : []),
+     modeGeneration: json['mode_generation'] as String?,
+     horizonJours: parseNullableInt(json['horizon_jours']),
+   );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'jours_semaine': joursSemaine,
-      'heure_debut': heureDebut,
-      'heure_fin': heureFin,
-      if (dateDebut != null) 'date_debut': dateDebut,
-      if (dateFin != null) 'date_fin': dateFin,
-      if (employeId != null) 'employe_id': employeId,
-      if (employeIds != null) 'employe_ids': employeIds,
-      if (modeGeneration != null) 'mode_generation': modeGeneration,
-      if (horizonJours != null) 'horizon_jours': horizonJours,
+     'heure_debut': heureDebut,
+     'heure_fin': heureFin,
+     if (dateDebut != null) 'date_debut': dateDebut,
+     if (dateFin != null) 'date_fin': dateFin,
+     if (employeId != null) 'employe_id': employeId,
+     if (employeIds != null) 'employe_ids': employeIds,
+     if (modeGeneration != null) 'mode_generation': modeGeneration,
+     if (horizonJours != null) 'horizon_jours': horizonJours,
     };
   }
 }

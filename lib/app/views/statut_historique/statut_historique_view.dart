@@ -8,16 +8,17 @@ import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
 
 class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
-  const StatutHistoriqueView({super.key});
+ const StatutHistoriqueView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Historique des Statuts'.tr,
-        subtitle: 'Suivi Clinique & Réactivations'.tr,
-        showBackButton: true,
+       subtitle: 'Suivi Clinique & Réactivations'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Padding(
@@ -25,13 +26,14 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+            const SizedBox(height: 90),
               Expanded(
                 child: Obx(() {
                   if (controller.status.value == 'loading') {
-                    return StatePlaceholder.loading();
+                   return StatePlaceholder.loading();
                   }
                   if (controller.status.value == 'error') {
-                    return StatePlaceholder.error(
+                   return StatePlaceholder.error(
                       message: controller.errorMessage.value,
                       onAction: () => controller.loadHistorique(),
                     );
@@ -39,9 +41,9 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
                   if (controller.historique.isEmpty) {
                     return StatePlaceholder.empty(
                       title: 'Aucun historique'.tr,
-                      message:
+                     message:
                           'Aucun changement de statut enregistré pour ce patient.',
-                    );
+                   );
                   }
 
                   return ListView.separated(

@@ -4,14 +4,14 @@ import '../models/parent_model.dart';
 import 'dio_client.dart';
 
 class ParentService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/parents — Liste des parents
   Future<List<ParentModel>> getParents({String? search}) async {
     final queryParams = <String, dynamic>{};
     if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
-    final response = await _dio.get(
+   final response = await _dio.get(
       ApiConfig.parents,
       queryParameters: queryParams,
     );

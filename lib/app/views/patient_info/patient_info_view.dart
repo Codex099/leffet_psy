@@ -12,7 +12,7 @@ import '../../widgets/state_placeholder.dart';
 import '../../models/plan_therapeutique_model.dart';
 
 class PatientInfoView extends GetView<PatientInfoController> {
-  const PatientInfoView({super.key});
+ const PatientInfoView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +20,12 @@ class PatientInfoView extends GetView<PatientInfoController> {
       backgroundColor: AppColors.scaffold,
       body: Obx(() {
         if (controller.status.value == 'loading') {
-          return const Scaffold(
+         return const Scaffold(
             body: StatePlaceholder(type: StatePlaceholderType.loading),
           );
         }
         if (controller.status.value == 'error') {
-          return Scaffold(
+         return Scaffold(
             body: StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadPatientInfo(),
@@ -89,7 +89,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 ),
                                 Text(
                                   'Dossier Patient'.tr,
-                                  style: AppTextStyles.iosHeadline.copyWith(
+                                 style: AppTextStyles.iosHeadline.copyWith(
                                     color: Colors.white,
                                   ),
                                 ),
@@ -149,7 +149,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                   ),
                                   child: PatientAvatar(
                                     initials: p?.initials ?? 'P',
-                                    photoUrl: p?.photo,
+                                   photoUrl: p?.photo,
                                     radius: 34,
                                   ),
                                 ),
@@ -161,7 +161,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                     children: [
                                       Text(
                                         p?.fullName ?? 'Patient',
-                                        style: AppTextStyles.iosTitle1.copyWith(
+                                       style: AppTextStyles.iosTitle1.copyWith(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w800,
                                         ),
@@ -170,8 +170,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                       Text(
                                         p?.ageFormatted != null
                                             ? '${p!.ageFormatted} \u200E•\u200E ${'Né(e) le'.tr} ${p.dateNaissance ?? ""}'
-                                            : '${'Né(e) le'.tr} ${p?.dateNaissance ?? ""}',
-                                        style: AppTextStyles.iosFootnote
+                                           : '${'Né(e) le'.tr} ${p?.dateNaissance ?? ""}',
+                                       style: AppTextStyles.iosFootnote
                                             .copyWith(
                                               color: Colors.white.withValues(
                                                 alpha: 0.85,
@@ -216,8 +216,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                               Text(
                                                 p?.estActif == true
                                                     ? 'Suivi Actif'
-                                                    : 'Inactif',
-                                                style: AppTextStyles.iosCaption2
+                                                   : 'Inactif',
+                                               style: AppTextStyles.iosCaption2
                                                     .copyWith(
                                                       color: Colors.white,
                                                       fontWeight:
@@ -255,9 +255,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // Parent lié card
                     _buildSectionCard(
                       title: 'Parent lié'.tr,
-                      icon: Icons.phone_outlined,
+                     icon: Icons.phone_outlined,
                       actionLabel: 'Créer nouveau',
-                      onActionTap: () => Get.toNamed(AppRoutes.editParent),
+                     onActionTap: () => Get.toNamed(AppRoutes.editParent),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -267,8 +267,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 vertical: 8.0,
                               ),
                               child: Text(
-                                'Aucun parent associé à  ce patient.'.tr,
-                                style: AppTextStyles.bodySmall,
+                                'Aucun parent associé à ce patient.'.tr,
+                               style: AppTextStyles.bodySmall,
                               ),
                             )
                           else
@@ -277,13 +277,13 @@ class PatientInfoView extends GetView<PatientInfoController> {
                               final name = parent != null
                                   ? parent.fullName
                                   : 'Parent inconnu';
-                              final phone = parent != null
+                             final phone = parent != null
                                   ? (parent.telephone ?? 'Pas de numéro')
-                                  : 'Pas de numéro';
-                              final initials = parent != null
+                                 : 'Pas de numéro';
+                             final initials = parent != null
                                   ? parent.initials
                                   : 'P';
-                              final role = pParent.roleLabel;
+                             final role = pParent.roleLabel;
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 padding: const EdgeInsets.all(12),
@@ -310,7 +310,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                           children: [
                                             Text(
                                               '$name ($role)'.tr,
-                                              style: AppTextStyles.bodyMedium
+                                             style: AppTextStyles.bodyMedium
                                                   .copyWith(
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -338,7 +338,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 _showAssociateParentDialog(context),
                             icon: const Icon(Icons.link_rounded, size: 16),
                             label: Text('Associer un parent existant'.tr),
-                            style: OutlinedButton.styleFrom(
+                           style: OutlinedButton.styleFrom(
                               minimumSize: const Size(double.infinity, 38),
                               side: const BorderSide(color: AppColors.primary),
                               foregroundColor: AppColors.primary,
@@ -352,9 +352,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // Plan Thérapeutique preview card
                     _buildSectionCard(
                       title: 'Plan thérapeutique'.tr,
-                      icon: Icons.assignment_rounded,
+                     icon: Icons.assignment_rounded,
                       actionLabel: 'Voir tout',
-                      onActionTap: () async {
+                     onActionTap: () async {
                         await Get.toNamed(
                           AppRoutes.planTherapeutique,
                           arguments: controller.patientId,
@@ -370,7 +370,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 children: [
                                   Text(
                                     'Aucun plan thérapeutique.'.tr,
-                                    style: AppTextStyles.bodySmall,
+                                   style: AppTextStyles.bodySmall,
                                   ),
                                   const SizedBox(height: 8),
                                   OutlinedButton.icon(
@@ -383,7 +383,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                     },
                                     icon: const Icon(Icons.add, size: 14),
                                     label: Text('Créer un plan'.tr),
-                                    style: OutlinedButton.styleFrom(
+                                   style: OutlinedButton.styleFrom(
                                       minimumSize: const Size(
                                         double.infinity,
                                         36,
@@ -400,23 +400,23 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           : Column(
                               children: controller.plans.map((plan) {
                                 final Color statColor = plan.statut == 'actif'
-                                    ? AppColors.statusPresent
+                                   ? AppColors.statusPresent
                                     : plan.statut == 'termine'
-                                    ? AppColors.primary
+                                   ? AppColors.primary
                                     : AppColors.textSecondary;
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 10.0),
                                   child: _buildStepTile(
                                     number: plan.statut == 'actif' ? '▶' : '✓',
-                                    title: plan.titre,
+                                   title: plan.titre,
                                     subtitle:
                                         '${plan.etapesTerminees}/${plan.totalEtapes} étapes'.tr,
-                                    statusLabel: plan.statut == 'actif'
-                                        ? 'Actif'.tr
-                                        : plan.statut == 'termine'
-                                        ? 'Terminé'.tr
-                                        : 'Archivé'.tr,
-                                    statusColor: statColor,
+                                   statusLabel: plan.statut == 'actif'
+                                       ? 'Actif'.tr
+                                       : plan.statut == 'termine'
+                                       ? 'Terminé'.tr
+                                       : 'Archivé'.tr,
+                                   statusColor: statColor,
                                     progress: plan.progression,
                                   ),
                                 );
@@ -428,9 +428,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // Historique des séances card
                     _buildSectionCard(
                       title: 'Historique des séances'.tr,
-                      icon: Icons.access_time_rounded,
+                     icon: Icons.access_time_rounded,
                       actionLabel: 'Tout voir',
-                      onActionTap: () async {
+                     onActionTap: () async {
                         await Get.toNamed(
                           AppRoutes.historiqueSeancesPatient,
                           arguments: controller.patientId,
@@ -442,13 +442,13 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           _buildSeanceTypeItem(
                             icon: Icons.calendar_month_rounded,
                             label: 'Séances individuelles'.tr,
-                            onTap: () async {
+                           onTap: () async {
                               await Get.toNamed(
                                 AppRoutes.historiqueSeancesPatient,
                                 arguments: {
                                   'id': controller.patientId,
-                                  'type': 'individuel',
-                                },
+                                 'type': 'individuel',
+                               },
                               );
                               controller.loadPatientInfo();
                             },
@@ -457,13 +457,13 @@ class PatientInfoView extends GetView<PatientInfoController> {
                           _buildSeanceTypeItem(
                             icon: Icons.groups_rounded,
                             label: 'Séances groupe'.tr,
-                            onTap: () async {
+                           onTap: () async {
                               await Get.toNamed(
                                 AppRoutes.historiqueSeancesPatient,
                                 arguments: {
                                   'id': controller.patientId,
-                                  'type': 'groupe',
-                                },
+                                 'type': 'groupe',
+                               },
                               );
                               controller.loadPatientInfo();
                             },
@@ -476,10 +476,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // ── Historique des Statuts & Réactivations ──
                     _buildSectionCard(
                       title: 'Historique des Statuts'.tr,
-                      subtitle: 'Suivi des activations et notes'.tr,
-                      icon: Icons.history_rounded,
+                     subtitle: 'Suivi des activations et notes'.tr,
+                     icon: Icons.history_rounded,
                       actionLabel: 'Gérer',
-                      onActionTap: () async {
+                     onActionTap: () async {
                         await Get.toNamed(
                           AppRoutes.statutHistorique,
                           arguments: controller.patientId,
@@ -493,7 +493,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                               ),
                               child: Text(
                                 'Aucun changement de statut enregistré.'.tr,
-                                style: AppTextStyles.bodySmall,
+                               style: AppTextStyles.bodySmall,
                               ),
                             )
                           : Column(
@@ -521,8 +521,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                             StatusBadge.active(
                                               label: hist.isActif
                                                   ? 'Actif (Réactivé)'
-                                                  : 'Inactif (Désactivé)',
-                                            ),
+                                                 : 'Inactif (Désactivé)',
+                                           ),
                                             Text(
                                               hist.dateChangement.length >= 10
                                                   ? hist.dateChangement
@@ -586,7 +586,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // Notes section
                     _buildSectionCard(
                       title: 'Notes & Observations'.tr,
-                      icon: Icons.note_alt_outlined,
+                     icon: Icons.note_alt_outlined,
                       headerWidget: ElevatedButton.icon(
                         onPressed: () async {
                           await Get.toNamed(
@@ -597,7 +597,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                         },
                         icon: const Icon(Icons.add, size: 16),
                         label: Text('Note'.tr),
-                        style: ElevatedButton.styleFrom(
+                       style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           minimumSize: const Size(80, 32),
                           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -610,7 +610,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                               ),
                               child: Text(
                                 'Aucune note pour ce patient.'.tr,
-                                style: AppTextStyles.bodySmall,
+                               style: AppTextStyles.bodySmall,
                               ),
                             )
                           : Column(
@@ -627,7 +627,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     // Planning récurrent toggle section
                     _buildSectionCard(
                       title: 'Planning récurrent'.tr,
-                      icon: Icons.sync_rounded,
+                     icon: Icons.sync_rounded,
                       child: Column(
                         children: [
                           Row(
@@ -638,11 +638,11 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 children: [
                                   Text(
                                     'Créneaux automatiques'.tr,
-                                    style: AppTextStyles.bodyMedium,
+                                   style: AppTextStyles.bodyMedium,
                                   ),
                                   Text(
                                     'Planification de séances individuelles'.tr,
-                                    style: AppTextStyles.bodySmall,
+                                   style: AppTextStyles.bodySmall,
                                   ),
                                 ],
                               ),
@@ -660,7 +660,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                             },
                             icon: const Icon(Icons.tune_rounded),
                             label: Text('Définir les créneaux'.tr),
-                            style: ElevatedButton.styleFrom(
+                           style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.secondary,
                               foregroundColor: Colors.white,
                               minimumSize: const Size(double.infinity, 44),
@@ -680,7 +680,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       ),
                       label: Text(
                         'Supprimer le patient'.tr,
-                        style: AppTextStyles.buttonDestructive,
+                       style: AppTextStyles.buttonDestructive,
                       ),
                     ),
                   ],
@@ -774,7 +774,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
             children: [
               Text(
                 '$number. $title'.tr,
-                style: AppTextStyles.bodyMedium.copyWith(
+               style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -848,7 +848,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 const SizedBox(height: 4),
                 Text(
                   '${note.auteurNom} | ${note.dateCreation ?? ""}'.tr,
-                  style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                 style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                 ),
               ],
             ),
@@ -870,28 +870,28 @@ class PatientInfoView extends GetView<PatientInfoController> {
     if (controller.availableParents.isEmpty) {
       Get.snackbar(
         'Info',
-        'Aucun parent enregistré sur le système.',
-        snackPosition: SnackPosition.BOTTOM,
+       'Aucun parent enregistré sur le système.',
+       snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
 
     String selectedRole = 'tuteur';
 
-    SearchablePicker.showSingle<dynamic>(
+   SearchablePicker.showSingle<dynamic>(
       context: context,
       title: 'Associer un parent / tuteur'.tr,
-      items: controller.availableParents
+     items: controller.availableParents
           .map(
             (p) => SearchableItem<dynamic>(
               value: p.id,
               label: '${p.prenom} ${p.nom}'.tr,
-              subtitle: p.telephone != null && p.telephone!.isNotEmpty
+             subtitle: p.telephone != null && p.telephone!.isNotEmpty
                   ? p.telephone
                   : 'Parent / Tuteur',
-              initials:
+             initials:
                   '${p.prenom.isNotEmpty ? p.prenom[0] : ""}${p.nom.isNotEmpty ? p.nom[0] : ""}'
-                      .toUpperCase(),
+                     .toUpperCase(),
             ),
           )
           .toList(),
@@ -904,29 +904,29 @@ class PatientInfoView extends GetView<PatientInfoController> {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text('Rôle familial'.tr, style: AppTextStyles.iosTitle2),
-            content: StatefulBuilder(
+           content: StatefulBuilder(
               builder: (ctx, setDialogState) => DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Lien de parenté'),
-                initialValue: selectedRole,
+               initialValue: selectedRole,
                 items: [
                   DropdownMenuItem(value: 'pere', child: Text('Père'.tr)),
-                  DropdownMenuItem(value: 'mere', child: Text('Mère'.tr)),
-                  DropdownMenuItem(
+                 DropdownMenuItem(value: 'mere', child: Text('Mère'.tr)),
+                 DropdownMenuItem(
                     value: 'tuteur',
-                    child: Text('Tuteur légal'.tr),
-                  ),
+                   child: Text('Tuteur légal'.tr),
+                 ),
                   DropdownMenuItem(
                     value: 'grand_pere',
-                    child: Text('Grand-père'.tr),
-                  ),
+                   child: Text('Grand-père'.tr),
+                 ),
                   DropdownMenuItem(
                     value: 'grand_mere',
-                    child: Text('Grand-mère'.tr),
-                  ),
+                   child: Text('Grand-mère'.tr),
+                 ),
                   DropdownMenuItem(value: 'oncle', child: Text('Oncle'.tr)),
-                  DropdownMenuItem(value: 'tante', child: Text('Tante'.tr)),
-                  DropdownMenuItem(value: 'autre', child: Text('Autre'.tr)),
-                ],
+                 DropdownMenuItem(value: 'tante', child: Text('Tante'.tr)),
+                 DropdownMenuItem(value: 'autre', child: Text('Autre'.tr)),
+               ],
                 onChanged: (val) {
                   if (val != null) setDialogState(() => selectedRole = val);
                 },
@@ -936,14 +936,14 @@ class PatientInfoView extends GetView<PatientInfoController> {
               TextButton(
                 onPressed: () => Get.back(),
                 child: Text('Annuler'.tr),
-              ),
+             ),
               ElevatedButton(
                 onPressed: () {
                   Get.back();
                   controller.associateParent(parentId, selectedRole);
                 },
                 child: Text('Confirmer l\'association'.tr),
-              ),
+             ),
             ],
           ),
         );
@@ -959,8 +959,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
         title: Text(
           isCurrentlyActive
               ? 'Désactiver le patient ?'
-              : 'Réactiver le patient ?',
-          style: AppTextStyles.iosTitle2,
+             : 'Réactiver le patient ?',
+         style: AppTextStyles.iosTitle2,
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -968,9 +968,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
           children: [
             Text(
               isCurrentlyActive
-                  ? 'Le statut du patient passera à  Inactif. Une entrée sera ajoutée dans l\'historique des statuts.'
-                  : 'Le statut du patient repassera à  Actif. Vous pouvez consigner une observation ou note clinique pour cette réactivation.',
-              style: AppTextStyles.bodySmall,
+                  ? 'Le statut du patient passera à Inactif. Une entrée sera ajoutée dans l\'historique des statuts.'
+                 : 'Le statut du patient repassera à Actif. Vous pouvez consigner une observation ou note clinique pour cette réactivation.',
+             style: AppTextStyles.bodySmall,
             ),
             if (!isCurrentlyActive) ...[
               const SizedBox(height: 16),
@@ -979,15 +979,15 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Note clinique / Dégradation',
-                  hintText: 'Préciser les motifs ou observations cliniques...'.tr,
-                ),
+                 hintText: 'Préciser les motifs ou observations cliniques...'.tr,
+               ),
               ),
             ],
           ],
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
-          ElevatedButton(
+         ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: isCurrentlyActive
                   ? AppColors.error
@@ -1001,7 +1001,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
               );
             },
             child: Text(isCurrentlyActive ? 'Désactiver' : 'Réactiver'),
-          ),
+         ),
         ],
       ),
     );
@@ -1013,17 +1013,17 @@ class PatientInfoView extends GetView<PatientInfoController> {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text('Supprimer le patient'.tr,
-            style: AppTextStyles.iosHeadline
+           style: AppTextStyles.iosHeadline
                 .copyWith(fontWeight: FontWeight.w800)),
         content: Text(
           'Voulez-vous vraiment supprimer ce patient ? Cette action est irréversible et supprimera toutes ses données.'.tr,
-          style: AppTextStyles.iosSubhead,
+         style: AppTextStyles.iosSubhead,
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text('Annuler'.tr,
-                style:
+               style:
                     AppTextStyles.iosBody.copyWith(color: AppColors.primary)),
           ),
           TextButton(

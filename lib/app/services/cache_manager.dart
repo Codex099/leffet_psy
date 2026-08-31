@@ -18,51 +18,51 @@ class CacheEntry<T> {
 
 /// Tags de cache standardisés pour l'invalidation intelligente
 class CacheTags {
-  CacheTags._();
+ CacheTags._();
   static const String patients = 'patients';
-  static const String seances = 'seances';
-  static const String groupes = 'groupes';
-  static const String employes = 'employes';
-  static const String parents = 'parents';
-  static const String taches = 'taches';
-  static const String dashboard = 'dashboard';
-  static const String auth = 'auth';
-  static const String calendrier = 'calendrier';
+ static const String seances = 'seances';
+ static const String groupes = 'groupes';
+ static const String employes = 'employes';
+ static const String parents = 'parents';
+ static const String taches = 'taches';
+ static const String dashboard = 'dashboard';
+ static const String auth = 'auth';
+ static const String calendrier = 'calendrier';
 }
 
 /// Clés de cache standardisées
 class CacheKeys {
-  CacheKeys._();
+ CacheKeys._();
   static const String dashboard = 'dashboard_data';
-  static const String currentUser = 'current_user_profile';
-  static const String patientsList = 'patients_list_all';
-  static const String agendaAll = 'agenda_sessions_all';
-  static const String employesList = 'employes_list_all';
-  static const String parentsList = 'parents_list_all';
-  static const String groupesList = 'groupes_list_all';
-  static const String tachesList = 'taches_list_all';
-  static const String seancesIndivList = 'seances_indiv_all';
-  static const String compteRenduHub = 'compte_rendu_hub_data';
-  static const String calendrierEvents = 'calendrier_events_all';
+ static const String currentUser = 'current_user_profile';
+ static const String patientsList = 'patients_list_all';
+ static const String agendaAll = 'agenda_sessions_all';
+ static const String employesList = 'employes_list_all';
+ static const String parentsList = 'parents_list_all';
+ static const String groupesList = 'groupes_list_all';
+ static const String tachesList = 'taches_list_all';
+ static const String seancesIndivList = 'seances_indiv_all';
+ static const String compteRenduHub = 'compte_rendu_hub_data';
+ static const String calendrierEvents = 'calendrier_events_all';
 
-  static String patientInfo(dynamic id) => 'patient_info_$id';
-  static String patientParents(dynamic id) => 'patient_parents_$id';
-  static String patientPlans(dynamic id) => 'patient_plans_$id';
-  static String patientNotes(dynamic id) => 'patient_notes_$id';
-  static String patientStatut(dynamic id) => 'patient_statut_$id';
-  static String patientDossier(dynamic id) => 'patient_dossier_$id';
-  static String patientSeances(dynamic id) => 'patient_seances_hist_$id';
-  static String patientPlanning(dynamic id) => 'patient_planning_rec_$id';
-  static String groupeDetail(dynamic id) => 'groupe_detail_$id';
-  static String tacheDetail(dynamic id) => 'tache_detail_$id';
-  static String employeDetail(dynamic id) => 'employe_detail_$id';
+ static String patientInfo(dynamic id) => 'patient_info_$id';
+ static String patientParents(dynamic id) => 'patient_parents_$id';
+ static String patientPlans(dynamic id) => 'patient_plans_$id';
+ static String patientNotes(dynamic id) => 'patient_notes_$id';
+ static String patientStatut(dynamic id) => 'patient_statut_$id';
+ static String patientDossier(dynamic id) => 'patient_dossier_$id';
+ static String patientSeances(dynamic id) => 'patient_seances_hist_$id';
+ static String patientPlanning(dynamic id) => 'patient_planning_rec_$id';
+ static String groupeDetail(dynamic id) => 'groupe_detail_$id';
+ static String tacheDetail(dynamic id) => 'tache_detail_$id';
+ static String employeDetail(dynamic id) => 'employe_detail_$id';
 }
 
 /// Gestionnaire de cache centralisé en mémoire haute performance.
 /// Implémente le pattern Stale-While-Revalidate (SWR), l'invalidation ciblée
 /// par tags, et la gestion du cycle de vie des données pour 0ms de latence.
 class AppCacheManager {
-  AppCacheManager._();
+ AppCacheManager._();
 
   static final Map<String, CacheEntry<dynamic>> _cache = {};
 
@@ -111,7 +111,7 @@ class AppCacheManager {
   }
 
   /// Invalide toutes les clés associées à un tag (ex: 'patients', 'seances', etc.)
-  static void invalidateTag(String tag) {
+ static void invalidateTag(String tag) {
     final keysToRemove = <String>[];
     for (final entry in _cache.entries) {
       if (entry.value.tags.contains(tag)) {

@@ -4,12 +4,12 @@ import '../services/cache_manager.dart';
 import '../services/tache_service.dart';
 
 class TachesController extends GetxController {
-  final TacheService _tacheService = TacheService();
+ final TacheService _tacheService = TacheService();
 
   final RxList<TacheModel> taches = <TacheModel>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final RxBool filterAssignesAMoi = false.obs;
+ final RxString errorMessage = ''.obs;
+ final RxBool filterAssignesAMoi = false.obs;
 
   static const _cacheDuration = Duration(minutes: 3);
 
@@ -33,7 +33,7 @@ class TachesController extends GetxController {
     if (cached != null && cached.isNotEmpty && !filterAssignesAMoi.value) {
       taches.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadTaches({bool forceRefresh = false}) async {
@@ -44,7 +44,7 @@ class TachesController extends GetxController {
 
     if (taches.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final list = await _tacheService.getTaches(
@@ -62,11 +62,11 @@ class TachesController extends GetxController {
       }
 
       status.value = list.isEmpty ? 'empty' : 'success';
-    } catch (e) {
+   } catch (e) {
       if (taches.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -79,12 +79,12 @@ class TachesController extends GetxController {
 
   List<TacheModel> get tachesAFaire => taches
       .where((t) => t.statut == 'a_faire' || (t.statut != 'en_cours' && t.statut != 'fait' && t.statut != 'terminee'))
-      .toList();
+     .toList();
   List<TacheModel> get tachesEnCours => taches.where((t) => t.statut == 'en_cours').toList();
-  List<TacheModel> get tachesFait =>
+ List<TacheModel> get tachesFait =>
       taches.where((t) => t.statut == 'fait' || t.statut == 'terminee' || t.statut == 'cloturee').toList();
 
-  /// Met à jour le statut d'une tâche avec mise à jour optimiste instantanée
+ /// Met à jour le statut d'une tâche avec mise à jour optimiste instantanée
   Future<void> updateStatutFromList(dynamic tacheId, String newStatut) async {
     final idx = taches.indexWhere((t) => t.id == tacheId);
     TacheModel? original;
@@ -108,7 +108,7 @@ class TachesController extends GetxController {
 
     try {
       await _tacheService.updateTache(tacheId, {'statut': newStatut});
-      AppCacheManager.invalidateTag(CacheTags.taches);
+     AppCacheManager.invalidateTag(CacheTags.taches);
     } catch (_) {
       // Rollback en cas d'erreur
       if (idx >= 0 && original != null) {

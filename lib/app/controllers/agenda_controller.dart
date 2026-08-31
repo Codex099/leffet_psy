@@ -7,7 +7,7 @@ import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 
 class AgendaController extends GetxController {
-  final SeanceService _seanceService = SeanceService();
+ final SeanceService _seanceService = SeanceService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
 
   /// Toutes les séances chargées
@@ -17,9 +17,9 @@ class AgendaController extends GetxController {
   List<AgendaSessionItem> get seances => allSessions;
 
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final RxString activeMode = 'Jour'.obs; // 'Jour' | 'Semaine'
-  final Rx<DateTime> selectedDate = DateTime.now().obs;
+ final RxString errorMessage = ''.obs;
+ final RxString activeMode = 'Jour'.obs; // 'Jour' | 'Semaine'
+ final Rx<DateTime> selectedDate = DateTime.now().obs;
 
   static const _cacheDuration = Duration(minutes: 2);
 
@@ -43,7 +43,7 @@ class AgendaController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       allSessions.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadAgenda({bool forceRefresh = false}) async {
@@ -53,7 +53,7 @@ class AgendaController extends GetxController {
 
     if (allSessions.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final results = await Future.wait([
@@ -85,11 +85,11 @@ class AgendaController extends GetxController {
       );
 
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       if (allSessions.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -107,31 +107,31 @@ class AgendaController extends GetxController {
   /// Séances du jour sélectionné
   List<AgendaSessionItem> get sessionsForSelectedDate {
     final dateStr = selectedDate.value.toIso8601String().split('T').first;
-    return allSessions.where((s) => s.date == dateStr).toList();
+   return allSessions.where((s) => s.date == dateStr).toList();
   }
 
   /// Séances pour un jour précis
   List<AgendaSessionItem> sessionsForDate(DateTime d) {
     final dateStr = d.toIso8601String().split('T').first;
-    return allSessions.where((s) => s.date == dateStr).toList();
+   return allSessions.where((s) => s.date == dateStr).toList();
   }
 
   /// Indique si un jour contient au moins une séance
   bool hasSessionsOn(DateTime d) {
     final dateStr = d.toIso8601String().split('T').first;
-    return allSessions.any((s) => s.date == dateStr);
+   return allSessions.any((s) => s.date == dateStr);
   }
 
   /// Nombre de séances sur un jour
   int countSessionsOn(DateTime d) {
     final dateStr = d.toIso8601String().split('T').first;
-    return allSessions.where((s) => s.date == dateStr).length;
+   return allSessions.where((s) => s.date == dateStr).length;
   }
 
   /// Séances de toute la semaine courante
   List<AgendaSessionItem> get sessionsForCurrentWeek {
     final weekStrs = currentWeekDays.map((d) => d.toIso8601String().split('T').first).toSet();
-    return allSessions.where((s) => weekStrs.contains(s.date)).toList();
+   return allSessions.where((s) => weekStrs.contains(s.date)).toList();
   }
 
   void selectDate(DateTime date) {
@@ -172,27 +172,27 @@ class AgendaController extends GetxController {
     final d = selectedDate.value;
     final mois = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-    ];
+     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+   ];
     return '${mois[d.month - 1]} ${d.year}';
-  }
+ }
 
   String get formattedSelectedDate {
     final d = selectedDate.value;
     final jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-    final mois = [
+   final mois = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-    ];
+     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+   ];
     return '${jours[d.weekday - 1]} ${d.day} ${mois[d.month - 1]}';
-  }
+ }
 
   String formatDayDate(DateTime d) {
     final jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-    final mois = [
+   final mois = [
       'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin',
-      'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'
-    ];
+     'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'
+   ];
     return '${jours[d.weekday - 1]} ${d.day} ${mois[d.month - 1]}';
   }
 

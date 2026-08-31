@@ -13,16 +13,17 @@ import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/state_placeholder.dart';
 
 class CalendrierView extends GetView<CalendrierController> {
-  const CalendrierView({super.key});
+ const CalendrierView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Calendrier Administratif'.tr,
-        subtitle: 'Événements & Réunions'.tr,
-        showBackButton: true,
+       subtitle: 'Événements & Réunions'.tr,
+       showBackButton: true,
         actions: [
           BouncyTap(
             onTap: () => _showAddDialog(context),
@@ -47,13 +48,14 @@ class CalendrierView extends GetView<CalendrierController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 90),
             // Segmented Control (Liste / Calendrier)
             Obx(
               () => IosSegmentedControl<String>(
                 segments: const {
                   'Liste': 'Liste des événements',
-                  'Calendrier': 'Vue Calendrier',
-                },
+                 'Calendrier': 'Vue Calendrier',
+               },
                 selectedValue: controller.activeTab.value,
                 onValueChanged: (tab) => controller.activeTab.value = tab,
                 margin: const EdgeInsets.symmetric(
@@ -67,21 +69,21 @@ class CalendrierView extends GetView<CalendrierController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading();
+                 return StatePlaceholder.loading();
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadEvenements(),
                   );
                 }
                 if (controller.status.value == 'empty') {
-                  return StatePlaceholder.empty(
+                 return StatePlaceholder.empty(
                     title: 'Aucun événement planifié'.tr,
-                    message:
+                   message:
                         'Ajoutez un événement pour organiser le calendrier clinique.',
-                    actionLabel: 'Nouvel événement',
-                    onAction: () => _showAddDialog(context),
+                   actionLabel: 'Nouvel événement',
+                   onAction: () => _showAddDialog(context),
                   );
                 }
 
@@ -112,7 +114,7 @@ class CalendrierView extends GetView<CalendrierController> {
                           title: ev.titre,
                           subtitle:
                               "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' Â· ${ev.description}' : ''}".tr,
-                          trailing: Row(
+                         trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
@@ -151,15 +153,15 @@ class CalendrierView extends GetView<CalendrierController> {
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text('Supprimer l\'événement'.tr),
-        content: Text(
+       content: Text(
           'Êtes-vous sûr de vouloir supprimer cet événement du calendrier clinique ?'.tr,
-        ),
+       ),
         actions: [
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx),
             child: Text('Annuler'.tr),
-          ),
+         ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () {
@@ -167,7 +169,7 @@ class CalendrierView extends GetView<CalendrierController> {
               controller.deleteEvenement(id);
             },
             child: Text('Supprimer'.tr),
-          ),
+         ),
         ],
       ),
     );
@@ -208,26 +210,26 @@ class CalendrierView extends GetView<CalendrierController> {
                 const SizedBox(height: 16),
                 Text(
                   ev != null ? 'Modifier l\'événement'.tr : 'Nouvel événement'.tr,
-                  style: AppTextStyles.iosTitle2,
+                 style: AppTextStyles.iosTitle2,
                 ),
                 const SizedBox(height: 20),
                 AppTextField(
                   label: 'Titre de l\'événement *'.tr,
-                  hintText: 'Ex: Réunion d\'équipe pluridisciplinaire'.tr,
-                  controller: titreTextCtrl,
+                 hintText: 'Ex: Réunion d\'équipe pluridisciplinaire'.tr,
+                 controller: titreTextCtrl,
                   onChanged: (v) => controller.titre.value = v,
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
                       return 'Le titre est obligatoire';
-                    }
+                   }
                     return null;
                   },
                 ),
                 const SizedBox(height: 14),
                 AppTextField(
                   label: 'Description'.tr,
-                  hintText: 'Détails ou ordre du jour...'.tr,
-                  controller: descTextCtrl,
+                 hintText: 'Détails ou ordre du jour...'.tr,
+                 controller: descTextCtrl,
                   maxLines: 3,
                   onChanged: (v) => controller.description.value = v,
                 ),
@@ -236,7 +238,7 @@ class CalendrierView extends GetView<CalendrierController> {
                   padding: const EdgeInsets.only(left: 4, bottom: 6),
                   child: Text(
                     'Date de l\'événement *'.tr,
-                    style: AppTextStyles.fieldLabel,
+                   style: AppTextStyles.fieldLabel,
                   ),
                 ),
                 Obx(
@@ -254,7 +256,7 @@ class CalendrierView extends GetView<CalendrierController> {
                       if (picked != null) {
                         controller.date.value =
                             "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-                      }
+                     }
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
@@ -273,7 +275,7 @@ class CalendrierView extends GetView<CalendrierController> {
                           Text(
                             controller.date.value.isEmpty
                                 ? 'Sélectionner la date'.tr
-                                : controller.date.value,
+                               : controller.date.value,
                             style: AppTextStyles.fieldValue,
                           ),
                           const Icon(
@@ -292,7 +294,7 @@ class CalendrierView extends GetView<CalendrierController> {
                   children: [
                     Text(
                       'Rappel (jours avant)'.tr,
-                      style: AppTextStyles.fieldLabel,
+                     style: AppTextStyles.fieldLabel,
                     ),
                     Row(
                       children: [
@@ -310,7 +312,7 @@ class CalendrierView extends GetView<CalendrierController> {
                         Obx(
                           () => Text(
                             '${controller.notifierJours.value} j'.tr,
-                            style: AppTextStyles.iosHeadline,
+                           style: AppTextStyles.iosHeadline,
                           ),
                         ),
                         IconButton(

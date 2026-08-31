@@ -12,16 +12,17 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
 class EmployesListeView extends GetView<EmployesListeController> {
-  const EmployesListeView({super.key});
+ const EmployesListeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Équipe & Praticiens'.tr,
-        subtitle: 'Gestion des Droits (Admin)'.tr,
-        showBackButton: true,
+       subtitle: 'Gestion des Droits (Admin)'.tr,
+       showBackButton: true,
         actions: [
           BouncyTap(
             onTap: () async {
@@ -48,6 +49,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 90),
             // ── iOS Search Bar ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -64,7 +66,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
                     hintText: 'Rechercher un membre de l\'équipe...'.tr,
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(
+                   hintStyle: AppTextStyles.iosSubhead.copyWith(
                       color: AppColors.textHint,
                     ),
                     prefixIcon: const Icon(
@@ -86,12 +88,12 @@ class EmployesListeView extends GetView<EmployesListeController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(
+                 return StatePlaceholder.loading(
                     message: 'Chargement de l\'équipe...',
-                  );
+                 );
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadEmployees(),
                   );
@@ -99,10 +101,10 @@ class EmployesListeView extends GetView<EmployesListeController> {
                 if (controller.employees.isEmpty) {
                   return StatePlaceholder.empty(
                     title: 'Aucun employé enregistré'.tr,
-                    message:
+                   message:
                         'Ajoutez des membres de l\'équipe pour configurer leurs accès.',
-                    actionLabel: 'Nouvel employé',
-                    onAction: () async {
+                   actionLabel: 'Nouvel employé',
+                   onAction: () async {
                       final res = await Get.toNamed(AppRoutes.editEmploye);
                       if (res == true) controller.loadEmployees();
                     },
@@ -133,7 +135,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                             title: emp.fullName,
                             subtitle:
                                 '${emp.telephone ?? emp.username} · $patientCount patient(s) assigné(s)'.tr,
-                            showChevron: true,
+                           showChevron: true,
                             trailing: StatusBadge.active(label: emp.roleLabel),
                             onTap: () async {
                               final res = await Get.toNamed(
@@ -172,7 +174,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                                           const SizedBox(width: 5),
                                           Text(
                                             '$patientCount patient(s)'.tr,
-                                            style: AppTextStyles.iosCaption1
+                                           style: AppTextStyles.iosCaption1
                                                 .copyWith(
                                               color: AppColors.primary,
                                               fontWeight: FontWeight.w700,
@@ -206,7 +208,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                                         const SizedBox(width: 5),
                                         Text(
                                           'Supprimer'.tr,
-                                          style: AppTextStyles.iosCaption1
+                                         style: AppTextStyles.iosCaption1
                                               .copyWith(
                                             color: AppColors.error,
                                             fontWeight: FontWeight.w700,
@@ -239,17 +241,17 @@ class EmployesListeView extends GetView<EmployesListeController> {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text('Supprimer le compte'.tr,
-            style: AppTextStyles.iosHeadline
+           style: AppTextStyles.iosHeadline
                 .copyWith(fontWeight: FontWeight.w800)),
         content: Text(
           'Voulez-vous vraiment supprimer le compte de $name ? Cette action est irréversible.'.tr,
-          style: AppTextStyles.iosSubhead,
+         style: AppTextStyles.iosSubhead,
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text('Annuler'.tr,
-                style:
+               style:
                     AppTextStyles.iosBody.copyWith(color: AppColors.primary)),
           ),
           TextButton(
@@ -259,7 +261,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
             },
             child: Text(
               'Supprimer'.tr,
-              style: AppTextStyles.iosBody.copyWith(
+             style: AppTextStyles.iosBody.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w700,
               ),
@@ -317,7 +319,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                                   .copyWith(fontWeight: FontWeight.w800)),
                           Text(
                             '${ids.length} patient(s) assigné(s)'.tr,
-                            style: AppTextStyles.iosCaption1.copyWith(
+                           style: AppTextStyles.iosCaption1.copyWith(
                                 color: AppColors.textSecondary),
                           ),
                         ],
@@ -339,7 +341,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                             const SizedBox(height: 8),
                             Text(
                               'Aucun patient assigné'.tr,
-                              style: AppTextStyles.iosSubhead.copyWith(
+                             style: AppTextStyles.iosSubhead.copyWith(
                                   color: AppColors.textSecondary),
                             ),
                           ],
@@ -355,7 +357,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                         itemBuilder: (_, i) => ListTile(
                           leading: PatientAvatar(
                             initials: '#${i + 1}',
-                            radius: 16,
+                           radius: 16,
                           ),
                           title: Text(
                             'Patient #${ids[i]}',

@@ -6,14 +6,14 @@ import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 
 class EmployesListeController extends GetxController {
-  final EmployeeService _employeeService = EmployeeService();
+ final EmployeeService _employeeService = EmployeeService();
 
   final RxList<EmployeeModel> employees = <EmployeeModel>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final RxString searchQuery = ''.obs;
+ final RxString errorMessage = ''.obs;
+ final RxString searchQuery = ''.obs;
 
-  Timer? _debounceTimer;
+ Timer? _debounceTimer;
 
   static const _cacheDuration = Duration(minutes: 15);
 
@@ -43,7 +43,7 @@ class EmployesListeController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       employees.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadEmployees({bool forceRefresh = false}) async {
@@ -53,7 +53,7 @@ class EmployesListeController extends GetxController {
 
     if (employees.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final list = await _employeeService.getEmployees(
@@ -71,11 +71,11 @@ class EmployesListeController extends GetxController {
       }
 
       status.value = list.isEmpty ? 'empty' : 'success';
-    } catch (e) {
+   } catch (e) {
       if (employees.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -88,8 +88,8 @@ class EmployesListeController extends GetxController {
       AppCacheManager.invalidate(CacheKeys.employesList);
       Get.snackbar(
         'Supprimé',
-        'Le compte a été supprimé avec succès.',
-        snackPosition: SnackPosition.BOTTOM,
+       'Le compte a été supprimé avec succès.',
+       snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green.shade600,
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
@@ -99,7 +99,7 @@ class EmployesListeController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Erreur',
-        'Impossible de supprimer : ${e.toString()}',
+       'Impossible de supprimer : ${e.toString()}',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.shade600,
         colorText: Colors.white,

@@ -10,7 +10,7 @@ import '../../theme/app_text_styles.dart';
 /// Page de connexion épurée, moderne et en français.
 /// Inspirée fidèlement de la maquette avec le logo centré et un style "pill".
 class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+ const LoginView({super.key});
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -44,7 +44,7 @@ class _LoginViewState extends State<LoginView> {
 
   Future<void> _loadSavedUsername() async {
     final savedUsername = await _storage.read(key: 'saved_username');
-    if (savedUsername != null && savedUsername.isNotEmpty) {
+   if (savedUsername != null && savedUsername.isNotEmpty) {
       _usernameController.text = savedUsername;
       _rememberMe.value = true;
     }
@@ -66,8 +66,8 @@ class _LoginViewState extends State<LoginView> {
     if (username.isEmpty || password.isEmpty) {
       Get.snackbar(
         'Champs requis',
-        'Veuillez renseigner votre identifiant et mot de passe.',
-        snackPosition: SnackPosition.BOTTOM,
+       'Veuillez renseigner votre identifiant et mot de passe.',
+       snackPosition: SnackPosition.BOTTOM,
         backgroundColor: AppColors.error.withValues(alpha: 0.92),
         colorText: Colors.white,
         margin: const EdgeInsets.all(16),
@@ -79,9 +79,9 @@ class _LoginViewState extends State<LoginView> {
 
     if (_rememberMe.value) {
       await _storage.write(key: 'saved_username', value: username);
-    } else {
+   } else {
       await _storage.delete(key: 'saved_username');
-    }
+   }
 
     controller.login(username, password);
   }
@@ -131,7 +131,7 @@ class _LoginViewState extends State<LoginView> {
                                 padding: const EdgeInsets.all(0),
                                 child: Image.asset(
                                   'assets/images/logo.png',
-                                  width: 160,
+                                 width: 160,
                                   height: 160,
                                   fit: BoxFit.contain,
                                   errorBuilder: (ctx, e, st) => const Icon(
@@ -150,7 +150,7 @@ class _LoginViewState extends State<LoginView> {
                         // ── 2. Titles ───────────────────────────────────────────────────
                         Text(
                           'Connexion'.tr,
-                          style: AppTextStyles.iosLargeTitleHero.copyWith(
+                         style: AppTextStyles.iosLargeTitleHero.copyWith(
                             color: const Color(0xFF1E293B),
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -162,7 +162,7 @@ class _LoginViewState extends State<LoginView> {
                         
                         Text(
                           'Veuillez vous connecter pour continuer.'.tr,
-                          style: AppTextStyles.iosSubhead.copyWith(
+                         style: AppTextStyles.iosSubhead.copyWith(
                             color: const Color(0xFF64748B),
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
@@ -178,7 +178,7 @@ class _LoginViewState extends State<LoginView> {
                             focusNode: _usernameFocus,
                             isFocused: _isUsernameFocused.value,
                             hint: 'Email ou nom d\'utilisateur',
-                            icon: Icons.person_outline_rounded,
+                           icon: Icons.person_outline_rounded,
                             textInputAction: TextInputAction.next,
                           ),
                         ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideX(begin: -0.1),
@@ -192,7 +192,7 @@ class _LoginViewState extends State<LoginView> {
                             focusNode: _passwordFocus,
                             isFocused: _isPasswordFocused.value,
                             hint: 'Mot de passe',
-                            icon: Icons.lock_outline_rounded,
+                           icon: Icons.lock_outline_rounded,
                             obscureText: _obscurePassword.value,
                             textInputAction: TextInputAction.done,
                             onSubmitted: (_) => _handleSubmit(),
@@ -220,7 +220,7 @@ class _LoginViewState extends State<LoginView> {
                           children: [
                             Text(
                               'Se souvenir de moi'.tr,
-                              style: AppTextStyles.iosFootnote.copyWith(
+                             style: AppTextStyles.iosFootnote.copyWith(
                                 color: const Color(0xFF1E293B),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
@@ -307,7 +307,7 @@ class _LoginViewState extends State<LoginView> {
                                     )
                                   : Text(
                                       'Se connecter'.tr,
-                                      style: AppTextStyles.iosHeadline.copyWith(
+                                     style: AppTextStyles.iosHeadline.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
                                         fontSize: 16,
@@ -325,8 +325,8 @@ class _LoginViewState extends State<LoginView> {
                             onTap: () {
                               Get.snackbar(
                                 'Information',
-                                'Veuillez contacter l\'administrateur pour créer un compte.',
-                                snackPosition: SnackPosition.BOTTOM,
+                               'Veuillez contacter l\'administrateur pour créer un compte.',
+                               snackPosition: SnackPosition.BOTTOM,
                                 backgroundColor: AppColors.primary,
                                 colorText: Colors.white,
                                 margin: const EdgeInsets.all(16),
@@ -336,7 +336,7 @@ class _LoginViewState extends State<LoginView> {
                             child: Text.rich(
                               TextSpan(
                                 text: 'Vous n\'avez pas de compte ? ',
-                                style: AppTextStyles.iosFootnote.copyWith(
+                               style: AppTextStyles.iosFootnote.copyWith(
                                   color: const Color(0xFF64748B),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,

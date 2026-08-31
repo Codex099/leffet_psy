@@ -7,13 +7,13 @@ import '../services/employee_service.dart';
 import '../routes/app_routes.dart';
 
 class ProfilController extends GetxController {
-  final AuthService _authService = AuthService();
+ final AuthService _authService = AuthService();
 
   final Rx<EmployeeModel?> currentUser = Rx<EmployeeModel?>(null);
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString errorMessage = ''.obs;
 
-  static const _cacheDuration = Duration(minutes: 10);
+ static const _cacheDuration = Duration(minutes: 10);
 
   @override
   void onInit() {
@@ -35,14 +35,14 @@ class ProfilController extends GetxController {
     if (cached != null) {
       currentUser.value = cached;
       status.value = 'success';
-      return;
+     return;
     }
     // Fallback to local storage cached user
     final storedUser = await _authService.getCachedUser();
     if (storedUser != null) {
       currentUser.value = storedUser;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadProfile({bool forceRefresh = false}) async {
@@ -52,7 +52,7 @@ class ProfilController extends GetxController {
 
     if (currentUser.value == null) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final user = await _authService.getMe();
@@ -64,11 +64,11 @@ class ProfilController extends GetxController {
         tags: {CacheTags.auth},
       );
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       if (currentUser.value == null) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -80,8 +80,8 @@ class ProfilController extends GetxController {
     try {
       final updated = await EmployeeService().updateEmployee(user.id, {
         'nom': nom,
-        'prenom': prenom,
-        if (telephone != null && telephone.isNotEmpty) 'telephone': telephone,
+       'prenom': prenom,
+       if (telephone != null && telephone.isNotEmpty) 'telephone': telephone,
       });
       currentUser.value = updated;
       AppCacheManager.invalidate(CacheKeys.currentUser);

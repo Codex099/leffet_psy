@@ -13,7 +13,7 @@ import '../../widgets/searchable_picker.dart';
 import '../../widgets/state_placeholder.dart';
 
 class DetailTacheView extends StatefulWidget {
-  const DetailTacheView({super.key});
+ const DetailTacheView({super.key});
 
   @override
   State<DetailTacheView> createState() => _DetailTacheViewState();
@@ -48,23 +48,24 @@ class _DetailTacheViewState extends State<DetailTacheView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: controller.isNew ? 'Nouvelle Tâche'.tr : 'Détail de la Tâche',
-        subtitle: 'Action Clinique'.tr,
-        showBackButton: true,
+       subtitle: 'Action Clinique'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading' &&
-              !controller.isNew &&
+             !controller.isNew &&
               controller.titre.value.isEmpty) {
             return StatePlaceholder.loading(
               message: 'Chargement de la tâche...',
-            );
+           );
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(
+           return StatePlaceholder.error(
               message: controller.errorMessage.value,
             );
           }
@@ -74,6 +75,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+            const SizedBox(height: 90),
                 // ── Statut de la tâche (Segmented Control iOS) ──
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -82,16 +84,16 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                   ),
                   child: Text(
                     'STATUT DE LA TÂCHE'.tr,
-                    style: AppTextStyles.iosCaption2,
+                   style: AppTextStyles.iosCaption2,
                   ),
                 ),
                 Obx(
                   () => IosSegmentedControl<String>(
                     segments: {
                       'a_faire': 'À faire'.tr,
-                      'en_cours': 'En cours'.tr,
-                      'fait': 'Terminée',
-                    },
+                     'en_cours': 'En cours'.tr,
+                     'fait': 'Terminée',
+                   },
                     selectedValue: controller.statut.value,
                     onValueChanged: (s) => controller.statut.value = s,
                   ),
@@ -105,14 +107,14 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                     vertical: 4,
                   ),
                   child: Text('PRIORITÉ'.tr, style: AppTextStyles.iosCaption2),
-                ),
+               ),
                 Obx(
                   () => IosSegmentedControl<String>(
                     segments: {
                       'haute': 'Haute'.tr,
-                      'normale': 'Normale'.tr,
-                      'basse': 'Basse',
-                    },
+                     'normale': 'Normale'.tr,
+                     'basse': 'Basse',
+                   },
                     selectedValue: controller.priorite.value,
                     onValueChanged: (p) => controller.priorite.value = p,
                   ),
@@ -122,23 +124,23 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                 // ── Détails principaux ──
                 IosCard(
                   title: 'Informations'.tr,
-                  children: [
+                 children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
                           AppTextField(
                             label: 'Titre de la tâche *'.tr,
-                            hintText: 'Ex: Rédiger le bilan psychologique'.tr,
-                            controller: _titreCtrl,
+                           hintText: 'Ex: Rédiger le bilan psychologique'.tr,
+                           controller: _titreCtrl,
                             onChanged: (v) => controller.titre.value = v,
                           ),
                           const SizedBox(height: 14),
                           AppTextField(
                             label: 'Description'.tr,
-                            hintText:
+                           hintText:
                                 'Préciser les consignes ou observations...'.tr,
-                            maxLines: 4,
+                           maxLines: 4,
                             controller: _descCtrl,
                             onChanged: (v) => controller.description.value = v,
                           ),
@@ -151,21 +153,21 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                 // ── Assignation Employé (US-M37) ──
                 IosCard(
                   title: 'Assignation'.tr,
-                  subtitle: 'Professionnel en charge de cette action'.tr,
-                  children: [
+                 subtitle: 'Professionnel en charge de cette action'.tr,
+                 children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Obx(() {
                         if (controller.employeesStatus.value == 'loading') {
-                          return const Center(
+                         return const Center(
                             child: CircularProgressIndicator(strokeWidth: 2),
                           );
                         }
                         return SearchablePickerField<dynamic>(
-                          label: 'Assigner à '.tr,
-                          hintText: 'Sélectionner un praticien...'.tr,
-                          title: 'Assigner la tâche à '.tr,
-                          leadingIcon: Icons.badge_outlined,
+                          label: 'Assigner à'.tr,
+                         hintText: 'Sélectionner un praticien...'.tr,
+                         title: 'Assigner la tâche à'.tr,
+                         leadingIcon: Icons.badge_outlined,
                           selectedValue: controller.assigneA.value,
                           items: controller.availableEmployees.map((emp) {
                             return SearchableItem<dynamic>(
@@ -186,16 +188,16 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                 // ── Lien Patient Optionnel ──
                 IosCard(
                   title: 'Patient Lié (Optionnel)'.tr,
-                  subtitle: 'Associer cette tâche à  un suivi clinique'.tr,
-                  children: [
+                 subtitle: 'Associer cette tâche à un suivi clinique'.tr,
+                 children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Obx(() {
                         return SearchablePickerField<dynamic>(
                           label: 'Patient concerné'.tr,
-                          hintText: 'Rechercher et associer un patient...'.tr,
-                          title: 'Associer un patient'.tr,
-                          leadingIcon: Icons.person_search_rounded,
+                         hintText: 'Rechercher et associer un patient...'.tr,
+                         title: 'Associer un patient'.tr,
+                         leadingIcon: Icons.person_search_rounded,
                           selectedValue: controller.patientId.value,
                           items: controller.availablePatients.map((p) {
                             return SearchableItem<dynamic>(
@@ -203,7 +205,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                               label: p.fullName,
                               subtitle:
                                   '${p.age != null ? "${p.age} ${'ans'.tr} \u200E•\u200E " : ""}${p.isFille ? "Fille".tr : "Garçon".tr}',
-                              initials: p.initials,
+                             initials: p.initials,
                             );
                           }).toList(),
                           onSingleChanged: (val) =>
@@ -217,7 +219,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                 // ── Échéance ──
                 IosCard(
                   title: 'Échéance'.tr,
-                  children: [
+                 children: [
                     IosCardTile(
                       leading: const Icon(
                         Icons.event_outlined,
@@ -225,9 +227,9 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                         size: 20,
                       ),
                       title: 'Date d\'échéance'.tr,
-                      subtitle: controller.dateEcheance.value.isEmpty
+                     subtitle: controller.dateEcheance.value.isEmpty
                           ? 'Aucune date fixée'.tr
-                          : controller.dateEcheance.value,
+                         : controller.dateEcheance.value,
                       showChevron: true,
                       onTap: () => _pickDate(context),
                     ),
@@ -245,8 +247,8 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                       AppButton(
                         label: controller.isNew
                             ? 'Créer la tâche'.tr
-                            : 'Mettre à jour la tâche'.tr,
-                        icon: Icons.check_circle_outline_rounded,
+                           : 'Mettre à jour la tâche'.tr,
+                       icon: Icons.check_circle_outline_rounded,
                         onPressed: () => controller.saveTache(),
                       ),
                       if (!controller.isNew) ...[
@@ -260,7 +262,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                           ),
                           label: Text(
                             'Supprimer cette tâche'.tr,
-                            style: AppTextStyles.buttonDestructive,
+                           style: AppTextStyles.buttonDestructive,
                           ),
                         ),
                       ],
@@ -288,7 +290,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
     if (picked != null) {
       controller.dateEcheance.value =
           '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-    }
+   }
   }
 
   void _confirmDelete(BuildContext context) {
@@ -296,13 +298,13 @@ class _DetailTacheViewState extends State<DetailTacheView> {
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text('Supprimer la tâche'.tr),
-        content: Text('Êtes-vous sûr de vouloir supprimer cette tâche ?'.tr),
-        actions: [
+       content: Text('Êtes-vous sûr de vouloir supprimer cette tâche ?'.tr),
+       actions: [
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx),
             child: Text('Annuler'.tr),
-          ),
+         ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () {

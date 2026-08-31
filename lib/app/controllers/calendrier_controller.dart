@@ -4,18 +4,18 @@ import '../services/cache_manager.dart';
 import '../services/calendrier_service.dart';
 
 class CalendrierController extends GetxController {
-  final CalendrierService _calendrierService = CalendrierService();
+ final CalendrierService _calendrierService = CalendrierService();
 
   final RxList<EvenementCalendrierModel> evenements = <EvenementCalendrierModel>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final RxString activeTab = 'Liste'.obs;
+ final RxString errorMessage = ''.obs;
+ final RxString activeTab = 'Liste'.obs;
 
-  dynamic editingEventId;
+ dynamic editingEventId;
   final titre = ''.obs;
-  final description = ''.obs;
-  final date = ''.obs;
-  final notifierJours = 3.obs;
+ final description = ''.obs;
+ final date = ''.obs;
+ final notifierJours = 3.obs;
 
   static const _cacheDuration = Duration(minutes: 10);
 
@@ -39,7 +39,7 @@ class CalendrierController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       evenements.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   void resetForm([EvenementCalendrierModel? ev]) {
@@ -47,15 +47,15 @@ class CalendrierController extends GetxController {
       editingEventId = ev.id;
       titre.value = ev.titre;
       description.value = ev.description ?? '';
-      date.value = ev.date;
+     date.value = ev.date;
       notifierJours.value = ev.notifierAvantJours ?? 3;
     } else {
       editingEventId = null;
       titre.value = '';
-      description.value = '';
-      final now = DateTime.now();
+     description.value = '';
+     final now = DateTime.now();
       date.value = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-      notifierJours.value = 3;
+     notifierJours.value = 3;
     }
   }
 
@@ -66,7 +66,7 @@ class CalendrierController extends GetxController {
 
     if (evenements.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final list = await _calendrierService.getEvenements();
@@ -80,11 +80,11 @@ class CalendrierController extends GetxController {
       );
 
       status.value = list.isEmpty ? 'empty' : 'success';
-    } catch (e) {
+   } catch (e) {
       if (evenements.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -93,37 +93,37 @@ class CalendrierController extends GetxController {
   Future<bool> saveEvenement() async {
     if (titre.value.trim().isEmpty) {
       Get.snackbar('Champ requis', 'Le titre de l\'événement est obligatoire.',
-          snackPosition: SnackPosition.BOTTOM);
+         snackPosition: SnackPosition.BOTTOM);
       return false;
     }
     if (date.value.trim().isEmpty) {
       Get.snackbar('Champ requis', 'La date de l\'événement est obligatoire.',
-          snackPosition: SnackPosition.BOTTOM);
+         snackPosition: SnackPosition.BOTTOM);
       return false;
     }
 
     try {
       final payload = {
         'titre': titre.value.trim(),
-        'description': description.value.trim().isEmpty ? null : description.value.trim(),
-        'date': date.value.trim(),
-        'notifier_avant_jours': notifierJours.value,
-      };
+       'description': description.value.trim().isEmpty ? null : description.value.trim(),
+       'date': date.value.trim(),
+       'notifier_avant_jours': notifierJours.value,
+     };
 
       if (editingEventId != null) {
         await _calendrierService.updateEvenement(editingEventId!, payload);
         Get.snackbar('Succès', 'Événement mis à jour', snackPosition: SnackPosition.BOTTOM);
-      } else {
+     } else {
         await _calendrierService.createEvenement(payload);
         Get.snackbar('Succès', 'Événement créé', snackPosition: SnackPosition.BOTTOM);
-      }
+     }
 
       AppCacheManager.invalidateTag(CacheTags.calendrier);
       loadEvenements(forceRefresh: true);
       return true;
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'enregistrer l\'événement : $e',
-          snackPosition: SnackPosition.BOTTOM);
+         snackPosition: SnackPosition.BOTTOM);
       return false;
     }
   }
@@ -134,7 +134,7 @@ class CalendrierController extends GetxController {
       AppCacheManager.invalidateTag(CacheTags.calendrier);
       loadEvenements(forceRefresh: true);
       Get.snackbar('Succès', 'Événement supprimé', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer l\'événement', snackPosition: SnackPosition.BOTTOM);
     }
   }

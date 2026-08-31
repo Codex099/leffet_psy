@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class PatientModel {
-  final dynamic id;
+ final dynamic id;
   final String nom;
   final String prenom;
   final String? dateNaissance;
@@ -35,21 +35,21 @@ class PatientModel {
   factory PatientModel.fromJson(Map<String, dynamic> json) {
     return PatientModel(
       id: parseId(json['id']),
-      nom: json['nom'] as String? ?? '',
-      prenom: json['prenom'] as String? ?? '',
-      dateNaissance: json['date_naissance'] as String?,
-      photo: json['photo'] as String?,
-      nombreFreresSoeurs: parseNullableInt(json['nombre_freres_soeurs']),
-      ordreNaissance: parseNullableInt(json['ordre_naissance']),
-      estActif: json['est_actif'] as bool? ?? true,
-      dateDesactivation: json['date_desactivation'] as String?,
-      dateReactivation: json['date_reactivation'] as String?,
-      sexe: json['sexe'] as String?,
-      parents: (json['parents'] as List<dynamic>?)
-          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+     nom: json['nom'] as String? ?? '',
+     prenom: json['prenom'] as String? ?? '',
+     dateNaissance: json['date_naissance'] as String?,
+     photo: json['photo'] as String?,
+     nombreFreresSoeurs: parseNullableInt(json['nombre_freres_soeurs']),
+     ordreNaissance: parseNullableInt(json['ordre_naissance']),
+     estActif: json['est_actif'] as bool? ?? true,
+     dateDesactivation: json['date_desactivation'] as String?,
+     dateReactivation: json['date_reactivation'] as String?,
+     sexe: json['sexe'] as String?,
+     parents: (json['parents'] as List<dynamic>?)
+         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
       employesAssignes: (json['employes_assignes'] as List<dynamic>?)
-          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
     );
   }
@@ -57,64 +57,64 @@ class PatientModel {
   Map<String, dynamic> toJson() {
     return {
       'nom': nom,
-      'prenom': prenom,
-      if (dateNaissance != null) 'date_naissance': dateNaissance,
-      if (photo != null) 'photo': photo,
-      if (nombreFreresSoeurs != null)
+     'prenom': prenom,
+     if (dateNaissance != null) 'date_naissance': dateNaissance,
+     if (photo != null) 'photo': photo,
+     if (nombreFreresSoeurs != null)
         'nombre_freres_soeurs': nombreFreresSoeurs,
-      if (ordreNaissance != null) 'ordre_naissance': ordreNaissance,
-      'est_actif': estActif,
-      if (dateDesactivation != null) 'date_desactivation': dateDesactivation,
-      if (dateReactivation != null) 'date_reactivation': dateReactivation,
-      if (sexe != null) 'sexe': sexe,
-    };
+     if (ordreNaissance != null) 'ordre_naissance': ordreNaissance,
+     'est_actif': estActif,
+     if (dateDesactivation != null) 'date_desactivation': dateDesactivation,
+     if (dateReactivation != null) 'date_reactivation': dateReactivation,
+     if (sexe != null) 'sexe': sexe,
+   };
   }
 
   String get fullName => '$prenom $nom';
 
-  bool get isGarcon {
+ bool get isGarcon {
     if (sexe == null || sexe!.trim().isEmpty) return false;
     final s = sexe!.trim().toLowerCase();
     return s == 'masculin' ||
-        s == 'garçon' ||
-        s == 'garcon' ||
-        s == 'm' ||
-        s == 'male' ||
-        s.startsWith('masc') ||
-        s.startsWith('garç') ||
-        s.startsWith('garc');
-  }
+       s == 'garçon' ||
+       s == 'garcon' ||
+       s == 'm' ||
+       s == 'male' ||
+       s.startsWith('masc') ||
+       s.startsWith('garç') ||
+       s.startsWith('garc');
+ }
 
   bool get isFille {
     if (sexe == null || sexe!.trim().isEmpty) return false;
     final s = sexe!.trim().toLowerCase();
     return s == 'feminin' ||
-        s == 'féminin' ||
-        s == 'fille' ||
-        s == 'f' ||
-        s == 'female' ||
-        s.startsWith('fém') ||
-        s.startsWith('fem') ||
-        s.startsWith('fill');
-  }
+       s == 'féminin' ||
+       s == 'fille' ||
+       s == 'f' ||
+       s == 'female' ||
+       s.startsWith('fém') ||
+       s.startsWith('fem') ||
+       s.startsWith('fill');
+ }
 
   String get sexeLabel {
     if (isGarcon) return 'Garçon'.tr;
-    if (isFille) return 'Fille'.tr;
-    return (sexe ?? '').tr;
-  }
+   if (isFille) return 'Fille'.tr;
+   return (sexe ?? '').tr;
+ }
 
   String get backendSexe {
     if (isFille) return 'feminin';
-    if (isGarcon) return 'masculin';
-    return sexe ?? 'masculin';
-  }
+   if (isGarcon) return 'masculin';
+   return sexe ?? 'masculin';
+ }
 
   String get initials {
     final p = prenom.isNotEmpty ? prenom[0].toUpperCase() : '';
-    final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
-    return '$p$n';
-  }
+   final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
+   return '$p$n';
+ }
 
   int? get age {
     if (dateNaissance == null) return null;
@@ -137,16 +137,16 @@ class PatientModel {
 
   String get statutLabel => estActif ? 'Actif'.tr : 'Inactif';
 
-  String? get ageFormatted {
+ String? get ageFormatted {
     final a = age;
     if (a == null) return null;
     final lang = Get.locale?.languageCode ?? 'fr';
-    if (lang == 'ar') {
-      if (a >= 3 && a <= 10) {
+   if (lang == 'ar') {
+     if (a >= 3 && a <= 10) {
         return '$a سنوات';
-      } else {
+     } else {
         return '$a سنة';
-      }
+     }
     }
     return '$a ans';
   }

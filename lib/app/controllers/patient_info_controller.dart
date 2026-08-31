@@ -13,7 +13,7 @@ import 'accueil_controller.dart';
 import 'patients_liste_controller.dart';
 
 class PatientInfoController extends GetxController {
-  final PatientService _patientService = PatientService();
+ final PatientService _patientService = PatientService();
   final PlanTherapeutiqueService _planService = PlanTherapeutiqueService();
   final NoteService _noteService = NoteService();
   final ParentService _parentService = ParentService();
@@ -25,9 +25,9 @@ class PatientInfoController extends GetxController {
   final RxList<PatientStatutHistoriqueModel> statutHistorique = <PatientStatutHistoriqueModel>[].obs;
   final RxList<ParentModel> availableParents = <ParentModel>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString errorMessage = ''.obs;
 
-  dynamic patientId;
+ dynamic patientId;
 
   static const _cacheDuration = Duration(minutes: 5);
 
@@ -37,8 +37,8 @@ class PatientInfoController extends GetxController {
     patientId = extractIdParam(Get.arguments, Get.parameters);
     if (patientId == null || patientId.toString().isEmpty) {
       status.value = 'error';
-      errorMessage.value = 'Identifiant du patient non spécifié.';
-    } else {
+     errorMessage.value = 'Identifiant du patient non spécifié.';
+   } else {
       _loadFromCache();
       loadPatientInfo();
     }
@@ -49,22 +49,22 @@ class PatientInfoController extends GetxController {
     final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.patientInfo(patientId));
     if (cached != null) {
       if (cached['patient'] is PatientModel) {
-        patient.value = cached['patient'] as PatientModel;
-      }
+       patient.value = cached['patient'] as PatientModel;
+     }
       if (cached['parents'] is List<PatientParentModel>) {
-        parents.value = cached['parents'] as List<PatientParentModel>;
-      }
+       parents.value = cached['parents'] as List<PatientParentModel>;
+     }
       if (cached['plans'] is List<PlanTherapeutiqueModel>) {
-        plans.value = cached['plans'] as List<PlanTherapeutiqueModel>;
-      }
+       plans.value = cached['plans'] as List<PlanTherapeutiqueModel>;
+     }
       if (cached['notes'] is List<NotePatientModel>) {
-        notes.value = cached['notes'] as List<NotePatientModel>;
-      }
+       notes.value = cached['notes'] as List<NotePatientModel>;
+     }
       if (cached['statutHistorique'] is List<PatientStatutHistoriqueModel>) {
-        statutHistorique.value = cached['statutHistorique'] as List<PatientStatutHistoriqueModel>;
-      }
+       statutHistorique.value = cached['statutHistorique'] as List<PatientStatutHistoriqueModel>;
+     }
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadPatientInfo({bool forceRefresh = false}) async {
@@ -78,7 +78,7 @@ class PatientInfoController extends GetxController {
 
     if (patient.value == null) {
       status.value = 'loading';
-    }
+   }
 
     try {
       // Appel principal essentiel : données du patient
@@ -99,21 +99,21 @@ class PatientInfoController extends GetxController {
         cacheKey,
         {
           'patient': loadedPatient,
-          'parents': parents.toList(),
-          'plans': plans.toList(),
-          'notes': notes.toList(),
-          'statutHistorique': statutHistorique.toList(),
-        },
+         'parents': parents.toList(),
+         'plans': plans.toList(),
+         'notes': notes.toList(),
+         'statutHistorique': statutHistorique.toList(),
+       },
         ttl: _cacheDuration,
         tags: {CacheTags.patients},
       );
 
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       if (patient.value == null) {
         errorMessage.value = 'Impossible de charger le dossier patient : $e';
-        status.value = 'error';
-      }
+       status.value = 'error';
+     }
     }
   }
 
@@ -167,9 +167,9 @@ class PatientInfoController extends GetxController {
       AppCacheManager.invalidateTag(CacheTags.patients);
       await loadPatientInfo(forceRefresh: true);
       Get.snackbar('Succès', 'Parent associé avec succès', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'associer le parent : $e', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> toggleStatut({String? noteDegradation}) async {
@@ -187,14 +187,14 @@ class PatientInfoController extends GetxController {
       );
 
       // 2. Si une note est rédigée, on l'enregistre également comme note d'évolution clinique
-      if (cleanNote != null && cleanNote.isNotEmpty) {
+     if (cleanNote != null && cleanNote.isNotEmpty) {
         try {
           final todayStr = DateTime.now().toIso8601String().split('T')[0];
-          await _noteService.createNote(patientId!, {
+         await _noteService.createNote(patientId!, {
             'titre': newStatus ? 'Note de réactivation' : 'Note de désactivation',
-            'contenu': cleanNote,
-            'date': todayStr,
-          });
+           'contenu': cleanNote,
+           'date': todayStr,
+         });
         } catch (_) {}
       }
 
@@ -204,30 +204,30 @@ class PatientInfoController extends GetxController {
       _notifyGlobalControllers();
       Get.snackbar(
         'Statut mis à jour',
-        newStatus ? 'Patient réactivé avec succès' : 'Patient désactivé',
-        snackPosition: SnackPosition.BOTTOM,
+       newStatus ? 'Patient réactivé avec succès' : 'Patient désactivé',
+       snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de modifier le statut : $e', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> addClinicalNote(String titre, String contenu) async {
     if (patientId == null || contenu.trim().isEmpty) return;
     try {
       final todayStr = DateTime.now().toIso8601String().split('T')[0];
-      await _noteService.createNote(patientId!, {
+     await _noteService.createNote(patientId!, {
         'titre': titre.trim().isNotEmpty ? titre.trim() : 'Observation clinique',
-        'contenu': contenu.trim(),
-        'date': todayStr,
-      });
+       'contenu': contenu.trim(),
+       'date': todayStr,
+     });
       AppCacheManager.invalidateTag(CacheTags.patients);
       await loadPatientInfo(forceRefresh: true);
       _notifyGlobalControllers();
       Get.snackbar('Succès', 'Note enregistrée avec succès', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'enregistrer la note : $e', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> deletePatient() async {
@@ -239,9 +239,9 @@ class PatientInfoController extends GetxController {
       _notifyGlobalControllers();
       Get.back();
       Get.snackbar('Succès', 'Patient supprimé', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer le patient', snackPosition: SnackPosition.BOTTOM);
-    }
+   }
   }
 
   Future<void> deleteNote(dynamic noteId) async {
@@ -251,7 +251,7 @@ class PatientInfoController extends GetxController {
       await loadPatientInfo(forceRefresh: true);
       _notifyGlobalControllers();
       Get.snackbar('Succès', 'Note supprimée', snackPosition: SnackPosition.BOTTOM);
-    } catch (_) {
+   } catch (_) {
       Get.snackbar('Erreur', 'Impossible de supprimer la note', snackPosition: SnackPosition.BOTTOM);
     }
   }

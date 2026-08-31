@@ -5,15 +5,15 @@ import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 
 class PatientsListeController extends GetxController {
-  final PatientService _patientService = PatientService();
+ final PatientService _patientService = PatientService();
 
   final RxList<PatientModel> allPatients = <PatientModel>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString errorMessage = ''.obs;
 
-  // Filters
+ // Filters
   final RxString searchQuery = ''.obs;
-  final RxnBool actifFilter = RxnBool(true);
+ final RxnBool actifFilter = RxnBool(true);
   final RxnInt ageMinFilter = RxnInt();
   final RxnInt ageMaxFilter = RxnInt();
   final RxnString sexeFilter = RxnString();
@@ -48,7 +48,7 @@ class PatientsListeController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       allPatients.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadPatients({bool forceRefresh = false}) async {
@@ -58,7 +58,7 @@ class PatientsListeController extends GetxController {
 
     if (allPatients.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final list = await _patientService.getPatients(
@@ -84,11 +84,11 @@ class PatientsListeController extends GetxController {
       );
 
       status.value = uniquePatients.isEmpty ? 'empty' : 'success';
-    } catch (e) {
+   } catch (e) {
       if (allPatients.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -104,12 +104,12 @@ class PatientsListeController extends GetxController {
       if (sexeFilter.value != null && sexeFilter.value!.isNotEmpty) {
         final sf = sexeFilter.value!.toLowerCase();
         if (sf == 'garçon' || sf == 'garcon') {
-          if (!p.isGarcon) return false;
+         if (!p.isGarcon) return false;
         } else if (sf == 'fille') {
-          if (!p.isFille) return false;
+         if (!p.isFille) return false;
         } else {
           if ((p.sexe ?? '').toLowerCase() != sf) return false;
-        }
+       }
       }
       // Age filter
       final pAge = p.age;
@@ -125,8 +125,8 @@ class PatientsListeController extends GetxController {
         final matchName = p.fullName.toLowerCase().contains(q);
         final matchParents = p.parents?.any((parent) {
               final nom = (parent['nom'] ?? '').toString().toLowerCase();
-              final prenom = (parent['prenom'] ?? '').toString().toLowerCase();
-              final tel = (parent['telephone'] ?? '').toString().toLowerCase();
+             final prenom = (parent['prenom'] ?? '').toString().toLowerCase();
+             final tel = (parent['telephone'] ?? '').toString().toLowerCase();
               return nom.contains(q) || prenom.contains(q) || tel.contains(q);
             }) ??
             false;

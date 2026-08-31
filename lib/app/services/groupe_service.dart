@@ -4,14 +4,14 @@ import '../models/groupe_model.dart';
 import 'dio_client.dart';
 
 class GroupeService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/groupes — Liste des groupes
   Future<List<GroupeModel>> getGroupes({String? search}) async {
     final queryParams = <String, dynamic>{};
     if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
-    final response = await _dio.get(
+   final response = await _dio.get(
       ApiConfig.groupes,
       queryParameters: queryParams,
     );
@@ -62,14 +62,14 @@ class GroupeService {
     await _dio.post(
       ApiConfig.groupePatients(groupeId),
       data: {'patient_id': patientId},
-    );
+   );
   }
 
   /// DELETE patient from groupe
   Future<void> removePatientFromGroupe(dynamic groupeId, dynamic patientId) async {
     await _dio.delete(
       '${ApiConfig.groupePatients(groupeId)}/$patientId',
-    );
+   );
   }
 
   /// GET /api/seances-groupe?patient_id=X — Séances groupe d'un patient

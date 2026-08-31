@@ -15,16 +15,17 @@ import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 
 class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
-  const SeancesIndividuellesView({super.key});
+ const SeancesIndividuellesView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Séances Individuelles'.tr,
-        subtitle: 'Consultations & Créneaux Récurrents'.tr,
-        showBackButton: true,
+       subtitle: 'Consultations & Créneaux Récurrents'.tr,
+       showBackButton: true,
         actions: [
           // Bouton Créer Créneau Récurrent (Style Groupe)
           BouncyTap(
@@ -48,7 +49,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   const SizedBox(width: 4),
                   Text(
                     '+ Créneau'.tr,
-                    style: AppTextStyles.iosCaption1.copyWith(
+                   style: AppTextStyles.iosCaption1.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                     ),
@@ -84,6 +85,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 90),
             // ── Onglets de Navigation (À venir / Historique / Toutes) ──
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
@@ -91,9 +93,9 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 () => IosSegmentedControl<String>(
                   segments: const {
                     'a_venir': 'À venir',
-                    'historique': 'Historique',
-                    'toutes': 'Toutes',
-                  },
+                   'historique': 'Historique',
+                   'toutes': 'Toutes',
+                 },
                   selectedValue: controller.activeTab.value,
                   onValueChanged: (val) => controller.activeTab.value = val,
                 ),
@@ -116,7 +118,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   style: AppTextStyles.iosBody.copyWith(fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Rechercher patient, date, notes...'.tr,
-                    hintStyle: AppTextStyles.iosCaption1.copyWith(
+                   hintStyle: AppTextStyles.iosCaption1.copyWith(
                       color: AppColors.textHint,
                     ),
                     prefixIcon: const Icon(
@@ -136,12 +138,12 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(
+                 return StatePlaceholder.loading(
                     message: 'Chargement des séances...',
-                  );
+                 );
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadData(forceRefresh: true),
                   );
@@ -152,11 +154,11 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 if (groups.isEmpty) {
                   return StatePlaceholder.empty(
                     title: 'Aucune séance individuelle'.tr,
-                    message: controller.activeTab.value == 'a_venir'
-                        ? 'Aucune consultation n\'est programmée pour les prochains jours.'
-                        : 'Aucune séance trouvée.',
-                    actionLabel: 'Planifier un créneau',
-                    onAction: () => _openNouveauCreneauModal(context),
+                   message: controller.activeTab.value == 'a_venir'
+                       ? 'Aucune consultation n\'est programmée pour les prochains jours.'
+                       : 'Aucune séance trouvée.',
+                   actionLabel: 'Planifier un créneau',
+                   onAction: () => _openNouveauCreneauModal(context),
                   );
                 }
 
@@ -188,11 +190,11 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
     final nextTime = hasNext && group.prochaineSeance!.heureDebut.length >= 5
         ? group.prochaineSeance!.heureDebut.substring(0, 5)
         : (group.prochaineSeance?.heureDebut ?? '');
-    final nextStr = hasNext
-        ? '${group.prochaineSeance!.date} à  $nextTime'
-        : 'Aucune séance à  venir';
+   final nextStr = hasNext
+        ? '${group.prochaineSeance!.date} à  $nextTime'
+       : 'Aucune séance à venir';
 
-    return IosCard(
+   return IosCard(
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
       children: [
         IosCardTile(
@@ -200,8 +202,8 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
           title: group.patientName,
           subtitle: hasNext
               ? 'Prochain RDV : $nextStr Â· ${group.totalAVenir} séance(s) prévue(s)'
-              : '${group.totalRealisees} séance(s) effectuée(s)',
-          showChevron: true,
+             : '${group.totalRealisees} séance(s) effectuée(s)',
+         showChevron: true,
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
@@ -212,9 +214,9 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
             ),
             child: Text(
               group.totalAVenir > 0
-                  ? '${group.totalAVenir} à  venir'
-                  : 'Historique',
-              style: AppTextStyles.iosCaption2.copyWith(
+                  ? '${group.totalAVenir} à venir'
+                 : 'Historique',
+             style: AppTextStyles.iosCaption2.copyWith(
                 color: group.totalAVenir > 0
                     ? AppColors.primary
                     : AppColors.textSecondary,
@@ -284,7 +286,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           ),
                         ),
                         Text(
-                          '${group.totalAVenir} séance(s) à  venir Â· ${group.totalRealisees} réalisée(s)'.tr,
+                          '${group.totalAVenir} séance(s) à venir Â· ${group.totalRealisees} réalisée(s)'.tr,
                           style: AppTextStyles.iosCaption1.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -334,7 +336,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                       const SizedBox(width: 8),
                       Text(
                         'Configurer un nouveau créneau'.tr,
-                        style: AppTextStyles.iosSubhead.copyWith(
+                       style: AppTextStyles.iosSubhead.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w700,
                         ),
@@ -347,7 +349,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
 
               Text(
                 'RENDEZ-VOUS PROGRAMMÉS (${group.seances.length})'.tr,
-                style: AppTextStyles.iosCaption2.copyWith(
+               style: AppTextStyles.iosCaption2.copyWith(
                   fontWeight: FontWeight.w800,
                   color: AppColors.textSecondary,
                   letterSpacing: 0.6,
@@ -363,14 +365,14 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   itemBuilder: (c, idx) {
                     final s = group.seances[idx];
                     final isDone = s.statut == 'faite';
-                    final isCancelled = s.statut == 'annulee';
-                    final typeLabel =
+                   final isCancelled = s.statut == 'annulee';
+                   final typeLabel =
                         (s.descriptionEtat != null &&
                             s.descriptionEtat!.isNotEmpty)
                         ? 'Suivi Clinique'.tr
-                        : 'Consultation Thérapeutique';
+                       : 'Consultation Thérapeutique';
 
-                    return Container(
+                   return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: AppColors.fieldBackground,
@@ -409,7 +411,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         ),
                         title: Text(
                           '${s.date} Â· ${s.heureDebut} "” ${s.heureFin}'.tr,
-                          style: AppTextStyles.iosSubhead.copyWith(
+                         style: AppTextStyles.iosSubhead.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -440,10 +442,10 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                               child: Text(
                                 isDone
                                     ? 'Réalisée'
-                                    : isCancelled
+                                   : isCancelled
                                     ? 'Annulée'
-                                    : 'Planifiée',
-                                style: AppTextStyles.iosCaption2.copyWith(
+                                   : 'Planifiée',
+                               style: AppTextStyles.iosCaption2.copyWith(
                                   color: isDone
                                       ? AppColors.primary
                                       : isCancelled
@@ -477,7 +479,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
     );
   }
 
-  /// Modal Bottom Sheet pour modifier/reporter le rendez-vous d'une séance ou accéder à  son compte-rendu
+  /// Modal Bottom Sheet pour modifier/reporter le rendez-vous d'une séance ou accéder à  son compte-rendu
   void _openModifierSeanceModal(BuildContext context, SeanceModel s) {
     final RxString selectedDate = s.date.obs;
     final RxString selectedDebut = s.heureDebut.length >= 5
@@ -539,7 +541,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           ),
                           Text(
                             'Consultation Individuelle'.tr,
-                            style: AppTextStyles.iosCaption1.copyWith(
+                           style: AppTextStyles.iosCaption1.copyWith(
                               color: AppColors.textSecondary,
                             ),
                           ),
@@ -560,7 +562,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // Titre section
                 Text(
                   'MODIFIER / REPORTER LE RENDEZ-VOUS'.tr,
-                  style: AppTextStyles.iosCaption2.copyWith(
+                 style: AppTextStyles.iosCaption2.copyWith(
                     fontWeight: FontWeight.w800,
                     color: AppColors.primary,
                     letterSpacing: 0.8,
@@ -571,7 +573,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // 1. Date du rendez-vous
                 Text(
                   'Date de la consultation'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
                   ),
@@ -590,7 +592,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                     if (picked != null) {
                       selectedDate.value = DateFormat(
                         'yyyy-MM-dd',
-                      ).format(picked);
+                     ).format(picked);
                     }
                   },
                   child: Container(
@@ -618,8 +620,8 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                 DateTime.now();
                             final display = DateFormat(
                               'EEEE d MMMM yyyy',
-                              'fr_FR',
-                            ).format(parsed);
+                             'fr_FR',
+                           ).format(parsed);
                             return Text(
                               display,
                               style: AppTextStyles.iosSubhead.copyWith(
@@ -648,7 +650,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         children: [
                           Text(
                             'Heure début'.tr,
-                            style: AppTextStyles.iosCaption1.copyWith(
+                           style: AppTextStyles.iosCaption1.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textSecondary,
                             ),
@@ -657,21 +659,21 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           InkWell(
                             onTap: () async {
                               final parts = selectedDebut.value.split(':');
-                              final picked = await showTimePicker(
+                             final picked = await showTimePicker(
                                 context: context,
                                 initialTime: TimeOfDay(
                                   hour: int.tryParse(parts[0]) ?? 10,
                                   minute:
                                       int.tryParse(
                                         parts.length > 1 ? parts[1] : '0',
-                                      ) ??
+                                     ) ??
                                       0,
                                 ),
                               );
                               if (picked != null) {
                                 selectedDebut.value =
                                     '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                              }
+                             }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -716,7 +718,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         children: [
                           Text(
                             'Heure fin'.tr,
-                            style: AppTextStyles.iosCaption1.copyWith(
+                           style: AppTextStyles.iosCaption1.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textSecondary,
                             ),
@@ -725,21 +727,21 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           InkWell(
                             onTap: () async {
                               final parts = selectedFin.value.split(':');
-                              final picked = await showTimePicker(
+                             final picked = await showTimePicker(
                                 context: context,
                                 initialTime: TimeOfDay(
                                   hour: int.tryParse(parts[0]) ?? 10,
                                   minute:
                                       int.tryParse(
                                         parts.length > 1 ? parts[1] : '45',
-                                      ) ??
+                                     ) ??
                                       45,
                                 ),
                               );
                               if (picked != null) {
                                 selectedFin.value =
                                     '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                              }
+                             }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -784,7 +786,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // 3. Statut
                 Text(
                   'Statut'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
                   ),
@@ -796,24 +798,24 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                       Expanded(
                         child: _buildStatutOption(
                           'planifiee',
-                          'Planifiée',
-                          selectedStatut,
+                         'Planifiée',
+                         selectedStatut,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildStatutOption(
                           'faite',
-                          'Réalisée',
-                          selectedStatut,
+                         'Réalisée',
+                         selectedStatut,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: _buildStatutOption(
                           'annulee',
-                          'Annulée',
-                          selectedStatut,
+                         'Annulée',
+                         selectedStatut,
                         ),
                       ),
                     ],
@@ -850,7 +852,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                     child: Center(
                       child: Text(
                         'Valider les Changements'.tr,
-                        style: AppTextStyles.iosHeadline.copyWith(
+                       style: AppTextStyles.iosHeadline.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
                         ),
@@ -867,7 +869,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                     final res = await Get.toNamed(
                       AppRoutes.compteRenduSpecialiste,
                       arguments: {'seance_id': s.id, 'is_groupe': false},
-                    );
+                   );
                     if (res == true) controller.loadData(forceRefresh: true);
                   },
                   child: Container(
@@ -891,7 +893,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         const SizedBox(width: 8),
                         Text(
                           'Rédiger / Consulter Compte-Rendu'.tr,
-                          style: AppTextStyles.iosSubhead.copyWith(
+                         style: AppTextStyles.iosSubhead.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -912,7 +914,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                     ),
                     label: Text(
                       'Supprimer cette séance'.tr,
-                      style: AppTextStyles.iosCaption1.copyWith(
+                     style: AppTextStyles.iosCaption1.copyWith(
                         color: AppColors.error,
                         fontWeight: FontWeight.w600,
                       ),
@@ -921,21 +923,21 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                       final confirm = await Get.dialog<bool>(
                         AlertDialog(
                           title: Text('Confirmer la suppression'.tr),
-                          content: Text(
+                         content: Text(
                             'Voulez-vous vraiment supprimer la séance de ${s.patientFullName} ?'.tr,
-                          ),
+                         ),
                           actions: [
                             TextButton(
                               onPressed: () => Get.back(result: false),
                               child: Text('Annuler'.tr),
-                            ),
+                           ),
                             TextButton(
                               onPressed: () => Get.back(result: true),
                               style: TextButton.styleFrom(
                                 foregroundColor: AppColors.error,
                               ),
                               child: Text('Supprimer'.tr),
-                            ),
+                           ),
                           ],
                         ),
                       );
@@ -1027,7 +1029,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   children: [
                     Text(
                       'Nouveau Créneau Patient'.tr,
-                      style: AppTextStyles.iosTitle3.copyWith(
+                     style: AppTextStyles.iosTitle3.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -1041,8 +1043,8 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   ],
                 ),
                 Text(
-                  'Programmez des rendez-vous réguliers (ex: chaque lundi et mercredi à  10h).'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                  'Programmez des rendez-vous réguliers (ex: chaque lundi et mercredi à 10h).'.tr,
+                 style: AppTextStyles.iosCaption1.copyWith(
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -1051,7 +1053,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // 1. Sélection du Patient
                 Text(
                   'Patient concerné'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
                   ),
@@ -1070,7 +1072,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         isExpanded: true,
                         hint: Text(
                           'Sélectionner un patient...'.tr,
-                          style: AppTextStyles.iosSubhead,
+                         style: AppTextStyles.iosSubhead,
                         ),
                         items: controller.allPatients.map((p) {
                           return DropdownMenuItem<dynamic>(
@@ -1095,7 +1097,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // 2. Type de Créneau (Fixe vs Ponctuel par jour)
                 Text(
                   'Type d\'horaires'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
                   ),
@@ -1113,21 +1115,21 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () => controller.setModeCreneaux('fixe'),
-                            child: Container(
+                           child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               decoration: BoxDecoration(
                                 color: controller.modeCreneaux.value == 'fixe'
-                                    ? AppColors.primary
+                                   ? AppColors.primary
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(
                                 child: Text(
                                   'Horaires Fixes'.tr,
-                                  style: AppTextStyles.iosCaption1.copyWith(
+                                 style: AppTextStyles.iosCaption1.copyWith(
                                     color:
                                         controller.modeCreneaux.value == 'fixe'
-                                        ? Colors.white
+                                       ? Colors.white
                                         : AppColors.textPrimary,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -1140,23 +1142,23 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         Expanded(
                           child: GestureDetector(
                             onTap: () => controller.setModeCreneaux('ponctuel'),
-                            child: Container(
+                           child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               decoration: BoxDecoration(
                                 color:
                                     controller.modeCreneaux.value == 'ponctuel'
-                                    ? AppColors.primary
+                                   ? AppColors.primary
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(
                                 child: Text(
                                   'Ponctuel / Par Jour'.tr,
-                                  style: AppTextStyles.iosCaption1.copyWith(
+                                 style: AppTextStyles.iosCaption1.copyWith(
                                     color:
                                         controller.modeCreneaux.value ==
                                             'ponctuel'
-                                        ? Colors.white
+                                       ? Colors.white
                                         : AppColors.textPrimary,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -1174,7 +1176,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // 3. Jours de la Semaine
                 Text(
                   'Jours de récurrence'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
                   ),
@@ -1230,7 +1232,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // 4. Horaires (Fixe vs Par Jour)
                 Obx(() {
                   if (controller.modeCreneaux.value == 'fixe') {
-                    // Mode Fixe : Heure début et fin uniques
+                   // Mode Fixe : Heure début et fin uniques
                     return Row(
                       children: [
                         Expanded(
@@ -1239,7 +1241,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                             children: [
                               Text(
                                 'Heure de début (Fixe)'.tr,
-                                style: AppTextStyles.iosCaption1.copyWith(
+                               style: AppTextStyles.iosCaption1.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textSecondary,
                                 ),
@@ -1249,21 +1251,21 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                 onTap: () async {
                                   final parts = controller.heureDebut.value
                                       .split(':');
-                                  final picked = await showTimePicker(
+                                 final picked = await showTimePicker(
                                     context: context,
                                     initialTime: TimeOfDay(
                                       hour: int.tryParse(parts[0]) ?? 10,
                                       minute:
                                           int.tryParse(
                                             parts.length > 1 ? parts[1] : '0',
-                                          ) ??
+                                         ) ??
                                           0,
                                     ),
                                   );
                                   if (picked != null) {
                                     controller.heureDebut.value =
                                         '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                  }
+                                 }
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -1305,7 +1307,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                             children: [
                               Text(
                                 'Heure de fin (Fixe)'.tr,
-                                style: AppTextStyles.iosCaption1.copyWith(
+                               style: AppTextStyles.iosCaption1.copyWith(
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textSecondary,
                                 ),
@@ -1315,7 +1317,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                 onTap: () async {
                                   final parts = controller.heureFin.value.split(
                                     ':',
-                                  );
+                                 );
                                   final picked = await showTimePicker(
                                     context: context,
                                     initialTime: TimeOfDay(
@@ -1323,14 +1325,14 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                       minute:
                                           int.tryParse(
                                             parts.length > 1 ? parts[1] : '45',
-                                          ) ??
+                                         ) ??
                                           45,
                                     ),
                                   );
                                   if (picked != null) {
                                     controller.heureFin.value =
                                         '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                  }
+                                 }
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -1375,7 +1377,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                     children: [
                       Text(
                         'Horaires personnalisés par jour'.tr,
-                        style: AppTextStyles.iosCaption1.copyWith(
+                       style: AppTextStyles.iosCaption1.copyWith(
                           fontWeight: FontWeight.w700,
                           color: AppColors.textSecondary,
                         ),
@@ -1423,7 +1425,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                   const SizedBox(width: 8),
                                   Text(
                                     'Horaires pour ce jour'.tr,
-                                    style: AppTextStyles.iosCaption1.copyWith(
+                                   style: AppTextStyles.iosCaption1.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -1436,7 +1438,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                     child: InkWell(
                                       onTap: () async {
                                         final parts = start.split(':');
-                                        final picked = await showTimePicker(
+                                       final picked = await showTimePicker(
                                           context: context,
                                           initialTime: TimeOfDay(
                                             hour: int.tryParse(parts[0]) ?? 10,
@@ -1445,14 +1447,14 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                                   parts.length > 1
                                                       ? parts[1]
                                                       : '0',
-                                                ) ??
+                                               ) ??
                                                 0,
                                           ),
                                         );
                                         if (picked != null) {
                                           final newStart =
                                               '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                          controller.updateSlotForDay(
+                                         controller.updateSlotForDay(
                                             d,
                                             debut: newStart,
                                           );
@@ -1482,7 +1484,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                             const SizedBox(width: 6),
                                             Text(
                                               'Début : $start'.tr,
-                                              style: AppTextStyles.iosCaption1
+                                             style: AppTextStyles.iosCaption1
                                                   .copyWith(
                                                     fontWeight: FontWeight.w700,
                                                   ),
@@ -1497,7 +1499,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                     child: InkWell(
                                       onTap: () async {
                                         final parts = end.split(':');
-                                        final picked = await showTimePicker(
+                                       final picked = await showTimePicker(
                                           context: context,
                                           initialTime: TimeOfDay(
                                             hour: int.tryParse(parts[0]) ?? 10,
@@ -1506,14 +1508,14 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                                   parts.length > 1
                                                       ? parts[1]
                                                       : '45',
-                                                ) ??
+                                               ) ??
                                                 45,
                                           ),
                                         );
                                         if (picked != null) {
                                           final newEnd =
                                               '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                          controller.updateSlotForDay(
+                                         controller.updateSlotForDay(
                                             d,
                                             fin: newEnd,
                                           );
@@ -1543,7 +1545,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                             const SizedBox(width: 6),
                                             Text(
                                               'Fin : $end'.tr,
-                                              style: AppTextStyles.iosCaption1
+                                             style: AppTextStyles.iosCaption1
                                                   .copyWith(
                                                     fontWeight: FontWeight.w700,
                                                   ),

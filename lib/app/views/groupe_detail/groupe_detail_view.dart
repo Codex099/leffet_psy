@@ -15,16 +15,17 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
 class GroupeDetailView extends GetView<GroupeDetailController> {
-  const GroupeDetailView({super.key});
+ const GroupeDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Détail du Groupe'.tr,
-        subtitle: 'Atelier Clinique Collectif'.tr,
-        showBackButton: true,
+       subtitle: 'Atelier Clinique Collectif'.tr,
+       showBackButton: true,
         actions: [
           BouncyTap(
             onTap: () async {
@@ -55,10 +56,10 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
       ),
       body: Obx(() {
         if (controller.status.value == 'loading') {
-          return const StatePlaceholder(type: StatePlaceholderType.loading);
+         return const StatePlaceholder(type: StatePlaceholderType.loading);
         }
         if (controller.status.value == 'error') {
-          return StatePlaceholder.error(
+         return StatePlaceholder.error(
             message: controller.errorMessage.value,
             onAction: () => controller.loadGroupe(),
           );
@@ -70,7 +71,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
         final patientsList = <Map<String, dynamic>>[];
         for (final p in rawPatients) {
           final pid = parseId(p['id'] ?? p['patient_id'])?.toString();
-          if (pid != null && !seenPatIds.contains(pid)) {
+         if (pid != null && !seenPatIds.contains(pid)) {
             seenPatIds.add(pid);
             patientsList.add(p);
           }
@@ -82,10 +83,11 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+            SizedBox(height: MediaQuery.of(context).padding.top + 90),
               // ── En-tête Groupe iOS ──
               IosCard(
                 title: 'Groupe'.tr,
-                children: [
+               children: [
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -100,7 +102,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                           child: Center(
                             child: Text(
                               g?.initials ?? 'G',
-                              style: AppTextStyles.iosTitle2.copyWith(
+                             style: AppTextStyles.iosTitle2.copyWith(
                                 color: Colors.white,
                               ),
                             ),
@@ -113,16 +115,16 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                             children: [
                               Text(
                                 g?.nom ?? 'Sans nom',
-                                style: AppTextStyles.iosTitle2,
+                               style: AppTextStyles.iosTitle2,
                               ),
                               const SizedBox(height: 4),
                               Row(
                                 children: [
                                   StatusBadge.active(label: 'Atelier Clinique'.tr),
-                                  const SizedBox(width: 8),
+                                 const SizedBox(width: 8),
                                   Text(
                                     '${patientsList.length} membre${patientsList.length > 1 ? '.trs' : ''}',
-                                    style: AppTextStyles.iosFootnote,
+                                   style: AppTextStyles.iosFootnote,
                                   ),
                                 ],
                               ),
@@ -152,7 +154,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
               // ── Horaires & Planning Récurrent ──
               IosCard(
                 title: 'Horaires Récurrents'.tr,
-                children: [
+               children: [
                   if (planningList.isEmpty)
                     IosCardTile(
                       leading: Icon(
@@ -160,23 +162,23 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                         color: AppColors.iosSystemGray,
                       ),
                       title: 'Aucun créneau configuré'.tr,
-                      subtitle:
+                     subtitle:
                           'Définissez les jours et heures dans l\'édition du groupe.'.tr,
-                    )
+                   )
                   else
                     ...planningList.map((slot) {
                       final jour = slot['jour_semaine'] ?? '';
-                      final debut = slot['heure_debut'] ?? '';
-                      final fin = slot['heure_fin'] ?? '';
-                      return IosCardTile(
+                     final debut = slot['heure_debut'] ?? '';
+                     final fin = slot['heure_fin'] ?? '';
+                     return IosCardTile(
                         leading: const Icon(
                           Icons.calendar_today_rounded,
                           color: AppColors.primary,
                           size: 20,
                         ),
                         title: 'Tous les ${jour.toUpperCase()}'.tr,
-                        subtitle: '$debut "” $fin'.tr,
-                      );
+                       subtitle: '$debut "” $fin'.tr,
+                     );
                     }),
                 ],
               ),
@@ -184,8 +186,8 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
               // ── Membres & Participants ──
               IosCard(
                 title: 'Membres Inscrits (${patientsList.length})'.tr,
-                subtitle: 'Patients associés à  ce groupe clinique'.tr,
-                children: [
+               subtitle: 'Patients associés à ce groupe clinique'.tr,
+               children: [
                   if (patientsList.isEmpty)
                     IosCardTile(
                       leading: Icon(
@@ -193,23 +195,23 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                         color: AppColors.iosSystemGray,
                       ),
                       title: 'Aucun patient dans ce groupe'.tr,
-                      subtitle: 'Ajoutez des membres en modifiant le groupe.'.tr,
-                    )
+                     subtitle: 'Ajoutez des membres en modifiant le groupe.'.tr,
+                   )
                   else
                     ...patientsList.map((p) {
                       final pNom = p['nom'] ?? '';
-                      final pPrenom = p['prenom'] ?? '';
-                      final pFullName = '$pPrenom $pNom'.trim();
-                      final initials = pFullName.isNotEmpty
+                     final pPrenom = p['prenom'] ?? '';
+                     final pFullName = '$pPrenom $pNom'.trim();
+                     final initials = pFullName.isNotEmpty
                           ? pFullName[0]
                           : 'P';
-                      final pId = p['id'] ?? p['patient_id'];
+                     final pId = p['id'] ?? p['patient_id'];
 
-                      return IosCardTile(
+                     return IosCardTile(
                         leading: PatientAvatar(initials: initials, radius: 18),
                         title: pFullName.isNotEmpty ? pFullName : 'Patient',
-                        subtitle: p['telephone'] ?? '',
-                        showChevron: true,
+                       subtitle: p['telephone'] ?? '',
+                       showChevron: true,
                         onTap: pId != null
                             ? () => Get.toNamed(
                                 AppRoutes.patientInfo,
@@ -231,7 +233,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                   children: [
                     AppButton(
                       label: 'Gérer les membres et créneaux'.tr,
-                      icon: Icons.edit_rounded,
+                     icon: Icons.edit_rounded,
                       isSecondary: true,
                       onPressed: () => Get.toNamed(
                         AppRoutes.editGroupe,
@@ -241,7 +243,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                     const SizedBox(height: 10),
                     AppButton(
                       label: 'Compte-rendu de séance collective'.tr,
-                      icon: Icons.assignment_outlined,
+                     icon: Icons.assignment_outlined,
                       onPressed: () => Get.toNamed(
                         AppRoutes.compteRenduGroupe,
                         arguments: controller.groupeId,
@@ -257,7 +259,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                       ),
                       label: Text(
                         'Supprimer ce groupe'.tr,
-                        style: AppTextStyles.buttonDestructive,
+                       style: AppTextStyles.buttonDestructive,
                       ),
                     ),
                   ],
@@ -275,15 +277,15 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text('Supprimer le groupe'.tr),
-        content: Text(
+       content: Text(
           'Êtes-vous sûr de vouloir supprimer ce groupe ? Cette action est irréversible.'.tr,
-        ),
+       ),
         actions: [
           CupertinoDialogAction(
             isDefaultAction: true,
             onPressed: () => Navigator.pop(ctx),
             child: Text('Annuler'.tr),
-          ),
+         ),
           CupertinoDialogAction(
             isDestructiveAction: true,
             onPressed: () {

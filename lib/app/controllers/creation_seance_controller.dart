@@ -13,14 +13,14 @@ import 'accueil_controller.dart';
 import 'agenda_controller.dart';
 
 class CreationSeanceController extends GetxController {
-  final SeanceService _seanceService = SeanceService();
+ final SeanceService _seanceService = SeanceService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
   final PatientService _patientService = PatientService();
   final GroupeService _groupeService = GroupeService();
   final EmployeeService _employeeService = EmployeeService();
 
   final typeSeance = 'individuelle'.obs; // 'individuelle' | 'groupe'
-  final patients = <PatientModel>[].obs;
+ final patients = <PatientModel>[].obs;
   final groupes = <GroupeModel>[].obs;
   final employees = <EmployeeModel>[].obs;
 
@@ -29,18 +29,18 @@ class CreationSeanceController extends GetxController {
   final selectedEmployeeIds = <dynamic>[].obs;
 
   final date = ''.obs;
-  final heureDebut = '10:00'.obs;
-  final heureFin = '10:45'.obs;
+ final heureDebut = '10:00'.obs;
+ final heureFin = '10:45'.obs;
 
-  final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString status = 'loading'.obs;
+ final RxString errorMessage = ''.obs;
 
-  @override
+ @override
   void onInit() {
     super.onInit();
     final now = DateTime.now();
     date.value = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-    _loadFromCache();
+   _loadFromCache();
     loadOptions();
   }
 
@@ -65,14 +65,14 @@ class CreationSeanceController extends GetxController {
     }
     if (patients.isNotEmpty || groupes.isNotEmpty) {
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadOptions() async {
     try {
       if (patients.isEmpty && groupes.isEmpty) {
         status.value = 'loading';
-      }
+     }
       final fetchedPatients = await _patientService.getPatients(actif: true);
       final fetchedGroupes = await _groupeService.getGroupes();
       final fetchedEmployees = await _employeeService.getEmployees();
@@ -84,11 +84,11 @@ class CreationSeanceController extends GetxController {
       if (patients.isNotEmpty && selectedPatientId.value == null) selectedPatientId.value = patients.first.id;
       if (groupes.isNotEmpty && selectedGroupeId.value == null) selectedGroupeId.value = groupes.first.id;
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       if (patients.isEmpty && groupes.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -104,43 +104,43 @@ class CreationSeanceController extends GetxController {
   Future<void> createSeance() async {
     if (date.value.isEmpty || heureDebut.value.isEmpty || heureFin.value.isEmpty) {
       Get.snackbar('Champs requis', 'Veuillez renseigner la date et les horaires de la séance.', snackPosition: SnackPosition.BOTTOM);
-      return;
+     return;
     }
 
     try {
       status.value = 'loading';
-      if (typeSeance.value == 'individuelle') {
-        if (selectedPatientId.value == null) {
+     if (typeSeance.value == 'individuelle') {
+       if (selectedPatientId.value == null) {
           Get.snackbar('Sélection requise', 'Veuillez sélectionner un patient.', snackPosition: SnackPosition.BOTTOM);
-          status.value = 'success';
-          return;
+         status.value = 'success';
+         return;
         }
 
         final payload = {
           'patient_id': selectedPatientId.value,
-          'date': date.value,
-          'heure_debut': heureDebut.value,
-          'heure_fin': heureFin.value,
-          'statut': 'prevue',
-          if (selectedEmployeeIds.isNotEmpty) 'employe_ids': selectedEmployeeIds.toList(),
-        };
+         'date': date.value,
+         'heure_debut': heureDebut.value,
+         'heure_fin': heureFin.value,
+         'statut': 'prevue',
+         if (selectedEmployeeIds.isNotEmpty) 'employe_ids': selectedEmployeeIds.toList(),
+       };
 
         await _seanceService.createSeance(payload);
       } else {
         if (selectedGroupeId.value == null) {
           Get.snackbar('Sélection requise', 'Veuillez sélectionner un groupe.', snackPosition: SnackPosition.BOTTOM);
-          status.value = 'success';
-          return;
+         status.value = 'success';
+         return;
         }
 
         final payload = {
           'groupe_id': selectedGroupeId.value,
-          'date': date.value,
-          'heure_debut': heureDebut.value,
-          'heure_fin': heureFin.value,
-          'statut': 'prevue',
-          if (selectedEmployeeIds.isNotEmpty) 'employe_id': selectedEmployeeIds.first,
-        };
+         'date': date.value,
+         'heure_debut': heureDebut.value,
+         'heure_fin': heureFin.value,
+         'statut': 'prevue',
+         if (selectedEmployeeIds.isNotEmpty) 'employe_id': selectedEmployeeIds.first,
+       };
 
         await _seanceGroupeService.createSeanceGroupe(payload);
       }
@@ -149,7 +149,7 @@ class CreationSeanceController extends GetxController {
       AppCacheManager.invalidateTag(CacheTags.dashboard);
 
       status.value = 'success';
-      try {
+     try {
         if (Get.isRegistered<AgendaController>()) {
           Get.find<AgendaController>().loadAgenda(forceRefresh: true);
         }
@@ -162,9 +162,9 @@ class CreationSeanceController extends GetxController {
 
       Get.back(result: true);
       Get.snackbar('Succès', 'Séance planifiée avec succès', snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       status.value = 'success';
-      Get.snackbar('Erreur', 'Impossible de planifier la séance : $e', snackPosition: SnackPosition.BOTTOM);
+     Get.snackbar('Erreur', 'Impossible de planifier la séance : $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

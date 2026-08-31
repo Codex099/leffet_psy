@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class ParentModel {
-  final dynamic id;
+ final dynamic id;
   final String nom;
   final String prenom;
   final String? telephone;
@@ -21,31 +21,31 @@ class ParentModel {
   factory ParentModel.fromJson(Map<String, dynamic> json) {
     return ParentModel(
       id: parseId(json['id']),
-      nom: json['nom'] as String? ?? '',
-      prenom: json['prenom'] as String? ?? '',
-      telephone: json['telephone'] as String?,
-      etatCivil: json['etat_civil'] as String?,
-      adresse: json['adresse'] as String?,
-    );
+     nom: json['nom'] as String? ?? '',
+     prenom: json['prenom'] as String? ?? '',
+     telephone: json['telephone'] as String?,
+     etatCivil: json['etat_civil'] as String?,
+     adresse: json['adresse'] as String?,
+   );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'nom': nom,
-      'prenom': prenom,
-      if (telephone != null) 'telephone': telephone,
-      if (etatCivil != null) 'etat_civil': etatCivil,
-      if (adresse != null) 'adresse': adresse,
-    };
+     'prenom': prenom,
+     if (telephone != null) 'telephone': telephone,
+     if (etatCivil != null) 'etat_civil': etatCivil,
+     if (adresse != null) 'adresse': adresse,
+   };
   }
 
   String get fullName => '$prenom $nom';
 
-  String get initials {
+ String get initials {
     final p = prenom.isNotEmpty ? prenom[0].toUpperCase() : '';
-    final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
-    return '$p$n';
-  }
+   final n = nom.isNotEmpty ? nom[0].toUpperCase() : '';
+   return '$p$n';
+ }
 
   ParentModel copyWith({
     dynamic id,
@@ -70,7 +70,7 @@ class PatientParentModel {
   final dynamic patientId;
   final dynamic parentId;
   final String role; // 'pere' | 'mere' | 'tuteur'
-  final ParentModel? parent;
+ final ParentModel? parent;
 
   PatientParentModel({
     required this.patientId,
@@ -82,29 +82,29 @@ class PatientParentModel {
   factory PatientParentModel.fromJson(Map<String, dynamic> json) {
     return PatientParentModel(
       patientId: parseId(json['patient_id']),
-      parentId: parseId(json['parent_id']),
-      role: json['role'] as String? ?? 'tuteur',
-      parent: json['parent'] is Map
-          ? ParentModel.fromJson(Map<String, dynamic>.from(json['parent'] as Map))
-          : null,
+     parentId: parseId(json['parent_id']),
+     role: json['role'] as String? ?? 'tuteur',
+     parent: json['parent'] is Map
+         ? ParentModel.fromJson(Map<String, dynamic>.from(json['parent'] as Map))
+         : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'parent_id': parentId,
-      'role': role,
-    };
+     'role': role,
+   };
   }
 
   String get roleLabel {
     switch (role) {
       case 'pere':
-        return 'Père'.tr;
-      case 'mere':
-        return 'Mère'.tr;
-      case 'tuteur':
-        return 'Tuteur';
+       return 'Père'.tr;
+     case 'mere':
+       return 'Mère'.tr;
+     case 'tuteur':
+       return 'Tuteur';
       default:
         return role;
     }

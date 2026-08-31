@@ -9,23 +9,24 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/app_section_header.dart';
 
 class EditParentView extends GetView<EditParentController> {
-  const EditParentView({super.key});
+ const EditParentView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final bool isEditMode = controller.parentId != null;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: isEditMode ? 'Modifier le Parent' : 'Nouveau Parent / Tuteur',
-        subtitle: 'Tuteur Légal & Famille'.tr,
-        showBackButton: true,
+       subtitle: 'Tuteur Légal & Famille'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading' && isEditMode) {
-            return const Center(child: CircularProgressIndicator());
+           return const Center(child: CircularProgressIndicator());
           }
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -35,9 +36,10 @@ class EditParentView extends GetView<EditParentController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+            const SizedBox(height: 90),
                 // Error Banner (for 409 and other errors)
                 if (controller.status.value == 'error' &&
-                    controller.errorMessage.value.isNotEmpty)
+                   controller.errorMessage.value.isNotEmpty)
                   Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.all(14),
@@ -81,43 +83,43 @@ class EditParentView extends GetView<EditParentController> {
                     children: [
                       SectionHeader(
                         title: 'Informations de contact'.tr,
-                        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                       padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                       ),
 
                       const SizedBox(height: 16),
                       AppTextField(
                         label: 'Prénom'.tr,
-                        hintText: 'Ex. Sophie'.tr,
-                        initialValue: controller.prenom.value,
+                       hintText: 'Ex. Sophie'.tr,
+                       initialValue: controller.prenom.value,
                         onChanged: (v) => controller.prenom.value = v,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Nom'.tr,
-                        hintText: 'Ex. Martin'.tr,
-                        initialValue: controller.nom.value,
+                       hintText: 'Ex. Martin'.tr,
+                       initialValue: controller.nom.value,
                         onChanged: (v) => controller.nom.value = v,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Téléphone'.tr,
-                        hintText: '+213 666 65 846',
-                        keyboardType: TextInputType.phone,
+                       hintText: '+213 666 65 846',
+                       keyboardType: TextInputType.phone,
                         initialValue: controller.telephone.value,
                         onChanged: (v) => controller.telephone.value = v,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'État civil'.tr,
-                        hintText: 'Marié(e), Divorcé(e)...'.tr,
-                        initialValue: controller.etatCivil.value,
+                       hintText: 'Marié(e), Divorcé(e)...'.tr,
+                       initialValue: controller.etatCivil.value,
                         onChanged: (v) => controller.etatCivil.value = v,
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Adresse'.tr,
-                        hintText: 'Adresse du domicile'.tr,
-                        maxLines: 2,
+                       hintText: 'Adresse du domicile'.tr,
+                       maxLines: 2,
                         initialValue: controller.adresse.value,
                         onChanged: (v) => controller.adresse.value = v,
                       ),
@@ -125,7 +127,7 @@ class EditParentView extends GetView<EditParentController> {
 
                       // Role familial dropdown
                       Text('Rôle familial'.tr, style: AppTextStyles.fieldLabel),
-                      const SizedBox(height: 8),
+                     const SizedBox(height: 8),
                       Obx(
                         () => Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -145,8 +147,8 @@ class EditParentView extends GetView<EditParentController> {
                                   .map(
                                     (item) => DropdownMenuItem<String>(
                                       value: item['value'],
-                                      child: Text(item['label']!),
-                                    ),
+                                     child: Text(item['label']!),
+                                   ),
                                   )
                                   .toList(),
                               onChanged: (val) {
@@ -165,11 +167,11 @@ class EditParentView extends GetView<EditParentController> {
                 Obx(
                   () => AppButton(
                     label: controller.status.value == 'loading'
-                        ? 'Enregistrement...'
-                        : isEditMode
-                        ? 'Mettre à  jour'
-                        : 'Enregistrer le parent',
-                    onPressed: controller.status.value == 'loading'
+                       ? 'Enregistrement...'
+                       : isEditMode
+                        ? 'Mettre à jour'
+                       : 'Enregistrer le parent',
+                   onPressed: controller.status.value == 'loading'
                         ? null
                         : () => controller.saveParent(),
                   ),

@@ -5,12 +5,12 @@ import '../services/note_patient_service.dart';
 import '../utils/json_utils.dart';
 
 class NotesPatientController extends GetxController {
-  final NoteService _noteService = NoteService();
+ final NoteService _noteService = NoteService();
 
   final RxList<Map<String, dynamic>> notes = <Map<String, dynamic>>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  dynamic patientId;
+ final RxString errorMessage = ''.obs;
+ dynamic patientId;
 
   final TextEditingController contenuController = TextEditingController();
   final RxList<String> medias = <String>[].obs;
@@ -25,8 +25,8 @@ class NotesPatientController extends GetxController {
     patientId = extractIdParam(Get.arguments, Get.parameters);
     if (patientId == null) {
       status.value = 'error';
-      errorMessage.value = 'Identifiant du patient non spécifié.';
-    } else {
+     errorMessage.value = 'Identifiant du patient non spécifié.';
+   } else {
       _loadFromCache();
       loadNotes();
     }
@@ -44,7 +44,7 @@ class NotesPatientController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       notes.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadNotes({bool forceRefresh = false}) async {
@@ -57,7 +57,7 @@ class NotesPatientController extends GetxController {
 
     if (notes.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final list = await _noteService.getNotes(patientId!);
@@ -71,11 +71,11 @@ class NotesPatientController extends GetxController {
       );
 
       status.value = list.isEmpty ? 'empty' : 'success';
-    } catch (e) {
+   } catch (e) {
       if (notes.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -86,23 +86,23 @@ class NotesPatientController extends GetxController {
     final contenu = contenuController.text.trim();
     if (contenu.isEmpty) {
       Get.snackbar('Erreur', 'Le contenu de la note est requis');
-      return;
+     return;
     }
     try {
       isSaving.value = true;
       await _noteService.createNote(patientId!, {
         'contenu': contenu,
-        if (medias.isNotEmpty) 'medias': medias.toList(),
-      });
+       if (medias.isNotEmpty) 'medias': medias.toList(),
+     });
       contenuController.clear();
       medias.clear();
       formResetToken.value++;
       AppCacheManager.invalidateTag(CacheTags.patients);
       await loadNotes(forceRefresh: true);
       Get.snackbar('Note enregistrée', 'L\'observation a été ajoutée au dossier');
-    } catch (e) {
+   } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'ajouter la note');
-    } finally {
+   } finally {
       isSaving.value = false;
     }
   }
@@ -114,32 +114,32 @@ class NotesPatientController extends GetxController {
       await loadNotes(forceRefresh: true);
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer la note');
-    }
+   }
   }
 
   String auteurDe(Map<String, dynamic> note) {
     final auteur = note['auteur'];
-    if (auteur is Map) {
+   if (auteur is Map) {
       final nomComplet = [auteur['prenom'], auteur['nom']]
-          .whereType<String>()
+         .whereType<String>()
           .where((p) => p.trim().isNotEmpty)
           .join(' ');
-      if (nomComplet.isNotEmpty) return nomComplet;
+     if (nomComplet.isNotEmpty) return nomComplet;
     }
     return 'Auteur inconnu';
-  }
+ }
 
   String dateDe(Map<String, dynamic> note) {
     final brut = note['date_creation'];
-    if (brut is! String || brut.isEmpty) return '';
-    final d = DateTime.tryParse(brut);
+   if (brut is! String || brut.isEmpty) return '';
+   final d = DateTime.tryParse(brut);
     if (d == null) return brut;
     final jj = d.day.toString().padLeft(2, '0');
-    final mm = d.month.toString().padLeft(2, '0');
-    final hh = d.hour.toString().padLeft(2, '0');
-    final mi = d.minute.toString().padLeft(2, '0');
-    return '$jj/$mm/${d.year} à $hh:$mi';
-  }
+   final mm = d.month.toString().padLeft(2, '0');
+   final hh = d.hour.toString().padLeft(2, '0');
+   final mi = d.minute.toString().padLeft(2, '0');
+   return '$jj/$mm/${d.year} à $hh:$mi';
+ }
 
   List<String> mediasDe(Map<String, dynamic> note) {
     final brut = note['medias'];

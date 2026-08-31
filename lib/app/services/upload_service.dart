@@ -4,14 +4,14 @@ import '../config/api_config.dart';
 import 'dio_client.dart';
 
 class UploadService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// POST /api/uploads — Upload un fichier photo/vidéo et retourne l'URL distante.
   Future<String> uploadFile(File file) async {
     final fileName = file.path.split('/').last;
-    final formData = FormData.fromMap({
+   final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(
-        file.path,
+       file.path,
         filename: fileName,
       ),
     });

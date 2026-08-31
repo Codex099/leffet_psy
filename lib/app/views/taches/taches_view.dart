@@ -13,16 +13,17 @@ import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/state_placeholder.dart';
 
 class TachesView extends GetView<TachesController> {
-  const TachesView({super.key});
+ const TachesView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Tâches & Actions'.tr,
-        subtitle: 'Suivi Clinique'.tr,
-        showBackButton: true,
+       subtitle: 'Suivi Clinique'.tr,
+       showBackButton: true,
         actions: [
           BouncyTap(
             onTap: () async {
@@ -49,13 +50,14 @@ class TachesView extends GetView<TachesController> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Filter Segmented Control (Assignées à  moi / Toutes) ──
+            const SizedBox(height: 90),
+            // ── Filter Segmented Control (Assignées à moi / Toutes) ──
             Obx(
               () => IosSegmentedControl<bool>(
                 segments: const {
                   false: 'Toutes les tâches',
-                  true: 'Mes tâches',
-                },
+                 true: 'Mes tâches',
+               },
                 selectedValue: controller.filterAssignesAMoi.value,
                 onValueChanged: (val) => controller.toggleFilter(val),
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -66,12 +68,12 @@ class TachesView extends GetView<TachesController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading(
+                 return StatePlaceholder.loading(
                     message: 'Chargement des tâches...',
-                  );
+                 );
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadTaches(forceRefresh: true),
                   );
@@ -79,11 +81,11 @@ class TachesView extends GetView<TachesController> {
                 if (controller.taches.isEmpty) {
                   return StatePlaceholder.empty(
                     title: 'Aucune tâche pour le moment'.tr,
-                    message: controller.filterAssignesAMoi.value
+                   message: controller.filterAssignesAMoi.value
                         ? 'Aucune tâche ne vous est assignée actuellement.'
-                        : 'Créez une tâche pour suivre les actions à  réaliser.',
-                    actionLabel: 'Nouvelle tâche',
-                    onAction: () async {
+                       : 'Créez une tâche pour suivre les actions à réaliser.',
+                   actionLabel: 'Nouvelle tâche',
+                   onAction: () async {
                       final res = await Get.toNamed(AppRoutes.detailTache);
                       if (res == true)
                         controller.loadTaches(forceRefresh: true);
@@ -100,19 +102,19 @@ class TachesView extends GetView<TachesController> {
                       if (controller.tachesAFaire.isNotEmpty)
                         _buildCategorySection(
                           'À faire'.tr,
-                          controller.tachesAFaire,
+                         controller.tachesAFaire,
                           AppColors.accentCoral,
                         ),
                       if (controller.tachesEnCours.isNotEmpty)
                         _buildCategorySection(
                           'En cours'.tr,
-                          controller.tachesEnCours,
+                         controller.tachesEnCours,
                           AppColors.primary,
                         ),
                       if (controller.tachesFait.isNotEmpty)
                         _buildCategorySection(
                           'Terminées',
-                          controller.tachesFait,
+                         controller.tachesFait,
                           AppColors.secondary,
                         ),
                     ],
@@ -133,17 +135,17 @@ class TachesView extends GetView<TachesController> {
   ) {
     return IosCard(
       title: '$title (${list.length})'.tr,
-      children: list.map((t) => _buildTacheTile(t)).toList(),
+     children: list.map((t) => _buildTacheTile(t)).toList(),
     );
   }
 
   Widget _buildTacheTile(TacheModel t) {
     final bool isDone =
         t.statut == 'fait' || t.statut == 'terminee' || t.statut == 'cloturee';
-    final Color prioColor = t.priorite == 'haute'
-        ? AppColors.accentCoral
+   final Color prioColor = t.priorite == 'haute'
+       ? AppColors.accentCoral
         : t.priorite == 'normale'
-        ? AppColors.primary
+       ? AppColors.primary
         : AppColors.secondary;
 
     return IosCardTile(
@@ -151,7 +153,7 @@ class TachesView extends GetView<TachesController> {
         onTap: () {
           HapticFeedback.selectionClick();
           final nextStatut = isDone ? 'a_faire' : 'fait';
-          controller.updateStatutFromList(t.id, nextStatut);
+         controller.updateStatutFromList(t.id, nextStatut);
         },
         borderRadius: BorderRadius.circular(20),
         child: Container(

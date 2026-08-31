@@ -5,14 +5,14 @@ import '../services/cache_manager.dart';
 import '../services/parent_service.dart';
 
 class ParentsListeController extends GetxController {
-  final ParentService _parentService = ParentService();
+ final ParentService _parentService = ParentService();
 
   final RxList<ParentModel> allParents = <ParentModel>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final RxString searchQuery = ''.obs;
+ final RxString errorMessage = ''.obs;
+ final RxString searchQuery = ''.obs;
 
-  Timer? _debounceTimer;
+ Timer? _debounceTimer;
 
   static const _cacheDuration = Duration(minutes: 15);
 
@@ -42,7 +42,7 @@ class ParentsListeController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       allParents.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadParents({bool forceRefresh = false}) async {
@@ -52,7 +52,7 @@ class ParentsListeController extends GetxController {
 
     if (allParents.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final list = await _parentService.getParents();
@@ -66,11 +66,11 @@ class ParentsListeController extends GetxController {
       );
 
       status.value = list.isEmpty ? 'empty' : 'success';
-    } catch (e) {
+   } catch (e) {
       if (allParents.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -82,7 +82,7 @@ class ParentsListeController extends GetxController {
     return allParents.where((p) {
       final name = p.fullName.toLowerCase();
       final tel = (p.telephone ?? '').toLowerCase();
-      return name.contains(q) || tel.contains(q);
+     return name.contains(q) || tel.contains(q);
     }).toList();
   }
 
@@ -96,14 +96,14 @@ class ParentsListeController extends GetxController {
   Future<void> deleteParent(dynamic id) async {
     try {
       status.value = 'loading';
-      await _parentService.deleteParent(id);
+     await _parentService.deleteParent(id);
       AppCacheManager.invalidateTag(CacheTags.parents);
       AppCacheManager.invalidateTag(CacheTags.patients);
       await loadParents(forceRefresh: true);
       Get.snackbar('Succès', 'Parent supprimé avec succès.'.tr, snackPosition: SnackPosition.BOTTOM);
-    } catch (e) {
+   } catch (e) {
       status.value = 'success';
-      Get.snackbar('Erreur', 'Impossible de supprimer le parent : $e'.tr, snackPosition: SnackPosition.BOTTOM);
+     Get.snackbar('Erreur', 'Impossible de supprimer le parent : $e'.tr, snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

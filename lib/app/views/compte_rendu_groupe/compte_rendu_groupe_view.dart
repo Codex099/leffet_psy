@@ -11,24 +11,25 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
 
 class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
-  const CompteRenduGroupeView({super.key});
+ const CompteRenduGroupeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Compte-rendu Groupe'.tr,
-        subtitle: 'Atelier Clinique Collectif'.tr,
-        showBackButton: true,
+       subtitle: 'Atelier Clinique Collectif'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {
-            return const StatePlaceholder(type: StatePlaceholderType.loading);
+           return const StatePlaceholder(type: StatePlaceholderType.loading);
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(
+           return StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadSeance(),
             );
@@ -42,6 +43,7 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+            const SizedBox(height: 90),
                 // Group summary banner
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -56,12 +58,12 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Groupe'.tr, style: AppTextStyles.bodySmall),
-                          StatusBadge.active(label: 'Séance du jour'.tr),
-                        ],
+                         StatusBadge.active(label: 'Séance du jour'.tr),
+                       ],
                       ),
                       SectionHeader(
                         title: 'Atelier compétences sociales'.tr,
-                        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                       padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                       ),
 
                       const SizedBox(height: 8),
@@ -69,12 +71,12 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                         children: [
                           Text(
                             'Date: Mardi 24 juin 2026'.tr,
-                            style: AppTextStyles.bodySmall,
+                           style: AppTextStyles.bodySmall,
                           ),
                           const SizedBox(width: 12),
                           Text(
                             'Horaire: 14:00 - 15:00'.tr,
-                            style: AppTextStyles.bodySmall,
+                           style: AppTextStyles.bodySmall,
                           ),
                         ],
                       ),
@@ -89,13 +91,13 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                   children: [
                     SectionHeader(
                       title: 'Liste des participants'.tr,
-                      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                     padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                     ),
 
                     TextButton(
                       onPressed: () {},
                       child: Text('Présence rapide'.tr),
-                    ),
+                   ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -103,19 +105,19 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                 // Participant presence list cards
                 _buildParticipantPresenceCard(
                   'Camille Moreau',
-                  isPresent: true,
+                 isPresent: true,
                   patientId: 1,
                 ),
                 const SizedBox(height: 12),
                 _buildParticipantPresenceCard(
                   'Lucas Bernard',
-                  isPresent: false,
+                 isPresent: false,
                   patientId: 2,
                 ),
                 const SizedBox(height: 12),
                 _buildParticipantPresenceCard(
                   'Nina Faure',
-                  isPresent: true,
+                 isPresent: true,
                   patientId: 3,
                 ),
                 const SizedBox(height: 20),
@@ -133,15 +135,15 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                     children: [
                       SectionHeader(
                         title: 'Note générale de la séance'.tr,
-                        padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                       padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                       ),
 
                       const SizedBox(height: 12),
                       AppTextField(
                         label: '',
-                        hintText:
+                       hintText:
                             'Décrire le déroulé de la séance, les objectifs travaillés, les réactions du groupe et les points de vigilance...'.tr,
-                        maxLines: 4,
+                       maxLines: 4,
                       ),
                     ],
                   ),
@@ -169,13 +171,13 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                           const SizedBox(width: 8),
                           SectionHeader(
                             title: 'Pièces jointes'.tr,
-                            padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                           padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                           ),
                         ],
                       ),
                       Text(
-                        'Ajouter une photo ou une vidéo liée à  la séance'.tr,
-                        style: AppTextStyles.bodySmall,
+                        'Ajouter une photo ou une vidéo liée à la séance'.tr,
+                       style: AppTextStyles.bodySmall,
                       ),
                       const SizedBox(height: 14),
                       MediaPickerWidget(
@@ -231,7 +233,7 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                       ),
                       Text(
                         'Remarque individuelle optionnelle'.tr,
-                        style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                       style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                       ),
                     ],
                   ),
@@ -241,7 +243,7 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
                 children: [
                   StatusBadge.custom(
                     label: isPresent ? 'Présent' : 'Absent',
-                    color: isPresent ? AppColors.primary : AppColors.error,
+                   color: isPresent ? AppColors.primary : AppColors.error,
                   ),
                   const SizedBox(width: 8),
                   Switch(
@@ -255,7 +257,7 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
           const SizedBox(height: 10),
           AppTextField(
             label: 'Note'.tr,
-            hintText:
+           hintText:
                 'Ajouter une remarque sur la participation, l\'.trattention ou le comportement...',
             maxLines: 2,
             suffixIcon: const Icon(Icons.edit_outlined, size: 18),

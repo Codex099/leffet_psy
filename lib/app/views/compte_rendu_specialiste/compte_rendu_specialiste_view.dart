@@ -14,17 +14,18 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
 class CompteRenduSpecialisteView
-    extends GetView<CompteRenduSpecialisteController> {
+   extends GetView<CompteRenduSpecialisteController> {
   const CompteRenduSpecialisteView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Compte-Rendu Clinique'.tr,
-        subtitle: 'Espace Spécialiste'.tr,
-        showBackButton: true,
+       subtitle: 'Espace Spécialiste'.tr,
+       showBackButton: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded, color: AppColors.primary),
@@ -35,12 +36,12 @@ class CompteRenduSpecialisteView
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading') {
-            return StatePlaceholder.loading(
+           return StatePlaceholder.loading(
               message: 'Chargement de la séance...',
-            );
+           );
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(
+           return StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadData(),
             );
@@ -54,6 +55,7 @@ class CompteRenduSpecialisteView
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+            const SizedBox(height: 90),
                 // ── 1. Bandeau Contexte & Responsable ──
                 _buildHeaderCard(context),
                 const SizedBox(height: 14),
@@ -129,8 +131,8 @@ class CompteRenduSpecialisteView
                     Text(
                       controller.isGroupe.value
                           ? 'Séance de Groupe'
-                          : 'Consultation Individuelle'.tr,
-                      style: AppTextStyles.iosCaption1.copyWith(
+                         : 'Consultation Individuelle'.tr,
+                     style: AppTextStyles.iosCaption1.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
                       ),
@@ -139,7 +141,7 @@ class CompteRenduSpecialisteView
                 ),
               ),
               StatusBadge.active(label: 'À valider'.tr),
-            ],
+           ],
           ),
           const SizedBox(height: 10),
           Text(
@@ -192,7 +194,7 @@ class CompteRenduSpecialisteView
                   children: [
                     Text(
                       'Spécialiste Responsable'.tr,
-                      style: AppTextStyles.iosCaption2.copyWith(
+                     style: AppTextStyles.iosCaption2.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -205,7 +207,7 @@ class CompteRenduSpecialisteView
                           isExpanded: true,
                           hint: Text(
                             'Sélectionner un praticien...'.tr,
-                            style: AppTextStyles.iosSubhead,
+                           style: AppTextStyles.iosSubhead,
                           ),
                           icon: const Icon(
                             Icons.arrow_drop_down_rounded,
@@ -216,7 +218,7 @@ class CompteRenduSpecialisteView
                               value: emp.id,
                               child: Text(
                                 '${emp.fullName} (${emp.roleLabel})'.tr,
-                                style: AppTextStyles.iosSubhead.copyWith(
+                               style: AppTextStyles.iosSubhead.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
@@ -243,16 +245,16 @@ class CompteRenduSpecialisteView
   Widget _buildIndividualPresenceCard(BuildContext context) {
     return IosCard(
       title: 'Statut de Présence'.tr,
-      children: [
+     children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           child: Obx(
             () => IosSegmentedControl<String>(
               segments: const {
                 'present': 'Présent',
-                'excuse': 'Excusé',
-                'absent': 'Absent',
-              },
+               'excuse': 'Excusé',
+               'absent': 'Absent',
+             },
               selectedValue: controller.statutPresence.value,
               onValueChanged: (val) => controller.statutPresence.value = val,
             ),
@@ -273,15 +275,15 @@ class CompteRenduSpecialisteView
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Participants de l\'.tratelier (${controller.participants.length})',
-                style: AppTextStyles.iosHeadline.copyWith(
+                'Participants de l\'atelier'.tr + ' (${controller.participants.length})',
+               style: AppTextStyles.iosHeadline.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 'Présence & Bilan individuel'.tr,
-                style: AppTextStyles.iosCaption1.copyWith(
+               style: AppTextStyles.iosCaption1.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -325,11 +327,11 @@ class CompteRenduSpecialisteView
               ),
               Obx(() {
                 final isPresent = p.statutPresence.value == 'present';
-                return BouncyTap(
+               return BouncyTap(
                   onTap: () {
                     HapticFeedback.selectionClick();
                     p.statutPresence.value = isPresent ? 'absent' : 'present';
-                  },
+                 },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -356,7 +358,7 @@ class CompteRenduSpecialisteView
                         const SizedBox(width: 4),
                         Text(
                           isPresent ? 'Présent' : 'Absent',
-                          style: AppTextStyles.iosCaption1.copyWith(
+                         style: AppTextStyles.iosCaption1.copyWith(
                             fontWeight: FontWeight.w700,
                             color: isPresent
                                 ? AppColors.iosGreen
@@ -381,7 +383,7 @@ class CompteRenduSpecialisteView
             decoration: InputDecoration(
               hintText:
                   'Note clinique pour ${p.patientPrenom} (comportement, participation, progrès)...'.tr,
-              hintStyle: AppTextStyles.iosCaption1.copyWith(
+             hintStyle: AppTextStyles.iosCaption1.copyWith(
                 color: AppColors.textHint,
               ),
               filled: true,
@@ -407,7 +409,7 @@ class CompteRenduSpecialisteView
   Widget _buildClinicalNotesCard(BuildContext context) {
     return IosCard(
       title: 'Observations Cliniques & Déroulement'.tr,
-      children: [
+     children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           child: Column(
@@ -427,7 +429,7 @@ class CompteRenduSpecialisteView
                 decoration: InputDecoration(
                   hintText:
                       'Décrivez les observations cliniques, exercices thérapeutiques réalisés, réactions et synthèses du suivi...'.tr,
-                  hintStyle: AppTextStyles.iosSubhead.copyWith(
+                 hintStyle: AppTextStyles.iosSubhead.copyWith(
                     color: AppColors.textHint,
                   ),
                   filled: true,
@@ -445,7 +447,7 @@ class CompteRenduSpecialisteView
                 const SizedBox(height: 14),
                 Text(
                   'Étape du Plan Thérapeutique Associée'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
                   ),
@@ -464,13 +466,13 @@ class CompteRenduSpecialisteView
                         isExpanded: true,
                         hint: Text(
                           'Associer une étape (optionnel)'.tr,
-                          style: AppTextStyles.iosSubhead,
+                         style: AppTextStyles.iosSubhead,
                         ),
                         items: [
                           DropdownMenuItem<dynamic>(
                             value: null,
                             child: Text('-- Aucune étape associée --'.tr),
-                          ),
+                         ),
                           ...controller.etapesDisponibles.map((et) {
                             return DropdownMenuItem<dynamic>(
                               value: et.id,
@@ -501,15 +503,15 @@ class CompteRenduSpecialisteView
   Widget _buildMediaSection(BuildContext context) {
     return IosCard(
       title: 'Pièces Jointes & Médias Cliniques'.tr,
-      children: [
+     children: [
         Padding(
           padding: const EdgeInsets.all(14.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Ajouter des dessins d\'.trévaluation, photos de fiches ou supports de séance.',
-                style: AppTextStyles.iosCaption1.copyWith(
+                'Ajouter des dessins d\'évaluation, photos de fiches ou supports de séance'.tr,
+               style: AppTextStyles.iosCaption1.copyWith(
                   color: AppColors.textSecondary,
                 ),
               ),
@@ -567,14 +569,14 @@ class CompteRenduSpecialisteView
                   children: [
                     Text(
                       'Rappel & Notification de Suivi'.tr,
-                      style: AppTextStyles.iosHeadline.copyWith(
+                     style: AppTextStyles.iosHeadline.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
                     ),
                     Text(
                       'Programmer une alerte clinique post-séance'.tr,
-                      style: AppTextStyles.iosCaption2.copyWith(
+                     style: AppTextStyles.iosCaption2.copyWith(
                         color: AppColors.textSecondary,
                       ),
                     ),
@@ -602,7 +604,7 @@ class CompteRenduSpecialisteView
                 // Message du rappel
                 Text(
                   'Action de suivi à rappeler'.tr,
-                  style: AppTextStyles.iosCaption1.copyWith(
+                 style: AppTextStyles.iosCaption1.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textSecondary,
                   ),
@@ -614,7 +616,7 @@ class CompteRenduSpecialisteView
                   decoration: InputDecoration(
                     hintText:
                         'Ex: Relance parents pour compte-rendu bilan, point d\'.trétape...',
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(
+                   hintStyle: AppTextStyles.iosSubhead.copyWith(
                       color: AppColors.textHint,
                     ),
                     filled: true,
@@ -641,7 +643,7 @@ class CompteRenduSpecialisteView
                         children: [
                           Text(
                             'Date du rappel'.tr,
-                            style: AppTextStyles.iosCaption1.copyWith(
+                           style: AppTextStyles.iosCaption1.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textSecondary,
                             ),
@@ -663,7 +665,7 @@ class CompteRenduSpecialisteView
                                 controller.rappelDate.value = picked
                                     .toIso8601String()
                                     .split('T')
-                                    .first;
+                                   .first;
                               }
                             },
                             child: Container(
@@ -688,7 +690,7 @@ class CompteRenduSpecialisteView
                                       controller.rappelDate.value.isNotEmpty
                                           ? controller.rappelDate.value
                                           : 'Sélectionner date',
-                                      style: AppTextStyles.iosBody.copyWith(
+                                     style: AppTextStyles.iosBody.copyWith(
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -707,7 +709,7 @@ class CompteRenduSpecialisteView
                         children: [
                           Text(
                             'Priorité'.tr,
-                            style: AppTextStyles.iosCaption1.copyWith(
+                           style: AppTextStyles.iosCaption1.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.textSecondary,
                             ),
@@ -727,12 +729,12 @@ class CompteRenduSpecialisteView
                                   items: [
                                     DropdownMenuItem(
                                       value: 'normale',
-                                      child: Text('Normale'.tr),
-                                    ),
+                                     child: Text('Normale'.tr),
+                                   ),
                                     DropdownMenuItem(
                                       value: 'haute',
-                                      child: Text('Haute'.tr),
-                                    ),
+                                     child: Text('Haute'.tr),
+                                   ),
                                   ],
                                   onChanged: (val) {
                                     if (val != null)
@@ -786,7 +788,7 @@ class CompteRenduSpecialisteView
                 const SizedBox(width: 8),
                 Text(
                   'Valider & Enregistrer le Compte-Rendu'.tr,
-                  style: AppTextStyles.iosHeadline.copyWith(
+                 style: AppTextStyles.iosHeadline.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                   ),

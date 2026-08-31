@@ -11,27 +11,28 @@ import '../../widgets/searchable_picker.dart';
 import '../../widgets/state_placeholder.dart';
 
 class CreationSeanceView extends GetView<CreationSeanceController> {
-  const CreationSeanceView({super.key});
+ const CreationSeanceView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Planifier une séance'.tr,
-        subtitle: 'Consultation Clinique'.tr,
-        showBackButton: true,
+       subtitle: 'Consultation Clinique'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Obx(() {
           if (controller.status.value == 'loading' &&
-              controller.patients.isEmpty) {
+             controller.patients.isEmpty) {
             return StatePlaceholder.loading(
               message: 'Chargement des options de séance...',
-            );
+           );
           }
           if (controller.status.value == 'error') {
-            return StatePlaceholder.error(
+           return StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadOptions(),
             );
@@ -42,6 +43,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+            const SizedBox(height: 90),
                 // ── Type de séance (Segmented Control iOS) ──
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -50,15 +52,15 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                   ),
                   child: Text(
                     'TYPE DE SÉANCE'.tr,
-                    style: AppTextStyles.iosCaption2,
+                   style: AppTextStyles.iosCaption2,
                   ),
                 ),
                 Obx(
                   () => IosSegmentedControl<String>(
                     segments: const {
                       'individuelle': 'Individuelle',
-                      'groupe': 'Collectif (Groupe)',
-                    },
+                     'groupe': 'Collectif (Groupe)',
+                   },
                     selectedValue: controller.typeSeance.value,
                     onValueChanged: (t) => controller.typeSeance.value = t,
                   ),
@@ -68,12 +70,12 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                 // ── Bénéficiaire (Patient ou Groupe) ──
                 Obx(() {
                   final isIndiv = controller.typeSeance.value == 'individuelle';
-                  return IosCard(
+                 return IosCard(
                     title: isIndiv ? 'Patient' : 'Groupe Clinique',
-                    subtitle: isIndiv
+                   subtitle: isIndiv
                         ? 'Recherchez et sélectionnez le patient suivi'
-                        : 'Recherchez et sélectionnez le groupe concerné',
-                    children: [
+                       : 'Recherchez et sélectionnez le groupe concerné',
+                   children: [
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: isIndiv
@@ -87,7 +89,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                 // ── Date et Horaires ──
                 IosCard(
                   title: 'Date & Horaires'.tr,
-                  children: [
+                 children: [
                     IosCardTile(
                       leading: const Icon(
                         Icons.calendar_today_rounded,
@@ -95,9 +97,9 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                         size: 20,
                       ),
                       title: 'Date de la séance'.tr,
-                      subtitle: controller.date.value.isEmpty
+                     subtitle: controller.date.value.isEmpty
                           ? 'Sélectionner'
-                          : controller.date.value,
+                         : controller.date.value,
                       showChevron: true,
                       onTap: () => _pickDate(context),
                     ),
@@ -108,7 +110,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                         size: 20,
                       ),
                       title: 'Horaire de début'.tr,
-                      subtitle: controller.heureDebut.value,
+                     subtitle: controller.heureDebut.value,
                       showChevron: true,
                       onTap: () => _pickTime(context, isStart: true),
                     ),
@@ -119,7 +121,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                         size: 20,
                       ),
                       title: 'Horaire de fin'.tr,
-                      subtitle: controller.heureFin.value,
+                     subtitle: controller.heureFin.value,
                       showChevron: true,
                       onTap: () => _pickTime(context, isStart: false),
                     ),
@@ -129,24 +131,24 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                 // ── Psychologues / Praticiens assignés ──
                 IosCard(
                   title: 'Praticiens Responsables'.tr,
-                  subtitle:
+                 subtitle:
                       'Sélectionnez un ou plusieurs professionnels avec recherche instantanée'.tr,
-                  children: [
+                 children: [
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Obx(() {
                         if (controller.employees.isEmpty) {
                           return Text(
                             'Aucun praticien disponible.'.tr,
-                            style: AppTextStyles.iosFootnote,
+                           style: AppTextStyles.iosFootnote,
                           );
                         }
                         return SearchablePickerField<dynamic>(
                           label: 'Praticiens Assignés'.tr,
-                          hintText:
+                         hintText:
                               'Rechercher et sélectionner les praticiens...'.tr,
-                          title: 'Sélectionner les Praticiens'.tr,
-                          isMultiSelect: true,
+                         title: 'Sélectionner les Praticiens'.tr,
+                         isMultiSelect: true,
                           leadingIcon: Icons.badge_outlined,
                           selectedValues: controller.selectedEmployeeIds
                               .toList(),
@@ -175,7 +177,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                   ),
                   child: AppButton(
                     label: 'Planifier la séance'.tr,
-                    icon: Icons.event_available_rounded,
+                   icon: Icons.event_available_rounded,
                     onPressed: () => controller.createSeance(),
                   ),
                 ),
@@ -191,14 +193,14 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
     if (controller.patients.isEmpty) {
       return Text(
         'Aucun patient actif disponible.'.tr,
-        style: AppTextStyles.iosFootnote,
+       style: AppTextStyles.iosFootnote,
       );
     }
     return SearchablePickerField<dynamic>(
       label: 'Patient concerné *'.tr,
-      hintText: 'Rechercher un patient par nom ou prénom...'.tr,
-      title: 'Sélectionner un patient'.tr,
-      leadingIcon: Icons.person_search_rounded,
+     hintText: 'Rechercher un patient par nom ou prénom...'.tr,
+     title: 'Sélectionner un patient'.tr,
+     leadingIcon: Icons.person_search_rounded,
       selectedValue: controller.selectedPatientId.value,
       items: controller.patients.map((p) {
         return SearchableItem<dynamic>(
@@ -206,7 +208,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
           label: p.fullName,
           subtitle:
               '${p.age != null ? "${p.age} ${'ans'.tr} \u200E•\u200E " : ""}${p.isFille ? "Fille".tr : "Garçon".tr}',
-          initials: p.initials,
+         initials: p.initials,
         );
       }).toList(),
       onSingleChanged: (val) {
@@ -218,19 +220,19 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
   Widget _buildGroupePicker() {
     if (controller.groupes.isEmpty) {
       return Text('Aucun groupe disponible.'.tr, style: AppTextStyles.iosFootnote);
-    }
+   }
     return SearchablePickerField<dynamic>(
       label: 'Groupe concerné *'.tr,
-      hintText: 'Rechercher un groupe thérapeutique...'.tr,
-      title: 'Sélectionner un groupe'.tr,
-      leadingIcon: Icons.groups_rounded,
+     hintText: 'Rechercher un groupe thérapeutique...'.tr,
+     title: 'Sélectionner un groupe'.tr,
+     leadingIcon: Icons.groups_rounded,
       selectedValue: controller.selectedGroupeId.value,
       items: controller.groupes.map((g) {
         return SearchableItem<dynamic>(
           value: g.id,
           label: g.nom,
           subtitle: '${g.typeLabel.tr} • ${g.membresCount} ${'membre(s)'.tr}',
-          initials: g.initials,
+         initials: g.initials,
         );
       }).toList(),
       onSingleChanged: (val) {
@@ -250,7 +252,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
     if (picked != null) {
       controller.date.value =
           "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-    }
+   }
   }
 
   Future<void> _pickTime(BuildContext context, {required bool isStart}) async {
@@ -258,7 +260,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
         ? controller.heureDebut.value
         : controller.heureFin.value;
     final parts = currentStr.split(':');
-    final initialTime = TimeOfDay(
+   final initialTime = TimeOfDay(
       hour: parts.isNotEmpty ? (int.tryParse(parts[0]) ?? 10) : 10,
       minute: parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0,
     );

@@ -4,7 +4,7 @@ import '../models/seance_groupe_model.dart';
 import 'dio_client.dart';
 
 class SeanceGroupeService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/seances-groupe — Liste des séances de groupe
   Future<List<SeanceGroupeModel>> getSeancesGroupe({
@@ -14,10 +14,10 @@ class SeanceGroupeService {
   }) async {
     final queryParams = <String, dynamic>{};
     if (date != null) queryParams['date'] = date;
-    if (groupeId != null) queryParams['groupe_id'] = groupeId;
-    if (employeId != null) queryParams['employe_id'] = employeId;
+   if (groupeId != null) queryParams['groupe_id'] = groupeId;
+   if (employeId != null) queryParams['employe_id'] = employeId;
 
-    final response = await _dio.get(
+   final response = await _dio.get(
       ApiConfig.seancesGroupe,
       queryParameters: queryParams,
     );

@@ -6,7 +6,7 @@ import '../config/api_config.dart';
 /// Middleware d'authentification — protège toutes les routes sauf /login.
 /// Si aucun token JWT n'est présent, redirige vers l'écran de login.
 class AuthMiddleware extends GetMiddleware {
-  static const FlutterSecureStorage _storage = FlutterSecureStorage(
+ static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 

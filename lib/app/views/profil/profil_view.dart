@@ -15,7 +15,7 @@ import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 
 class ProfilView extends GetView<ProfilController> {
-  const ProfilView({super.key});
+ const ProfilView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +25,12 @@ class ProfilView extends GetView<ProfilController> {
       bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: Obx(() {
         if (controller.status.value == 'loading') {
-          return const SafeArea(
+         return const SafeArea(
             child: StatePlaceholder(type: StatePlaceholderType.loading),
           );
         }
         if (controller.status.value == 'error') {
-          return SafeArea(
+         return SafeArea(
             child: StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadProfile(),
@@ -41,7 +41,7 @@ class ProfilView extends GetView<ProfilController> {
         final user = controller.currentUser.value;
         final isAdmin = user?.role == 'admin';
 
-        return CustomScrollView(
+       return CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
             // ─── Pinned Clean AppBar ──────────────────────────────────────────
@@ -52,7 +52,7 @@ class ProfilView extends GetView<ProfilController> {
               backgroundColor: AppColors.scaffold,
               title: Text(
                 'Mon Profil'.tr,
-                style: AppTextStyles.iosTitle3.copyWith(
+               style: AppTextStyles.iosTitle3.copyWith(
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
@@ -93,14 +93,14 @@ class ProfilView extends GetView<ProfilController> {
                         ),
                         child: PatientAvatar(
                           initials: user?.initials ?? 'U',
-                          radius: 46,
+                         radius: 46,
                         ),
                       ),
                       const SizedBox(height: 16),
                       // User name
                       Text(
                         user?.fullName ?? 'Utilisateur',
-                        style: AppTextStyles.iosTitle2.copyWith(
+                       style: AppTextStyles.iosTitle2.copyWith(
                           fontWeight: FontWeight.w800,
                           color: AppColors.textPrimary,
                         ),
@@ -110,7 +110,7 @@ class ProfilView extends GetView<ProfilController> {
                       // Username
                       Text(
                         '@${user?.username ?? "user"}',
-                        style: AppTextStyles.iosSubhead.copyWith(
+                       style: AppTextStyles.iosSubhead.copyWith(
                           color: AppColors.textSecondary,
                           fontWeight: FontWeight.w500,
                         ),
@@ -126,7 +126,7 @@ class ProfilView extends GetView<ProfilController> {
                         ),
                         child: Text(
                           user?.roleLabel ?? 'Employé'.tr,
-                          style: AppTextStyles.iosCaption1.copyWith(
+                         style: AppTextStyles.iosCaption1.copyWith(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w700,
                           ),
@@ -139,7 +139,7 @@ class ProfilView extends GetView<ProfilController> {
                         icon: const Icon(Icons.edit_rounded, size: 16, color: AppColors.primary),
                         label: Text(
                           'Modifier mes informations'.tr,
-                          style: AppTextStyles.iosCaption1.copyWith(
+                         style: AppTextStyles.iosCaption1.copyWith(
                             fontWeight: FontWeight.w700,
                             color: AppColors.primary,
                           ),
@@ -161,7 +161,7 @@ class ProfilView extends GetView<ProfilController> {
             // ─── Section: Coordonnées ─────────────────────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionHeader('Coordonnées & Compte'.tr),
-            ),
+           ),
             SliverToBoxAdapter(
               child: IosCard(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -173,10 +173,10 @@ class ProfilView extends GetView<ProfilController> {
                       AppColors.primary.withValues(alpha: 0.1),
                     ),
                     title: 'Téléphone'.tr,
-                    subtitle: user?.telephone != null && user!.telephone!.isNotEmpty
+                   subtitle: user?.telephone != null && user!.telephone!.isNotEmpty
                         ? user.telephone!
                         : 'Non renseigné'.tr,
-                  ),
+                 ),
                   IosCardTile(
                     leading: _tintedIconCircle(
                       Icons.badge_outlined,
@@ -184,8 +184,8 @@ class ProfilView extends GetView<ProfilController> {
                       AppColors.secondary.withValues(alpha: 0.1),
                     ),
                     title: 'Identifiant système'.tr,
-                    subtitle: '${user?.id ?? "—"}',
-                  ),
+                   subtitle: '${user?.id ?? "—"}',
+                 ),
                   IosCardTile(
                     leading: _tintedIconCircle(
                       Icons.security_rounded,
@@ -193,8 +193,8 @@ class ProfilView extends GetView<ProfilController> {
                       const Color(0xFFE3F4F0),
                     ),
                     title: 'Niveau d\'accès'.tr,
-                    subtitle: user?.roleLabel ?? 'Standard'.tr,
-                  ),
+                   subtitle: user?.roleLabel ?? 'Standard'.tr,
+                 ),
                 ],
               ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.05),
             ),
@@ -202,7 +202,7 @@ class ProfilView extends GetView<ProfilController> {
             // ─── Section: Gestion Clinique (Grid) ────────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionHeader('Gestion Clinique'.tr),
-            ),
+           ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               sliver: SliverGrid(
@@ -218,40 +218,40 @@ class ProfilView extends GetView<ProfilController> {
                     iconColor: AppColors.primary,
                     iconBgColor: AppColors.primary.withValues(alpha: 0.1),
                     title: 'Séances Individuelles'.tr,
-                    subtitle: 'Consultations & créneaux'.tr,
-                    onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
+                   subtitle: 'Consultations & créneaux'.tr,
+                   onTap: () => Get.toNamed(AppRoutes.seancesIndividuelles),
                   ),
                   _buildClinicalGridItem(
                     icon: Icons.groups_outlined,
                     iconColor: AppColors.accentCoral,
                     iconBgColor: AppColors.accentCoral.withValues(alpha: 0.1),
                     title: 'Groupes Thérapeutiques'.tr,
-                    subtitle: 'Séances collectives'.tr,
-                    onTap: () => Get.toNamed(AppRoutes.groupesListe),
+                   subtitle: 'Séances collectives'.tr,
+                   onTap: () => Get.toNamed(AppRoutes.groupesListe),
                   ),
                   _buildClinicalGridItem(
                     icon: Icons.family_restroom_outlined,
                     iconColor: AppColors.secondary,
                     iconBgColor: AppColors.secondary.withValues(alpha: 0.1),
                     title: 'Parents & Tuteurs'.tr,
-                    subtitle: 'Annuaire familial'.tr,
-                    onTap: () => Get.toNamed(AppRoutes.parentsListe),
+                   subtitle: 'Annuaire familial'.tr,
+                   onTap: () => Get.toNamed(AppRoutes.parentsListe),
                   ),
                   _buildClinicalGridItem(
                     icon: Icons.task_alt_outlined,
                     iconColor: const Color(0xFFB8860B),
                     iconBgColor: const Color(0xFFFFF8E1),
                     title: 'Tâches & Actions'.tr,
-                    subtitle: 'Gestion des todo-lists'.tr,
-                    onTap: () => Get.toNamed(AppRoutes.taches),
+                   subtitle: 'Gestion des todo-lists'.tr,
+                   onTap: () => Get.toNamed(AppRoutes.taches),
                   ),
                   _buildClinicalGridItem(
                     icon: Icons.calendar_month_outlined,
                     iconColor: const Color(0xFF2E7D6B),
                     iconBgColor: const Color(0xFFE3F4F0),
                     title: 'Calendrier'.tr,
-                    subtitle: 'Événements & réunions'.tr,
-                    onTap: () => Get.toNamed(AppRoutes.calendrier),
+                   subtitle: 'Événements & Réunions'.tr,
+                   onTap: () => Get.toNamed(AppRoutes.calendrier),
                   ),
                   if (isAdmin)
                     _buildClinicalGridItem(
@@ -259,8 +259,8 @@ class ProfilView extends GetView<ProfilController> {
                       iconColor: AppColors.accentDeep,
                       iconBgColor: AppColors.accentDeep.withValues(alpha: 0.1),
                       title: 'Gestion de l\'Équipe'.tr,
-                      subtitle: 'Comptes & droits'.tr,
-                      onTap: () => Get.toNamed(AppRoutes.employesListe),
+                     subtitle: 'Comptes & droits'.tr,
+                     onTap: () => Get.toNamed(AppRoutes.employesListe),
                     ),
                 ]),
               ),
@@ -269,7 +269,7 @@ class ProfilView extends GetView<ProfilController> {
             // ─── Section: Préférences ─────────────────────────────────────────
             SliverToBoxAdapter(
               child: _buildSectionHeader('Préférences'.tr),
-            ),
+           ),
             SliverToBoxAdapter(
               child: IosCard(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -281,7 +281,7 @@ class ProfilView extends GetView<ProfilController> {
                       AppColors.primary.withValues(alpha: 0.1),
                     ),
                     title: 'Notifications push'.tr,
-                    trailing: Switch.adaptive(
+                   trailing: Switch.adaptive(
                       value: true,
                       activeTrackColor: AppColors.iosGreen,
                       onChanged: (_) {},
@@ -294,20 +294,20 @@ class ProfilView extends GetView<ProfilController> {
                       AppColors.secondary.withValues(alpha: 0.1),
                     ),
                     title: 'Langue de l\'application'.tr,
-                    trailing: Text(
+                   trailing: Text(
                       Get.locale?.languageCode == 'ar' ? 'العربية' : 'Français',
-                      style: AppTextStyles.iosSubhead,
+                     style: AppTextStyles.iosSubhead,
                     ),
                     showChevron: true,
                     onTap: () async {
                       const storage = FlutterSecureStorage();
                       if (Get.locale?.languageCode == 'ar') {
-                        await storage.write(key: 'app_language', value: 'fr');
-                        Get.updateLocale(const Locale('fr', 'FR'));
-                      } else {
+                       await storage.write(key: 'app_language', value: 'fr');
+                       Get.updateLocale(const Locale('fr', 'FR'));
+                     } else {
                         await storage.write(key: 'app_language', value: 'ar');
-                        Get.updateLocale(const Locale('ar', 'DZ'));
-                      }
+                       Get.updateLocale(const Locale('ar', 'DZ'));
+                     }
                     },
                   ),
                   IosCardTile(
@@ -317,9 +317,9 @@ class ProfilView extends GetView<ProfilController> {
                       const Color(0xFFE3F4F0),
                     ),
                     title: 'Version de l\'application'.tr,
-                    trailing: Text(
+                   trailing: Text(
                       '1.0.0 (Build 2026)',
-                      style: AppTextStyles.iosFootnote,
+                     style: AppTextStyles.iosFootnote,
                     ),
                   ),
                 ],
@@ -332,7 +332,7 @@ class ProfilView extends GetView<ProfilController> {
                 padding: const EdgeInsets.fromLTRB(16, 28, 16, 120),
                 child: AppButton(
                   label: 'Se déconnecter'.tr,
-                  icon: Icons.logout_rounded,
+                 icon: Icons.logout_rounded,
                   isDestructive: true,
                   isGradient: false,
                   onPressed: () => _confirmLogout(context),
@@ -433,7 +433,7 @@ class ProfilView extends GetView<ProfilController> {
     final nomCtrl = TextEditingController(text: user.nom);
     final prenomCtrl = TextEditingController(text: user.prenom);
     final telCtrl = TextEditingController(text: user.telephone ?? '');
-    final isSaving = false.obs;
+   final isSaving = false.obs;
 
     showModalBottomSheet<void>(
       context: context,
@@ -465,28 +465,28 @@ class ProfilView extends GetView<ProfilController> {
               const SizedBox(height: 16),
               Text(
                 'Modifier mes informations'.tr,
-                style: AppTextStyles.iosTitle3.copyWith(fontWeight: FontWeight.w800),
+               style: AppTextStyles.iosTitle3.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 20),
               // Champ Prénom
               _editField(
                 controller: prenomCtrl,
                 label: 'Prénom'.tr,
-                icon: Icons.person_outline_rounded,
+               icon: Icons.person_outline_rounded,
               ),
               const SizedBox(height: 12),
               // Champ Nom
               _editField(
                 controller: nomCtrl,
                 label: 'Nom'.tr,
-                icon: Icons.badge_outlined,
+               icon: Icons.badge_outlined,
               ),
               const SizedBox(height: 12),
               // Champ Téléphone
               _editField(
                 controller: telCtrl,
                 label: 'Téléphone'.tr,
-                icon: Icons.phone_outlined,
+               icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 24),
@@ -506,8 +506,8 @@ class ProfilView extends GetView<ProfilController> {
                           Get.back();
                           Get.snackbar(
                             'Succès'.tr,
-                            'Profil mis à jour'.tr,
-                            snackPosition: SnackPosition.BOTTOM,
+                           'Profil mis à jour'.tr,
+                           snackPosition: SnackPosition.BOTTOM,
                             backgroundColor: AppColors.iosGreen,
                             colorText: Colors.white,
                             duration: const Duration(seconds: 2),
@@ -517,8 +517,8 @@ class ProfilView extends GetView<ProfilController> {
                         } else {
                           Get.snackbar(
                             'Erreur'.tr,
-                            'Impossible de mettre à jour le profil.'.tr,
-                            snackPosition: SnackPosition.BOTTOM,
+                           'Impossible de mettre à jour le profil.'.tr,
+                           snackPosition: SnackPosition.BOTTOM,
                             backgroundColor: AppColors.error,
                             colorText: Colors.white,
                             duration: const Duration(seconds: 3),
@@ -537,7 +537,7 @@ class ProfilView extends GetView<ProfilController> {
                 child: isSaving.value
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : Text('Enregistrer'.tr, style: AppTextStyles.iosBody.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
-              )),
+             )),
             ],
           ),
         ),
@@ -576,7 +576,7 @@ class ProfilView extends GetView<ProfilController> {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Fermer'.tr,
-      barrierColor: Colors.black.withValues(alpha: 0.54),
+     barrierColor: Colors.black.withValues(alpha: 0.54),
       transitionDuration: const Duration(milliseconds: 260),
       transitionBuilder: (ctx, anim1, anim2, child) {
         final curved = CurvedAnimation(
@@ -636,7 +636,7 @@ class ProfilView extends GetView<ProfilController> {
                   // Titre
                   Text(
                     'Se déconnecter ?'.tr,
-                    textAlign: TextAlign.center,
+                   textAlign: TextAlign.center,
                     style: AppTextStyles.iosTitle2.copyWith(
                       fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
@@ -647,7 +647,7 @@ class ProfilView extends GetView<ProfilController> {
                   // Description
                   Text(
                     'Êtes-vous certain de vouloir fermer votre session clinique ? Vous devrez vous ré-authentifier pour accéder aux dossiers.'.tr,
-                    textAlign: TextAlign.center,
+                   textAlign: TextAlign.center,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                       height: 1.4,
@@ -673,7 +673,7 @@ class ProfilView extends GetView<ProfilController> {
                           ),
                           child: Text(
                             'Annuler'.tr,
-                            style: AppTextStyles.bodyMedium.copyWith(
+                           style: AppTextStyles.bodyMedium.copyWith(
                               fontWeight: FontWeight.w600,
                               color: AppColors.textSecondary,
                             ),

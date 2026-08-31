@@ -10,7 +10,7 @@ import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 
 class CompteRenduHubController extends GetxController {
-  final SeanceService _seanceService = SeanceService();
+ final SeanceService _seanceService = SeanceService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
   final EmployeeService _employeeService = EmployeeService();
 
@@ -18,15 +18,15 @@ class CompteRenduHubController extends GetxController {
   final RxList<EmployeeModel> praticiens = <EmployeeModel>[].obs;
 
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString errorMessage = ''.obs;
 
-  // Filters
+ // Filters
   final RxString selectedTab = 'en_attente'.obs; // 'en_attente' | 'rediges' | 'tous'
-  final RxString filterType = 'tous'.obs; // 'tous' | 'indiv' | 'groupe'
-  final Rx<dynamic> filterPraticienId = Rx<dynamic>(null);
+ final RxString filterType = 'tous'.obs; // 'tous' | 'indiv' | 'groupe'
+ final Rx<dynamic> filterPraticienId = Rx<dynamic>(null);
   final RxString searchQuery = ''.obs;
 
-  Timer? _debounceTimer;
+ Timer? _debounceTimer;
 
   static const _cacheDuration = Duration(minutes: 3);
 
@@ -55,13 +55,13 @@ class CompteRenduHubController extends GetxController {
     final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.compteRenduHub);
     if (cached != null) {
       if (cached['sessions'] is List<AgendaSessionItem>) {
-        allSessions.value = cached['sessions'] as List<AgendaSessionItem>;
-      }
+       allSessions.value = cached['sessions'] as List<AgendaSessionItem>;
+     }
       if (cached['praticiens'] is List<EmployeeModel>) {
-        praticiens.value = cached['praticiens'] as List<EmployeeModel>;
-      }
+       praticiens.value = cached['praticiens'] as List<EmployeeModel>;
+     }
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadData({bool forceRefresh = false}) async {
@@ -71,7 +71,7 @@ class CompteRenduHubController extends GetxController {
 
     if (allSessions.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       // 1. Praticiens
@@ -107,18 +107,18 @@ class CompteRenduHubController extends GetxController {
         CacheKeys.compteRenduHub,
         {
           'sessions': unified,
-          'praticiens': praticiens.toList(),
-        },
+         'praticiens': praticiens.toList(),
+       },
         ttl: _cacheDuration,
         tags: {CacheTags.seances, CacheTags.dashboard},
       );
 
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       if (allSessions.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -137,16 +137,16 @@ class CompteRenduHubController extends GetxController {
 
     // 1. Filtrage par onglet de statut
     if (selectedTab.value == 'en_attente') {
-      list = list.where((s) => s.statut != 'faite').toList();
-    } else if (selectedTab.value == 'rediges') {
-      list = list.where((s) => s.statut == 'faite').toList();
-    }
+     list = list.where((s) => s.statut != 'faite').toList();
+   } else if (selectedTab.value == 'rediges') {
+     list = list.where((s) => s.statut == 'faite').toList();
+   }
 
     // 2. Filtrage par type
     if (filterType.value == 'indiv') {
-      list = list.where((s) => !s.isGroupe).toList();
+     list = list.where((s) => !s.isGroupe).toList();
     } else if (filterType.value == 'groupe') {
-      list = list.where((s) => s.isGroupe).toList();
+     list = list.where((s) => s.isGroupe).toList();
     }
 
     // 3. Filtrage par praticien
@@ -168,5 +168,5 @@ class CompteRenduHubController extends GetxController {
   }
 
   int get enAttenteCount => allSessions.where((s) => s.statut != 'faite').length;
-  int get redigesCount => allSessions.where((s) => s.statut == 'faite').length;
+ int get redigesCount => allSessions.where((s) => s.statut == 'faite').length;
 }

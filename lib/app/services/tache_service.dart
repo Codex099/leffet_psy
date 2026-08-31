@@ -4,7 +4,7 @@ import '../models/tache_model.dart';
 import 'dio_client.dart';
 
 class TacheService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/taches — Liste des tâches
   Future<List<TacheModel>> getTaches({
@@ -14,8 +14,8 @@ class TacheService {
   }) async {
     final queryParams = <String, dynamic>{};
     if (assigneesAMoi != null) queryParams['assigne_a_moi'] = assigneesAMoi;
-    if (patientId != null) queryParams['patient_id'] = patientId;
-    if (statut != null) queryParams['statut'] = statut;
+   if (patientId != null) queryParams['patient_id'] = patientId;
+   if (statut != null) queryParams['statut'] = statut;
 
     final response = await _dio.get(
       ApiConfig.taches,

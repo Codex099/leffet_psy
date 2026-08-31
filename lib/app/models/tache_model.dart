@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import '../utils/json_utils.dart';
 
 class TacheModel {
-  final dynamic id;
+ final dynamic id;
   final String titre;
   final String? description;
   final dynamic assigneA;
@@ -10,8 +10,8 @@ class TacheModel {
   final dynamic patientId;
   final dynamic etapePlanId;
   final String statut; // 'a_faire' | 'en_cours' | 'terminee'
-  final String priorite; // 'haute' | 'normale' | 'basse'
-  final String? dateEcheance;
+ final String priorite; // 'haute' | 'normale' | 'basse'
+ final String? dateEcheance;
   final Map<String, dynamic>? patient;
   final Map<String, dynamic>? assigneEmployee;
 
@@ -33,42 +33,42 @@ class TacheModel {
   factory TacheModel.fromJson(Map<String, dynamic> json) {
     return TacheModel(
       id: parseId(json['id']),
-      titre: json['titre'] as String? ?? '',
-      description: json['description'] as String?,
-      assigneA: parseId(json['assigne_a']),
-      creePar: parseId(json['cree_par']),
-      patientId: parseId(json['patient_id']),
-      etapePlanId: parseId(json['etape_plan_id']),
-      statut: json['statut'] as String? ?? 'a_faire',
-      priorite: json['priorite'] as String? ?? 'normale',
-      dateEcheance: json['date_echeance'] as String?,
-      patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
-      assigneEmployee: json['assigne_employee'] is Map ? Map<String, dynamic>.from(json['assigne_employee'] as Map) : null,
-    );
+     titre: json['titre'] as String? ?? '',
+     description: json['description'] as String?,
+     assigneA: parseId(json['assigne_a']),
+     creePar: parseId(json['cree_par']),
+     patientId: parseId(json['patient_id']),
+     etapePlanId: parseId(json['etape_plan_id']),
+     statut: json['statut'] as String? ?? 'a_faire',
+     priorite: json['priorite'] as String? ?? 'normale',
+     dateEcheance: json['date_echeance'] as String?,
+     patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
+     assigneEmployee: json['assigne_employee'] is Map ? Map<String, dynamic>.from(json['assigne_employee'] as Map) : null,
+   );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'titre': titre,
-      if (description != null) 'description': description,
-      if (assigneA != null) 'assigne_a': assigneA,
-      if (patientId != null) 'patient_id': patientId,
-      if (etapePlanId != null) 'etape_plan_id': etapePlanId,
-      'statut': statut,
-      'priorite': priorite,
-      if (dateEcheance != null) 'date_echeance': dateEcheance,
-    };
+     if (description != null) 'description': description,
+     if (assigneA != null) 'assigne_a': assigneA,
+     if (patientId != null) 'patient_id': patientId,
+     if (etapePlanId != null) 'etape_plan_id': etapePlanId,
+     'statut': statut,
+     'priorite': priorite,
+     if (dateEcheance != null) 'date_echeance': dateEcheance,
+   };
   }
 
   String get statutLabel {
     switch (statut) {
       case 'a_faire':
-        return 'À faire'.tr;
-      case 'en_cours':
-        return 'En cours'.tr;
-      case 'fait':
-        return 'Fait';
-      default:
+       return 'À faire'.tr;
+     case 'en_cours':
+       return 'En cours'.tr;
+     case 'fait':
+       return 'Fait';
+     default:
         return statut;
     }
   }
@@ -76,11 +76,11 @@ class TacheModel {
   String get prioriteLabel {
     switch (priorite) {
       case 'haute':
-        return 'Haute'.tr;
-      case 'normale':
-        return 'Normale'.tr;
-      case 'basse':
-        return 'Basse';
+       return 'Haute'.tr;
+     case 'normale':
+       return 'Normale'.tr;
+     case 'basse':
+       return 'Basse';
       default:
         return priorite;
     }

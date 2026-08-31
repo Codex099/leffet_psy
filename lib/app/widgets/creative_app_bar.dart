@@ -159,23 +159,29 @@ class _FrostedAppBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(50),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
+                color: AppColors.primary.withValues(alpha: 0.10),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(50),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
               child: Container(
                 decoration: BoxDecoration(
                   color:
-                      backgroundColor ?? Colors.white.withValues(alpha: 0.94),
+                      backgroundColor ?? Colors.white.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(50),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.98),
-                    width: 1.5,
+                    color: Colors.white.withValues(alpha: 0.55),
+                    width: 0.8,
                   ),
                 ),
                 child: Padding(

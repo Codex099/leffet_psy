@@ -8,7 +8,7 @@ import '../theme/app_text_styles.dart';
 
 /// Barre de navigation flottante premium iOS 17 — Frosted glass + Sliding pill indicator.
 class AppBottomNav extends StatefulWidget {
-  final int currentIndex;
+ final int currentIndex;
 
   const AppBottomNav({super.key, required this.currentIndex});
 
@@ -34,19 +34,19 @@ class _AppBottomNavState extends State<AppBottomNav>
       Icons.home_outlined,
       Icons.home_rounded,
       'Accueil',
-      AppRoutes.accueil,
+     AppRoutes.accueil,
     ),
     _NavItem(
       Icons.people_outline_rounded,
       Icons.people_alt_rounded,
       'Patients',
-      AppRoutes.patientsListe,
+     AppRoutes.patientsListe,
     ),
     _NavItem(
       Icons.calendar_today_outlined,
       Icons.calendar_month_rounded,
       'Agenda',
-      AppRoutes.agenda,
+     AppRoutes.agenda,
     ),
     _NavItem(
       Icons.person_outline_rounded,

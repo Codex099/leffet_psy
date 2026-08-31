@@ -7,7 +7,7 @@ import '../models/dossier_medical_model.dart';
 import 'dio_client.dart';
 
 class PatientService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
 
   /// GET /api/patients — Liste des patients (filtrée selon les droits)
   Future<List<PatientModel>> getPatients({
@@ -16,9 +16,9 @@ class PatientService {
   }) async {
     final queryParams = <String, dynamic>{};
     if (actif != null) queryParams['actif'] = actif;
-    if (search != null && search.isNotEmpty) queryParams['search'] = search;
+   if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
-    final response = await _dio.get(
+   final response = await _dio.get(
       ApiConfig.patients,
       queryParameters: queryParams,
     );
@@ -60,7 +60,7 @@ class PatientService {
     await _dio.post(
       ApiConfig.patientParents(patientId),
       data: {'parent_id': parentId, 'role': role},
-    );
+   );
   }
 
   /// GET /api/patients/{id}/parents — Parents liés au patient
@@ -75,9 +75,9 @@ class PatientService {
   /// PUT /api/patients/{id}/statut — Changer statut actif/inactif
   Future<void> updateStatut(dynamic id, {required bool estActif, String? noteDegradation}) async {
     final payload = <String, dynamic>{'est_actif': estActif};
-    if (noteDegradation != null && noteDegradation.trim().isNotEmpty) {
+   if (noteDegradation != null && noteDegradation.trim().isNotEmpty) {
       payload['note_degradation'] = noteDegradation.trim();
-    }
+   }
     await _dio.put(
       ApiConfig.patientStatut(id),
       data: payload,

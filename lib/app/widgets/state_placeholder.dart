@@ -6,7 +6,7 @@ import 'app_animations.dart';
 /// Composant réutilisable pour les états de chargement, d'erreur et vide.
 /// Design premium iOS avec shimmer loading et illustrations animées.
 class StatePlaceholder extends StatelessWidget {
-  final StatePlaceholderType type;
+ final StatePlaceholderType type;
   final String? title;
   final String? message;
   final String? actionLabel;
@@ -25,7 +25,7 @@ class StatePlaceholder extends StatelessWidget {
     return StatePlaceholder(
       type: StatePlaceholderType.loading,
       message: message ?? 'Chargement en cours...',
-    );
+   );
   }
 
   factory StatePlaceholder.empty({
@@ -37,8 +37,8 @@ class StatePlaceholder extends StatelessWidget {
     return StatePlaceholder(
       type: StatePlaceholderType.empty,
       title: title ?? 'Aucune donnée disponible',
-      message: message ?? 'Il n\'y a aucun élément à afficher pour le moment.',
-      actionLabel: actionLabel,
+     message: message ?? 'Il n\'y a aucun élément à afficher pour le moment.',
+     actionLabel: actionLabel,
       onAction: onAction,
     );
   }
@@ -52,37 +52,37 @@ class StatePlaceholder extends StatelessWidget {
     return StatePlaceholder(
       type: StatePlaceholderType.error,
       title: title ?? 'Erreur de connexion',
-      message: message ?? 'Impossible de charger les données pour le moment.',
-      actionLabel: actionLabel ?? 'Réessayer',
-      onAction: onAction,
+     message: message ?? 'Impossible de charger les données pour le moment.',
+     actionLabel: actionLabel ?? 'Réessayer',
+     onAction: onAction,
     );
   }
 
   static String sanitizeErrorMessage(String? raw) {
     if (raw == null || raw.isEmpty) {
       return 'Impossible de charger les données pour le moment.';
-    }
+   }
     if (raw.contains('connection timeout') ||
-        raw.contains('receive timeout') ||
-        raw.contains('Délai d\'attente')) {
-      return 'Le délai d\'attente vers le serveur a expiré. Vérifiez votre connexion internet.';
-    }
+       raw.contains('receive timeout') ||
+       raw.contains('Délai d\'attente')) {
+     return 'Le délai d\'attente vers le serveur a expiré. Vérifiez votre connexion internet.';
+   }
     if (raw.contains('connection error') ||
-        raw.contains('Impossible de se connecter') ||
-        raw.contains('SocketException')) {
-      return 'Impossible de joindre le serveur clinique. Vérifiez votre accès réseau.';
-    }
+       raw.contains('Impossible de se connecter') ||
+       raw.contains('SocketException')) {
+     return 'Impossible de joindre le serveur clinique. Vérifiez votre accès réseau.';
+   }
     if (raw.contains('403') || raw.contains('Accès refusé')) {
-      return 'Accès restreint : vous ne disposez pas des droits nécessaires.';
-    }
+     return 'Accès restreint : vous ne disposez pas des droits nécessaires.';
+   }
     if (raw.contains('404') || raw.contains('introuvable')) {
-      return 'Les informations demandées n\'ont pas été trouvées.';
-    }
+     return 'Les informations demandées n\'ont pas été trouvées.';
+   }
     final clean = raw
         .replaceAll(RegExp(r'^DioException\s*\[.*?\]:\s*'), '')
-        .replaceAll(RegExp(r'^Exception:\s*'), '')
-        .replaceAll(RegExp(r'Error:\s*.*$'), '')
-        .trim();
+       .replaceAll(RegExp(r'^Exception:\s*'), '')
+       .replaceAll(RegExp(r'Error:\s*.*$'), '')
+       .trim();
     return clean.isNotEmpty ? clean : 'Une anomalie réseau est survenue.';
   }
 

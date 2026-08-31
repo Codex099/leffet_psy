@@ -5,14 +5,14 @@ import '../services/cache_manager.dart';
 import '../services/groupe_service.dart';
 
 class GroupesListeController extends GetxController {
-  final GroupeService _groupeService = GroupeService();
+ final GroupeService _groupeService = GroupeService();
 
   final RxList<GroupeModel> groupes = <GroupeModel>[].obs;
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
-  final RxString searchQuery = ''.obs;
+ final RxString errorMessage = ''.obs;
+ final RxString searchQuery = ''.obs;
 
-  Timer? _debounceTimer;
+ Timer? _debounceTimer;
 
   static const _cacheDuration = Duration(minutes: 10);
 
@@ -42,7 +42,7 @@ class GroupesListeController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       groupes.value = cached;
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadGroupes({bool forceRefresh = false}) async {
@@ -52,7 +52,7 @@ class GroupesListeController extends GetxController {
 
     if (groupes.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final list = await _groupeService.getGroupes(
@@ -70,7 +70,7 @@ class GroupesListeController extends GetxController {
       }
 
       status.value = list.isEmpty ? 'empty' : 'success';
-    } catch (e) {
+   } catch (e) {
       if (groupes.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';

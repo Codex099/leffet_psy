@@ -4,49 +4,49 @@ abstract class AppRoutes {
   // ─── Auth ──────────────────────────────────────────────────────────────────
   static const login = '/login';
 
-  // ─── Navigation principale (bottom nav) ────────────────────────────────────
+ // ─── Navigation principale (bottom nav) ────────────────────────────────────
   static const accueil = '/accueil';
-  static const agenda = '/agenda';
-  static const profil = '/profil';
+ static const agenda = '/agenda';
+ static const profil = '/profil';
 
-  // ─── Patients ──────────────────────────────────────────────────────────────
+ // ─── Patients ──────────────────────────────────────────────────────────────
   static const patientsListe = '/patients';
-  static const patientInfo = '/patients/detail';
-  static const editPatient = '/patients/edit';
-  static const dossierMedical = '/patients/dossier-medical';
-  static const statutHistorique = '/patients/statut-historique';
-  static const notesPatient = '/patients/notes';
-  static const planningRecurrent = '/patients/planning-recurrent';
-  static const historiqueSeancesPatient = '/patients/historique-seances';
+ static const patientInfo = '/patients/detail';
+ static const editPatient = '/patients/edit';
+ static const dossierMedical = '/patients/dossier-medical';
+ static const statutHistorique = '/patients/statut-historique';
+ static const notesPatient = '/patients/notes';
+ static const planningRecurrent = '/patients/planning-recurrent';
+ static const historiqueSeancesPatient = '/patients/historique-seances';
 
-  // ─── Parents ───────────────────────────────────────────────────────────────
+ // ─── Parents ───────────────────────────────────────────────────────────────
   static const parentsListe = '/parents';
-  static const editParent = '/parents/edit';
+ static const editParent = '/parents/edit';
 
-  // ─── Groupes ───────────────────────────────────────────────────────────────
+ // ─── Groupes ───────────────────────────────────────────────────────────────
   static const groupesListe = '/groupes';
-  static const groupeDetail = '/groupes/detail';
-  static const editGroupe = '/groupes/edit';
+ static const groupeDetail = '/groupes/detail';
+ static const editGroupe = '/groupes/edit';
 
-  // ─── Employés ──────────────────────────────────────────────────────────────
+ // ─── Employés ──────────────────────────────────────────────────────────────
   static const employesListe = '/employes';
-  static const editEmploye = '/employes/edit';
+ static const editEmploye = '/employes/edit';
 
-  // ─── Séances & Comptes-rendus ──────────────────────────────────────────────
+ // ─── Séances & Comptes-rendus ──────────────────────────────────────────────
   static const seancesIndividuelles = '/seances-individuelles';
-  static const compteRenduHub = '/comptes-rendus';
-  static const compteRenduSpecialiste = '/comptes-rendus/redaction';
-  static const compteRenduSeance = '/seances/compte-rendu';
-  static const compteRenduGroupe = '/seances-groupe/compte-rendu';
-  static const creationSeance = '/seances/creation';
+ static const compteRenduHub = '/comptes-rendus';
+ static const compteRenduSpecialiste = '/comptes-rendus/redaction';
+ static const compteRenduSeance = '/seances/compte-rendu';
+ static const compteRenduGroupe = '/seances-groupe/compte-rendu';
+ static const creationSeance = '/seances/creation';
 
-  // ─── Plans thérapeutiques ──────────────────────────────────────────────────
+ // ─── Plans thérapeutiques ──────────────────────────────────────────────────
   static const planTherapeutique = '/plan-therapeutique';
 
-  // ─── Tâches ────────────────────────────────────────────────────────────────
+ // ─── Tâches ────────────────────────────────────────────────────────────────
   static const taches = '/taches';
-  static const detailTache = '/taches/detail';
+ static const detailTache = '/taches/detail';
 
-  // ─── Calendrier admin ──────────────────────────────────────────────────────
+ // ─── Calendrier admin ──────────────────────────────────────────────────────
   static const calendrier = '/calendrier';
 }

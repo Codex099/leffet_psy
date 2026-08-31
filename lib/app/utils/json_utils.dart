@@ -46,12 +46,12 @@ double? parseNullableDouble(dynamic val) {
 dynamic extractIdParam([dynamic arguments, Map<String, dynamic>? parameters]) {
   if (arguments != null) {
     if (arguments is Map && arguments.containsKey('id')) {
-      return parseId(arguments['id']);
-    }
+     return parseId(arguments['id']);
+   }
     return parseId(arguments);
   }
   if (parameters != null && parameters.containsKey('id')) {
-    return parseId(parameters['id']);
+   return parseId(parameters['id']);
   }
   return null;
 }

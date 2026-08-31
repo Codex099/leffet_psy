@@ -7,7 +7,7 @@ import 'cache_manager.dart';
 import 'dio_client.dart';
 
 class AuthService {
-  final Dio _dio = DioClient.instance;
+ final Dio _dio = DioClient.instance;
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
@@ -20,9 +20,9 @@ class AuthService {
     final response = await _dio.post(
       ApiConfig.authLogin,
       data: {'username': username, 'password': password},
-    );
+   );
     final token = response.data['access_token'] as String;
-    // Stocke le token de façon sécurisée
+   // Stocke le token de façon sécurisée
     await _storage.write(key: ApiConfig.secureKeyToken, value: token);
     return response.data as Map<String, dynamic>;
   }
@@ -34,7 +34,7 @@ class AuthService {
       response.data as Map<String, dynamic>,
     );
     // Cache l'utilisateur courant
-    await _storage.write(
+   await _storage.write(
       key: ApiConfig.secureKeyUser,
       value: jsonEncode(response.data),
     );

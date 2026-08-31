@@ -8,7 +8,7 @@ import '../theme/app_colors.dart';
 // ─── FadeSlideIn ──────────────────────────────────────────────────────────────
 /// Apparition en fondu + glissement depuis le bas (ou la direction spécifiée).
 class FadeSlideIn extends StatefulWidget {
-  final Widget child;
+ final Widget child;
   final Duration delay;
   final Duration duration;
   final double slideOffset;

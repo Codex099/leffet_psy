@@ -11,22 +11,24 @@ import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
 
 class EditPatientView extends GetView<EditPatientController> {
-  const EditPatientView({super.key});
+ const EditPatientView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: controller.patientId == null
             ? 'Nouveau Patient'.tr
-            : 'Édition Patient'.tr,
-        subtitle: 'Dossier Clinique'.tr,
-        showBackButton: true,
+           : 'Édition Patient'.tr,
+       subtitle: 'Dossier Clinique'.tr,
+       showBackButton: true,
       ),
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 90),
             const SizedBox(height: 8),
 
             // ── Step Tabs ──
@@ -44,10 +46,10 @@ class EditPatientView extends GetView<EditPatientController> {
                   child: Row(
                     children: [
                       _buildStepTab('1. Identité', 1),
-                      _buildStepTab('2. Médical', 2),
-                      _buildStepTab('3. Tuteur', 3),
-                      _buildStepTab('4. Bilan', 4),
-                    ],
+                     _buildStepTab('2. Médical', 2),
+                     _buildStepTab('3. Tuteur', 3),
+                     _buildStepTab('4. Bilan', 4),
+                   ],
                   ),
                 ),
               ),
@@ -58,7 +60,7 @@ class EditPatientView extends GetView<EditPatientController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading' &&
-                    controller.patientId != null &&
+                   controller.patientId != null &&
                     controller.prenomController.text.isEmpty) {
                   return const StatePlaceholder(
                     type: StatePlaceholderType.loading,
@@ -96,7 +98,7 @@ class EditPatientView extends GetView<EditPatientController> {
                           ),
                           onPressed: () => controller.previousStep(),
                           child: Text('Précédent'.tr),
-                        ),
+                       ),
                       ),
                       const SizedBox(width: 12),
                     ],
@@ -104,13 +106,13 @@ class EditPatientView extends GetView<EditPatientController> {
                       flex: 2,
                       child: AppButton(
                         label: controller.status.value == 'loading'
-                            ? 'En cours...'.tr
-                            : controller.currentStep.value == 4
+                           ? 'En cours...'.tr
+                           : controller.currentStep.value == 4
                             ? 'Enregistrer le dossier'.tr
-                            : 'Étape suivante'.tr,
-                        isLoading: controller.status.value == 'loading',
-                        onPressed: controller.status.value == 'loading'
-                            ? null
+                           : 'Étape suivante'.tr,
+                       isLoading: controller.status.value == 'loading',
+                       onPressed: controller.status.value == 'loading'
+                           ? null
                             : () => controller.nextStep(),
                       ),
                     ),
@@ -203,24 +205,24 @@ class EditPatientView extends GetView<EditPatientController> {
             children: [
               SectionHeader(
                 title: 'Identité'.tr,
-                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+               padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
               ),
 
               const SizedBox(height: 16),
               AppTextField(
                 label: 'Prénom *'.tr,
-                hintText: 'Ex. Léa'.tr,
-                controller: controller.prenomController,
+               hintText: 'Ex. Léa'.tr,
+               controller: controller.prenomController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Nom *'.tr,
-                hintText: 'Ex. Dupont'.tr,
-                controller: controller.nomController,
+               hintText: 'Ex. Dupont'.tr,
+               controller: controller.nomController,
               ),
               const SizedBox(height: 14),
               Text('Date de naissance'.tr, style: AppTextStyles.fieldLabel),
-              const SizedBox(height: 8),
+             const SizedBox(height: 8),
               Obx(
                 () => InkWell(
                   onTap: () async {
@@ -236,7 +238,7 @@ class EditPatientView extends GetView<EditPatientController> {
                     if (picked != null) {
                       controller.dateNaissance.value =
                           "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-                    }
+                   }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -254,7 +256,7 @@ class EditPatientView extends GetView<EditPatientController> {
                         Text(
                           controller.dateNaissance.value.isEmpty
                               ? 'Sélectionner la date de naissance'
-                              : controller.dateNaissance.value,
+                             : controller.dateNaissance.value,
                           style: AppTextStyles.bodyMedium,
                         ),
                         const Icon(
@@ -268,28 +270,28 @@ class EditPatientView extends GetView<EditPatientController> {
               ),
               const SizedBox(height: 14),
               Text('Sexe'.tr, style: AppTextStyles.fieldLabel),
-              const SizedBox(height: 8),
+             const SizedBox(height: 8),
               Obx(
                 () => Row(
                   children: [
                     Expanded(child: _buildGenderTile('Garçon')),
-                    const SizedBox(width: 12),
+                   const SizedBox(width: 12),
                     Expanded(child: _buildGenderTile('Fille')),
-                  ],
+                 ],
                 ),
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Nombre de frères/sœurs'.tr,
-                hintText: '0',
-                keyboardType: TextInputType.number,
+               hintText: '0',
+               keyboardType: TextInputType.number,
                 controller: controller.nombreFreresSoeursController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Rang dans la fratrie'.tr,
-                hintText: '1',
-                keyboardType: TextInputType.number,
+               hintText: '1',
+               keyboardType: TextInputType.number,
                 controller: controller.ordreNaissanceController,
               ),
             ],
@@ -320,28 +322,28 @@ class EditPatientView extends GetView<EditPatientController> {
                   const SizedBox(width: 8),
                   Text(
                     'Antécédents & Traitements'.tr,
-                    style: AppTextStyles.sectionTitle,
+                   style: AppTextStyles.sectionTitle,
                   ),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
                 'Informations médicales de base et traitements actuels.'.tr,
-                style: AppTextStyles.bodySmall,
+               style: AppTextStyles.bodySmall,
               ),
               const SizedBox(height: 16),
 
               AppTextField(
                 label: 'Antécédents médicaux'.tr,
-                hintText: 'Ex. Pathologies, chirurgies, hospitalisations...'.tr,
-                maxLines: 3,
+               hintText: 'Ex. Pathologies, chirurgies, hospitalisations...'.tr,
+               maxLines: 3,
                 controller: controller.antecedentsMedicauxController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Médicaments pris'.tr,
-                hintText: 'Ex. Liste des traitements actuels et posologie...'.tr,
-                maxLines: 3,
+               hintText: 'Ex. Liste des traitements actuels et posologie...'.tr,
+               maxLines: 3,
                 controller: controller.medicamentsPrisController,
               ),
             ],
@@ -353,20 +355,20 @@ class EditPatientView extends GetView<EditPatientController> {
             children: [
               SectionHeader(
                 title: 'Historique du cas'.tr,
-                icon: Icons.history_edu_outlined,
+               icon: Icons.history_edu_outlined,
                 padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
               ),
               const SizedBox(height: 4),
               Text(
                 'Historique du développement, autonomie et scolarisation.'.tr,
-                style: AppTextStyles.bodySmall,
+               style: AppTextStyles.bodySmall,
               ),
               const SizedBox(height: 16),
 
               // Date de la cas / historique (تاريخ الحالة)
               Text(
                 'Date du cas'.tr,
-                style: AppTextStyles.fieldLabel,
+               style: AppTextStyles.fieldLabel,
               ),
               const SizedBox(height: 6),
               Obx(
@@ -385,7 +387,7 @@ class EditPatientView extends GetView<EditPatientController> {
                     if (picked != null) {
                       controller.dateCas.value =
                           '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
-                    }
+                   }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -403,7 +405,7 @@ class EditPatientView extends GetView<EditPatientController> {
                         Text(
                           controller.dateCas.value.isEmpty
                               ? 'Sélectionner la date du cas'
-                              : controller.dateCas.value,
+                             : controller.dateCas.value,
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: controller.dateCas.value.isEmpty
                                 ? AppColors.textSecondary
@@ -424,57 +426,57 @@ class EditPatientView extends GetView<EditPatientController> {
 
               AppTextField(
                 label: 'Naissance'.tr,
-                hintText: 'Conditions de naissance, déroulement...'.tr,
-                maxLines: 2,
+               hintText: 'Conditions de naissance, déroulement...'.tr,
+               maxLines: 2,
                 controller: controller.naissanceController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Développement psychomoteur'.tr,
-                hintText: 'Marche, motricité fine et globale...'.tr,
-                maxLines: 2,
+               hintText: 'Marche, motricité fine et globale...'.tr,
+               maxLines: 2,
                 controller: controller.developpementPsychomoteurController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Comportement auditif'.tr,
-                hintText: 'Réaction aux sons, écoute...'.tr,
-                maxLines: 2,
+               hintText: 'Réaction aux sons, écoute...'.tr,
+               maxLines: 2,
                 controller: controller.comportementAuditifController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Développement langagier'.tr,
-                hintText: 'Premiers mots, niveau de langage...'.tr,
-                maxLines: 2,
+               hintText: 'Premiers mots, niveau de langage...'.tr,
+               maxLines: 2,
                 controller: controller.developpementLangagierController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Adaptation sociale'.tr,
-                hintText: 'Relations sociales, comportements en groupe...'.tr,
-                maxLines: 2,
+               hintText: 'Relations sociales, comportements en groupe...'.tr,
+               maxLines: 2,
                 controller: controller.adaptationSocialeController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Autonomie'.tr,
-                hintText: 'Habillage, hygiène, alimentation...'.tr,
-                maxLines: 2,
+               hintText: 'Habillage, hygiène, alimentation...'.tr,
+               maxLines: 2,
                 controller: controller.autonomieController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Aspect sanitaire'.tr,
-                hintText: 'Bilan de santé général...'.tr,
-                maxLines: 2,
+               hintText: 'Bilan de santé général...'.tr,
+               maxLines: 2,
                 controller: controller.aspectSanitaireController,
               ),
               const SizedBox(height: 14),
               AppTextField(
                 label: 'Stade de scolarisation'.tr,
-                hintText: 'Niveau d\'études, intégration scolaire...'.tr,
-                maxLines: 2,
+               hintText: 'Niveau d\'études, intégration scolaire...'.tr,
+               maxLines: 2,
                 controller: controller.stadeScolarisationController,
               ),
             ],
@@ -496,21 +498,21 @@ class EditPatientView extends GetView<EditPatientController> {
             children: [
               SectionHeader(
                 title: 'Tuteur légal / Parent'.tr,
-                actionLabel: '+ Nouveau'.tr,
-                onAction: () => _showInlineParentDialog(context),
+               actionLabel: '+ Nouveau'.tr,
+               onAction: () => _showInlineParentDialog(context),
                 padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
               ),
               const SizedBox(height: 4),
               Text(
                 'Associez un parent à ce patient.'.tr,
-                style: AppTextStyles.bodySmall,
+               style: AppTextStyles.bodySmall,
               ),
               const SizedBox(height: 16),
 
               // Parent dropdown
               Obx(() {
                 if (controller.parentsStatus.value == 'loading') {
-                  return const SizedBox(
+                 return const SizedBox(
                     height: 60,
                     child: Center(
                       child: CircularProgressIndicator(strokeWidth: 2),
@@ -522,9 +524,9 @@ class EditPatientView extends GetView<EditPatientController> {
                   children: [
                     SearchablePickerField<dynamic>(
                       label: 'Choisir un parent / tuteur'.tr,
-                      hintText: 'Rechercher un parent...'.tr,
-                      title: 'Sélectionner un parent'.tr,
-                      leadingIcon: Icons.family_restroom_rounded,
+                     hintText: 'Rechercher un parent...'.tr,
+                     title: 'Sélectionner un parent'.tr,
+                     leadingIcon: Icons.family_restroom_rounded,
                       selectedValue: controller.selectedParentId.value,
                       items: controller.availableParents
                           .map(
@@ -535,7 +537,7 @@ class EditPatientView extends GetView<EditPatientController> {
                                   p.telephone != null && p.telephone!.isNotEmpty
                                   ? p.telephone
                                   : 'Parent / Tuteur',
-                              initials: p.initials,
+                             initials: p.initials,
                             ),
                           )
                           .toList(),
@@ -545,7 +547,7 @@ class EditPatientView extends GetView<EditPatientController> {
 
                     const SizedBox(height: 14),
                     Text('Rôle familial'.tr, style: AppTextStyles.fieldLabel),
-                    const SizedBox(height: 8),
+                   const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
@@ -563,8 +565,8 @@ class EditPatientView extends GetView<EditPatientController> {
                               .map(
                                 (item) => DropdownMenuItem<String>(
                                   value: item['value'],
-                                  child: Text(item['label']!),
-                                ),
+                                 child: Text(item['label']!),
+                               ),
                               )
                               .toList(),
                           onChanged: (val) {
@@ -595,7 +597,7 @@ class EditPatientView extends GetView<EditPatientController> {
             children: [
               SectionHeader(
                 title: 'Récapitulatif'.tr,
-                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+               padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
               ),
 
               const SizedBox(height: 12),
@@ -605,46 +607,46 @@ class EditPatientView extends GetView<EditPatientController> {
                   children: [
                     _recapRow(
                       'Prénom'.tr,
-                      controller.prenomController.text.isNotEmpty
+                     controller.prenomController.text.isNotEmpty
                           ? controller.prenomController.text
                           : '"”',
-                    ),
+                   ),
                     const Divider(),
                     _recapRow(
                       'Nom'.tr,
-                      controller.nomController.text.isNotEmpty
+                     controller.nomController.text.isNotEmpty
                           ? controller.nomController.text
                           : '"”',
-                    ),
+                   ),
                     const Divider(),
                     _recapRow(
                       'Date de naissance'.tr,
-                      controller.dateNaissance.value.isNotEmpty
+                     controller.dateNaissance.value.isNotEmpty
                           ? controller.dateNaissance.value
                           : '"”',
-                    ),
+                   ),
                     const Divider(),
                     _recapRow('Sexe'.tr, controller.sexe.value),
-                    const Divider(),
+                   const Divider(),
                     _recapRow(
                       'Photo',
-                      controller.photoUrl.value.isNotEmpty ? '✓ Ajoutée' : '"”',
-                    ),
+                     controller.photoUrl.value.isNotEmpty ? '✓ Ajoutée' : '"”',
+                   ),
                     const Divider(),
                     _recapRow(
                       'Dossier médical'.tr,
-                      controller
+                     controller
                                   .antecedentsMedicauxController
                                   .text
                                   .isNotEmpty ||
                               controller.dateCas.value.isNotEmpty
                           ? '✓ Renseigné'
-                          : '"”',
-                    ),
+                         : '"”',
+                   ),
                     const Divider(),
                     _recapRow(
                       'Parent lié'.tr,
-                      controller.selectedParentId.value != null
+                     controller.selectedParentId.value != null
                           ? controller.availableParents
                                     .firstWhereOrNull(
                                       (p) =>
@@ -653,8 +655,8 @@ class EditPatientView extends GetView<EditPatientController> {
                                     )
                                     ?.fullName ??
                                 '"”'
-                          : '"”',
-                    ),
+                         : '"”',
+                   ),
                   ],
                 ),
               ),
@@ -665,13 +667,13 @@ class EditPatientView extends GetView<EditPatientController> {
             children: [
               SectionHeader(
                 title: 'Plan thérapeutique'.tr,
-                padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+               padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
               ),
 
               const SizedBox(height: 8),
               Text(
                 'Souhaitez-vous créer un plan thérapeutique pour ce patient après l\'enregistrement ?'.tr,
-                style: AppTextStyles.bodySmall,
+               style: AppTextStyles.bodySmall,
               ),
               const SizedBox(height: 12),
               Obx(
@@ -680,7 +682,7 @@ class EditPatientView extends GetView<EditPatientController> {
                   onChanged: (v) => controller.addPlanTherapeutique.value = v,
                   title: Text(
                     'Créer un plan thérapeutique'.tr,
-                    style: AppTextStyles.bodyMedium,
+                   style: AppTextStyles.bodyMedium,
                   ),
                   activeThumbColor: AppColors.primary,
                   contentPadding: EdgeInsets.zero,
@@ -799,7 +801,7 @@ class EditPatientView extends GetView<EditPatientController> {
           children: [
             SectionHeader(
               title: 'Ajouter une photo'.tr,
-              padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+             padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
             ),
 
             const SizedBox(height: 16),
@@ -809,7 +811,7 @@ class EditPatientView extends GetView<EditPatientController> {
                 color: AppColors.primary,
               ),
               title: Text('Prendre une photo'.tr),
-              onTap: () {
+             onTap: () {
                 Get.back();
                 controller.pickPhoto(fromCamera: true);
               },
@@ -820,7 +822,7 @@ class EditPatientView extends GetView<EditPatientController> {
                 color: AppColors.primary,
               ),
               title: Text('Choisir depuis la galerie'.tr),
-              onTap: () {
+             onTap: () {
                 Get.back();
                 controller.pickPhoto(fromCamera: false);
               },
@@ -834,11 +836,11 @@ class EditPatientView extends GetView<EditPatientController> {
   void _showInlineParentDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     String nom = '';
-    String prenom = '';
-    String tel = '';
-    String role = 'pere';
+   String prenom = '';
+   String tel = '';
+   String role = 'pere';
 
-    Get.bottomSheet(
+   Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
@@ -854,48 +856,48 @@ class EditPatientView extends GetView<EditPatientController> {
               children: [
                 SectionHeader(
                   title: 'Créer un nouveau parent'.tr,
-                  padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                 padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
                 ),
 
                 const SizedBox(height: 14),
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Prénom *'.tr,
-                    border: OutlineInputBorder(),
+                   border: OutlineInputBorder(),
                   ),
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Prénom requis' : null,
-                  onChanged: (v) => prenom = v,
+                 onChanged: (v) => prenom = v,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Nom *'.tr,
-                    border: OutlineInputBorder(),
+                   border: OutlineInputBorder(),
                   ),
                   validator: (v) =>
                       (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
-                  onChanged: (v) => nom = v,
+                 onChanged: (v) => nom = v,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Téléphone'.tr,
-                    border: OutlineInputBorder(),
+                   border: OutlineInputBorder(),
                   ),
                   onChanged: (v) => tel = v,
                 ),
                 const SizedBox(height: 16),
                 AppButton(
                   label: 'Créer et associer'.tr,
-                  onPressed: () async {
+                 onPressed: () async {
                     if (formKey.currentState?.validate() == true) {
                       Get.back();
                       await controller.createParentInline({
                         'nom': nom.trim(),
-                        'prenom': prenom.trim(),
-                        if (tel.trim().isNotEmpty) 'telephone': tel.trim(),
-                        'role': role,
+                       'prenom': prenom.trim(),
+                       if (tel.trim().isNotEmpty) 'telephone': tel.trim(),
+                       'role': role,
                       });
                     }
                   },

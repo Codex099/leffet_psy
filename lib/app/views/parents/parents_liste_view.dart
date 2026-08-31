@@ -13,16 +13,17 @@ import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 
 class ParentsListeView extends GetView<ParentsListeController> {
-  const ParentsListeView({super.key});
+ const ParentsListeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Annuaire Parents'.tr,
-        subtitle: 'Contacts & Tuteurs'.tr,
-        showBackButton: true,
+       subtitle: 'Contacts & Tuteurs'.tr,
+       showBackButton: true,
         actions: [
           BouncyTap(
             onTap: () => Get.toNamed(AppRoutes.editParent),
@@ -46,6 +47,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
       body: SafeArea(
         child: Column(
           children: [
+            const SizedBox(height: 90),
             // iOS Search Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -60,7 +62,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
                     hintText: 'Rechercher un parent (nom, téléphone)...'.tr,
-                    hintStyle: AppTextStyles.iosSubhead,
+                   hintStyle: AppTextStyles.iosSubhead,
                     prefixIcon: const Icon(
                       Icons.search_rounded,
                       size: 20,
@@ -80,10 +82,10 @@ class ParentsListeView extends GetView<ParentsListeController> {
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                  return StatePlaceholder.loading();
+                 return StatePlaceholder.loading();
                 }
                 if (controller.status.value == 'error') {
-                  return StatePlaceholder.error(
+                 return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadParents(),
                   );
@@ -97,12 +99,12 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   return StatePlaceholder.empty(
                     title: query.isNotEmpty
                         ? 'Aucun résultat'.tr
-                        : 'Aucun parent enregistré',
-                    message: query.isNotEmpty
-                        ? 'Aucun parent ne correspond à  "$query".'
-                        : 'Ajoutez des parents pour les associer aux fiches des patients.',
-                    actionLabel: 'Nouveau parent',
-                    onAction: () => Get.toNamed(AppRoutes.editParent),
+                       : 'Aucun parent enregistré',
+                   message: query.isNotEmpty
+                        ? 'Aucun parent ne correspond à  "$query".'
+                       : 'Ajoutez des parents pour les associer aux fiches des patients.',
+                   actionLabel: 'Nouveau parent',
+                   onAction: () => Get.toNamed(AppRoutes.editParent),
                   );
                 }
 
@@ -128,7 +130,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                                   parent.telephone!.isNotEmpty
                               ? parent.telephone
                               : 'Aucun téléphone renseigné',
-                          showChevron: true,
+                         showChevron: true,
                           trailing:
                               parent.telephone != null &&
                                   parent.telephone!.isNotEmpty
@@ -154,7 +156,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                                       const SizedBox(width: 4),
                                       Text(
                                         'Appeler'.tr,
-                                        style: AppTextStyles.iosCaption1
+                                       style: AppTextStyles.iosCaption1
                                             .copyWith(
                                               color: AppColors.iosGreen,
                                               fontWeight: FontWeight.w600,
@@ -220,7 +222,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                           parent.etatCivil!.isNotEmpty)
                         Text(
                           'État civil : ${parent.etatCivil}'.tr,
-                          style: AppTextStyles.iosFootnote,
+                         style: AppTextStyles.iosFootnote,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -240,8 +242,8 @@ class ParentsListeView extends GetView<ParentsListeController> {
                     size: 20,
                   ),
                   title: 'Téléphone'.tr,
-                  subtitle: parent.telephone ?? 'Non renseigné'.tr,
-                ),
+                 subtitle: parent.telephone ?? 'Non renseigné'.tr,
+               ),
                 if (parent.adresse != null && parent.adresse!.isNotEmpty)
                   IosCardTile(
                     leading: const Icon(
@@ -250,7 +252,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                       size: 20,
                     ),
                     title: 'Adresse'.tr,
-                    subtitle: parent.adresse,
+                   subtitle: parent.adresse,
                   ),
               ],
             ),
@@ -265,7 +267,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                     },
                     icon: const Icon(Icons.edit_rounded, size: 16),
                     label: Text('Modifier'.tr),
-                  ),
+                 ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -278,7 +280,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                     ),
                     label: Text(
                       'Supprimer'.tr,
-                      style: const TextStyle(color: AppColors.error, fontSize: 13),
+                     style: const TextStyle(color: AppColors.error, fontSize: 13),
                     ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.error,
@@ -291,7 +293,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   child: ElevatedButton(
                     onPressed: () => Get.back(),
                     child: Text('Fermer'.tr),
-                  ),
+                 ),
                 ),
               ],
             ),
@@ -309,17 +311,17 @@ class ParentsListeView extends GetView<ParentsListeController> {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text('Supprimer le parent'.tr,
-            style: AppTextStyles.iosHeadline
+           style: AppTextStyles.iosHeadline
                 .copyWith(fontWeight: FontWeight.w800)),
         content: Text(
           'Voulez-vous vraiment supprimer le parent $name ? Cette action est irréversible.'.tr,
-          style: AppTextStyles.iosSubhead,
+         style: AppTextStyles.iosSubhead,
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text('Annuler'.tr,
-                style:
+               style:
                     AppTextStyles.iosBody.copyWith(color: AppColors.primary)),
           ),
           TextButton(

@@ -11,7 +11,7 @@ import 'agenda_controller.dart';
 
 /// Regroupement de toutes les séances et créneaux par Patient
 class PatientSeancesGroup {
-  final dynamic patientId;
+ final dynamic patientId;
   final String patientName;
   final String? photoUrl;
   final String initials;
@@ -43,46 +43,46 @@ class SeancesIndividuellesController extends GetxController {
   final RxList<PatientModel> allPatients = <PatientModel>[].obs;
 
   final RxString status = 'loading'.obs;
-  final RxString errorMessage = ''.obs;
+ final RxString errorMessage = ''.obs;
 
-  // Tabs: 'a_venir' | 'historique' | 'toutes'
-  final RxString activeTab = 'a_venir'.obs;
-  final RxString searchQuery = ''.obs;
+ // Tabs: 'a_venir' | 'historique' | 'toutes'
+ final RxString activeTab = 'a_venir'.obs;
+ final RxString searchQuery = ''.obs;
 
-  // ── Formulaire Créneau Récurrent Patient ──
+ // ── Formulaire Créneau Récurrent Patient ──
   final Rx<dynamic> selectedPatientId = Rx<dynamic>(null);
   final RxList<String> selectedDays = <String>['Lun', 'Mer'].obs;
-  final RxString modeCreneaux = 'fixe'.obs;
-  final RxString heureDebut = '10:00'.obs;
-  final RxString heureFin = '10:45'.obs;
-  final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
+ final RxString modeCreneaux = 'fixe'.obs;
+ final RxString heureDebut = '10:00'.obs;
+ final RxString heureFin = '10:45'.obs;
+ final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
   final RxString patientSearchQuery = ''.obs;
 
-  Timer? _debounceTimer;
+ Timer? _debounceTimer;
 
   static const _cacheDuration = Duration(minutes: 2);
 
   static const List<String> allDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-  static const List<String> allDayFullNames = [
+ static const List<String> allDayFullNames = [
     'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'
-  ];
+ ];
 
   static const Map<String, String> dayToFull = {
     'Lun': 'lundi',
-    'Mar': 'mardi',
-    'Mer': 'mercredi',
-    'Jeu': 'jeudi',
-    'Ven': 'vendredi',
-    'Sam': 'samedi',
-    'Dim': 'dimanche',
-    'lun': 'lundi',
-    'mar': 'mardi',
-    'mer': 'mercredi',
-    'jeu': 'jeudi',
-    'ven': 'vendredi',
-    'sam': 'samedi',
-    'dim': 'dimanche',
-  };
+   'Mar': 'mardi',
+   'Mer': 'mercredi',
+   'Jeu': 'jeudi',
+   'Ven': 'vendredi',
+   'Sam': 'samedi',
+   'Dim': 'dimanche',
+   'lun': 'lundi',
+   'mar': 'mardi',
+   'mer': 'mercredi',
+   'jeu': 'jeudi',
+   'ven': 'vendredi',
+   'sam': 'samedi',
+   'dim': 'dimanche',
+ };
 
   @override
   void onInit() {
@@ -109,16 +109,16 @@ class SeancesIndividuellesController extends GetxController {
     final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.seancesIndivList);
     if (cached != null) {
       if (cached['seances'] is List<SeanceModel>) {
-        allSeances.value = cached['seances'] as List<SeanceModel>;
-      }
+       allSeances.value = cached['seances'] as List<SeanceModel>;
+     }
       if (cached['patients'] is List<PatientModel>) {
-        allPatients.value = cached['patients'] as List<PatientModel>;
-      }
+       allPatients.value = cached['patients'] as List<PatientModel>;
+     }
       if (allPatients.isNotEmpty && selectedPatientId.value == null) {
         selectedPatientId.value = allPatients.first.id;
       }
       status.value = 'success';
-    }
+   }
   }
 
   Future<void> loadData({bool forceRefresh = false}) async {
@@ -128,7 +128,7 @@ class SeancesIndividuellesController extends GetxController {
 
     if (allSeances.isEmpty) {
       status.value = 'loading';
-    }
+   }
 
     try {
       final results = await Future.wait([
@@ -156,18 +156,18 @@ class SeancesIndividuellesController extends GetxController {
         CacheKeys.seancesIndivList,
         {
           'seances': seancesList,
-          'patients': patientsList,
-        },
+         'patients': patientsList,
+       },
         ttl: _cacheDuration,
         tags: {CacheTags.seances, CacheTags.patients},
       );
 
       status.value = 'success';
-    } catch (e) {
+   } catch (e) {
       if (allSeances.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-      }
+     }
     }
   }
 
@@ -183,11 +183,11 @@ class SeancesIndividuellesController extends GetxController {
   /// Liste regroupée par Patient (1 seule carte par patient dans la liste)
   List<PatientSeancesGroup> get filteredPatientGroups {
     final todayStr = DateTime.now().toIso8601String().split('T').first;
-    final Map<String, List<SeanceModel>> byPatient = {};
+   final Map<String, List<SeanceModel>> byPatient = {};
 
     for (final s in allSeances) {
       final pid = (s.patientId ?? s.patient?['id'] ?? s.patientFullName).toString();
-      byPatient.putIfAbsent(pid, () => []).add(s);
+     byPatient.putIfAbsent(pid, () => []).add(s);
     }
 
     final groups = <PatientSeancesGroup>[];
@@ -213,15 +213,15 @@ class SeancesIndividuellesController extends GetxController {
           (seanceList.first.patientFullName.isNotEmpty
               ? seanceList.first.patientFullName
               : 'Patient #$pid');
-      final pInitials = patient?.initials ?? seanceList.first.initials;
+     final pInitials = patient?.initials ?? seanceList.first.initials;
       final pPhoto = patient?.photoUrl ?? seanceList.first.photoUrl;
 
       final aVenirSeances = seanceList
           .where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'faite')
-          .toList();
+         .toList();
       final realiseesSeances = seanceList
           .where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'faite')
-          .toList();
+         .toList();
 
       final prochaine =
           aVenirSeances.isNotEmpty ? aVenirSeances.first : null;
@@ -231,7 +231,7 @@ class SeancesIndividuellesController extends GetxController {
         final dt = DateTime.tryParse(s.date);
         if (dt != null) {
           const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-          daySet.add(days[(dt.weekday - 1) % 7]);
+         daySet.add(days[(dt.weekday - 1) % 7]);
         }
       }
 
@@ -248,10 +248,10 @@ class SeancesIndividuellesController extends GetxController {
       );
 
       if (activeTab.value == 'a_venir' && group.totalAVenir == 0) {
-        continue;
+       continue;
       }
       if (activeTab.value == 'historique' && group.totalRealisees == 0) {
-        continue;
+       continue;
       }
 
       final q = searchQuery.value.toLowerCase().trim();
@@ -260,7 +260,7 @@ class SeancesIndividuellesController extends GetxController {
         final matchDates = seanceList.any((s) =>
             s.date.contains(q) ||
             (s.descriptionEtat ?? '').toLowerCase().contains(q));
-        if (!matchName && !matchDates) continue;
+       if (!matchName && !matchDates) continue;
       }
 
       groups.add(group);
@@ -285,16 +285,16 @@ class SeancesIndividuellesController extends GetxController {
     var list = allSeances.toList();
     final todayStr = DateTime.now().toIso8601String().split('T').first;
 
-    if (activeTab.value == 'a_venir') {
-      list = list.where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'faite').toList();
-      list.sort((a, b) {
+   if (activeTab.value == 'a_venir') {
+     list = list.where((s) => s.date.compareTo(todayStr) >= 0 && s.statut != 'faite').toList();
+     list.sort((a, b) {
         final d = a.date.compareTo(b.date);
         if (d != 0) return d;
         return a.heureDebut.compareTo(b.heureDebut);
       });
     } else if (activeTab.value == 'historique') {
-      list = list.where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'faite').toList();
-    }
+     list = list.where((s) => s.date.compareTo(todayStr) < 0 || s.statut == 'faite').toList();
+   }
 
     final q = searchQuery.value.toLowerCase().trim();
     if (q.isNotEmpty) {
@@ -302,7 +302,7 @@ class SeancesIndividuellesController extends GetxController {
         final pName = s.patientFullName.toLowerCase();
         final date = s.date.toLowerCase();
         final desc = (s.descriptionEtat ?? '').toLowerCase();
-        return pName.contains(q) || date.contains(q) || desc.contains(q);
+       return pName.contains(q) || date.contains(q) || desc.contains(q);
       }).toList();
     }
 
@@ -318,7 +318,7 @@ class SeancesIndividuellesController extends GetxController {
   String getPatientName(dynamic id) {
     final pat = allPatients.firstWhereOrNull((p) => p.id == id);
     return pat?.fullName ?? 'Patient #$id';
-  }
+ }
 
   void toggleDay(String day) {
     if (selectedDays.contains(day)) {
@@ -336,18 +336,18 @@ class SeancesIndividuellesController extends GetxController {
 
   String getSlotStartForDay(String day) {
     return daySlotsMap[day]?['debut'] ?? heureDebut.value;
-  }
+ }
 
   String getSlotEndForDay(String day) {
     return daySlotsMap[day]?['fin'] ?? heureFin.value;
-  }
+ }
 
   void updateSlotForDay(String day, {String? debut, String? fin}) {
     final cur = daySlotsMap[day] ?? {'debut': heureDebut.value, 'fin': heureFin.value};
-    daySlotsMap[day] = {
+   daySlotsMap[day] = {
       'debut': debut ?? cur['debut'] ?? heureDebut.value,
-      'fin': fin ?? cur['fin'] ?? heureFin.value,
-    };
+     'fin': fin ?? cur['fin'] ?? heureFin.value,
+   };
     daySlotsMap.refresh();
   }
 
@@ -356,22 +356,22 @@ class SeancesIndividuellesController extends GetxController {
   Future<bool> enregistrerCreneauRecurrent() async {
     if (selectedPatientId.value == null) {
       Get.snackbar('Erreur', 'Veuillez sélectionner un patient.', snackPosition: SnackPosition.BOTTOM);
-      return false;
+     return false;
     }
     if (selectedDays.isEmpty) {
       Get.snackbar('Erreur', 'Veuillez sélectionner au moins un jour.', snackPosition: SnackPosition.BOTTOM);
-      return false;
+     return false;
     }
 
     try {
       if (modeCreneaux.value == 'fixe') {
-        final fullDays = selectedDays.map((d) => dayToFull[d] ?? d.toLowerCase()).toList();
+       final fullDays = selectedDays.map((d) => dayToFull[d] ?? d.toLowerCase()).toList();
 
         await _planningService.setPlanningRecurrent(selectedPatientId.value, {
           'jours_semaine': fullDays,
-          'heure_debut': heureDebut.value,
-          'heure_fin': heureFin.value,
-        });
+         'heure_debut': heureDebut.value,
+         'heure_fin': heureFin.value,
+       });
 
         try {
           await _planningService.genererSeances(selectedPatientId.value);
@@ -384,9 +384,9 @@ class SeancesIndividuellesController extends GetxController {
 
           await _planningService.setPlanningRecurrent(selectedPatientId.value, {
             'jours_semaine': [fullDay],
-            'heure_debut': start,
-            'heure_fin': end,
-          });
+           'heure_debut': start,
+           'heure_fin': end,
+         });
 
           try {
             await _planningService.genererSeances(selectedPatientId.value);
@@ -411,8 +411,8 @@ class SeancesIndividuellesController extends GetxController {
 
       Get.snackbar(
         'Créneau enregistré',
-        'Le planning a été configuré et synchronisé sur l\'agenda.',
-        snackPosition: SnackPosition.BOTTOM,
+       'Le planning a été configuré et synchronisé sur l\'agenda.',
+       snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.black.withValues(alpha: 0.85),
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
@@ -421,7 +421,7 @@ class SeancesIndividuellesController extends GetxController {
       return true;
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible d\'enregistrer le créneau : $e', snackPosition: SnackPosition.BOTTOM);
-      return false;
+     return false;
     }
   }
 
@@ -436,20 +436,20 @@ class SeancesIndividuellesController extends GetxController {
       if (newDate == seance.date) {
         await _seanceService.updateSeance(seance.id, {
           'heure_debut': newHeureDebut,
-          'heure_fin': newHeureFin,
-          'statut': statut,
-        });
+         'heure_fin': newHeureFin,
+         'statut': statut,
+       });
       } else {
         await _seanceService.deleteSeance(seance.id);
         await _seanceService.createSeance({
           'patient_id': seance.patientId,
-          'date': newDate,
-          'heure_debut': newHeureDebut,
-          'heure_fin': newHeureFin,
-          'statut': statut,
-          'employe_ids': seance.employeIds,
-          if (seance.descriptionEtat != null) 'description_etat': seance.descriptionEtat,
-        });
+         'date': newDate,
+         'heure_debut': newHeureDebut,
+         'heure_fin': newHeureFin,
+         'statut': statut,
+         'employe_ids': seance.employeIds,
+         if (seance.descriptionEtat != null) 'description_etat': seance.descriptionEtat,
+       });
       }
 
       AppCacheManager.invalidateTag(CacheTags.seances);
@@ -470,15 +470,15 @@ class SeancesIndividuellesController extends GetxController {
 
       Get.snackbar(
         'Rendez-vous mis à jour',
-        'La séance a été reprogrammée au $newDate de $newHeureDebut à $newHeureFin.',
-        snackPosition: SnackPosition.BOTTOM,
+       'La séance a été reprogrammée au $newDate de $newHeureDebut à $newHeureFin.',
+       snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.black.withValues(alpha: 0.85),
         colorText: Colors.white,
       );
       return true;
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de modifier le rendez-vous : $e', snackPosition: SnackPosition.BOTTOM);
-      return false;
+     return false;
     }
   }
 
@@ -501,7 +501,7 @@ class SeancesIndividuellesController extends GetxController {
       } catch (_) {}
 
       Get.snackbar('Séance supprimée', 'Le rendez-vous a été retiré du planning.', snackPosition: SnackPosition.BOTTOM);
-      return true;
+     return true;
     } catch (e) {
       Get.snackbar('Erreur', 'Impossible de supprimer la séance : $e', snackPosition: SnackPosition.BOTTOM);
       return false;
