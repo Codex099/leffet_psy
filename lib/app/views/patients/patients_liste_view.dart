@@ -20,7 +20,6 @@ class PatientsListeView extends GetView<PatientsListeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       extendBody: true,
       appBar: CreativeAppBar(
@@ -50,52 +49,49 @@ class PatientsListeView extends GetView<PatientsListeController> {
         ],
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
-      body: SafeArea(
-        bottom: false,
-        child: RefreshIndicator(
-          onRefresh: () async => controller.loadPatients(),
-          color: AppColors.primary,
-          backgroundColor: Colors.white,
-          strokeWidth: 2.5,
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 120),
-            children: [
-            const SizedBox(height: 90),
-              // ── Search Bar Premium ─────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                child: Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderLight, width: 0.7),
-                    boxShadow: AppColors.softShadow,
+      body: RefreshIndicator(
+        onRefresh: () async => controller.loadPatients(),
+        color: AppColors.primary,
+        backgroundColor: Colors.white,
+        strokeWidth: 2.5,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 120),
+          children: [
+            // ── Search Bar Premium ─────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderLight, width: 0.7),
+                  boxShadow: AppColors.softShadow,
+                ),
+                child: TextField(
+                  onChanged: (val) => controller.search(val),
+                  style: AppTextStyles.iosBody.copyWith(
+                    fontWeight: FontWeight.w500,
                   ),
-                  child: TextField(
-                    onChanged: (val) => controller.search(val),
-                    style: AppTextStyles.iosBody.copyWith(
-                      fontWeight: FontWeight.w500,
+                  decoration: InputDecoration(
+                    hintText: 'Rechercher un patient...'.tr,
+                    hintStyle: AppTextStyles.iosSubhead.copyWith(
+                      color: AppColors.textHint,
                     ),
-                    decoration: InputDecoration(
-                      hintText: 'Rechercher un patient...'.tr,
-                     hintStyle: AppTextStyles.iosSubhead.copyWith(
-                        color: AppColors.textHint,
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        size: 22,
-                        color: AppColors.secondary,
-                      ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                      isDense: true,
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 22,
+                      color: AppColors.secondary,
                     ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    isDense: true,
                   ),
-                ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
-              ),
+                ),
+              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
+            ),
 
               // ── Filtres Segmented ──────────────────────────────────────────
               Obx(() {
@@ -181,7 +177,6 @@ class PatientsListeView extends GetView<PatientsListeController> {
             ],
           ),
         ),
-      ),
     );
   }
 

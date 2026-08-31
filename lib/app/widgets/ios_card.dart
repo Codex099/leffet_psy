@@ -76,6 +76,7 @@ class IosCard extends StatelessWidget {
             ),
           ],
           Container(
+            width: double.infinity,
             decoration: BoxDecoration(
               color: backgroundColor ?? AppColors.surface,
               borderRadius: BorderRadius.circular(28),
@@ -145,6 +146,7 @@ class _IosCardHero extends IosCard {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
+            width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(28),
               boxShadow: [

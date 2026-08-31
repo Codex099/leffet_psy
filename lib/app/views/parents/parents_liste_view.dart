@@ -18,7 +18,6 @@ class ParentsListeView extends GetView<ParentsListeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Annuaire Parents'.tr,
@@ -44,39 +43,37 @@ class ParentsListeView extends GetView<ParentsListeController> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            // iOS Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.iosSystemGray5,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: TextField(
-                  onChanged: (val) => controller.search(val),
-                  style: AppTextStyles.iosBody,
-                  decoration: InputDecoration(
-                    hintText: 'Rechercher un parent (nom, téléphone)...'.tr,
-                   hintStyle: AppTextStyles.iosSubhead,
-                    prefixIcon: const Icon(
-                      Icons.search_rounded,
-                      size: 20,
-                      color: AppColors.iosSystemGray,
-                    ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                    isDense: true,
+      body: Column(
+        children: [
+          // iOS Search Bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.iosSystemGray5,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextField(
+                onChanged: (val) => controller.search(val),
+                style: AppTextStyles.iosBody,
+                decoration: InputDecoration(
+                  hintText: 'Rechercher un parent (nom, téléphone)...'.tr,
+                  hintStyle: AppTextStyles.iosSubhead,
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    size: 20,
+                    color: AppColors.iosSystemGray,
                   ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  isDense: true,
                 ),
               ),
             ),
+          ),
 
             // Content List
             Expanded(
@@ -99,11 +96,11 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   return StatePlaceholder.empty(
                     title: query.isNotEmpty
                         ? 'Aucun résultat'.tr
-                       : 'Aucun parent enregistré',
+                       : 'Aucun parent enregistré'.tr,
                    message: query.isNotEmpty
-                        ? 'Aucun parent ne correspond à  "$query".'
-                       : 'Ajoutez des parents pour les associer aux fiches des patients.',
-                   actionLabel: 'Nouveau parent',
+                        ? 'Aucun parent ne correspond à "$query".'.tr
+                       : 'Ajoutez des parents pour les associer aux fiches des patients.'.tr,
+                   actionLabel: 'Nouveau parent'.tr,
                    onAction: () => Get.toNamed(AppRoutes.editParent),
                   );
                 }
@@ -129,7 +126,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                               parent.telephone != null &&
                                   parent.telephone!.isNotEmpty
                               ? parent.telephone
-                              : 'Aucun téléphone renseigné',
+                              : 'Aucun téléphone renseigné'.tr,
                          showChevron: true,
                           trailing:
                               parent.telephone != null &&
@@ -176,7 +173,6 @@ class ParentsListeView extends GetView<ParentsListeController> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -221,8 +217,8 @@ class ParentsListeView extends GetView<ParentsListeController> {
                       if (parent.etatCivil != null &&
                           parent.etatCivil!.isNotEmpty)
                         Text(
-                          'État civil : ${parent.etatCivil}'.tr,
-                         style: AppTextStyles.iosFootnote,
+                          '${'État civil :'.tr} ${parent.etatCivil!.tr}',
+                          style: AppTextStyles.iosFootnote,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

@@ -16,15 +16,13 @@ class EditParentView extends GetView<EditParentController> {
     final bool isEditMode = controller.parentId != null;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: isEditMode ? 'Modifier le Parent' : 'Nouveau Parent / Tuteur',
        subtitle: 'Tuteur Légal & Famille'.tr,
        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Obx(() {
+      body: Obx(() {
           if (controller.status.value == 'loading' && isEditMode) {
            return const Center(child: CircularProgressIndicator());
           }
@@ -36,7 +34,6 @@ class EditParentView extends GetView<EditParentController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            const SizedBox(height: 90),
                 // Error Banner (for 409 and other errors)
                 if (controller.status.value == 'error' &&
                    controller.errorMessage.value.isNotEmpty)
@@ -108,13 +105,47 @@ class EditParentView extends GetView<EditParentController> {
                         initialValue: controller.telephone.value,
                         onChanged: (v) => controller.telephone.value = v,
                       ),
-                      const SizedBox(height: 14),
-                      AppTextField(
-                        label: 'État civil'.tr,
-                       hintText: 'Marié(e), Divorcé(e)...'.tr,
-                       initialValue: controller.etatCivil.value,
-                        onChanged: (v) => controller.etatCivil.value = v,
-                      ),
+                      // État civil dropdown
+                      Text('État civil'.tr, style: AppTextStyles.fieldLabel),
+                      const SizedBox(height: 8),
+                      Obx(() {
+                        final choices = EditParentController.etatCivilChoices;
+                        final currentVal = controller.etatCivil.value;
+                        final bool valueExists =
+                            choices.any((c) => c['value'] == currentVal);
+                        final effectiveValue = valueExists
+                            ? currentVal
+                            : (choices.isNotEmpty ? choices.first['value'] : null);
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: AppColors.fieldBackground,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: effectiveValue,
+                              isExpanded: true,
+                              style: AppTextStyles.bodyMedium,
+                              dropdownColor: AppColors.surface,
+                              borderRadius: BorderRadius.circular(14),
+                              items: choices
+                                  .map(
+                                    (item) => DropdownMenuItem<String>(
+                                      value: item['value'],
+                                      child: Text(item['label']!),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (val) {
+                                if (val != null) controller.etatCivil.value = val;
+                              },
+                            ),
+                          ),
+                        );
+                      }),
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Adresse'.tr,
@@ -180,7 +211,6 @@ class EditParentView extends GetView<EditParentController> {
             ),
           );
         }),
-      ),
     );
   }
 }

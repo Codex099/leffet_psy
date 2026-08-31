@@ -17,46 +17,43 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Compte-rendu Séance'.tr,
        subtitle: 'Bilan Clinique'.tr,
        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.status.value == 'loading') {
-           return const StatePlaceholder(type: StatePlaceholderType.loading);
-          }
-          if (controller.status.value == 'error') {
-           return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-              onAction: () => controller.loadSeance(),
-            );
-          }
+      body: Obx(() {
+        if (controller.status.value == 'loading') {
+          return const StatePlaceholder(type: StatePlaceholderType.loading);
+        }
+        if (controller.status.value == 'error') {
+          return StatePlaceholder.error(
+            message: controller.errorMessage.value,
+            onAction: () => controller.loadSeance(),
+          );
+        }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-            const SizedBox(height: 90),
-                StatusBadge.active(label: 'Séance individuelle'.tr),
-               const SizedBox(height: 16),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 12.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StatusBadge.active(label: 'Séance individuelle'.tr),
+              const SizedBox(height: 16),
 
-                // Résumé / notes Card
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: AppColors.cardShadow,
-                  ),
-                  child: Column(
+              // Résumé / notes Card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: AppColors.cardShadow,
+                ),
+                child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -187,7 +184,6 @@ class CompteRenduSeanceView extends GetView<CompteRenduSeanceController> {
             ),
           );
         }),
-      ),
     );
   }
 }

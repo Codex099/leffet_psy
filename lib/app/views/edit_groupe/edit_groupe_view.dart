@@ -48,20 +48,17 @@ class _EditGroupeViewState extends State<EditGroupeView> {
     final bool isEditMode = controller.groupeId != null;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: isEditMode ? 'Modifier le Groupe'.tr : 'Nouveau Groupe'.tr,
        subtitle: 'Atelier Thérapeutique'.tr,
        showBackButton: true,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-            const SizedBox(height: 90),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
               // ── Infos générales ──
               _card(
                 children: [
@@ -478,7 +475,6 @@ class _EditGroupeViewState extends State<EditGroupeView> {
             ],
           ),
         ),
-      ),
     );
   }
 

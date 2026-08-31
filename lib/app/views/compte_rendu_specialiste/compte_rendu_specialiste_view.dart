@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/compte_rendu_specialiste_controller.dart';
@@ -20,7 +20,6 @@ class CompteRenduSpecialisteView
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Compte-Rendu Clinique'.tr,
@@ -33,38 +32,36 @@ class CompteRenduSpecialisteView
           ),
         ],
       ),
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.status.value == 'loading') {
-           return StatePlaceholder.loading(
-              message: 'Chargement de la séance...',
-           );
-          }
-          if (controller.status.value == 'error') {
-           return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-              onAction: () => controller.loadData(),
-            );
-          }
+      body: Obx(() {
+        if (controller.status.value == 'loading') {
+          return StatePlaceholder.loading(
+            message: 'Chargement de la séance...',
+          );
+        }
+        if (controller.status.value == 'error') {
+          return StatePlaceholder.error(
+            message: controller.errorMessage.value,
+            onAction: () => controller.loadData(),
+          );
+        }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-            const SizedBox(height: 90),
-                // ── 1. Bandeau Contexte & Responsable ──
-                _buildHeaderCard(context),
-                const SizedBox(height: 14),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 12.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── 1. Bandeau Contexte & Responsable ──
+              _buildHeaderCard(context),
+              const SizedBox(height: 14),
 
-                // ── 2. Présences & Suivi des Participants ──
-                if (controller.isGroupe.value)
-                  _buildGroupParticipantsSection(context)
-                else
-                  _buildIndividualPresenceCard(context),
+              // ── 2. Présences & Suivi des Participants ──
+              if (controller.isGroupe.value)
+                _buildGroupParticipantsSection(context)
+              else
+                _buildIndividualPresenceCard(context),
                 const SizedBox(height: 14),
 
                 // ── 3. Observations Cliniques & Déroulement ──
@@ -86,7 +83,6 @@ class CompteRenduSpecialisteView
             ),
           );
         }),
-      ),
     );
   }
 

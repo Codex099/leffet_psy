@@ -21,7 +21,6 @@ class AgendaView extends GetView<AgendaController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       extendBody: true,
       appBar: CreativeAppBar(
@@ -51,16 +50,13 @@ class AgendaView extends GetView<AgendaController> {
         ],
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 2),
-      body: SafeArea(
-        bottom: false,
-        child: RefreshIndicator(
-          onRefresh: () => controller.loadAgenda(forceRefresh: true),
-          color: AppColors.primary,
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 120),
-            children: [
-            const SizedBox(height: 90),
-              // ── En-tête Mois & Navigation Semaine ──
+      body: RefreshIndicator(
+        onRefresh: () => controller.loadAgenda(forceRefresh: true),
+        color: AppColors.primary,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 120),
+          children: [
+            // ── En-tête Mois & Navigation Semaine ──
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 6, 16, 4),
                 child: Row(
@@ -353,7 +349,6 @@ class AgendaView extends GetView<AgendaController> {
             ],
           ),
         ),
-      ),
     );
   }
 

@@ -18,7 +18,6 @@ class CalendrierView extends GetView<CalendrierController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Calendrier Administratif'.tr,
@@ -44,26 +43,24 @@ class CalendrierView extends GetView<CalendrierController> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 90),
-            // Segmented Control (Liste / Calendrier)
-            Obx(
-              () => IosSegmentedControl<String>(
-                segments: const {
-                  'Liste': 'Liste des événements',
-                 'Calendrier': 'Vue Calendrier',
-               },
-                selectedValue: controller.activeTab.value,
-                onValueChanged: (tab) => controller.activeTab.value = tab,
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Segmented Control (Liste / Calendrier)
+          Obx(
+            () => IosSegmentedControl<String>(
+              segments: const {
+                'Liste': 'Liste des événements',
+                'Calendrier': 'Vue Calendrier',
+              },
+              selectedValue: controller.activeTab.value,
+              onValueChanged: (tab) => controller.activeTab.value = tab,
+              margin: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 10,
               ),
             ),
+          ),
 
             // Content List or Empty placeholder
             Expanded(
@@ -144,7 +141,6 @@ class CalendrierView extends GetView<CalendrierController> {
             ),
           ],
         ),
-      ),
     );
   }
 

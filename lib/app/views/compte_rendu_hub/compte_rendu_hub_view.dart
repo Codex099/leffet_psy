@@ -19,7 +19,6 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Comptes-Rendus Cliniques'.tr,
@@ -32,17 +31,15 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            // ── Statistiques Rapides (KPIs) ──
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Obx(
+      body: Column(
+        children: [
+          // ── Statistiques Rapides (KPIs) ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Obx(
                       () => _buildStatTile(
                         title: 'À Rédiger'.tr,
                        count: '${controller.enAttenteCount}',
@@ -220,7 +217,6 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
             ),
           ],
         ),
-      ),
     );
   }
 

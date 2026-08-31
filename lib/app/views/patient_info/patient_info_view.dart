@@ -215,8 +215,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                               const SizedBox(width: 6),
                                               Text(
                                                 p?.estActif == true
-                                                    ? 'Suivi Actif'
-                                                   : 'Inactif',
+                                                    ? 'Suivi Actif'.tr
+                                                   : 'Inactif'.tr,
                                                style: AppTextStyles.iosCaption2
                                                     .copyWith(
                                                       color: Colors.white,
@@ -256,7 +256,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     _buildSectionCard(
                       title: 'Parent lié'.tr,
                      icon: Icons.phone_outlined,
-                      actionLabel: 'Créer nouveau',
+                      actionLabel: 'Créer nouveau'.tr,
                      onActionTap: () => Get.toNamed(AppRoutes.editParent),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,10 +276,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                               final parent = pParent.parent;
                               final name = parent != null
                                   ? parent.fullName
-                                  : 'Parent inconnu';
+                                  : 'Parent inconnu'.tr;
                              final phone = parent != null
-                                  ? (parent.telephone ?? 'Pas de numéro')
-                                 : 'Pas de numéro';
+                                  ? (parent.telephone ?? 'Pas de numéro'.tr)
+                                 : 'Pas de numéro'.tr;
                              final initials = parent != null
                                   ? parent.initials
                                   : 'P';
@@ -520,8 +520,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                           children: [
                                             StatusBadge.active(
                                               label: hist.isActif
-                                                  ? 'Actif (Réactivé)'
-                                                 : 'Inactif (Désactivé)',
+                                                  ? 'Actif (Réactivé)'.tr
+                                                 : 'Inactif (Désactivé)'.tr,
                                            ),
                                             Text(
                                               hist.dateChangement.length >= 10
@@ -869,8 +869,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
   void _showAssociateParentDialog(BuildContext context) {
     if (controller.availableParents.isEmpty) {
       Get.snackbar(
-        'Info',
-       'Aucun parent enregistré sur le système.',
+        'Info'.tr,
+       'Aucun parent enregistré sur le système.'.tr,
        snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -906,7 +906,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
             title: Text('Rôle familial'.tr, style: AppTextStyles.iosTitle2),
            content: StatefulBuilder(
               builder: (ctx, setDialogState) => DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Lien de parenté'),
+                decoration: InputDecoration(labelText: 'Lien de parenté'.tr),
                initialValue: selectedRole,
                 items: [
                   DropdownMenuItem(value: 'pere', child: Text('Père'.tr)),
@@ -958,8 +958,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           isCurrentlyActive
-              ? 'Désactiver le patient ?'
-             : 'Réactiver le patient ?',
+              ? 'Désactiver le patient ?'.tr
+             : 'Réactiver le patient ?'.tr,
          style: AppTextStyles.iosTitle2,
         ),
         content: Column(
@@ -968,8 +968,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
           children: [
             Text(
               isCurrentlyActive
-                  ? 'Le statut du patient passera à Inactif. Une entrée sera ajoutée dans l\'historique des statuts.'
-                 : 'Le statut du patient repassera à Actif. Vous pouvez consigner une observation ou note clinique pour cette réactivation.',
+                  ? 'Le statut du patient passera à Inactif. Une entrée sera ajoutée dans l\'historique des statuts.'.tr
+                 : 'Le statut du patient repassera à Actif. Vous pouvez consigner une observation ou note clinique pour cette réactivation.'.tr,
              style: AppTextStyles.bodySmall,
             ),
             if (!isCurrentlyActive) ...[
@@ -978,7 +978,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 controller: noteCtrl,
                 maxLines: 3,
                 decoration: InputDecoration(
-                  labelText: 'Note clinique / Dégradation',
+                  labelText: 'Note clinique / Dégradation'.tr,
                  hintText: 'Préciser les motifs ou observations cliniques...'.tr,
                ),
               ),
@@ -1000,7 +1000,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 noteDegradation: note.isNotEmpty ? note : null,
               );
             },
-            child: Text(isCurrentlyActive ? 'Désactiver' : 'Réactiver'),
+            child: Text(isCurrentlyActive ? 'Désactiver'.tr : 'Réactiver'.tr),
          ),
         ],
       ),

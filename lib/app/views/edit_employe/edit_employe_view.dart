@@ -65,15 +65,13 @@ class _EditEmployeViewState extends State<EditEmployeView> {
     final bool isEditMode = controller.employeId != null;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: isEditMode ? 'Modifier l\'employé'.tr : 'Nouvel employé'.tr,
        subtitle: 'Équipe Clinique'.tr,
        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Obx(() {
+      body: Obx(() {
           if (controller.status.value == 'loading' &&
              isEditMode &&
               controller.nom.value.isEmpty) {
@@ -93,7 +91,6 @@ class _EditEmployeViewState extends State<EditEmployeView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-            const SizedBox(height: 90),
                 // ── Rôle Segmented Control iOS ──
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -253,7 +250,6 @@ class _EditEmployeViewState extends State<EditEmployeView> {
             ),
           );
         }),
-      ),
     );
   }
 }

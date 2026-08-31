@@ -11,27 +11,37 @@ class EditParentController extends GetxController {
   dynamic parentId;
 
   final nom = ''.obs;
- final prenom = ''.obs;
- final telephone = ''.obs;
- final etatCivil = ''.obs;
- final adresse = ''.obs;
- // Rôle familial — valeurs supportées par le backend
+  final prenom = ''.obs;
+  final telephone = ''.obs;
+  final etatCivil = 'Marié(e)'.obs;
+  final adresse = ''.obs;
+  // Rôle familial — valeurs supportées par le backend
   final role = 'pere'.obs;
 
- final RxString status = 'success'.obs;
- final RxString errorMessage = ''.obs;
+  final RxString status = 'success'.obs;
+  final RxString errorMessage = ''.obs;
 
- // Dropdown choices
-  static List<Map<String, String>> roleChoices = [
-    {'value': 'pere', 'label': 'Père'.tr},
-   {'value': 'mere', 'label': 'Mère'.tr},
-   {'value': 'tuteur', 'label': 'Tuteur légal'.tr},
-   {'value': 'oncle', 'label': 'Oncle'.tr},
-   {'value': 'tante', 'label': 'Tante'.tr},
-   {'value': 'grand_pere', 'label': 'Grand-père'.tr},
-   {'value': 'grand_mere', 'label': 'Grand-mère'.tr},
-   {'value': 'autre', 'label': 'Autre'.tr},
- ];
+  // Dropdown choices
+  static List<Map<String, String>> get etatCivilChoices => [
+        {'value': 'Marié(e)', 'label': 'Marié(e)'.tr},
+        {'value': 'Célibataire', 'label': 'Célibataire'.tr},
+        {'value': 'Divorcé(e)', 'label': 'Divorcé(e)'.tr},
+        {'value': 'Veuf(ve)', 'label': 'Veuf(ve)'.tr},
+        {'value': 'Séparé(e)', 'label': 'Séparé(e)'.tr},
+        {'value': 'Autre', 'label': 'Autre'.tr},
+        {'value': 'Non spécifié', 'label': 'Non spécifié'.tr},
+      ];
+
+  static List<Map<String, String>> get roleChoices => [
+        {'value': 'pere', 'label': 'Père'.tr},
+        {'value': 'mere', 'label': 'Mère'.tr},
+        {'value': 'tuteur', 'label': 'Tuteur légal'.tr},
+        {'value': 'oncle', 'label': 'Oncle'.tr},
+        {'value': 'tante', 'label': 'Tante'.tr},
+        {'value': 'grand_pere', 'label': 'Grand-père'.tr},
+        {'value': 'grand_mere', 'label': 'Grand-mère'.tr},
+        {'value': 'autre', 'label': 'Autre'.tr},
+      ];
 
   @override
   void onInit() {
@@ -46,13 +56,34 @@ class EditParentController extends GetxController {
   Future<void> _loadParent(dynamic id) async {
     try {
       status.value = 'loading';
-     final parent = await _parentService.getParent(id);
+      final parent = await _parentService.getParent(id);
       nom.value = parent.nom;
       prenom.value = parent.prenom;
       telephone.value = parent.telephone ?? '';
-     etatCivil.value = parent.etatCivil ?? '';
-     adresse.value = parent.adresse ?? '';
-     status.value = 'success';
+      if (parent.etatCivil != null && parent.etatCivil!.trim().isNotEmpty) {
+        final raw = parent.etatCivil!.trim();
+        if (raw == 'Marié' || raw == 'Mariée' || raw == 'Marié(e)') {
+          etatCivil.value = 'Marié(e)';
+        } else if (raw == 'Célibataire') {
+          etatCivil.value = 'Célibataire';
+        } else if (raw == 'Divorcé' || raw == 'Divorcée' || raw == 'Divorcé(e)') {
+          etatCivil.value = 'Divorcé(e)';
+        } else if (raw == 'Veuf' || raw == 'Veuve' || raw == 'Veuf(ve)') {
+          etatCivil.value = 'Veuf(ve)';
+        } else if (raw == 'Séparé' || raw == 'Séparée' || raw == 'Séparé(e)') {
+          etatCivil.value = 'Séparé(e)';
+        } else if (raw == 'Autre') {
+          etatCivil.value = 'Autre';
+        } else if (raw == 'Non spécifié') {
+          etatCivil.value = 'Non spécifié';
+        } else {
+          etatCivil.value = raw;
+        }
+      } else {
+        etatCivil.value = 'Marié(e)';
+      }
+      adresse.value = parent.adresse ?? '';
+      status.value = 'success';
    } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';

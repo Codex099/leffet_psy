@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// AppBar premium iOS 17 — Frosted glass, gradient, et micro-animations.
+/// Floating AppBar conforming to Floating UI design principles:
+/// Detached floating capsule, multi-layer soft diffuse shadow, frosted glass & gradients.
 class CreativeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final String? subtitle;
@@ -27,7 +28,7 @@ class CreativeAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(subtitle != null ? 80.0 : 70.0);
+  Size get preferredSize => Size.fromHeight(subtitle != null ? 70.0 : 60.0);
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class CreativeAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-// ─── Gradient AppBar ──────────────────────────────────────────────────────────
+// ─── Gradient Floating AppBar ────────────────────────────────────────────────
 class _GradientAppBar extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -76,21 +77,26 @@ class _GradientAppBar extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
         child: Container(
           decoration: BoxDecoration(
             gradient: AppColors.headerGradient,
             borderRadius: BorderRadius.circular(50),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
+                color: AppColors.primary.withValues(alpha: 0.25),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             child: Row(
               children: [
                 if (showBackButton) _BackButton(isOnDark: true) else ?leading,
@@ -105,15 +111,22 @@ class _GradientAppBar extends StatelessWidget {
                           subtitle!.toUpperCase(),
                           style: AppTextStyles.iosCaption2.copyWith(
                             color: Colors.white.withValues(alpha: 0.75),
-                            letterSpacing: 1.0,
+                            letterSpacing: 0.9,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 10,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       Text(
                         title,
                         style: AppTextStyles.iosTitle3.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
+                          fontSize: 17,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -128,7 +141,7 @@ class _GradientAppBar extends StatelessWidget {
   }
 }
 
-// ─── Frosted Glass AppBar ─────────────────────────────────────────────────────
+// ─── Frosted Glass Floating AppBar ───────────────────────────────────────────
 class _FrostedAppBar extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -153,19 +166,19 @@ class _FrostedAppBar extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(50),
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.10),
-                blurRadius: 24,
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 26,
                 offset: const Offset(0, 8),
               ),
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 6,
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
@@ -173,20 +186,19 @@ class _FrostedAppBar extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(50),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
               child: Container(
                 decoration: BoxDecoration(
-                  color:
-                      backgroundColor ?? Colors.white.withValues(alpha: 0.45),
+                  color: backgroundColor ?? Colors.white.withValues(alpha: 0.94),
                   borderRadius: BorderRadius.circular(50),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.55),
-                    width: 0.8,
+                    color: Colors.white.withValues(alpha: 0.95),
+                    width: 1.2,
                   ),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 14,
                     vertical: 6,
                   ),
                   child: Row(
@@ -206,16 +218,22 @@ class _FrostedAppBar extends StatelessWidget {
                                     subtitle!.toUpperCase(),
                                     style: AppTextStyles.iosCaption2.copyWith(
                                       color: AppColors.secondary,
-                                      letterSpacing: 1.0,
+                                      letterSpacing: 0.9,
                                       fontWeight: FontWeight.w700,
+                                      fontSize: 10,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
                                     title,
                                     style: AppTextStyles.iosTitle3.copyWith(
                                       color: AppColors.textPrimary,
                                       fontWeight: FontWeight.w700,
+                                      fontSize: 17,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               )
@@ -224,7 +242,10 @@ class _FrostedAppBar extends StatelessWidget {
                                 style: AppTextStyles.iosTitle3.copyWith(
                                   color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w700,
+                                  fontSize: 17,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                       ),
                       ...?actions,
@@ -264,7 +285,7 @@ class _BackButtonState extends State<_BackButton> {
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 120),
-        padding: const EdgeInsets.all(9),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: widget.isOnDark
               ? Colors.white.withValues(alpha: _pressed ? 0.3 : 0.18)
@@ -276,7 +297,7 @@ class _BackButtonState extends State<_BackButton> {
         child: Icon(
           Icons.arrow_back_ios_new_rounded,
           color: widget.isOnDark ? Colors.white : AppColors.primary,
-          size: 17,
+          size: 16,
         ),
       ),
     );

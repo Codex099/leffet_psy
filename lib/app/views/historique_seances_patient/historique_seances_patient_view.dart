@@ -14,65 +14,62 @@ class HistoriqueSeancesPatientView
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Historique des Séances'.tr,
        subtitle: 'Consultations & Bilans'.tr,
        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            // Filter tabs
-            Container(
-              color: AppColors.surface,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Row(
-                children: [
-                  _buildFilterChip('Tous', 'tous'),
-                 const SizedBox(width: 8),
-                  _buildFilterChip('Individuelles', 'individuel'),
-                 const SizedBox(width: 8),
-                  _buildFilterChip('Groupe'.tr, 'groupe'),
-               ],
-              ),
+      body: Column(
+        children: [
+          // Filter tabs
+          Container(
+            color: AppColors.surface,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                _buildFilterChip('Tous', 'tous'),
+               const SizedBox(width: 8),
+                _buildFilterChip('Individuelles', 'individuel'),
+               const SizedBox(width: 8),
+                _buildFilterChip('Groupe'.tr, 'groupe'),
+             ],
             ),
+          ),
 
-            // Content
-            Expanded(
-              child: Obx(() {
-                if (controller.status.value == 'loading') {
-                 return const StatePlaceholder(
-                    type: StatePlaceholderType.loading,
-                  );
-                }
-                if (controller.status.value == 'error') {
-                 return StatePlaceholder.error(
-                    message: controller.errorMessage.value,
-                    onAction: () => controller.loadHistorique(),
-                  );
-                }
+          // Content
+          Expanded(
+            child: Obx(() {
+              if (controller.status.value == 'loading') {
+               return const StatePlaceholder(
+                  type: StatePlaceholderType.loading,
+                );
+              }
+              if (controller.status.value == 'error') {
+               return StatePlaceholder.error(
+                  message: controller.errorMessage.value,
+                  onAction: () => controller.loadHistorique(),
+                );
+              }
 
-                final showIndividuel =
-                    controller.activeFilter.value != 'groupe';
-               final showGroupe =
-                    controller.activeFilter.value != 'individuel';
+              final showIndividuel =
+                  controller.activeFilter.value != 'groupe';
+              final showGroupe =
+                  controller.activeFilter.value != 'individuel';
 
-               final hasContent =
-                    (showIndividuel &&
-                        controller.seancesIndividuelles.isNotEmpty) ||
-                    (showGroupe && controller.seancesGroupe.isNotEmpty);
+              final hasContent =
+                  (showIndividuel &&
+                      controller.seancesIndividuelles.isNotEmpty) ||
+                  (showGroupe && controller.seancesGroupe.isNotEmpty);
 
-                if (!hasContent) {
-                  return const StatePlaceholder(
-                    type: StatePlaceholderType.empty,
-                    message: 'Aucune séance dans l\'historique.',
-                 );
-                }
+              if (!hasContent) {
+                return const StatePlaceholder(
+                  type: StatePlaceholderType.empty,
+                  message: 'Aucune séance dans l\'historique.',
+                );
+              }
 
-                return ListView(
+              return ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
                     // Individual sessions
@@ -112,7 +109,6 @@ class HistoriqueSeancesPatientView
             ),
           ],
         ),
-      ),
     );
   }
 

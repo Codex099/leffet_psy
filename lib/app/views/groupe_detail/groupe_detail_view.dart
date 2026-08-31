@@ -20,7 +20,6 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Détail du Groupe'.tr,
@@ -79,11 +78,10 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
         final planningList = g?.planningRecurrent ?? [];
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            SizedBox(height: MediaQuery.of(context).padding.top + 90),
               // ── En-tête Groupe iOS ──
               IosCard(
                 title: 'Groupe'.tr,

@@ -17,7 +17,6 @@ class GroupesListeView extends GetView<GroupesListeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Groupes Thérapeutiques'.tr,
@@ -43,22 +42,20 @@ class GroupesListeView extends GetView<GroupesListeController> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            // ── Search Bar ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border, width: 0.9),
-                  boxShadow: AppColors.softShadow,
-                ),
-                child: TextField(
+      body: Column(
+        children: [
+          // ── Search Bar ──
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border, width: 0.9),
+                boxShadow: AppColors.softShadow,
+              ),
+              child: TextField(
                   onChanged: (val) => controller.search(val),
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
@@ -121,7 +118,6 @@ class GroupesListeView extends GetView<GroupesListeController> {
             ),
           ],
         ),
-      ),
     );
   }
 

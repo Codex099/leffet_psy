@@ -17,7 +17,6 @@ class EmployesListeView extends GetView<EmployesListeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Équipe & Praticiens'.tr,
@@ -46,22 +45,20 @@ class EmployesListeView extends GetView<EmployesListeController> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            // ── iOS Search Bar ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border, width: 0.9),
-                  boxShadow: AppColors.softShadow,
-                ),
-                child: TextField(
+      body: Column(
+        children: [
+          // ── iOS Search Bar ──
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border, width: 0.9),
+                boxShadow: AppColors.softShadow,
+              ),
+              child: TextField(
                   onChanged: (val) => controller.search(val),
                   style: AppTextStyles.iosBody,
                   decoration: InputDecoration(
@@ -89,7 +86,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
               child: Obx(() {
                 if (controller.status.value == 'loading') {
                  return StatePlaceholder.loading(
-                    message: 'Chargement de l\'équipe...',
+                    message: 'Chargement de l\'équipe...'.tr,
                  );
                 }
                 if (controller.status.value == 'error') {
@@ -102,8 +99,8 @@ class EmployesListeView extends GetView<EmployesListeController> {
                   return StatePlaceholder.empty(
                     title: 'Aucun employé enregistré'.tr,
                    message:
-                        'Ajoutez des membres de l\'équipe pour configurer leurs accès.',
-                   actionLabel: 'Nouvel employé',
+                        'Ajoutez des membres de l\'équipe pour configurer leurs accès.'.tr,
+                   actionLabel: 'Nouvel employé'.tr,
                    onAction: () async {
                       final res = await Get.toNamed(AppRoutes.editEmploye);
                       if (res == true) controller.loadEmployees();
@@ -230,7 +227,6 @@ class EmployesListeView extends GetView<EmployesListeController> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -360,7 +356,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                            radius: 16,
                           ),
                           title: Text(
-                            'Patient #${ids[i]}',
+                            'Patient #'.tr + '${ids[i]}',
                             style: AppTextStyles.iosSubhead
                                 .copyWith(fontWeight: FontWeight.w600),
                           ),

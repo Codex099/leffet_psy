@@ -20,7 +20,6 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Séances Individuelles'.tr,
@@ -82,11 +81,9 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            // ── Onglets de Navigation (À venir / Historique / Toutes) ──
+      body: Column(
+        children: [
+          // ── Onglets de Navigation (À venir / Historique / Toutes) ──
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Obx(
@@ -178,7 +175,6 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -192,7 +188,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
         : (group.prochaineSeance?.heureDebut ?? '');
    final nextStr = hasNext
         ? '${group.prochaineSeance!.date} à  $nextTime'
-       : 'Aucune séance à venir';
+       : 'Aucune séance à venir'.tr;
 
    return IosCard(
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
@@ -201,8 +197,8 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
           leading: PatientAvatar(initials: group.initials, radius: 22),
           title: group.patientName,
           subtitle: hasNext
-              ? 'Prochain RDV : $nextStr Â· ${group.totalAVenir} séance(s) prévue(s)'
-             : '${group.totalRealisees} séance(s) effectuée(s)',
+              ? 'Prochain RDV : $nextStr · ${group.totalAVenir} séance(s) prévue(s)'.tr
+             : '${group.totalRealisees} séance(s) effectuée(s)'.tr,
          showChevron: true,
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -214,8 +210,8 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
             ),
             child: Text(
               group.totalAVenir > 0
-                  ? '${group.totalAVenir} à venir'
-                 : 'Historique',
+                  ? '${group.totalAVenir} à venir'.tr
+                 : 'Historique'.tr,
              style: AppTextStyles.iosCaption2.copyWith(
                 color: group.totalAVenir > 0
                     ? AppColors.primary
@@ -286,7 +282,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           ),
                         ),
                         Text(
-                          '${group.totalAVenir} séance(s) à venir Â· ${group.totalRealisees} réalisée(s)'.tr,
+                          '${group.totalAVenir} séance(s) à venir · ${group.totalRealisees} réalisée(s)'.tr,
                           style: AppTextStyles.iosCaption1.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -370,7 +366,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                         (s.descriptionEtat != null &&
                             s.descriptionEtat!.isNotEmpty)
                         ? 'Suivi Clinique'.tr
-                       : 'Consultation Thérapeutique';
+                       : 'Consultation Thérapeutique'.tr;
 
                    return Container(
                       margin: const EdgeInsets.only(bottom: 8),
@@ -410,7 +406,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           ),
                         ),
                         title: Text(
-                          '${s.date} Â· ${s.heureDebut} "” ${s.heureFin}'.tr,
+                          '${s.date} · ${s.heureDebut} - ${s.heureFin}',
                          style: AppTextStyles.iosSubhead.copyWith(
                             fontWeight: FontWeight.w700,
                           ),

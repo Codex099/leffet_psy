@@ -18,7 +18,6 @@ class TachesView extends GetView<TachesController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Tâches & Actions'.tr,
@@ -47,29 +46,27 @@ class TachesView extends GetView<TachesController> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            // ── Filter Segmented Control (Assignées à moi / Toutes) ──
-            Obx(
-              () => IosSegmentedControl<bool>(
-                segments: const {
-                  false: 'Toutes les tâches',
-                 true: 'Mes tâches',
-               },
-                selectedValue: controller.filterAssignesAMoi.value,
-                onValueChanged: (val) => controller.toggleFilter(val),
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              ),
+      body: Column(
+        children: [
+          // ── Filter Segmented Control (Assignées à moi / Toutes) ──
+          Obx(
+            () => IosSegmentedControl<bool>(
+              segments: const {
+                false: 'Toutes les tâches',
+                true: 'Mes tâches',
+              },
+              selectedValue: controller.filterAssignesAMoi.value,
+              onValueChanged: (val) => controller.toggleFilter(val),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
+          ),
 
-            // ── Content / List ──
-            Expanded(
+          // ── Content / List ──
+          Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
                  return StatePlaceholder.loading(
-                    message: 'Chargement des tâches...',
+                    message: 'Chargement des tâches...'.tr,
                  );
                 }
                 if (controller.status.value == 'error') {
@@ -82,9 +79,9 @@ class TachesView extends GetView<TachesController> {
                   return StatePlaceholder.empty(
                     title: 'Aucune tâche pour le moment'.tr,
                    message: controller.filterAssignesAMoi.value
-                        ? 'Aucune tâche ne vous est assignée actuellement.'
-                       : 'Créez une tâche pour suivre les actions à réaliser.',
-                   actionLabel: 'Nouvelle tâche',
+                        ? 'Aucune tâche ne vous est assignée actuellement.'.tr
+                       : 'Créez une tâche pour suivre les actions à réaliser.'.tr,
+                   actionLabel: 'Nouvelle tâche'.tr,
                    onAction: () async {
                       final res = await Get.toNamed(AppRoutes.detailTache);
                       if (res == true)
@@ -113,7 +110,7 @@ class TachesView extends GetView<TachesController> {
                         ),
                       if (controller.tachesFait.isNotEmpty)
                         _buildCategorySection(
-                          'Terminées',
+                          'Terminées'.tr,
                          controller.tachesFait,
                           AppColors.secondary,
                         ),
@@ -124,7 +121,6 @@ class TachesView extends GetView<TachesController> {
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -174,7 +170,7 @@ class TachesView extends GetView<TachesController> {
       ),
       title: t.titre,
       subtitle:
-          "${t.description != null && t.description!.isNotEmpty ? '${t.description!} Â· ' : ''}${t.dateEcheance != null ? 'Échéance : ${t.dateEcheance}' : ''}".tr,
+          "${t.description != null && t.description!.isNotEmpty ? '${t.description!} - ' : ''}${t.dateEcheance != null ? 'Échéance : ${t.dateEcheance}'.tr : ''}",
       showChevron: true,
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

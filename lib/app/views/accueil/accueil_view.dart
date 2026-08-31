@@ -565,74 +565,79 @@ class AccueilView extends GetView<AccueilController> {
   Widget _buildSeancesCard() {
     return IosCard(
       title: 'Séances du jour'.tr,
-     subtitle: controller.prochainesSeances.isNotEmpty
+      subtitle: controller.prochainesSeances.isNotEmpty
           ? '${controller.prochainesSeances.length} ${'rendez-vous programmé(s)'.tr}'
-         : 'Planning libre aujourd\'hui'.tr,
-     children: [
+          : 'Planning libre aujourd\'hui'.tr,
+      children: [
         if (controller.prochainesSeances.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.statusPresentLight,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.event_available_rounded,
-                    color: AppColors.secondary,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  'Planning libre pour le moment'.tr,
-                 style: AppTextStyles.iosHeadline.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Ajoutez une nouvelle séance en un clic.'.tr,
-                 style: AppTextStyles.iosFootnote.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 18),
-                BouncyTap(
-                  onTap: () => Get.toNamed(AppRoutes.creationSeance),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 22,
-                      vertical: 11,
-                    ),
+          SizedBox(
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      gradient: AppColors.primaryLogoGradient,
-                      borderRadius: BorderRadius.circular(22),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFF7C3AED,
-                          ).withValues(alpha: 0.35),
-                          blurRadius: 14,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
+                      color: AppColors.statusPresentLight,
+                      shape: BoxShape.circle,
                     ),
-                    child: Text(
-                      '+ Planifier une séance'.tr,
-                     style: AppTextStyles.iosCaption1.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
+                    child: const Icon(
+                      Icons.event_available_rounded,
+                      color: AppColors.secondary,
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'Planning libre pour le moment'.tr,
+                    style: AppTextStyles.iosHeadline.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Ajoutez une nouvelle séance en un clic.'.tr,
+                    style: AppTextStyles.iosFootnote.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 18),
+                  BouncyTap(
+                    onTap: () => Get.toNamed(AppRoutes.creationSeance),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 11,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryLogoGradient,
+                        borderRadius: BorderRadius.circular(22),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF7C3AED,
+                            ).withValues(alpha: 0.35),
+                            blurRadius: 14,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '+ Planifier une séance'.tr,
+                        style: AppTextStyles.iosCaption1.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           )
         else

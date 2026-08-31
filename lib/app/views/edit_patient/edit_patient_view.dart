@@ -16,7 +16,6 @@ class EditPatientView extends GetView<EditPatientController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: controller.patientId == null
@@ -25,11 +24,9 @@ class EditPatientView extends GetView<EditPatientController> {
        subtitle: 'Dossier Clinique'.tr,
        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 90),
-            const SizedBox(height: 8),
+      body: Column(
+        children: [
+          const SizedBox(height: 8),
 
             // ── Step Tabs ──
             Padding(
@@ -122,7 +119,6 @@ class EditPatientView extends GetView<EditPatientController> {
             ),
           ],
         ),
-      ),
     );
   }
 

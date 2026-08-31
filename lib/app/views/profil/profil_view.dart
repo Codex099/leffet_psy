@@ -13,6 +13,7 @@ import '../../widgets/clinical_decorations.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/creative_app_bar.dart';
 
 class ProfilView extends GetView<ProfilController> {
  const ProfilView({super.key});
@@ -22,6 +23,11 @@ class ProfilView extends GetView<ProfilController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       extendBody: true,
+      appBar: CreativeAppBar(
+        title: 'Mon Profil'.tr,
+        subtitle: 'Compte & Paramètres'.tr,
+        showBackButton: false,
+      ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: Obx(() {
         if (controller.status.value == 'loading') {
@@ -44,23 +50,6 @@ class ProfilView extends GetView<ProfilController> {
        return CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // ─── Pinned Clean AppBar ──────────────────────────────────────────
-            SliverAppBar(
-              pinned: true,
-              elevation: 0,
-              scrolledUnderElevation: 0,
-              backgroundColor: AppColors.scaffold,
-              title: Text(
-                'Mon Profil'.tr,
-               style: AppTextStyles.iosTitle3.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              centerTitle: true,
-              automaticallyImplyLeading: false,
-            ),
-
             // ─── Profile Centered Card Header ────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(

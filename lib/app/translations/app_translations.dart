@@ -540,6 +540,69 @@ class AppTranslations extends Translations {
 'Participants de l\'atelier': 'مشاركو الورشة',
 'Ex. Moreau': 'مثال: مورو',
 'Enregistrement...': 'جاري التسجيل...',
+
+          // ── États civils ──
+          'Marié(e)': 'متزوج(ة)',
+          'Célibataire': 'أعزب / عزباء',
+          'Divorcé(e)': 'مطلق(ة)',
+          'Veuf(ve)': 'أرمل(ة)',
+          'Séparé(e)': 'منفصل(ة)',
+          'Non spécifié': 'غير محدد',
+
+          // ── Séances Individuelles ──
+          'Aucune consultation n\'est programmée pour les prochains jours.': 'لم يتم جدولة أي استشارة للأيام القادمة.',
+          'Aucune séance à venir': 'لا توجد جلسة قادمة',
+          'Prochain RDV : ': 'الموعد القادم : ',
+          'séance(s) prévue(s)': 'جلسة(جلسات) مقررة',
+          'séance(s) effectuée(s)': 'جلسة(جلسات) تمت',
+          'Historique': 'السجل',
+          'Planifier un créneau': 'جدولة فترة',
+          'Chargement des options de séance...': 'جاري تحميل خيارات الجلسة...',
+          'Chargement des séances...': 'جاري تحميل الجلسات...',
+          'Recherchez et sélectionnez le patient suivi': 'ابحث واختر المريض المتابع',
+          'Recherchez et sélectionnez le groupe concerné': 'ابحث واختر المجموعة المعنية',
+
+          // ── Patient Info ──
+          'Suivi Actif': 'متابعة نشطة',
+          'Pas de numéro': 'لا يوجد رقم',
+          'Actif (Réactivé)': 'نشط (إعادة تفعيل)',
+          'Inactif (Désactivé)': 'غير نشط (إلغاء تفعيل)',
+          'Désactiver le patient ?': 'تعطيل المريض؟',
+          'Réactiver le patient ?': 'إعادة تفعيل المريض؟',
+          'Le statut du patient passera à Inactif. Une entrée sera ajoutée dans l\'historique des statuts.': 'ستتغير حالة المريض إلى غير نشط. سيتم إضافة سجل في تاريخ الحالات.',
+          'Le statut du patient repassera à Actif. Vous pouvez consigner une observation ou note clinique pour cette réactivation.': 'ستعود حالة المريض إلى نشط. يمكنك تسجيل ملاحظة سريرية لإعادة التنشيط هذه.',
+          'Note clinique / Dégradation': 'ملاحظة سريرية / تدهور',
+          'Lien de parenté': 'صلة القرابة',
+          'Aucun parent enregistré sur le système.': 'لا يوجد ولي أمر مسجل في النظام.',
+
+          // ── Tâches ──
+          'Toutes les tâches': 'جميع المهام',
+          'Mes tâches': 'مهامي',
+          'Chargement des tâches...': 'جاري تحميل المهام...',
+          'Aucune tâche ne vous est assignée actuellement.': 'لا توجد مهمة معين لك حالياً.',
+          'Créez une tâche pour suivre les actions à réaliser.': 'أنشئ مهمة لتتبع الإجراءات المراد تنفيذها.',
+          'Terminées': 'مكتملة',
+
+          // ── Calendrier ──
+          'Le titre est obligatoire': 'العنوان إلزامي',
+
+          // ── Parents ──
+          'Aucun téléphone renseigné': 'لم يتم إدخال رقم هاتف',
+          'Aucun parent ne correspond à ': 'لا يوجد ولي أمر يطابق ',
+          'Confirmer l\'association': 'تأكيد الارتباط',
+
+          // ── Équipe ──
+          'patient(s) assigné(s)': 'مريض(مرضى) معين(معينين)',
+          'Patient #': 'مريض رقم ',
+
+          // ── Groupes ──
+          'participant(s) inscrit(s)': 'مشارك(مشاركين) مسجل(مسجلين)',
+
+          // ── Status ──
+          'Réalisée': 'تم إجراؤها',
+          'Planifiée': 'مجدولة',
+          'Annulée': 'ملغاة',
+          'Consultation Thérapeutique': 'استشارة علاجية',
         }
   };
 }

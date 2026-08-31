@@ -16,45 +16,42 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Planifier une séance'.tr,
-       subtitle: 'Consultation Clinique'.tr,
-       showBackButton: true,
+        subtitle: 'Consultation Clinique'.tr,
+        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.status.value == 'loading' &&
-             controller.patients.isEmpty) {
-            return StatePlaceholder.loading(
-              message: 'Chargement des options de séance...',
-           );
-          }
-          if (controller.status.value == 'error') {
-           return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-              onAction: () => controller.loadOptions(),
-            );
-          }
+      body: Obx(() {
+        if (controller.status.value == 'loading' &&
+            controller.patients.isEmpty) {
+          return StatePlaceholder.loading(
+            message: 'Chargement des options de séance...',
+          );
+        }
+        if (controller.status.value == 'error') {
+          return StatePlaceholder.error(
+            message: controller.errorMessage.value,
+            onAction: () => controller.loadOptions(),
+          );
+        }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.only(top: 12, bottom: 60),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-            const SizedBox(height: 90),
-                // ── Type de séance (Segmented Control iOS) ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  child: Text(
-                    'TYPE DE SÉANCE'.tr,
-                   style: AppTextStyles.iosCaption2,
-                  ),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.only(top: 12, bottom: 60),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Type de séance (Segmented Control iOS) ──
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
                 ),
+                child: Text(
+                  'TYPE DE SÉANCE'.tr,
+                  style: AppTextStyles.iosCaption2,
+                ),
+              ),
                 Obx(
                   () => IosSegmentedControl<String>(
                     segments: const {
@@ -185,7 +182,6 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
             ),
           );
         }),
-      ),
     );
   }
 

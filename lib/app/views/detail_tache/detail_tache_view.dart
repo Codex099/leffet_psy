@@ -48,34 +48,31 @@ class _DetailTacheViewState extends State<DetailTacheView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: controller.isNew ? 'Nouvelle Tâche'.tr : 'Détail de la Tâche',
        subtitle: 'Action Clinique'.tr,
        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.status.value == 'loading' &&
-             !controller.isNew &&
-              controller.titre.value.isEmpty) {
-            return StatePlaceholder.loading(
-              message: 'Chargement de la tâche...',
-           );
-          }
-          if (controller.status.value == 'error') {
-           return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-            );
-          }
+      body: Obx(() {
+        if (controller.status.value == 'loading' &&
+           !controller.isNew &&
+            controller.titre.value.isEmpty) {
+          return StatePlaceholder.loading(
+            message: 'Chargement de la tâche...',
+         );
+        }
+        if (controller.status.value == 'error') {
+         return StatePlaceholder.error(
+            message: controller.errorMessage.value,
+          );
+        }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-            const SizedBox(height: 90),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
                 // ── Statut de la tâche (Segmented Control iOS) ──
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -273,7 +270,6 @@ class _DetailTacheViewState extends State<DetailTacheView> {
             ),
           );
         }),
-      ),
     );
   }
 

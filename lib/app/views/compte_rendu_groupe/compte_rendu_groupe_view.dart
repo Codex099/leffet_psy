@@ -16,42 +16,39 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Compte-rendu Groupe'.tr,
-       subtitle: 'Atelier Clinique Collectif'.tr,
-       showBackButton: true,
+        subtitle: 'Atelier Clinique Collectif'.tr,
+        showBackButton: true,
       ),
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.status.value == 'loading') {
-           return const StatePlaceholder(type: StatePlaceholderType.loading);
-          }
-          if (controller.status.value == 'error') {
-           return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-              onAction: () => controller.loadSeance(),
-            );
-          }
+      body: Obx(() {
+        if (controller.status.value == 'loading') {
+          return const StatePlaceholder(type: StatePlaceholderType.loading);
+        }
+        if (controller.status.value == 'error') {
+          return StatePlaceholder.error(
+            message: controller.errorMessage.value,
+            onAction: () => controller.loadSeance(),
+          );
+        }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-            const SizedBox(height: 90),
-                // Group summary banner
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryLight.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 12.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Group summary banner
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.secondaryLight.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -192,7 +189,6 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
             ),
           );
         }),
-      ),
     );
   }
 

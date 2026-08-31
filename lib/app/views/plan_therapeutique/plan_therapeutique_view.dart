@@ -7,6 +7,7 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
+import '../../widgets/creative_app_bar.dart';
 
 class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
  const PlanTherapeutiqueView({super.key});
@@ -15,58 +16,37 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
-      body: SafeArea(
-        child: Obx(() {
-          if (controller.status.value == 'loading') {
-           return const StatePlaceholder(type: StatePlaceholderType.loading);
-          }
-          if (controller.status.value == 'error') {
-           return StatePlaceholder.error(
-              message: controller.errorMessage.value,
-              onAction: () => controller.loadPlan(),
-            );
-          }
+      appBar: CreativeAppBar(
+        title: 'Plan Thérapeutique'.tr,
+        subtitle: 'Objectifs & Suivi Clinique'.tr,
+        showBackButton: true,
+      ),
+      body: Obx(() {
+        if (controller.status.value == 'loading') {
+          return const StatePlaceholder(type: StatePlaceholderType.loading);
+        }
+        if (controller.status.value == 'error') {
+          return StatePlaceholder.error(
+            message: controller.errorMessage.value,
+            onAction: () => controller.loadPlan(),
+          );
+        }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back_rounded),
-                      onPressed: () => Get.back(),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PLAN THÉRAPEUTIQUE'.tr,
-                         style: AppTextStyles.sectionKicker,
-                        ),
-                        Text(
-                          'Plans thérapeutiques'.tr,
-                         style: AppTextStyles.screenTitleMedium,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // Empty state: propose creating a plan
-                if (controller.status.value == 'empty') ...[
-                 Center(
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.assignment_outlined,
-                          size: 56,
-                          color: AppColors.textHint,
-                        ),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Empty state: propose creating a plan
+              if (controller.status.value == 'empty') ...[
+                Center(
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.assignment_outlined,
+                        size: 56,
+                        color: AppColors.textHint,
+                      ),
                         const SizedBox(height: 12),
                         Text(
                           'Aucun plan thérapeutique.'.tr,
@@ -149,7 +129,6 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             ),
           );
         }),
-      ),
     );
   }
 
