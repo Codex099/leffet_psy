@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>PsyCare utilise la caméra pour capturer des photos et des vidéos cliniques des séances et évaluations.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>PsyCare accède à vos photos et vidéos pour joindre des pièces justificatives et comptes-rendus.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>PsyCare utilise le micro lors de l'enregistrement de vidéos d'évaluation clinique.</string>
 </dict>
 </plist>

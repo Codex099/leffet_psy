@@ -9,6 +9,7 @@ import '../../widgets/patient_avatar.dart';
 import '../../widgets/searchable_picker.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_media_viewer.dart';
 import '../../models/plan_therapeutique_model.dart';
 
 class PatientInfoView extends GetView<PatientInfoController> {
@@ -831,6 +832,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
   }
 
   Widget _buildNoteCard(NotePatientModel note) {
+    final noteMedias = note.medias ?? const [];
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -838,6 +840,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
@@ -848,8 +851,27 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 const SizedBox(height: 4),
                 Text(
                   '${note.auteurNom} | ${note.dateCreation ?? ""}'.tr,
-                 style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                  style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                 ),
+                if (noteMedias.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 60,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: noteMedias.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 6),
+                      itemBuilder: (_, i) => AppMediaThumbnail(
+                        url: noteMedias[i],
+                        width: 60,
+                        height: 60,
+                        borderRadius: 8,
+                        allUrls: noteMedias,
+                        index: i,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

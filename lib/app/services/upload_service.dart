@@ -4,14 +4,17 @@ import '../config/api_config.dart';
 import 'dio_client.dart';
 
 class UploadService {
- final Dio _dio = DioClient.instance;
+  final Dio _dio = DioClient.instance;
 
-  /// POST /api/uploads — Upload un fichier photo/vidéo et retourne l'URL distante.
-  Future<String> uploadFile(File file) async {
-    final fileName = file.path.split('/').last;
-   final formData = FormData.fromMap({
+  /// POST /api/uploads — Upload un fichier photo/vidéo et retourne l'URL distante accessible.
+  Future<String> uploadFile(
+    File file, {
+    ProgressCallback? onSendProgress,
+  }) async {
+    final fileName = file.path.split(RegExp(r'[\\/]')).last;
+    final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(
-       file.path,
+        file.path,
         filename: fileName,
       ),
     });
@@ -19,9 +22,11 @@ class UploadService {
     final response = await _dio.post(
       ApiConfig.uploads,
       data: formData,
+      onSendProgress: onSendProgress,
     );
 
     final data = Map<String, dynamic>.from(response.data as Map);
-    return data['url'] as String? ?? data['path'] as String? ?? '';
+    final raw = data['url'] as String? ?? data['path'] as String? ?? '';
+    return ApiConfig.resolveMediaUrl(raw);
   }
 }

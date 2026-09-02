@@ -8,6 +8,8 @@ import 'package:leffet_psy/app/widgets/creative_app_bar.dart';
 import 'package:leffet_psy/app/widgets/ios_card.dart';
 import 'package:leffet_psy/app/widgets/ios_segmented_control.dart';
 import 'package:leffet_psy/app/widgets/patient_avatar.dart';
+import 'package:leffet_psy/app/widgets/media_picker_widget.dart';
+import 'package:leffet_psy/app/widgets/app_media_viewer.dart';
 import 'package:leffet_psy/app/widgets/state_placeholder.dart';
 import 'package:leffet_psy/app/widgets/status_badge.dart';
 
@@ -221,6 +223,40 @@ void main() {
       expect(find.text('Patients'), findsOneWidget);
       expect(find.text('Agenda'), findsOneWidget);
       expect(find.text('Profil'), findsOneWidget);
+    });
+  });
+
+  group('MediaPickerWidget & AppMediaThumbnail Tests', () {
+    testWidgets('MediaPickerWidget renders photo, video and gallery buttons', (tester) async {
+      await tester.pumpWidget(
+        wrapWidget(
+          MediaPickerWidget(
+            initialMediaUrls: const ['/uploads/photo1.jpg', '/uploads/video1.mp4'],
+            onMediasChanged: (_) {},
+            allowVideos: true,
+          ),
+        ),
+      );
+
+      expect(find.text('Photo'), findsOneWidget);
+      expect(find.text('Vidéo'), findsOneWidget);
+      expect(find.text('Galerie'), findsOneWidget);
+      expect(find.text('VIDÉO'), findsOneWidget);
+    });
+
+    testWidgets('AppMediaThumbnail handles video indicators properly', (tester) async {
+      await tester.pumpWidget(
+        wrapWidget(
+          const AppMediaThumbnail(
+            url: 'https://example.com/clinic/session_eval.mp4',
+            width: 80,
+            height: 80,
+          ),
+        ),
+      );
+
+      expect(find.text('VIDÉO'), findsOneWidget);
+      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
     });
   });
 }

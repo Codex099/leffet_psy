@@ -525,7 +525,6 @@ class AppTranslations extends Translations {
           'Fin :': 'النهاية :',
           'Groupe :': 'المجموعة :',
           'Membres Inscrits': 'الأعضاء المسجلون',
-          'Nb frères/sœurs': 'عدد الإخوة/الأخوات',
           'Note clinique pour': 'ملاحظة سريرية لـ',
           'Note:': 'ملاحظة:',
           'Parent enregistré avec succès.': 'تم تسجيل ولي الأمر بنجاح.',
@@ -603,6 +602,25 @@ class AppTranslations extends Translations {
           'Planifiée': 'مجدولة',
           'Annulée': 'ملغاة',
           'Consultation Thérapeutique': 'استشارة علاجية',
+
+          // ── Médias & Vidéos ──
+          'Enregistrer une vidéo': 'تسجيل فيديو',
+          'Photo': 'صورة',
+          'Vidéo': 'فيديو',
+          'VIDÉO': 'فيديو',
+          'Image': 'صورة',
+          'Sélectionner une image': 'اختيار صورة',
+          'Sélectionner un enregistrement vidéo': 'اختيار تسجيل فيديو',
+          'Média ajouté avec succès': 'تمت إضافة الوسائط بنجاح',
+          'Erreur lors de l\'upload': 'خطأ أثناء الرفع',
+          'Téléversement en cours...': 'جاري الرفع...',
+          'Envoi de la vidéo en cours...': 'جاري رفع الفيديو...',
+          'Envoi de l\'image en cours...': 'جاري رفع الصورة...',
+          'Impossible de charger l\'image': 'تعذر تحميل الصورة',
+          'Erreur de lecture vidéo': 'خطأ في تشغيل الفيديو',
+          'Chargement de la vidéo...': 'جاري تحميل الفيديو...',
+          'Réessayer': 'إعادة المحاولة',
+          'Note enregistrée': 'تم حفظ الملاحظة',
         }
   };
 }

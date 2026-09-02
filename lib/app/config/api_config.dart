@@ -105,6 +105,45 @@ class ApiConfig {
  static String employee(dynamic id) => '/api/employees/$id';
  static String employeePatients(dynamic id) => '/api/employees/$id/patients';
 
- // ─── Routes Upload ─────────────────────────────────────────────────────────
+  // ─── Routes Upload ─────────────────────────────────────────────────────────
   static const String uploads = '/api/uploads';
+
+  // ─── Media Helpers ─────────────────────────────────────────────────────────
+  /// Résout une URL de média relative (ex: "/uploads/image.jpg" ou "uploads/video.mp4")
+  /// ou remplace l'hôte localhost/10.0.2.2/127.0.0.1 par la baseUrl active.
+  static String resolveMediaUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return '';
+    final trimmed = url.trim();
+    if (trimmed.startsWith('blob:') || trimmed.startsWith('data:')) {
+      return trimmed;
+    }
+    // Si l'URL contient un hôte local différent (ex: 127.0.0.1 alors qu'on est sur Android 10.0.2.2 ou vice-versa)
+    final localMatch = RegExp(r'^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2):[0-9]+(\/.*)?$');
+    if (localMatch.hasMatch(trimmed)) {
+      final match = localMatch.firstMatch(trimmed);
+      final path = match?.group(2) ?? '';
+      return '$baseUrl$path';
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    final cleanPath = trimmed.startsWith('/') ? trimmed : '/$trimmed';
+    return '$baseUrl$cleanPath';
+  }
+
+  /// Détermine si une URL ou un chemin pointe vers un fichier vidéo.
+  static bool isVideoUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return false;
+    final clean = url.trim().toLowerCase().split('?').first;
+    return clean.endsWith('.mp4') ||
+        clean.endsWith('.mov') ||
+        clean.endsWith('.avi') ||
+        clean.endsWith('.mkv') ||
+        clean.endsWith('.webm') ||
+        clean.endsWith('.3gp') ||
+        clean.endsWith('.m4v') ||
+        clean.endsWith('.flv') ||
+        clean.endsWith('.wmv') ||
+        clean.endsWith('.ogv');
+  }
 }

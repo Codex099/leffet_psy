@@ -3,11 +3,12 @@ import 'package:get/get.dart';
 import '../../controllers/notes_patient_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/app_media_viewer.dart';
+import '../../widgets/app_section_header.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/media_picker_widget.dart';
 import '../../widgets/state_placeholder.dart';
-import '../../widgets/app_section_header.dart';
 
 class NotesPatientView extends GetView<NotesPatientController> {
  const NotesPatientView({super.key});
@@ -174,35 +175,18 @@ class NotesPatientView extends GetView<NotesPatientController> {
                                   if (medias.isNotEmpty) ...[
                                     const SizedBox(height: 10),
                                     SizedBox(
-                                      height: 64,
+                                      height: 68,
                                       child: ListView.separated(
                                         scrollDirection: Axis.horizontal,
                                         itemCount: medias.length,
                                         separatorBuilder: (_, _) =>
                                             const SizedBox(width: 8),
-                                        itemBuilder: (_, i) => ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          child: Image.network(
-                                            medias[i],
-                                            width: 64,
-                                            height: 64,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, _, _) =>
-                                                Container(
-                                                  width: 64,
-                                                  height: 64,
-                                                  color:
-                                                      AppColors.fieldBackground,
-                                                  child: const Icon(
-                                                    Icons.broken_image_outlined,
-                                                    size: 20,
-                                                    color:
-                                                        AppColors.textSecondary,
-                                                  ),
-                                                ),
-                                          ),
+                                        itemBuilder: (_, i) => AppMediaThumbnail(
+                                          url: medias[i],
+                                          width: 68,
+                                          height: 68,
+                                          allUrls: medias,
+                                          index: i,
                                         ),
                                       ),
                                     ),
