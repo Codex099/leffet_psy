@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/edit_employe_controller.dart';
+import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_button.dart';
 import '../../widgets/app_text_field.dart';
+import '../../widgets/clinical_decorations.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
@@ -138,9 +140,9 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                           ),
                           const SizedBox(height: 14),
                           AppTextField(
-                            label: 'Téléphone'.tr,
-                           hintText: '06 12 34 56 78',
-                           keyboardType: TextInputType.phone,
+                            label: 'Téléphone *'.tr,
+                            hintText: '0612345678 ou 0550123456',
+                            keyboardType: TextInputType.phone,
                             controller: _telCtrl,
                             onChanged: (v) => controller.telephone.value = v,
                           ),
@@ -194,6 +196,53 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (isEditMode) ...[
+                            BouncyTap(
+                              onTap: () => Get.toNamed(
+                                AppRoutes.employeVisibilitePatients,
+                                arguments: controller.employeId,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryLight.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppColors.primary.withValues(alpha: 0.25),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.visibility_rounded,
+                                      size: 18,
+                                      color: AppColors.primary,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Gérer la visibilité détaillée (Visibles / Masqués)'.tr,
+                                        style: AppTextStyles.iosCaption1.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.chevron_right_rounded,
+                                      size: 16,
+                                      color: AppColors.primary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                           if (controller.allPatients.isEmpty)
                             Text(
                               'Aucun patient disponible.'.tr,

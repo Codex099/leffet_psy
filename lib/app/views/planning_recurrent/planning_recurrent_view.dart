@@ -437,6 +437,138 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 16),
+
+                // Créneaux automatiques card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: const Color(0xFFF1F5F9),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.autorenew_rounded,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Créneaux automatiques'.tr,
+                                  style: AppTextStyles.sectionTitle,
+                                ),
+                                Text(
+                                  'Génération et renouvellement récurrent'.tr,
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Obx(
+                        () => SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            'Activer les créneaux automatiques'.tr,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            controller.creneauxAutomatiques.value
+                                ? 'Génère 4 semaines de séances et renouvelle automatiquement à la fin de chaque créneau final.'.tr
+                                : 'Par défaut désactivé (off). Aucune séance ne sera créée automatiquement.'.tr,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          value: controller.creneauxAutomatiques.value,
+                          activeThumbColor: AppColors.primary,
+                          onChanged: (val) =>
+                              controller.creneauxAutomatiques.value = val,
+                        ),
+                      ),
+                      Obx(() {
+                        if (!controller.creneauxAutomatiques.value) {
+                          return const SizedBox.shrink();
+                        }
+                        return Container(
+                          margin: const EdgeInsets.only(top: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.06),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.event_repeat_rounded,
+                                color: AppColors.primary,
+                                size: 22,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Créneau de 4 semaines (28 jours)'.tr,
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'À chaque fin de séance finale de créneau, une nouvelle période de 4 semaines sera automatiquement générée sur l\'agenda.'.tr,
+                                      style: AppTextStyles.bodySmall.copyWith(
+                                        fontSize: 12,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 24),
 
                 // Enregistrer action button

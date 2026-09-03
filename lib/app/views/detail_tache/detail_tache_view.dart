@@ -5,6 +5,7 @@ import '../../controllers/detail_tache_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_button.dart';
+import '../../widgets/app_date_picker.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
@@ -89,7 +90,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                     segments: {
                       'a_faire': 'À faire'.tr,
                      'en_cours': 'En cours'.tr,
-                     'fait': 'Terminée',
+                     'fait': 'Terminée'.tr,
                    },
                     selectedValue: controller.statut.value,
                     onValueChanged: (s) => controller.statut.value = s,
@@ -110,7 +111,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                     segments: {
                       'haute': 'Haute'.tr,
                      'normale': 'Normale'.tr,
-                     'basse': 'Basse',
+                     'basse': 'Basse'.tr,
                    },
                     selectedValue: controller.priorite.value,
                     onValueChanged: (p) => controller.priorite.value = p,
@@ -148,38 +149,76 @@ class _DetailTacheViewState extends State<DetailTacheView> {
                 ),
 
                 // ── Assignation Employé (US-M37) ──
-                IosCard(
-                  title: 'Assignation'.tr,
-                 subtitle: 'Professionnel en charge de cette action'.tr,
-                 children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Obx(() {
-                        if (controller.employeesStatus.value == 'loading') {
-                         return const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          );
-                        }
-                        return SearchablePickerField<dynamic>(
-                          label: 'Assigner à'.tr,
-                         hintText: 'Sélectionner un praticien...'.tr,
-                         title: 'Assigner la tâche à'.tr,
-                         leadingIcon: Icons.badge_outlined,
-                          selectedValue: controller.assigneA.value,
-                          items: controller.availableEmployees.map((emp) {
-                            return SearchableItem<dynamic>(
-                              value: emp.id,
-                              label: emp.fullName,
-                              subtitle: emp.roleLabel,
-                              initials: emp.initials,
+                Obx(
+                  () => IosCard(
+                    title: 'Assignation'.tr,
+                    subtitle: controller.isAdmin.value
+                        ? 'Professionnel en charge de cette action'.tr
+                        : 'Cette tâche vous est assignée personnellement'.tr,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Builder(
+                          builder: (_) {
+                            if (!controller.isAdmin.value) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.06),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.person_outline_rounded, color: AppColors.primary, size: 20),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Assignée à vous-même'.tr,
+                                            style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Seul l\'administrateur peut assigner des tâches à d\'autres membres.'.tr,
+                                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            if (controller.employeesStatus.value == 'loading') {
+                              return const Center(
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              );
+                            }
+                            return SearchablePickerField<dynamic>(
+                              label: 'Assigner à'.tr,
+                              hintText: 'Sélectionner un praticien...'.tr,
+                              title: 'Assigner la tâche à'.tr,
+                              leadingIcon: Icons.badge_outlined,
+                              selectedValue: controller.assigneA.value,
+                              items: controller.availableEmployees.map((emp) {
+                                return SearchableItem<dynamic>(
+                                  value: emp.id,
+                                  label: emp.fullName,
+                                  subtitle: emp.roleLabel,
+                                  initials: emp.initials,
+                                );
+                              }).toList(),
+                              onSingleChanged: (val) =>
+                                  controller.assigneA.value = val,
                             );
-                          }).toList(),
-                          onSingleChanged: (val) =>
-                              controller.assigneA.value = val,
-                        );
-                      }),
-                    ),
-                  ],
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
 
                 // ── Lien Patient Optionnel ──
@@ -277,7 +316,7 @@ class _DetailTacheViewState extends State<DetailTacheView> {
     final initial = controller.dateEcheance.value.isNotEmpty
         ? DateTime.tryParse(controller.dateEcheance.value) ?? DateTime.now()
         : DateTime.now().add(const Duration(days: 7));
-    final picked = await showDatePicker(
+    final picked = await AppDatePicker.show(
       context: context,
       initialDate: initial,
       firstDate: DateTime.now(),

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../models/patient_model.dart';
@@ -92,34 +93,40 @@ class EditEmployeController extends GetxController {
   Future<void> saveEmployee() async {
     if (nom.value.trim().isEmpty || prenom.value.trim().isEmpty) {
       Get.snackbar('Champs requis', 'Prénom et nom sont obligatoires.',
-         snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.BOTTOM);
       return;
     }
     if (username.value.trim().isEmpty) {
       Get.snackbar('Champ requis', 'Le nom d\'utilisateur est obligatoire.',
-         snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    final cleanTel = telephone.value.replaceAll(RegExp(r'[\s\.\-]'), '').trim();
+    if (cleanTel.isEmpty) {
+      Get.snackbar('Champ requis', 'Le numéro de téléphone est obligatoire.',
+          snackPosition: SnackPosition.BOTTOM);
       return;
     }
     if (employeId == null && password.value.trim().isEmpty) {
       Get.snackbar('Champ requis', 'Un mot de passe est requis pour la création.',
-         snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
     try {
       status.value = 'loading';
 
-     final data = <String, dynamic>{
+      final data = <String, dynamic>{
         'nom': nom.value.trim(),
-       'prenom': prenom.value.trim(),
-       'username': username.value.trim(),
-       'role': role.value,
-       if (telephone.value.trim().isNotEmpty) 'telephone': telephone.value.trim(),
-       // Password: only sent on create, or on update if non-empty
+        'prenom': prenom.value.trim(),
+        'username': username.value.trim(),
+        'role': role.value,
+        'telephone': cleanTel,
+        // Password: only sent on create, or on update if non-empty
         if (employeId == null) 'password': password.value.trim(),
-       if (employeId != null && password.value.trim().isNotEmpty)
+        if (employeId != null && password.value.trim().isNotEmpty)
           'password': password.value.trim(),
-     };
+      };
 
       EmployeeModel saved;
       if (employeId != null) {
@@ -129,10 +136,11 @@ class EditEmployeController extends GetxController {
         employeId = saved.id;
       }
 
-      // Assign selected patients
-      if (selectedPatientIds.isNotEmpty) {
-        await _employeeService.assignPatients(saved.id, selectedPatientIds.toList());
-      }
+      // Synchroniser les patients assignés (y compris si liste modifiée ou vidée)
+      await _employeeService.assignPatients(
+        saved.id,
+        selectedPatientIds.map((e) => e.toString()).toList(),
+      );
 
       AppCacheManager.invalidateTag(CacheTags.employes);
 
@@ -143,16 +151,31 @@ class EditEmployeController extends GetxController {
       } catch (_) {}
 
       status.value = 'success';
-     Get.back(result: true);
+      Get.back(result: true);
       Get.snackbar(
         'Succès',
-       employeId != null ? 'Employé mis à jour.' : 'Employé créé avec succès.',
-       snackPosition: SnackPosition.BOTTOM,
+        employeId != null ? 'Employé mis à jour.' : 'Employé créé avec succès.',
+        snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
-      errorMessage.value = e.toString();
+      String msg = e.toString();
+      if (e is DioException && e.response?.data != null) {
+        final d = e.response!.data;
+        if (d is Map && d['detail'] != null) {
+          final detail = d['detail'];
+          if (detail is String) {
+            msg = detail;
+          } else if (detail is List && detail.isNotEmpty) {
+            final first = detail.first;
+            if (first is Map && first['msg'] != null) {
+              msg = '${first['loc']?.last ?? ""}: ${first['msg']}';
+            }
+          }
+        }
+      }
+      errorMessage.value = msg;
       status.value = 'error';
-     Get.snackbar('Erreur', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Erreur', msg, snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

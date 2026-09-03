@@ -11,6 +11,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../services/parent_service.dart';
 
 class ParentsListeView extends GetView<ParentsListeController> {
  const ParentsListeView({super.key});
@@ -252,6 +253,66 @@ class ParentsListeView extends GetView<ParentsListeController> {
                   ),
               ],
             ),
+            const SizedBox(height: 16),
+            Text('Enfants / Patients suivis'.tr, style: AppTextStyles.fieldLabel),
+            const SizedBox(height: 6),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: ParentService().getParentPatients(parent.id),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  );
+                }
+                final list = snapshot.data ?? [];
+                if (list.isEmpty) {
+                  return Text(
+                    'Aucun patient rattaché pour le moment.'.tr,
+                    style: AppTextStyles.bodySmall.copyWith(fontStyle: FontStyle.italic),
+                  );
+                }
+                return Column(
+                  children: list.map((item) {
+                    final nom = '${item['prenom'] ?? ''} ${item['nom'] ?? ''}'.trim();
+                    final role = item['role']?.toString() ?? 'Parent';
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.fieldBackground,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.child_care_rounded, color: AppColors.primary, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              nom.isNotEmpty ? '$nom ($role)'.tr : 'Patient ($role)'.tr,
+                              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Get.back();
+                              Get.toNamed(AppRoutes.patientInfo, arguments: item['id']);
+                            },
+                            child: Text('Voir profil'.tr, style: const TextStyle(fontSize: 12)),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -263,7 +324,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                     },
                     icon: const Icon(Icons.edit_rounded, size: 16),
                     label: Text('Modifier'.tr),
-                 ),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(

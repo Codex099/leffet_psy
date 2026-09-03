@@ -66,9 +66,9 @@ class TacheModel {
        return 'À faire'.tr;
      case 'en_cours':
        return 'En cours'.tr;
-     case 'fait':
-       return 'Fait';
-     default:
+      case 'fait':
+        return 'Terminée'.tr;
+      default:
         return statut;
     }
   }
@@ -79,12 +79,10 @@ class TacheModel {
        return 'Haute'.tr;
      case 'normale':
        return 'Normale'.tr;
-     case 'basse':
-       return 'Basse';
+      case 'basse':
+        return 'Basse'.tr;
       default:
         return priorite;
     }
   }
 }
-
-

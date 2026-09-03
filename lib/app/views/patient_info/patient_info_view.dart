@@ -148,10 +148,66 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                       ),
                                     ],
                                   ),
-                                  child: PatientAvatar(
-                                    initials: p?.initials ?? 'P',
-                                   photoUrl: p?.photo,
-                                    radius: 34,
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => _showPhotoOptions(context, controller),
+                                        child: PatientAvatar(
+                                          initials: p?.initials ?? 'P',
+                                          photoUrl: p?.photo,
+                                          radius: 34,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: -2,
+                                        right: -2,
+                                        child: GestureDetector(
+                                          onTap: () => _showPhotoOptions(context, controller),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.white, width: 2),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withValues(alpha: 0.25),
+                                                  blurRadius: 4,
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.camera_alt_rounded,
+                                              size: 13,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Obx(
+                                        () => controller.photoUploading.value
+                                            ? Positioned.fill(
+                                                child: Container(
+                                                  decoration: const BoxDecoration(
+                                                    color: Colors.black45,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Center(
+                                                    child: SizedBox(
+                                                      width: 22,
+                                                      height: 22,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -350,81 +406,83 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Plan Thérapeutique preview card
-                    _buildSectionCard(
-                      title: 'Plan thérapeutique'.tr,
-                     icon: Icons.assignment_rounded,
-                      actionLabel: 'Voir tout',
-                     onActionTap: () async {
-                        await Get.toNamed(
-                          AppRoutes.planTherapeutique,
-                          arguments: controller.patientId,
-                        );
-                        controller.loadPatientInfo();
-                      },
-                      child: controller.plans.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8.0,
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Aucun plan thérapeutique.'.tr,
-                                   style: AppTextStyles.bodySmall,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  OutlinedButton.icon(
-                                    onPressed: () async {
-                                      await Get.toNamed(
-                                        AppRoutes.planTherapeutique,
-                                        arguments: controller.patientId,
-                                      );
-                                      controller.loadPatientInfo();
-                                    },
-                                    icon: const Icon(Icons.add, size: 14),
-                                    label: Text('Créer un plan'.tr),
-                                   style: OutlinedButton.styleFrom(
-                                      minimumSize: const Size(
-                                        double.infinity,
-                                        36,
-                                      ),
-                                      foregroundColor: AppColors.primary,
-                                      side: const BorderSide(
-                                        color: AppColors.primary,
+                    if (controller.isAdmin.value) ...[
+                      // Plan Thérapeutique preview card (Admin uniquement)
+                      _buildSectionCard(
+                        title: 'Plan thérapeutique'.tr,
+                        icon: Icons.assignment_rounded,
+                        actionLabel: 'Voir tout',
+                        onActionTap: () async {
+                          await Get.toNamed(
+                            AppRoutes.planTherapeutique,
+                            arguments: controller.patientId,
+                          );
+                          controller.loadPatientInfo();
+                        },
+                        child: controller.plans.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Aucun plan thérapeutique.'.tr,
+                                      style: AppTextStyles.bodySmall,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    OutlinedButton.icon(
+                                      onPressed: () async {
+                                        await Get.toNamed(
+                                          AppRoutes.planTherapeutique,
+                                          arguments: controller.patientId,
+                                        );
+                                        controller.loadPatientInfo();
+                                      },
+                                      icon: const Icon(Icons.add, size: 14),
+                                      label: Text('Créer un plan'.tr),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(
+                                          double.infinity,
+                                          36,
+                                        ),
+                                        foregroundColor: AppColors.primary,
+                                        side: const BorderSide(
+                                          color: AppColors.primary,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
+                              )
+                            : Column(
+                                children: controller.plans.map((plan) {
+                                  final Color statColor = plan.statut == 'actif'
+                                      ? AppColors.statusPresent
+                                      : plan.statut == 'termine'
+                                      ? AppColors.primary
+                                      : AppColors.textSecondary;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 10.0),
+                                    child: _buildStepTile(
+                                      number: plan.statut == 'actif' ? '▶' : '✓',
+                                      title: plan.titre,
+                                      subtitle:
+                                          '${plan.etapesTerminees}/${plan.totalEtapes} étapes'.tr,
+                                      statusLabel: plan.statut == 'actif'
+                                          ? 'Actif'.tr
+                                          : plan.statut == 'termine'
+                                          ? 'Terminé'.tr
+                                          : 'Archivé'.tr,
+                                      statusColor: statColor,
+                                      progress: plan.progression,
+                                    ),
+                                  );
+                                }).toList(),
                               ),
-                            )
-                          : Column(
-                              children: controller.plans.map((plan) {
-                                final Color statColor = plan.statut == 'actif'
-                                   ? AppColors.statusPresent
-                                    : plan.statut == 'termine'
-                                   ? AppColors.primary
-                                    : AppColors.textSecondary;
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 10.0),
-                                  child: _buildStepTile(
-                                    number: plan.statut == 'actif' ? '▶' : '✓',
-                                   title: plan.titre,
-                                    subtitle:
-                                        '${plan.etapesTerminees}/${plan.totalEtapes} étapes'.tr,
-                                   statusLabel: plan.statut == 'actif'
-                                       ? 'Actif'.tr
-                                       : plan.statut == 'termine'
-                                       ? 'Terminé'.tr
-                                       : 'Archivé'.tr,
-                                   statusColor: statColor,
-                                    progress: plan.progression,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                    ),
-                    const SizedBox(height: 16),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
 
                     // Historique des séances card
                     _buildSectionCard(
@@ -1062,6 +1120,73 @@ class PatientInfoView extends GetView<PatientInfoController> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showPhotoOptions(BuildContext context, PatientInfoController controller) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Text(
+                'Photo du patient'.tr,
+                style: AppTextStyles.iosTitle3.copyWith(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
+                ),
+                title: Text('Prendre une photo'.tr, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Get.back();
+                  controller.pickAndUploadPhoto(fromCamera: true);
+                },
+              ),
+              const SizedBox(height: 6),
+              ListTile(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
+                ),
+                title: Text('Choisir depuis la galerie'.tr, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Get.back();
+                  controller.pickAndUploadPhoto(fromCamera: false);
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -100,8 +100,8 @@ class EditParentView extends GetView<EditParentController> {
                       const SizedBox(height: 14),
                       AppTextField(
                         label: 'Téléphone'.tr,
-                       hintText: '+213 666 65 846',
-                       keyboardType: TextInputType.phone,
+                        hintText: 'Ex: 0758123456 ou 0550123456',
+                        keyboardType: TextInputType.phone,
                         initialValue: controller.telephone.value,
                         onChanged: (v) => controller.telephone.value = v,
                       ),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import '../../services/language_service.dart';
 import '../../controllers/auth_controller.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
@@ -104,7 +105,43 @@ class _LoginViewState extends State<LoginView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 20),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: Obx(
+                            () => InkWell(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                LanguageService.toggleLanguage();
+                              },
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: AppColors.primary.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.language_rounded, size: 16, color: AppColors.primary),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      LanguageService.isArabic ? 'العربية' : 'Français',
+                                      style: AppTextStyles.iosCaption1.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         
                         // ── 1. Logo dans un cercle ─────────────────────────────
                         Center(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../services/language_service.dart';
 import '../../controllers/profil_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
@@ -283,20 +283,16 @@ class ProfilView extends GetView<ProfilController> {
                       AppColors.secondary.withValues(alpha: 0.1),
                     ),
                     title: 'Langue de l\'application'.tr,
-                   trailing: Text(
-                      Get.locale?.languageCode == 'ar' ? 'العربية' : 'Français',
-                     style: AppTextStyles.iosSubhead,
+                    trailing: Obx(
+                      () => Text(
+                        LanguageService.isArabic ? 'العربية' : 'Français',
+                        style: AppTextStyles.iosSubhead,
+                      ),
                     ),
                     showChevron: true,
                     onTap: () async {
-                      const storage = FlutterSecureStorage();
-                      if (Get.locale?.languageCode == 'ar') {
-                       await storage.write(key: 'app_language', value: 'fr');
-                       Get.updateLocale(const Locale('fr', 'FR'));
-                     } else {
-                        await storage.write(key: 'app_language', value: 'ar');
-                       Get.updateLocale(const Locale('ar', 'DZ'));
-                     }
+                      HapticFeedback.selectionClick();
+                      await LanguageService.toggleLanguage();
                     },
                   ),
                   IosCardTile(

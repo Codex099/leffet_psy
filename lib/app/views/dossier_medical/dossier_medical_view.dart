@@ -5,6 +5,7 @@ import '../../models/dossier_medical_model.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../widgets/app_button.dart';
+import '../../widgets/app_date_picker.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/state_placeholder.dart';
 
@@ -639,13 +640,12 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
               initialDate = DateTime.now();
             }
 
-            final picked = await showDatePicker(
+            final picked = await AppDatePicker.show(
               context: context,
               initialDate: initialDate,
               firstDate: firstDate,
               lastDate: lastDate,
-              locale: const Locale('fr', 'FR'),
-           );
+            );
             if (picked != null) {
               controller.text =
                   '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';

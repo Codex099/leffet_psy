@@ -9,6 +9,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/searchable_picker.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
+import '../../widgets/patient_avatar.dart';
 
 class EditPatientView extends GetView<EditPatientController> {
  const EditPatientView({super.key});
@@ -134,29 +135,19 @@ class EditPatientView extends GetView<EditPatientController> {
             child: Obx(
               () => Stack(
                 children: [
-                  controller.pickedPhoto.value != null
-                      ? CircleAvatar(
-                          radius: 48,
-                          backgroundImage: FileImage(
-                            controller.pickedPhoto.value!,
-                          ),
-                        )
-                      : controller.photoUrl.value.isNotEmpty
-                      ? CircleAvatar(
-                          radius: 48,
-                          backgroundImage: NetworkImage(
-                            controller.photoUrl.value,
-                          ),
-                        )
-                      : const CircleAvatar(
-                          radius: 48,
-                          backgroundColor: AppColors.secondaryLight,
-                          child: Icon(
-                            Icons.person_rounded,
-                            size: 48,
-                            color: AppColors.primary,
-                          ),
-                        ),
+                  PatientAvatar(
+                    photoUrl: controller.pickedPhoto.value?.path ??
+                        (controller.photoUrl.value.isNotEmpty
+                            ? controller.photoUrl.value
+                            : null),
+                    initials: (controller.prenomController.text.trim().isNotEmpty
+                            ? controller.prenomController.text.trim()[0]
+                            : 'P') +
+                        (controller.nomController.text.trim().isNotEmpty
+                            ? controller.nomController.text.trim()[0]
+                            : ''),
+                    radius: 48,
+                  ),
                   if (controller.photoUploading.value)
                     Positioned.fill(
                       child: Container(

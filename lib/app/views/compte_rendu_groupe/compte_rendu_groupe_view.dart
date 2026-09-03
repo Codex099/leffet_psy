@@ -238,8 +238,8 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
               Row(
                 children: [
                   StatusBadge.custom(
-                    label: isPresent ? 'Présent' : 'Absent',
-                   color: isPresent ? AppColors.primary : AppColors.error,
+                    label: isPresent ? 'Présent'.tr : 'Absent'.tr,
+                    color: isPresent ? AppColors.primary : AppColors.error,
                   ),
                   const SizedBox(width: 8),
                   Switch(
@@ -253,8 +253,8 @@ class CompteRenduGroupeView extends GetView<CompteRenduGroupeController> {
           const SizedBox(height: 10),
           AppTextField(
             label: 'Note'.tr,
-           hintText:
-                'Ajouter une remarque sur la participation, l\'.trattention ou le comportement...',
+            hintText:
+                'Ajouter une remarque sur la participation, l\'attention ou le comportement...'.tr,
             maxLines: 2,
             suffixIcon: const Icon(Icons.edit_outlined, size: 18),
           ),

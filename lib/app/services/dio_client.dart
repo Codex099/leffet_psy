@@ -29,7 +29,10 @@ class DioClient {
         receiveTimeout:
             const Duration(milliseconds: ApiConfig.receiveTimeoutMs),
         sendTimeout: const Duration(milliseconds: ApiConfig.sendTimeoutMs),
-        headers: {'Content-Type': ApiConfig.contentType},
+        headers: {
+          'Content-Type': ApiConfig.contentType,
+          'ngrok-skip-browser-warning': 'true',
+        },
        responseType: ResponseType.json,
       ),
     );

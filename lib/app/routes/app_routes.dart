@@ -31,6 +31,7 @@ abstract class AppRoutes {
  // ─── Employés ──────────────────────────────────────────────────────────────
   static const employesListe = '/employes';
  static const editEmploye = '/employes/edit';
+ static const employeVisibilitePatients = '/employes/visibilite-patients';
 
  // ─── Séances & Comptes-rendus ──────────────────────────────────────────────
   static const seancesIndividuelles = '/seances-individuelles';

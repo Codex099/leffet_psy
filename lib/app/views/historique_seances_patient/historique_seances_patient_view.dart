@@ -202,18 +202,19 @@ class HistoriqueSeancesPatientView
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$date  Â·  $heureDebut "“ $heureFin'.tr,
-                 style: AppTextStyles.bodySmall,
+                  '$date  ·  $heureDebut - $heureFin',
+                  style: AppTextStyles.bodySmall,
                 ),
                 if (s.statutPresence != null)
                   Text(
                     s.statutPresence == 'present'
-                       ? 'âœ… Présent'
-                       : 'âŒ Absent',
-                   style: AppTextStyles.bodySmall.copyWith(
+                        ? 'Présent'.tr
+                        : 'Absent'.tr,
+                    style: AppTextStyles.bodySmall.copyWith(
                       color: s.statutPresence == 'present'
-                         ? AppColors.statusPresent
+                          ? AppColors.statusPresent
                           : AppColors.error,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
               ],

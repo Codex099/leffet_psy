@@ -1,6 +1,3 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
-
 /// Configuration centralisée de l'API backend PsyCare.
 /// TOUTES les URLs et constantes réseau sont définies ici.
 /// Aucune URL ne doit être codée en dur dans les services.
@@ -10,16 +7,7 @@ class ApiConfig {
   // ─── Base URL ──────────────────────────────────────────────────────────────
   /// URL de base du backend FastAPI.
   /// S'adapte automatiquement selon la plateforme (Émulateur Android vs Windows/Web).
-  static String get baseUrl {
-    if (kIsWeb) {
-      return 'http://127.0.0.1:8000';
-   } else if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000';
-   } else {
-      // Windows, macOS, iOS Simulator
-      return 'http://127.0.0.1:8000';
-   }
-  }
+  static String baseUrl = 'https://jawless-refill-paycheck.ngrok-free.dev';
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────
   static const int connectTimeoutMs = 20000;
@@ -41,26 +29,30 @@ class ApiConfig {
 
  // ─── Routes Patients ───────────────────────────────────────────────────────
   static const String patients = '/api/patients';
- static String patient(dynamic id) => '/api/patients/$id';
- static String patientParents(dynamic id) => '/api/patients/$id/parents';
- static String patientStatut(dynamic id) => '/api/patients/$id/statut';
- static String patientStatutHistorique(dynamic id) =>
+  static String patient(dynamic id) => '/api/patients/$id';
+  static String patientParents(dynamic id) => '/api/patients/$id/parents';
+  static String patientParent(dynamic patientId, dynamic parentId) =>
+      '/api/patients/$patientId/parents/$parentId';
+  static String patientStatut(dynamic id) => '/api/patients/$id/statut';
+  static String patientStatutHistorique(dynamic id) =>
       '/api/patients/$id/statut-historique';
- static String patientStatutHistoriqueItem(dynamic patientId, dynamic itemId) =>
+  static String patientStatutHistoriqueItem(dynamic patientId, dynamic itemId) =>
       '/api/patients/$patientId/statut-historique/$itemId';
- static String patientDossierMedical(dynamic id) =>
+  static String patientDossierMedical(dynamic id) =>
       '/api/patients/$id/dossier-medical';
- static String patientNotes(dynamic id) => '/api/patients/$id/notes';
- static String patientPlanningRecurrent(dynamic id) =>
+  static String patientNotes(dynamic id) => '/api/patients/$id/notes';
+  static String patientPlanningRecurrent(dynamic id) =>
       '/api/patients/$id/planning-recurrent';
- static String patientPlanningRecurrentGenerer(dynamic id) =>
+  static String patientPlanningRecurrentGenerer(dynamic id) =>
       '/api/patients/$id/planning-recurrent/generer';
- static String patientPlansTherapeutiques(dynamic id) =>
+  static String patientPlansTherapeutiques(dynamic id) =>
       '/api/patients/$id/plans-therapeutiques';
 
  // ─── Routes Parents ────────────────────────────────────────────────────────
   static const String parents = '/api/parents';
- static String parentById(dynamic id) => '/api/parents/$id';
+  static String parentById(dynamic id) => '/api/parents/$id';
+  static String parentByPhone(String phone) => '/api/parents/by-phone/$phone';
+  static String parentPatients(dynamic id) => '/api/parents/$id/patients';
 
  // ─── Routes Notes ──────────────────────────────────────────────────────────
   static String noteById(dynamic id) => '/api/notes/$id';
@@ -100,35 +92,62 @@ class ApiConfig {
   static const String calendrier = '/api/calendrier';
  static String evenementCalendrier(dynamic id) => '/api/calendrier/$id';
 
- // ─── Routes Employés ───────────────────────────────────────────────────────
+  // ─── Routes Employés ───────────────────────────────────────────────────────
   static const String employees = '/api/employees';
- static String employee(dynamic id) => '/api/employees/$id';
- static String employeePatients(dynamic id) => '/api/employees/$id/patients';
+  static String employee(dynamic id) => '/api/employees/$id';
+  static String employeePatients(dynamic id) => '/api/employees/$id/patients';
+  static String employeeVisibilitePatients(dynamic id) =>
+      '/api/employees/$id/visibilite-patients';
+  static const String employeesVisibiliteGlobale =
+      '/api/employees/visibilite-globale';
 
   // ─── Routes Upload ─────────────────────────────────────────────────────────
   static const String uploads = '/api/uploads';
 
   // ─── Media Helpers ─────────────────────────────────────────────────────────
-  /// Résout une URL de média relative (ex: "/uploads/image.jpg" ou "uploads/video.mp4")
-  /// ou remplace l'hôte localhost/10.0.2.2/127.0.0.1 par la baseUrl active.
+  /// Résout une URL de média relative (ex: "/uploads/image.jpg" ou "uploads\video.mp4")
+  /// ou remplace l'hôte local (localhost/127.0.0.1/10.0.2.2/0.0.0.0) par la baseUrl active.
   static String resolveMediaUrl(String? url) {
     if (url == null || url.trim().isEmpty) return '';
-    final trimmed = url.trim();
-    if (trimmed.startsWith('blob:') || trimmed.startsWith('data:')) {
-      return trimmed;
+    // Normalisation des séparateurs de chemins (Windows backslashes)
+    final normalized = url.trim().replaceAll(r'\', '/');
+
+    if (normalized.startsWith('blob:') || normalized.startsWith('data:')) {
+      return normalized;
     }
-    // Si l'URL contient un hôte local différent (ex: 127.0.0.1 alors qu'on est sur Android 10.0.2.2 ou vice-versa)
-    final localMatch = RegExp(r'^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2):[0-9]+(\/.*)?$');
-    if (localMatch.hasMatch(trimmed)) {
-      final match = localMatch.firstMatch(trimmed);
-      final path = match?.group(2) ?? '';
-      return '$baseUrl$path';
+
+    // Fichier local sur le terminal (ex: file://, C:/..., /data/..., /storage/...)
+    if (normalized.startsWith('file://') ||
+        RegExp(r'^[a-zA-Z]:\/').hasMatch(normalized) ||
+        normalized.startsWith('/data/') ||
+        normalized.startsWith('/storage/') ||
+        normalized.startsWith('/private/')) {
+      return normalized;
     }
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      return trimmed;
+
+    final uri = Uri.tryParse(normalized);
+    if (uri != null && uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https')) {
+      final host = uri.host.toLowerCase();
+      if (host == 'localhost' ||
+          host == '127.0.0.1' ||
+          host == '10.0.2.2' ||
+          host == '0.0.0.0' ||
+          host.isEmpty) {
+        final cleanBase = baseUrl.endsWith('/')
+            ? baseUrl.substring(0, baseUrl.length - 1)
+            : baseUrl;
+        final pathAndQuery = uri.hasQuery ? '${uri.path}?${uri.query}' : uri.path;
+        final cleanPath = pathAndQuery.startsWith('/') ? pathAndQuery : '/$pathAndQuery';
+        return '$cleanBase$cleanPath';
+      }
+      return normalized;
     }
-    final cleanPath = trimmed.startsWith('/') ? trimmed : '/$trimmed';
-    return '$baseUrl$cleanPath';
+
+    final cleanBase = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    final cleanPath = normalized.startsWith('/') ? normalized : '/$normalized';
+    return '$cleanBase$cleanPath';
   }
 
   /// Détermine si une URL ou un chemin pointe vers un fichier vidéo.

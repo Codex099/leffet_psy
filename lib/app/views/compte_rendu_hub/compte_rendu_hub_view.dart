@@ -79,11 +79,11 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: Obx(
                 () => IosSegmentedControl<String>(
-                  segments: const {
-                    'en_attente': 'En attente',
-                   'rediges': 'Rédigés',
-                   'tous': 'Toutes',
-                 },
+                  segments: {
+                    'en_attente': 'En attente'.tr,
+                    'rediges': 'Rédigés'.tr,
+                    'tous': 'Toutes'.tr,
+                  },
                   selectedValue: controller.selectedTab.value,
                   onValueChanged: (val) => controller.selectedTab.value = val,
                 ),
@@ -175,7 +175,7 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
               child: Obx(() {
                 if (controller.status.value == 'loading') {
                  return StatePlaceholder.loading(
-                    message: 'Chargement des comptes-rendus...',
+                    message: 'Chargement des comptes-rendus...'.tr,
                  );
                 }
                 if (controller.status.value == 'error') {
@@ -191,8 +191,8 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                   return StatePlaceholder.empty(
                     title: 'Aucune séance trouvée'.tr,
                    message: controller.selectedTab.value == 'en_attente'
-                       ? 'Tous vos comptes-rendus cliniques sont à jour !'
-                       : 'Aucune séance ne correspond aux critères sélectionnés.',
+                       ? 'Tous vos comptes-rendus cliniques sont à jour !'.tr
+                       : 'Aucune séance ne correspond aux critères sélectionnés.'.tr,
                    actionLabel: 'Planifier une séance'.tr,
                    onAction: () async {
                       final res = await Get.toNamed(AppRoutes.creationSeance);
@@ -305,7 +305,7 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                 ),
           title: session.title,
           subtitle:
-              '${session.date} • ${session.heureDebut} - ${session.heureFin}${session.isGroupe ? " • Atelier Collectif" : " • Individuel"}'.tr,
+              '${session.date} • ${session.heureDebut} - ${session.heureFin} • ${session.isGroupe ? "Atelier Collectif".tr : "Individuel".tr}',
          showChevron: true,
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -325,7 +325,7 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  isDone ? 'Validé' : 'À rédiger',
+                  isDone ? 'Validé'.tr : 'À rédiger'.tr,
                  style: AppTextStyles.iosCaption2.copyWith(
                     fontWeight: FontWeight.w700,
                     color: isDone ? AppColors.iosGreen : AppColors.accentCoral,

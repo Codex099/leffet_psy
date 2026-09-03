@@ -14,6 +14,7 @@ import '../bindings/edit_employe_binding.dart';
 import '../bindings/edit_groupe_binding.dart';
 import '../bindings/edit_parent_binding.dart';
 import '../bindings/edit_patient_binding.dart';
+import '../bindings/employe_visibilite_patients_binding.dart';
 import '../bindings/employes_liste_binding.dart';
 import '../bindings/groupe_detail_binding.dart';
 import '../bindings/groupes_liste_binding.dart';
@@ -38,6 +39,7 @@ import '../views/creation_seance/creation_seance_view.dart';
 import '../views/detail_tache/detail_tache_view.dart';
 import '../views/dossier_medical/dossier_medical_view.dart';
 import '../views/edit_employe/edit_employe_view.dart';
+import '../views/employe_visibilite_patients/employe_visibilite_patients_view.dart';
 import '../views/edit_groupe/edit_groupe_view.dart';
 import '../views/edit_parent/edit_parent_view.dart';
 import '../views/edit_patient/edit_patient_view.dart';
@@ -160,6 +162,11 @@ class AppPages {
       name: AppRoutes.editEmploye,
       page: () => const EditEmployeView(),
       binding: EditEmployeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.employeVisibilitePatients,
+      page: () => const EmployeVisibilitePatientsView(),
+      binding: EmployeVisibilitePatientsBinding(),
     ),
     GetPage(
       name: AppRoutes.seancesIndividuelles,

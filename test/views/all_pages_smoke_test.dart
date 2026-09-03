@@ -16,6 +16,7 @@ import 'package:leffet_psy/app/controllers/creation_seance_controller.dart';
 import 'package:leffet_psy/app/controllers/detail_tache_controller.dart';
 import 'package:leffet_psy/app/controllers/dossier_medical_controller.dart';
 import 'package:leffet_psy/app/controllers/edit_employe_controller.dart';
+import 'package:leffet_psy/app/controllers/employe_visibilite_patients_controller.dart';
 import 'package:leffet_psy/app/controllers/edit_groupe_controller.dart';
 import 'package:leffet_psy/app/controllers/edit_parent_controller.dart';
 import 'package:leffet_psy/app/controllers/edit_patient_controller.dart';
@@ -45,6 +46,7 @@ import 'package:leffet_psy/app/views/creation_seance/creation_seance_view.dart';
 import 'package:leffet_psy/app/views/detail_tache/detail_tache_view.dart';
 import 'package:leffet_psy/app/views/dossier_medical/dossier_medical_view.dart';
 import 'package:leffet_psy/app/views/edit_employe/edit_employe_view.dart';
+import 'package:leffet_psy/app/views/employe_visibilite_patients/employe_visibilite_patients_view.dart';
 import 'package:leffet_psy/app/views/edit_groupe/edit_groupe_view.dart';
 import 'package:leffet_psy/app/views/edit_parent/edit_parent_view.dart';
 import 'package:leffet_psy/app/views/edit_patient/edit_patient_view.dart';
@@ -269,6 +271,13 @@ void main() {
       Get.put(EditEmployeController());
       await pumpScreen(tester, const EditEmployeView());
       expect(find.byType(EditEmployeView), findsOneWidget);
+    });
+
+    testWidgets('18b. EmployeVisibilitePatientsView renders without crashing', (tester) async {
+      final ctrl = Get.put(EmployeVisibilitePatientsController());
+      ctrl.status.value = 'success';
+      await pumpScreen(tester, const EmployeVisibilitePatientsView());
+      expect(find.byType(EmployeVisibilitePatientsView), findsOneWidget);
     });
 
     testWidgets('19. SeancesIndividuellesView renders without crashing', (tester) async {

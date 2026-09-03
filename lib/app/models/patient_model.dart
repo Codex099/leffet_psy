@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../config/api_config.dart';
 import '../utils/json_utils.dart';
 
 class PatientModel {
@@ -37,15 +38,21 @@ class PatientModel {
       id: parseId(json['id']),
      nom: json['nom'] as String? ?? '',
      prenom: json['prenom'] as String? ?? '',
-     dateNaissance: json['date_naissance'] as String?,
-     photo: json['photo'] as String?,
-     nombreFreresSoeurs: parseNullableInt(json['nombre_freres_soeurs']),
+      dateNaissance: json['date_naissance'] as String?,
+      photo: (json['photo'] ??
+              json['photo_url'] ??
+              json['photoUrl'] ??
+              json['avatar'] ??
+              json['avatar_url'] ??
+              json['image'] ??
+              json['imageUrl']) as String?,
+      nombreFreresSoeurs: parseNullableInt(json['nombre_freres_soeurs']),
      ordreNaissance: parseNullableInt(json['ordre_naissance']),
      estActif: json['est_actif'] as bool? ?? true,
      dateDesactivation: json['date_desactivation'] as String?,
      dateReactivation: json['date_reactivation'] as String?,
      sexe: json['sexe'] as String?,
-     parents: (json['parents'] as List<dynamic>?)
+      parents: (json['parents'] as List<dynamic>?)
          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
       employesAssignes: (json['employes_assignes'] as List<dynamic>?)
@@ -58,9 +65,10 @@ class PatientModel {
     return {
       'nom': nom,
      'prenom': prenom,
-     if (dateNaissance != null) 'date_naissance': dateNaissance,
-     if (photo != null) 'photo': photo,
-     if (nombreFreresSoeurs != null)
+      if (dateNaissance != null) 'date_naissance': dateNaissance,
+      if (photo != null) 'photo': photo,
+      if (photo != null) 'photo_url': photo,
+      if (nombreFreresSoeurs != null)
         'nombre_freres_soeurs': nombreFreresSoeurs,
      if (ordreNaissance != null) 'ordre_naissance': ordreNaissance,
      'est_actif': estActif,
@@ -133,7 +141,10 @@ class PatientModel {
   }
 
   bool get actif => estActif;
-  String? get photoUrl => photo;
+  String? get photoUrl {
+    if (photo == null || photo!.trim().isEmpty) return null;
+    return ApiConfig.resolveMediaUrl(photo);
+  }
 
   String get statutLabel => estActif ? 'Actif'.tr : 'Inactif';
 

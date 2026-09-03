@@ -14,6 +14,7 @@ import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
+import '../../widgets/app_date_picker.dart';
 
 class AgendaView extends GetView<AgendaController> {
  const AgendaView({super.key});
@@ -66,7 +67,7 @@ class AgendaView extends GetView<AgendaController> {
                     Obx(
                       () => InkWell(
                         onTap: () async {
-                          final picked = await showDatePicker(
+                          final picked = await AppDatePicker.show(
                             context: context,
                             initialDate: controller.selectedDate.value,
                             firstDate: DateTime(2020),
@@ -313,10 +314,10 @@ class AgendaView extends GetView<AgendaController> {
               // ── Mode Switcher (Jour / Semaine complète) ──
               Obx(
                 () => IosSegmentedControl<String>(
-                  segments: const {
-                    'Jour': 'Vue Journée',
-                   'Semaine': 'Semaine Complète',
-                 },
+                  segments: {
+                    'Jour': 'Vue Journée'.tr,
+                    'Semaine': 'Semaine Complète'.tr,
+                  },
                   selectedValue: controller.activeMode.value,
                   onValueChanged: (mode) => controller.setMode(mode),
                   margin: const EdgeInsets.symmetric(
@@ -392,7 +393,7 @@ class AgendaView extends GetView<AgendaController> {
                   boxShadow: AppColors.softShadow,
                 ),
                 child: Text(
-                  '${daySessions.length} séance${daySessions.length > 1 ? "s" : ""}'.tr,
+                  '${daySessions.length} ${daySessions.length > 1 ? "séances".tr : "séance".tr}',
                  style: AppTextStyles.iosCaption1.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -498,9 +499,9 @@ class AgendaView extends GetView<AgendaController> {
                 ),
           title: session.title,
           subtitle:
-              '${session.heureDebut} - ${session.heureFin} • ${session.assignedEmployee.isNotEmpty ? session.assignedEmployee : "Non assigné".tr}${session.isGroupe && session.participants != null ? " • ${session.participants!.length} participant(s)" : ""}'.tr,
+              '${session.heureDebut} - ${session.heureFin} • ${session.assignedEmployee.isNotEmpty ? "${'Assigné à'.tr} : ${session.assignedEmployee}" : "Non assigné".tr}${session.isGroupe && session.participants != null ? " • ${session.participants!.length} ${'participant(s)'.tr}" : ""}',
           showChevron: true,
-          trailing: StatusBadge.active(label: session.statutLabel),
+          trailing: StatusBadge.active(label: session.statutLabel.tr),
           onTap: () async {
             if (session.isGroupe) {
               await Get.toNamed(

@@ -60,7 +60,12 @@ class PatientService {
     await _dio.post(
       ApiConfig.patientParents(patientId),
       data: {'parent_id': parentId, 'role': role},
-   );
+    );
+  }
+
+  /// DELETE /api/patients/{patientId}/parents/{parentId} — Dissociation parent du patient
+  Future<void> removeParentFromPatient(dynamic patientId, dynamic parentId) async {
+    await _dio.delete(ApiConfig.patientParent(patientId, parentId));
   }
 
   /// GET /api/patients/{id}/parents — Parents liés au patient

@@ -8,6 +8,7 @@ import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
 import '../../widgets/creative_app_bar.dart';
+import '../../widgets/app_date_picker.dart';
 
 class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
  const PlanTherapeutiqueView({super.key});
@@ -24,6 +25,41 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
       body: Obx(() {
         if (controller.status.value == 'loading') {
           return const StatePlaceholder(type: StatePlaceholderType.loading);
+        }
+        if (!controller.isAdmin.value) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.error.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.lock_rounded,
+                      size: 48,
+                      color: AppColors.error,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Accès réservé'.tr,
+                    style: AppTextStyles.iosHeadline.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Seul l\'administrateur est autorisé à consulter et gérer les plans thérapeutiques.'.tr,
+                    style: AppTextStyles.iosSubhead.copyWith(color: AppColors.textSecondary),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
         }
         if (controller.status.value == 'error') {
           return StatePlaceholder.error(
@@ -374,7 +410,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 children: [
                   InkWell(
                     onTap: () =>
-                        controller.convertEtapeToTache(plan.id, etape.id),
+                        _showAssignTaskDialog(context, plan, etape),
                     child: Row(
                       children: [
                         const Icon(
@@ -512,6 +548,184 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
               foregroundColor: Colors.white,
             ),
             child: Text('Ajouter'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAssignTaskDialog(
+    BuildContext context,
+    PlanTherapeutiqueModel plan,
+    EtapePlanTherapeutiqueModel etape,
+  ) {
+    dynamic selectedEmployeeId = controller.availableEmployees.isNotEmpty
+        ? controller.availableEmployees.first.id
+        : null;
+    final selectedPriority = 'normale'.obs;
+    final dateEcheance = ''.obs;
+
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Assigner l\'étape en tâche'.tr),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                etape.titre,
+                style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+              ),
+              if (etape.description != null && etape.description!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(etape.description!, style: AppTextStyles.bodySmall),
+              ],
+              const SizedBox(height: 16),
+              // Employé
+              Text(
+                'Employé assigné'.tr,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Obx(() {
+                if (controller.availableEmployees.isEmpty) {
+                  return Text(
+                    'Aucun employé disponible'.tr,
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                  );
+                }
+                return DropdownButtonFormField<dynamic>(
+                  isExpanded: true,
+                  initialValue: selectedEmployeeId,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                  items: controller.availableEmployees.map((emp) {
+                    return DropdownMenuItem<dynamic>(
+                      value: emp.id,
+                      child: Text(
+                        '${emp.fullName} (${emp.role.tr})',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (val) => selectedEmployeeId = val,
+                );
+              }),
+              const SizedBox(height: 14),
+              // Priorité
+              Text(
+                'Priorité'.tr,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Obx(
+                () => DropdownButtonFormField<String>(
+                  initialValue: selectedPriority.value,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: 'normale', child: Text('Normale'.tr)),
+                    DropdownMenuItem(value: 'haute', child: Text('Haute'.tr)),
+                    DropdownMenuItem(value: 'basse', child: Text('Basse'.tr)),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) selectedPriority.value = val;
+                  },
+                ),
+              ),
+              const SizedBox(height: 14),
+              // Date d'échéance
+              Text(
+                'Date d\'échéance'.tr,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Obx(
+                () => InkWell(
+                  onTap: () async {
+                    final picked = await AppDatePicker.show(
+                      context: context,
+                      initialDate: DateTime.now().add(const Duration(days: 7)),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      dateEcheance.value =
+                          "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          dateEcheance.value.isEmpty
+                              ? 'Sélectionner une date'.tr
+                              : dateEcheance.value,
+                          style: TextStyle(
+                            color: dateEcheance.value.isEmpty
+                                ? AppColors.textHint
+                                : AppColors.textPrimary,
+                          ),
+                        ),
+                        const Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.primary),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
+          ElevatedButton(
+            onPressed: () {
+              if (selectedEmployeeId == null) {
+                Get.snackbar('Sélection requise'.tr, 'Veuillez sélectionner un employé.'.tr);
+                return;
+              }
+              Get.back();
+              controller.convertEtapeToTache(
+                plan.id,
+                etape.id,
+                assigneA: selectedEmployeeId.toString(),
+                priorite: selectedPriority.value,
+                dateEcheance: dateEcheance.value.isNotEmpty ? dateEcheance.value : null,
+                titre: etape.titre,
+                description: etape.description,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text('Assigner la tâche'.tr),
           ),
         ],
       ),

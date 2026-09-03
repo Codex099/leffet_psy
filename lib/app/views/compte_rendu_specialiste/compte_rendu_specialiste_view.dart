@@ -12,6 +12,7 @@ import '../../widgets/media_picker_widget.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
+import '../../widgets/app_date_picker.dart';
 
 class CompteRenduSpecialisteView
    extends GetView<CompteRenduSpecialisteController> {
@@ -246,11 +247,11 @@ class CompteRenduSpecialisteView
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           child: Obx(
             () => IosSegmentedControl<String>(
-              segments: const {
-                'present': 'Présent',
-               'excuse': 'Excusé',
-               'absent': 'Absent',
-             },
+              segments: {
+                'present': 'Présent'.tr,
+                'excuse': 'Excusé'.tr,
+                'absent': 'Absent'.tr,
+              },
               selectedValue: controller.statutPresence.value,
               onValueChanged: (val) => controller.statutPresence.value = val,
             ),
@@ -353,8 +354,8 @@ class CompteRenduSpecialisteView
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          isPresent ? 'Présent' : 'Absent',
-                         style: AppTextStyles.iosCaption1.copyWith(
+                          isPresent ? 'Présent'.tr : 'Absent'.tr,
+                          style: AppTextStyles.iosCaption1.copyWith(
                             fontWeight: FontWeight.w700,
                             color: isPresent
                                 ? AppColors.iosGreen
@@ -647,7 +648,7 @@ class CompteRenduSpecialisteView
                           const SizedBox(height: 6),
                           InkWell(
                             onTap: () async {
-                              final picked = await showDatePicker(
+                              final picked = await AppDatePicker.show(
                                 context: context,
                                 initialDate: DateTime.now().add(
                                   const Duration(days: 7),

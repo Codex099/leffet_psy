@@ -18,9 +18,12 @@ class PlanningRecurrentController extends GetxController {
  final RxString errorMessage = ''.obs;
  final selectedDays = <String>[].obs;
   final RxString modeCreneaux = 'fixe'.obs;
- final heureDebut = '09:00'.obs;
- final heureFin = '09:45'.obs;
- final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
+  final heureDebut = '09:00'.obs;
+  final heureFin = '09:45'.obs;
+  final RxMap<String, Map<String, String>> daySlotsMap = <String, Map<String, String>>{}.obs;
+
+  /// Créneaux automatiques (par défaut OFF = false)
+  final RxBool creneauxAutomatiques = false.obs;
 
   final employees = <EmployeeModel>[].obs;
   final selectedEmployeeIds = <dynamic>[].obs;
@@ -87,6 +90,11 @@ class PlanningRecurrentController extends GetxController {
       } else if (cached.employeId != null) {
         selectedEmployeeIds.assignAll([cached.employeId]);
       }
+      if (cached.modeGeneration != null) {
+        creneauxAutomatiques.value = cached.modeGeneration == 'auto';
+      } else {
+        creneauxAutomatiques.value = false;
+      }
       status.value = 'success';
    }
   }
@@ -150,6 +158,11 @@ class PlanningRecurrentController extends GetxController {
       } else if (loaded?.employeId != null) {
         selectedEmployeeIds.assignAll([loaded!.employeId]);
       }
+      if (loaded?.modeGeneration != null) {
+        creneauxAutomatiques.value = loaded!.modeGeneration == 'auto';
+      } else {
+        creneauxAutomatiques.value = false;
+      }
 
       if (loaded != null) {
         AppCacheManager.set<PatientPlanningRecurrentModel>(
@@ -176,21 +189,37 @@ class PlanningRecurrentController extends GetxController {
     try {
       status.value = 'loading';
 
-     if (modeCreneaux.value == 'fixe') {
-       final fullDays = selectedDays.map((d) {
+      final isAuto = creneauxAutomatiques.value;
+      final modeGen = isAuto ? 'auto' : 'manuel';
+      const horizonDays = 28; // 4 semaines
+
+      if (modeCreneaux.value == 'fixe') {
+        final fullDays = selectedDays.map((d) {
           final lower = d.toLowerCase();
           return dayToFull[lower] ?? lower;
         }).toList();
         await _planningService.setPlanningRecurrent(patientId!, {
           'jours_semaine': fullDays,
-         'heure_debut': heureDebut.value,
-         'heure_fin': heureFin.value,
-         'employe_ids': selectedEmployeeIds.toList(),
-       });
+          'heure_debut': heureDebut.value,
+          'heure_fin': heureFin.value,
+          'employe_ids': selectedEmployeeIds.toList(),
+          'mode_generation': modeGen,
+          'horizon_jours': horizonDays,
+        });
 
-        try {
-          await _planningService.genererSeances(patientId!);
-        } catch (_) {}
+        if (isAuto) {
+          try {
+            final now = DateTime.now();
+            final todayStr = now.toIso8601String().split('T').first;
+            final finStr =
+                now.add(const Duration(days: 28)).toIso8601String().split('T').first;
+            await _planningService.genererSeances(
+              patientId!,
+              dateDebut: todayStr,
+              dateFin: finStr,
+            );
+          } catch (_) {}
+        }
       } else {
         for (final day in selectedDays) {
           final lower = day.toLowerCase();
@@ -200,14 +229,26 @@ class PlanningRecurrentController extends GetxController {
 
           await _planningService.setPlanningRecurrent(patientId!, {
             'jours_semaine': [fullDay],
-           'heure_debut': start,
-           'heure_fin': end,
-           'employe_ids': selectedEmployeeIds.toList(),
-         });
+            'heure_debut': start,
+            'heure_fin': end,
+            'employe_ids': selectedEmployeeIds.toList(),
+            'mode_generation': modeGen,
+            'horizon_jours': horizonDays,
+          });
 
-          try {
-            await _planningService.genererSeances(patientId!);
-          } catch (_) {}
+          if (isAuto) {
+            try {
+              final now = DateTime.now();
+              final todayStr = now.toIso8601String().split('T').first;
+              final finStr =
+                  now.add(const Duration(days: 28)).toIso8601String().split('T').first;
+              await _planningService.genererSeances(
+                patientId!,
+                dateDebut: todayStr,
+                dateFin: finStr,
+              );
+            } catch (_) {}
+          }
         }
       }
 
@@ -227,8 +268,13 @@ class PlanningRecurrentController extends GetxController {
       } catch (_) {}
 
       Get.back(result: true);
-      Get.snackbar('Succès', 'Planning récurrent enregistré et séances générées sur l\'agenda',
-         snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Succès'.tr,
+        isAuto
+            ? 'Planning récurrent enregistré. Créneaux automatiques activés pour 4 semaines.'.tr
+            : 'Planning récurrent enregistré (créneaux automatiques désactivés).'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';

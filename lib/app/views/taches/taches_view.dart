@@ -51,9 +51,9 @@ class TachesView extends GetView<TachesController> {
           // ── Filter Segmented Control (Assignées à moi / Toutes) ──
           Obx(
             () => IosSegmentedControl<bool>(
-              segments: const {
-                false: 'Toutes les tâches',
-                true: 'Mes tâches',
+              segments: {
+                false: 'Toutes les tâches'.tr,
+                true: 'Mes tâches'.tr,
               },
               selectedValue: controller.filterAssignesAMoi.value,
               onValueChanged: (val) => controller.toggleFilter(val),
@@ -131,7 +131,7 @@ class TachesView extends GetView<TachesController> {
   ) {
     return IosCard(
       title: '$title (${list.length})'.tr,
-     children: list.map((t) => _buildTacheTile(t)).toList(),
+      children: list.map((t) => _buildTacheTile(t)).toList(),
     );
   }
 
@@ -170,7 +170,7 @@ class TachesView extends GetView<TachesController> {
       ),
       title: t.titre,
       subtitle:
-          "${t.description != null && t.description!.isNotEmpty ? '${t.description!} - ' : ''}${t.dateEcheance != null ? 'Échéance : ${t.dateEcheance}'.tr : ''}",
+          "${t.description != null && t.description!.isNotEmpty ? '${t.description!} - ' : ''}${t.dateEcheance != null ? '${'Échéance'.tr} : ${t.dateEcheance}' : ''}",
       showChevron: true,
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

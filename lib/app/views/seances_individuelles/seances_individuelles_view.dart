@@ -7,6 +7,7 @@ import '../../models/seance_model.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../widgets/app_date_picker.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
@@ -88,11 +89,11 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               child: Obx(
                 () => IosSegmentedControl<String>(
-                  segments: const {
-                    'a_venir': 'À venir',
-                   'historique': 'Historique',
-                   'toutes': 'Toutes',
-                 },
+                  segments: {
+                    'a_venir': 'À venir'.tr,
+                    'historique': 'Historique'.tr,
+                    'toutes': 'Toutes'.tr,
+                  },
                   selectedValue: controller.activeTab.value,
                   onValueChanged: (val) => controller.activeTab.value = val,
                 ),
@@ -136,7 +137,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
               child: Obx(() {
                 if (controller.status.value == 'loading') {
                  return StatePlaceholder.loading(
-                    message: 'Chargement des séances...',
+                    message: 'Chargement des séances...'.tr,
                  );
                 }
                 if (controller.status.value == 'error') {
@@ -152,9 +153,9 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   return StatePlaceholder.empty(
                     title: 'Aucune séance individuelle'.tr,
                    message: controller.activeTab.value == 'a_venir'
-                       ? 'Aucune consultation n\'est programmée pour les prochains jours.'
-                       : 'Aucune séance trouvée.',
-                   actionLabel: 'Planifier un créneau',
+                       ? 'Aucune consultation n\'est programmée pour les prochains jours.'.tr
+                       : 'Aucune séance trouvée.'.tr,
+                   actionLabel: 'Planifier un créneau'.tr,
                    onAction: () => _openNouveauCreneauModal(context),
                   );
                 }
@@ -187,7 +188,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
         ? group.prochaineSeance!.heureDebut.substring(0, 5)
         : (group.prochaineSeance?.heureDebut ?? '');
    final nextStr = hasNext
-        ? '${group.prochaineSeance!.date} à  $nextTime'
+        ? '${group.prochaineSeance!.date} ${'à'.tr} $nextTime'
        : 'Aucune séance à venir'.tr;
 
    return IosCard(
@@ -197,8 +198,8 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
           leading: PatientAvatar(initials: group.initials, radius: 22),
           title: group.patientName,
           subtitle: hasNext
-              ? 'Prochain RDV : $nextStr · ${group.totalAVenir} séance(s) prévue(s)'.tr
-             : '${group.totalRealisees} séance(s) effectuée(s)'.tr,
+              ? '${'Prochain RDV'.tr} : $nextStr · ${group.totalAVenir} ${'séance(s) prévue(s)'.tr}'
+             : '${group.totalRealisees} ${'séance(s) effectuée(s)'.tr}',
          showChevron: true,
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -210,7 +211,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
             ),
             child: Text(
               group.totalAVenir > 0
-                  ? '${group.totalAVenir} à venir'.tr
+                  ? '${group.totalAVenir} ${'à venir'.tr}'
                  : 'Historique'.tr,
              style: AppTextStyles.iosCaption2.copyWith(
                 color: group.totalAVenir > 0
@@ -282,7 +283,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           ),
                         ),
                         Text(
-                          '${group.totalAVenir} séance(s) à venir · ${group.totalRealisees} réalisée(s)'.tr,
+                          '${group.totalAVenir} ${'séance(s) à venir'.tr} · ${group.totalRealisees} ${'réalisée(s)'.tr}',
                           style: AppTextStyles.iosCaption1.copyWith(
                             color: AppColors.textSecondary,
                           ),
@@ -344,7 +345,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
               const SizedBox(height: 16),
 
               Text(
-                'RENDEZ-VOUS PROGRAMMÉS (${group.seances.length})'.tr,
+                '${'RENDEZ-VOUS PROGRAMMÉS'.tr} (${group.seances.length})',
                style: AppTextStyles.iosCaption2.copyWith(
                   fontWeight: FontWeight.w800,
                   color: AppColors.textSecondary,
@@ -437,10 +438,10 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                               ),
                               child: Text(
                                 isDone
-                                    ? 'Réalisée'
+                                    ? 'Réalisée'.tr
                                    : isCancelled
-                                    ? 'Annulée'
-                                   : 'Planifiée',
+                                    ? 'Annulée'.tr
+                                   : 'Planifiée'.tr,
                                style: AppTextStyles.iosCaption2.copyWith(
                                   color: isDone
                                       ? AppColors.primary
@@ -579,7 +580,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                   onTap: () async {
                     DateTime initialDate =
                         DateTime.tryParse(selectedDate.value) ?? DateTime.now();
-                    final picked = await showDatePicker(
+                    final picked = await AppDatePicker.show(
                       context: context,
                       initialDate: initialDate,
                       firstDate: DateTime(2020),

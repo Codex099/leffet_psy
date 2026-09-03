@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/plan_therapeutique_model.dart';
+import '../models/employee_model.dart';
 import '../services/cache_manager.dart';
 import '../services/plan_therapeutique_service.dart';
+import '../services/employee_service.dart';
+import '../services/tache_service.dart';
+import '../services/auth_service.dart';
 import '../utils/json_utils.dart';
 
 class PlanTherapeutiqueController extends GetxController {
- final PlanTherapeutiqueService _planService = PlanTherapeutiqueService();
+  final PlanTherapeutiqueService _planService = PlanTherapeutiqueService();
+  final EmployeeService _employeeService = EmployeeService();
+  final TacheService _tacheService = TacheService();
+  final AuthService _authService = AuthService();
 
   final RxList<PlanTherapeutiqueModel> plans = <PlanTherapeutiqueModel>[].obs;
+  final RxList<EmployeeModel> availableEmployees = <EmployeeModel>[].obs;
   final Rx<PlanTherapeutiqueModel?> selectedPlan = Rx<PlanTherapeutiqueModel?>(null);
   final RxString status = 'loading'.obs;
- final RxString errorMessage = ''.obs;
- dynamic patientId;
+  final RxString errorMessage = ''.obs;
+  final RxBool isAdmin = false.obs;
+  dynamic patientId;
 
   // Form controllers for creating plan
   final TextEditingController titreController = TextEditingController();
@@ -33,9 +42,25 @@ class PlanTherapeutiqueController extends GetxController {
       status.value = 'error';
      errorMessage.value = 'Identifiant du patient non spécifié.';
    } else {
-      _loadFromCache();
-      loadPlan();
+      _checkAdminAndLoad();
     }
+  }
+
+  Future<void> _checkAdminAndLoad() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+    } catch (_) {}
+
+    if (!isAdmin.value) {
+      status.value = 'error';
+      errorMessage.value = 'Accès réservé aux administrateurs.';
+      return;
+    }
+
+    _loadFromCache();
+    loadPlan();
+    _loadEmployees();
   }
 
   @override
@@ -203,13 +228,48 @@ class PlanTherapeutiqueController extends GetxController {
    }
   }
 
-  Future<void> convertEtapeToTache(dynamic planId, dynamic etapeId) async {
+  Future<void> _loadEmployees() async {
     try {
-      await _planService.creerTacheDepuisEtape(planId, etapeId);
+      final emps = await _employeeService.getEmployees();
+      availableEmployees.value = emps;
+    } catch (_) {}
+  }
+
+  Future<void> convertEtapeToTache(
+    dynamic planId,
+    dynamic etapeId, {
+    required String assigneA,
+    String priorite = 'normale',
+    String? dateEcheance,
+    String? titre,
+    String? description,
+  }) async {
+    try {
+      try {
+        await _tacheService.createTache({
+          'titre': titre ?? 'Étape du plan thérapeutique',
+          'description': description ?? '',
+          'assigne_a': assigneA,
+          if (patientId != null) 'patient_id': patientId.toString(),
+          'etape_plan_id': etapeId.toString(),
+          'statut': 'a_faire',
+          'priorite': priorite,
+          if (dateEcheance != null && dateEcheance.isNotEmpty)
+            'date_echeance': dateEcheance.contains('T')
+                ? dateEcheance
+                : '${dateEcheance}T18:00:00',
+        });
+      } catch (_) {
+        await _planService.creerTacheDepuisEtape(
+          planId,
+          etapeId,
+          assigneA: assigneA,
+        );
+      }
       AppCacheManager.invalidateTag(CacheTags.taches);
-      Get.snackbar('Succès', 'Étape convertie en tâche', snackPosition: SnackPosition.BOTTOM);
-   } catch (e) {
-      Get.snackbar('Erreur', 'Impossible de convertir en tâche', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Succès'.tr, 'Étape convertie en tâche avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, 'Impossible de convertir en tâche : $e'.tr, snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

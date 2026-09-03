@@ -293,10 +293,17 @@ class _SingleSelectSheetState<T> extends State<_SingleSelectSheet<T>> {
                   child: Text(widget.title, style: AppTextStyles.screenTitleMedium),
                 ),
                 if (widget.selected != null)
-                  TextButton(
+                  TextButton.icon(
                     onPressed: () => widget.onSelected(null),
-                    child: Text('Effacer'.tr, style: TextStyle(color: AppColors.error)),
-                 ),
+                    icon: const Icon(Icons.clear_rounded, size: 16, color: AppColors.textSecondary),
+                    label: Text(
+                      'Désélectionner'.tr,
+                      style: AppTextStyles.iosCaption1.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
                   onPressed: () => Navigator.pop(context),
@@ -539,16 +546,16 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
                     children: [
                       Text(widget.title, style: AppTextStyles.screenTitleMedium),
                       Text(
-                        '${_selected.length} sélectionné${_selected.length > 1 ? '.trs' : ''}',
-                       style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
+                        '${_selected.length} ${"sélectionné(s)".tr}',
+                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
                       ),
                     ],
                   ),
                 ),
                 TextButton(
                   onPressed: _selected.length == widget.items.length ? _clearAll : _selectAll,
-                  child: Text(_selected.length == widget.items.length ? 'Tout décocher' : 'Tout sélectionner'),
-               ),
+                  child: Text(_selected.length == widget.items.length ? 'Tout décocher'.tr : 'Tout sélectionner'.tr),
+                ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded),
                   onPressed: () => Navigator.pop(context),

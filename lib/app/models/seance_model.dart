@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+import '../config/api_config.dart';
 import '../utils/json_utils.dart';
 
 class SeanceModel {
@@ -91,18 +93,22 @@ class SeanceModel {
    return res.isNotEmpty ? res : 'P';
  }
 
-  String? get photoUrl => patient?['photo'] as String?;
+  String? get photoUrl {
+    final raw = (patient?['photo'] ?? patient?['photo_url'] ?? patient?['avatar']) as String?;
+    if (raw == null || raw.trim().isEmpty) return null;
+    return ApiConfig.resolveMediaUrl(raw);
+  }
 
- String get statutLabel {
+  String get statutLabel {
     switch (statut) {
       case 'planifiee':
-     case 'prevue':
-       return 'Planifiée';
-     case 'faite':
-       return 'Réalisée';
-     case 'annulee':
-       return 'Annulée';
-     default:
+      case 'prevue':
+        return 'Planifiée'.tr;
+      case 'faite':
+        return 'Réalisée'.tr;
+      case 'annulee':
+        return 'Annulée'.tr;
+      default:
         return statut;
     }
   }

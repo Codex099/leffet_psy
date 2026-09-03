@@ -24,28 +24,31 @@ class PatientsListeView extends GetView<PatientsListeController> {
       extendBody: true,
       appBar: CreativeAppBar(
         title: 'Dossiers Patients'.tr,
-       subtitle: 'Cabinet PsyCare'.tr,
-       actions: [
-          BouncyTap(
-            onTap: () async {
-              final res = await Get.toNamed(AppRoutes.editPatient);
-              if (res == true) controller.loadPatients();
-            },
-            child: Container(
-              padding: const EdgeInsets.all(9),
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                gradient: AppColors.oceanGradient,
-                shape: BoxShape.circle,
-                boxShadow: AppColors.softShadow,
-              ),
-              child: const Icon(
-                Icons.person_add_rounded,
-                size: 19,
-                color: Colors.white,
+        subtitle: controller.isAdmin.value
+            ? 'Tous les dossiers du cabinet'.tr
+            : 'Dossiers assignés'.tr,
+        actions: [
+          if (controller.isAdmin.value)
+            BouncyTap(
+              onTap: () async {
+                final res = await Get.toNamed(AppRoutes.editPatient);
+                if (res == true) controller.loadPatients();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(9),
+                margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(
+                  gradient: AppColors.oceanGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: AppColors.softShadow,
+                ),
+                child: const Icon(
+                  Icons.person_add_rounded,
+                  size: 19,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
         ],
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
@@ -145,22 +148,25 @@ class PatientsListeView extends GetView<PatientsListeController> {
                 final list = controller.filteredPatients;
                 if (list.isEmpty) {
                   final isInactive = controller.actifFilter.value == false;
+                  final canCreate = controller.isAdmin.value;
                   return StatePlaceholder.empty(
                     title: isInactive
-                        ? 'Aucun patient inactif'
-                       : 'Aucun patient trouvé',
-                   message: isInactive
-                        ? 'Il n\'y a aucun patient inactif dans votre liste.'
-                       : 'Vous pouvez créer un nouveau dossier dès maintenant.',
-                   actionLabel: isInactive ? null : 'Créer un dossier',
-                   onAction: isInactive
-                        ? null
-                        : () async {
+                        ? 'Aucun patient inactif'.tr
+                        : 'Aucun patient trouvé'.tr,
+                    message: isInactive
+                        ? 'Il n\'y a aucun patient inactif dans votre liste.'.tr
+                        : (canCreate
+                            ? 'Vous pouvez créer un nouveau dossier dès maintenant.'.tr
+                            : 'Aucun patient ne vous a été assigné par l\'administrateur.'.tr),
+                    actionLabel: (!isInactive && canCreate) ? 'Créer un dossier'.tr : null,
+                    onAction: (!isInactive && canCreate)
+                        ? () async {
                             final res = await Get.toNamed(
                               AppRoutes.editPatient,
                             );
                             if (res == true) controller.loadPatients();
-                          },
+                          }
+                        : null,
                   );
                 }
 

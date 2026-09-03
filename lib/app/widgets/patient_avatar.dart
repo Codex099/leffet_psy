@@ -1,12 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../config/api_config.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
-/// Avatar patient/employé réutilisable (initiales gradient ou photo réseau).
+/// Avatar patient/employé réutilisable (initiales gradient, photo réseau ou fichier local).
 class PatientAvatar extends StatelessWidget {
- final String initials;
+  final String initials;
   final String? photoUrl;
   final double radius;
   final Color? backgroundColor;
@@ -21,35 +22,19 @@ class PatientAvatar extends StatelessWidget {
     this.textColor = Colors.white,
   });
 
-  String? get _resolvedUrl {
-    if (photoUrl == null || photoUrl!.trim().isEmpty) return null;
-    final url = photoUrl!.trim();
-
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-     final uri = Uri.tryParse(url);
-      if (uri != null &&
-          (uri.host == 'localhost' ||
-             uri.host == '127.0.0.1' ||
-             uri.host == '0.0.0.0')) {
-       final base = ApiConfig.baseUrl;
-        final baseUri = Uri.tryParse(base);
-        if (baseUri != null) {
-          final fixed = uri.replace(
-            scheme: baseUri.scheme,
-            host: baseUri.host,
-            port: baseUri.hasPort ? baseUri.port : null,
-          );
-          return fixed.toString();
-        }
-      }
-      return url;
+  bool _isLocalFile(String path) {
+    final clean = path.trim();
+    if (clean.startsWith('file://')) return true;
+    if (RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(clean)) return true;
+    if (clean.startsWith('/data/') ||
+        clean.startsWith('/storage/') ||
+        clean.startsWith('/private/')) {
+      return true;
     }
-
-    final base = ApiConfig.baseUrl.endsWith('/')
-       ? ApiConfig.baseUrl.substring(0, ApiConfig.baseUrl.length - 1)
-        : ApiConfig.baseUrl;
-    final path = url.startsWith('/') ? url : '/$url';
-   return '$base$path';
+    try {
+      if (File(clean).existsSync()) return true;
+    } catch (_) {}
+    return false;
   }
 
   // Choisit un gradient basé sur les initiales (déterministe, pour cohérence)
@@ -126,19 +111,55 @@ class PatientAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolved = _resolvedUrl;
-    if (resolved != null) {
+    if (photoUrl == null || photoUrl!.trim().isEmpty) {
+      return _buildFallback();
+    }
+
+    final raw = photoUrl!.trim();
+
+    // 1. Cas fichier local sur le périphérique (ex: photo tout juste prise/choisie)
+    if (_isLocalFile(raw)) {
+      final localPath = raw.startsWith('file://')
+          ? (Uri.tryParse(raw)?.toFilePath() ?? raw.replaceFirst('file://', ''))
+          : raw;
+      final file = File(localPath);
+      return ClipOval(
+        child: Image.file(
+          file,
+          width: radius * 2,
+          height: radius * 2,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            debugPrint('PatientAvatar: local file load failed ($localPath): $error');
+            return _buildFallback();
+          },
+        ),
+      );
+    }
+
+    // 2. Cas URL réseau ou relative résolue
+    final resolved = ApiConfig.resolveMediaUrl(raw);
+    if (resolved.isNotEmpty &&
+        (resolved.startsWith('http://') || resolved.startsWith('https://'))) {
       return ClipOval(
         child: CachedNetworkImage(
           imageUrl: resolved,
+          httpHeaders: const {
+            'ngrok-skip-browser-warning': 'true',
+            'Accept': 'image/*,*/*',
+          },
           width: radius * 2,
           height: radius * 2,
           fit: BoxFit.cover,
           placeholder: (context, url) => _buildFallback(),
-          errorWidget: (context, url, error) => _buildFallback(),
+          errorWidget: (context, url, error) {
+            debugPrint('PatientAvatar: network image load failed ($url): $error');
+            return _buildFallback();
+          },
         ),
       );
     }
+
     return _buildFallback();
   }
 }

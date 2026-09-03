@@ -1,3 +1,4 @@
+import '../config/api_config.dart';
 import '../utils/json_utils.dart';
 
 class SeanceGroupeModel {
@@ -121,5 +122,9 @@ class SeanceGroupeParticipantModel {
     return name.isNotEmpty ? name[0].toUpperCase() : '?';
  }
 
-  String? get patientPhoto => patient?['photo'] as String?;
+  String? get patientPhoto {
+    final raw = (patient?['photo'] ?? patient?['photo_url'] ?? patient?['avatar']) as String?;
+    if (raw == null || raw.trim().isEmpty) return null;
+    return ApiConfig.resolveMediaUrl(raw);
+  }
 }

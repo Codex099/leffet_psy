@@ -11,6 +11,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_date_picker.dart';
 
 class CalendrierView extends GetView<CalendrierController> {
  const CalendrierView({super.key});
@@ -243,7 +244,7 @@ class CalendrierView extends GetView<CalendrierController> {
                       final initial =
                           DateTime.tryParse(controller.date.value) ??
                           DateTime.now();
-                      final picked = await showDatePicker(
+                      final picked = await AppDatePicker.show(
                         context: context,
                         initialDate: initial,
                         firstDate: DateTime(2020),

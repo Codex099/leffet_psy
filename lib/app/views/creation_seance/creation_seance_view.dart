@@ -8,6 +8,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/searchable_picker.dart';
+import '../../widgets/app_date_picker.dart';
 import '../../widgets/state_placeholder.dart';
 
 class CreationSeanceView extends GetView<CreationSeanceController> {
@@ -26,7 +27,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
         if (controller.status.value == 'loading' &&
             controller.patients.isEmpty) {
           return StatePlaceholder.loading(
-            message: 'Chargement des options de séance...',
+            message: 'Chargement des options de séance...'.tr,
           );
         }
         if (controller.status.value == 'error') {
@@ -54,10 +55,10 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
               ),
                 Obx(
                   () => IosSegmentedControl<String>(
-                    segments: const {
-                      'individuelle': 'Individuelle',
-                     'groupe': 'Collectif (Groupe)',
-                   },
+                    segments: {
+                      'individuelle': 'Individuelle'.tr,
+                      'groupe': 'Collectif (Groupe)'.tr,
+                    },
                     selectedValue: controller.typeSeance.value,
                     onValueChanged: (t) => controller.typeSeance.value = t,
                   ),
@@ -68,10 +69,10 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                 Obx(() {
                   final isIndiv = controller.typeSeance.value == 'individuelle';
                  return IosCard(
-                    title: isIndiv ? 'Patient' : 'Groupe Clinique',
+                    title: isIndiv ? 'Patient'.tr : 'Groupe Clinique'.tr,
                    subtitle: isIndiv
-                        ? 'Recherchez et sélectionnez le patient suivi'
-                       : 'Recherchez et sélectionnez le groupe concerné',
+                        ? 'Recherchez et sélectionnez le patient suivi'.tr
+                       : 'Recherchez et sélectionnez le groupe concerné'.tr,
                    children: [
                       Padding(
                         padding: const EdgeInsets.all(16),
@@ -95,7 +96,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                       ),
                       title: 'Date de la séance'.tr,
                      subtitle: controller.date.value.isEmpty
-                          ? 'Sélectionner'
+                          ? 'Sélectionner'.tr
                          : controller.date.value,
                       showChevron: true,
                       onTap: () => _pickDate(context),
@@ -239,7 +240,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
 
   Future<void> _pickDate(BuildContext context) async {
     final initial = DateTime.tryParse(controller.date.value) ?? DateTime.now();
-    final picked = await showDatePicker(
+    final picked = await AppDatePicker.show(
       context: context,
       initialDate: initial,
       firstDate: DateTime.now().subtract(const Duration(days: 30)),

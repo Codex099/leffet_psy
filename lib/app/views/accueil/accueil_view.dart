@@ -387,28 +387,30 @@ class AccueilView extends GetView<AccueilController> {
   Widget _buildMetrics() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: _metricCard(
-              title: 'Séances aujourd\'hui'.tr,
-             value: controller.seancesPrevuesCount.value,
-              icon: Icons.calendar_today_rounded,
-              gradient: AppColors.primaryLogoGradient,
-              onTap: () => Get.toNamed(AppRoutes.agenda),
+      child: Obx(
+        () => Row(
+          children: [
+            Expanded(
+              child: _metricCard(
+                title: 'Séances aujourd\'hui'.tr,
+                value: controller.seancesPrevuesCount.value,
+                icon: Icons.calendar_today_rounded,
+                gradient: AppColors.primaryLogoGradient,
+                onTap: () => Get.toNamed(AppRoutes.agenda),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _metricCard(
-              title: 'Patients suivis'.tr,
-             value: controller.totalPatients.value,
-              icon: Icons.people_alt_rounded,
-              gradient: AppColors.secondaryLogoGradient,
-              onTap: () => Get.toNamed(AppRoutes.patientsListe),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _metricCard(
+                title: 'Patients suivis'.tr,
+                value: controller.totalPatients.value,
+                icon: Icons.people_alt_rounded,
+                gradient: AppColors.secondaryLogoGradient,
+                onTap: () => Get.toNamed(AppRoutes.patientsListe),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

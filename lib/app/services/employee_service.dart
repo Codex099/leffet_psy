@@ -45,11 +45,35 @@ class EmployeeService {
     await _dio.delete(ApiConfig.employee(id));
   }
 
-  /// POST /api/employees/{id}/patients — Assignation de patients
+  /// POST /api/employees/{id}/patients — Assignation / synchronisation des patients
   Future<void> assignPatients(dynamic employeeId, List<dynamic> patientIds) async {
     await _dio.post(
       ApiConfig.employeePatients(employeeId),
-      data: {'patient_ids': patientIds},
+      data: {'patient_ids': patientIds.map((e) => e.toString()).toList()},
     );
+  }
+
+  /// GET /api/employees/{id}/visibilite-patients — Détails visibilité (Admin)
+  Future<Map<String, dynamic>> getVisibilitePatients(dynamic employeeId) async {
+    final response = await _dio.get(
+      ApiConfig.employeeVisibilitePatients(employeeId),
+    );
+    return Map<String, dynamic>.from(response.data as Map);
+  }
+
+  /// POST /api/employees/visibilite-globale — Accorder ou révoquer la visibilité globale (Admin)
+  Future<Map<String, dynamic>> applyGlobalVisibility(
+    String action, {
+    List<dynamic>? employeeIds,
+  }) async {
+    final response = await _dio.post(
+      ApiConfig.employeesVisibiliteGlobale,
+      data: {
+        'action': action,
+        if (employeeIds != null)
+          'employee_ids': employeeIds.map((e) => e.toString()).toList(),
+      },
+    );
+    return Map<String, dynamic>.from(response.data as Map);
   }
 }

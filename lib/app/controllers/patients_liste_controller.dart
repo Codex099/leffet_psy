@@ -3,13 +3,17 @@ import 'package:get/get.dart';
 import '../models/patient_model.dart';
 import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
+import '../services/auth_service.dart';
 
 class PatientsListeController extends GetxController {
  final PatientService _patientService = PatientService();
+ final AuthService _authService = AuthService();
 
   final RxList<PatientModel> allPatients = <PatientModel>[].obs;
   final RxString status = 'loading'.obs;
  final RxString errorMessage = ''.obs;
+ final RxBool isAdmin = false.obs;
+ final RxString currentUserId = ''.obs;
 
  // Filters
   final RxString searchQuery = ''.obs;
@@ -22,9 +26,21 @@ class PatientsListeController extends GetxController {
 
   static const _cacheDuration = Duration(minutes: 5);
 
+  String get _cacheKey =>
+      currentUserId.value.isNotEmpty ? 'patients_list_${currentUserId.value}' : CacheKeys.patientsList;
+
   @override
   void onInit() {
     super.onInit();
+    _initUserAndLoad();
+  }
+
+  Future<void> _initUserAndLoad() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+      currentUserId.value = me.id.toString();
+    } catch (_) {}
     _loadFromCache();
     loadPatients();
   }
@@ -32,7 +48,7 @@ class PatientsListeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    if (!AppCacheManager.isFresh(CacheKeys.patientsList)) {
+    if (!AppCacheManager.isFresh(_cacheKey)) {
       loadPatients();
     }
   }
@@ -44,7 +60,7 @@ class PatientsListeController extends GetxController {
   }
 
   void _loadFromCache() {
-    final cached = AppCacheManager.get<List<PatientModel>>(CacheKeys.patientsList);
+    final cached = AppCacheManager.get<List<PatientModel>>(_cacheKey);
     if (cached != null && cached.isNotEmpty) {
       allPatients.value = cached;
       status.value = 'success';
@@ -52,7 +68,7 @@ class PatientsListeController extends GetxController {
   }
 
   Future<void> loadPatients({bool forceRefresh = false}) async {
-    if (AppCacheManager.isFresh(CacheKeys.patientsList) && !forceRefresh && allPatients.isNotEmpty) {
+    if (AppCacheManager.isFresh(_cacheKey) && !forceRefresh && allPatients.isNotEmpty) {
       return;
     }
 
@@ -77,7 +93,7 @@ class PatientsListeController extends GetxController {
 
       allPatients.value = uniquePatients;
       AppCacheManager.set<List<PatientModel>>(
-        CacheKeys.patientsList,
+        _cacheKey,
         uniquePatients,
         ttl: _cacheDuration,
         tags: {CacheTags.patients},

@@ -6,31 +6,35 @@ import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../services/patient_service.dart';
 import '../services/tache_service.dart';
+import '../services/auth_service.dart';
 import '../utils/json_utils.dart';
 import 'taches_controller.dart';
 
 class DetailTacheController extends GetxController {
- final TacheService _tacheService = TacheService();
+  final TacheService _tacheService = TacheService();
   final EmployeeService _employeeService = EmployeeService();
   final PatientService _patientService = PatientService();
+  final AuthService _authService = AuthService();
 
   final Rx<TacheModel?> tache = Rx<TacheModel?>(null);
   final RxString status = 'loading'.obs;
- final RxString errorMessage = ''.obs;
+  final RxString errorMessage = ''.obs;
+  final RxBool isAdmin = false.obs;
+  final RxString currentUserId = ''.obs;
 
- // Form fields
+  // Form fields
   final titre = ''.obs;
- final description = ''.obs;
- final priorite = 'normale'.obs;
- final statut = 'a_faire'.obs;
- final dateEcheance = ''.obs;
+  final description = ''.obs;
+  final priorite = 'normale'.obs;
+  final statut = 'a_faire'.obs;
+  final dateEcheance = ''.obs;
 
- // Assignee & Patient
+  // Assignee & Patient
   final Rx<dynamic> assigneA = Rx<dynamic>(null);
   final RxList<EmployeeModel> availableEmployees = <EmployeeModel>[].obs;
   final RxString employeesStatus = 'loading'.obs;
 
- final Rx<dynamic> patientId = Rx<dynamic>(null);
+  final Rx<dynamic> patientId = Rx<dynamic>(null);
   final RxList<PatientModel> availablePatients = <PatientModel>[].obs;
 
   bool get isNew => tache.value == null;
@@ -38,6 +42,7 @@ class DetailTacheController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _checkUser();
     _loadEmployees();
     _loadPatients();
     final id = extractIdParam(Get.arguments, Get.parameters);
@@ -46,7 +51,18 @@ class DetailTacheController extends GetxController {
       loadTache(id);
     } else {
       status.value = 'success';
-   }
+    }
+  }
+
+  Future<void> _checkUser() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+      currentUserId.value = me.id.toString();
+      if (!isAdmin.value && isNew) {
+        assigneA.value = me.id;
+      }
+    } catch (_) {}
   }
 
   void _loadFromCache(dynamic id) {
@@ -176,15 +192,19 @@ class DetailTacheController extends GetxController {
       return;
     }
     try {
+      final targetAssignee = (!isAdmin.value && currentUserId.value.isNotEmpty)
+          ? currentUserId.value
+          : assigneA.value;
+
       final data = <String, dynamic>{
         'titre': titre.value.trim(),
-       if (description.value.trim().isNotEmpty) 'description': description.value.trim(),
-       'priorite': priorite.value,
-       'statut': statut.value,
-       if (assigneA.value != null) 'assigne_a': assigneA.value,
-       if (patientId.value != null) 'patient_id': patientId.value,
-       if (dateEcheance.value.isNotEmpty) 'date_echeance': dateEcheance.value,
-     };
+        if (description.value.trim().isNotEmpty) 'description': description.value.trim(),
+        'priorite': priorite.value,
+        'statut': statut.value,
+        if (targetAssignee != null) 'assigne_a': targetAssignee,
+        if (patientId.value != null) 'patient_id': patientId.value,
+        if (dateEcheance.value.isNotEmpty) 'date_echeance': dateEcheance.value,
+      };
       if (isNew) {
         await _tacheService.createTache(data);
         Get.snackbar('Succès', 'Tâche créée.', snackPosition: SnackPosition.BOTTOM);

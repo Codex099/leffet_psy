@@ -111,40 +111,60 @@ class EditParentController extends GetxController {
 
     try {
       status.value = 'loading';
-     final data = {
+      String mappedEtatCivil = 'autre';
+      final rawEc = etatCivil.value.toLowerCase();
+      if (rawEc.contains('mari')) {
+        mappedEtatCivil = 'marie';
+      } else if (rawEc.contains('divorc') || rawEc.contains('spar') || rawEc.contains('sépar')) {
+        mappedEtatCivil = 'divorce';
+      } else {
+        mappedEtatCivil = 'autre';
+      }
+
+      final cleanTel = telephone.value.replaceAll(RegExp(r'[\s\-\.]'), '').trim();
+      final data = {
         'nom': nom.value.trim(),
-       'prenom': prenom.value.trim(),
-       'telephone': telephone.value.trim(),
-       'etat_civil': etatCivil.value.trim().isEmpty ? 'Non spécifié' : etatCivil.value.trim(),
-       'adresse': adresse.value.trim().isEmpty ? '' : adresse.value.trim(),
-       'role': role.value,
-     };
+        'prenom': prenom.value.trim(),
+        'telephone': cleanTel,
+        'etat_civil': mappedEtatCivil,
+        'adresse': adresse.value.trim().isEmpty ? '' : adresse.value.trim(),
+      };
 
       if (parentId != null) {
         await _parentService.updateParent(parentId!, data);
       } else {
-        await _parentService.createParent(data);
+        await _parentService.createParent(data, findExisting: false);
       }
 
       AppCacheManager.invalidateTag(CacheTags.parents);
       AppCacheManager.invalidateTag(CacheTags.patients);
 
       status.value = 'success';
-     Get.back(result: true);
+      Get.back(result: true);
       Get.snackbar(
         'Succès'.tr,
-       parentId != null ? 'Parent mis à jour avec succès.'.tr : 'Parent enregistré avec succès.'.tr,
-       snackPosition: SnackPosition.BOTTOM,
+        parentId != null ? 'Parent mis à jour avec succès.'.tr : 'Parent enregistré avec succès.'.tr,
+        snackPosition: SnackPosition.BOTTOM,
       );
     } on DioException catch (e) {
       status.value = 'error';
-     if (e.response?.statusCode == 409) {
+      if (e.response?.statusCode == 409) {
         errorMessage.value = 'Un parent avec ce numéro de téléphone existe déjà.'.tr;
-     } else if (e.response?.statusCode == 422) {
-        errorMessage.value = 'Veuillez renseigner un numéro de téléphone valide et l\'état civil.'.tr;
-     } else {
+      } else if (e.response?.statusCode == 422) {
+        final dynamic detail = e.response?.data?['detail'];
+        String msg = 'Veuillez renseigner un numéro de téléphone valide et l\'état civil.'.tr;
+        if (detail is List && detail.isNotEmpty) {
+          final first = detail.first;
+          final field = (first['loc'] as List?)?.last?.toString() ?? '';
+          final m = first['msg']?.toString() ?? '';
+          if (field.isNotEmpty) {
+            msg = 'Champ invalide ($field) : $m'.tr;
+          }
+        }
+        errorMessage.value = msg;
+      } else {
         errorMessage.value = e.message ?? 'Erreur lors de l\'enregistrement.'.tr;
-     }
+      }
       Get.snackbar(
         'Erreur'.tr,
        errorMessage.value,

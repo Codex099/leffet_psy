@@ -98,10 +98,13 @@ class PlanTherapeutiqueService {
   /// POST /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/creer-tache
   Future<Map<String, dynamic>> creerTacheDepuisEtape(
     dynamic planId,
-    dynamic etapeId,
-  ) async {
-    final response =
-        await _dio.post(ApiConfig.planEtapeCreerTache(planId, etapeId));
+    dynamic etapeId, {
+    required String assigneA,
+  }) async {
+    final response = await _dio.post(
+      ApiConfig.planEtapeCreerTache(planId, etapeId),
+      data: {'assigne_a': assigneA},
+    );
     return Map<String, dynamic>.from(response.data as Map);
   }
 }

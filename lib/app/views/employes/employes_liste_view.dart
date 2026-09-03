@@ -147,10 +147,16 @@ class EmployesListeView extends GetView<EmployesListeController> {
                             padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
                             child: Row(
                               children: [
-                                // Bouton : Voir les patients
+                                // Bouton : Voir et gérer la visibilité des patients
                                 Expanded(
                                   child: BouncyTap(
-                                    onTap: () => _showPatientsSheet(context, emp),
+                                    onTap: () async {
+                                      await Get.toNamed(
+                                        AppRoutes.employeVisibilitePatients,
+                                        arguments: emp,
+                                      );
+                                      controller.loadEmployees(forceRefresh: true);
+                                    },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 8),
@@ -164,14 +170,14 @@ class EmployesListeView extends GetView<EmployesListeController> {
                                             MainAxisAlignment.center,
                                         children: [
                                           const Icon(
-                                            Icons.people_alt_rounded,
+                                            Icons.visibility_rounded,
                                             size: 15,
                                             color: AppColors.primary,
                                           ),
                                           const SizedBox(width: 5),
                                           Text(
-                                            '$patientCount patient(s)'.tr,
-                                           style: AppTextStyles.iosCaption1
+                                            '$patientCount ${'patient(s)'.tr}',
+                                            style: AppTextStyles.iosCaption1
                                                 .copyWith(
                                               color: AppColors.primary,
                                               fontWeight: FontWeight.w700,
@@ -257,116 +263,13 @@ class EmployesListeView extends GetView<EmployesListeController> {
             },
             child: Text(
               'Supprimer'.tr,
-             style: AppTextStyles.iosBody.copyWith(
+              style: AppTextStyles.iosBody.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w700,
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  /// Bottom-sheet des patients assignés
-  void _showPatientsSheet(BuildContext context, emp) {
-    final ids = emp.patientsAssignesIds ?? [];
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => DraggableScrollableSheet(
-        initialChildSize: 0.45,
-        maxChildSize: 0.85,
-        minChildSize: 0.3,
-        builder: (ctx, scrollCtrl) => Container(
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: AppColors.softShadow,
-          ),
-          child: Column(
-            children: [
-              // Poignée
-              Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-              // Titre
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                child: Row(
-                  children: [
-                    PatientAvatar(initials: emp.initials, radius: 18),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(emp.fullName,
-                              style: AppTextStyles.iosHeadline
-                                  .copyWith(fontWeight: FontWeight.w800)),
-                          Text(
-                            '${ids.length} patient(s) assigné(s)'.tr,
-                           style: AppTextStyles.iosCaption1.copyWith(
-                                color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 16),
-              // Liste des IDs patients (si le backend ne retourne que les IDs)
-              Expanded(
-                child: ids.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.person_off_outlined,
-                                size: 48, color: AppColors.textHint),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Aucun patient assigné'.tr,
-                             style: AppTextStyles.iosSubhead.copyWith(
-                                  color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
-                      )
-                    : ListView.separated(
-                        controller: scrollCtrl,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        itemCount: ids.length,
-                        separatorBuilder: (_, __) =>
-                            const Divider(height: 1),
-                        itemBuilder: (_, i) => ListTile(
-                          leading: PatientAvatar(
-                            initials: '#${i + 1}',
-                           radius: 16,
-                          ),
-                          title: Text(
-                            'Patient #'.tr + '${ids[i]}',
-                            style: AppTextStyles.iosSubhead
-                                .copyWith(fontWeight: FontWeight.w600),
-                          ),
-                          dense: true,
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

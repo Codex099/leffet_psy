@@ -49,34 +49,39 @@ class AccueilController extends GetxController {
     final cached = AppCacheManager.get<Map<String, dynamic>>(CacheKeys.dashboard);
     if (cached != null) {
       if (cached['user'] is EmployeeModel) {
-       currentUser.value = cached['user'] as EmployeeModel;
-     }
-      if (cached['seances'] is List<AgendaSessionItem>) {
-       prochainesSeances.value = cached['seances'] as List<AgendaSessionItem>;
-       seancesPrevuesCount.value = prochainesSeances.length;
+        currentUser.value = cached['user'] as EmployeeModel;
+      }
+      if (cached['seances'] is List) {
+        final todayStr = DateTime.now().toIso8601String().split('T').first;
+        final list = (cached['seances'] as List)
+            .whereType<AgendaSessionItem>()
+            .where((s) => s.date == todayStr)
+            .toList();
+        prochainesSeances.value = list;
+        seancesPrevuesCount.value = list.length;
       }
       if (cached['totalPatients'] is int) {
-       totalPatients.value = cached['totalPatients'] as int;
-     }
+        totalPatients.value = cached['totalPatients'] as int;
+      }
       status.value = 'success';
-   }
+    }
   }
 
   Future<void> loadDashboard({bool forceRefresh = false}) async {
     // Si la donnée est fraîche et qu'on ne force pas, pas besoin d'appel réseau
-   if (AppCacheManager.isFresh(CacheKeys.dashboard) && !forceRefresh && prochainesSeances.isNotEmpty) {
+    if (AppCacheManager.isFresh(CacheKeys.dashboard) && !forceRefresh && prochainesSeances.isNotEmpty) {
       return;
     }
 
     // N'affiche le loader plein écran que si on n'a absolument rien en mémoire
-   if (prochainesSeances.isEmpty && currentUser.value == null) {
+    if (prochainesSeances.isEmpty && currentUser.value == null) {
       status.value = 'loading';
-   }
+    }
 
     try {
       final userFuture = _authService.getMe();
       final todayStr = DateTime.now().toIso8601String().split('T').first;
-     final results = await Future.wait([
+      final results = await Future.wait([
         userFuture,
         _seanceService.getSeances(date: todayStr),
         _seanceGroupeService.getSeancesGroupe(date: todayStr),
@@ -89,21 +94,41 @@ class AccueilController extends GetxController {
       final patients = results[3] as List<dynamic>;
 
       final currentUserId = user.id.toString();
+      final role = user.role.toLowerCase();
+      final isAdminOrManager = role == 'admin' ||
+          role == 'directeur' ||
+          role == 'directrice' ||
+          role == 'secretaire' ||
+          role == 'coordinateur';
 
-      indList = indList.where((s) => s.employeIds.map((e) => e.toString()).contains(currentUserId)).toList();
-      grpList = grpList.where((s) => s.employeId?.toString() == currentUserId).toList();
+      // Pour les admins / direction / secrétariat : vue globale de toutes les séances du jour
+      // Pour les praticiens : séances assignées ou séances ouvertes des patients qu'ils suivent
+      if (!isAdminOrManager) {
+        indList = indList.where((s) {
+          if (s.employeIds.isEmpty) return true;
+          return s.employeIds.map((e) => e.toString()).contains(currentUserId);
+        }).toList();
+
+        grpList = grpList.where((s) {
+          if (s.employeId == null) return true;
+          return s.employeId.toString() == currentUserId;
+        }).toList();
+      }
 
       final unified = <AgendaSessionItem>[
         ...indList.map(AgendaSessionItem.fromIndividuelle),
         ...grpList.map(AgendaSessionItem.fromGroupe),
       ];
 
+      // Filtrer explicitement sur la date du jour
+      final todaySessions = unified.where((s) => s.date == todayStr).toList();
+
       // Tri chronologique par heure de début
-      unified.sort((a, b) => a.heureDebut.compareTo(b.heureDebut));
+      todaySessions.sort((a, b) => a.heureDebut.compareTo(b.heureDebut));
 
       currentUser.value = user;
-      prochainesSeances.value = unified;
-      seancesPrevuesCount.value = unified.length;
+      prochainesSeances.value = todaySessions;
+      seancesPrevuesCount.value = todaySessions.length;
       totalPatients.value = patients.length;
       alertesCount.value = 0;
 
@@ -112,15 +137,15 @@ class AccueilController extends GetxController {
         CacheKeys.dashboard,
         {
           'user': user,
-         'seances': unified,
-         'totalPatients': patients.length,
-       },
+          'seances': todaySessions,
+          'totalPatients': patients.length,
+        },
         ttl: _cacheDuration,
         tags: {CacheTags.dashboard, CacheTags.seances, CacheTags.patients},
       );
 
       status.value = 'success';
-   } catch (e) {
+    } catch (e) {
       // Si on avait déjà des données en cache, on ne bloque pas l'écran
       if (prochainesSeances.isEmpty) {
         errorMessage.value = e.toString();
