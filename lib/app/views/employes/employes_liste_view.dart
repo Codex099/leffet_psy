@@ -131,7 +131,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
                             ),
                             title: emp.fullName,
                             subtitle:
-                                '${emp.telephone ?? emp.username} · $patientCount patient(s) assigné(s)'.tr,
+                                '${emp.telephone ?? emp.username} · $patientCount ${'patient(s) assigné(s)'.tr}',
                            showChevron: true,
                             trailing: StatusBadge.active(label: emp.roleLabel),
                             onTap: () async {
@@ -246,7 +246,7 @@ class EmployesListeView extends GetView<EmployesListeController> {
            style: AppTextStyles.iosHeadline
                 .copyWith(fontWeight: FontWeight.w800)),
         content: Text(
-          'Voulez-vous vraiment supprimer le compte de $name ? Cette action est irréversible.'.tr,
+          '${'Voulez-vous vraiment supprimer le compte de'.tr} $name ? ${'Cette action est irréversible.'.tr}',
          style: AppTextStyles.iosSubhead,
         ),
         actions: [

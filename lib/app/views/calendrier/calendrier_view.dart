@@ -12,6 +12,8 @@ import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_date_picker.dart';
+import 'package:table_calendar/table_calendar.dart';
+import '../../models/evenement_calendrier_model.dart';
 
 class CalendrierView extends GetView<CalendrierController> {
  const CalendrierView({super.key});
@@ -63,85 +65,231 @@ class CalendrierView extends GetView<CalendrierController> {
             ),
           ),
 
+          // ── iOS Search Bar ──
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border, width: 0.9),
+                boxShadow: AppColors.softShadow,
+              ),
+              child: TextField(
+                onChanged: (val) => controller.searchQuery.value = val,
+                style: AppTextStyles.iosBody,
+                decoration: InputDecoration(
+                  hintText: 'Rechercher un événement...'.tr,
+                  hintStyle: AppTextStyles.iosSubhead.copyWith(
+                    color: AppColors.textHint,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    size: 20,
+                    color: AppColors.secondary,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                  isDense: true,
+                ),
+              ),
+            ),
+          ),
+
             // Content List or Empty placeholder
             Expanded(
               child: Obx(() {
                 if (controller.status.value == 'loading') {
-                 return StatePlaceholder.loading();
+                  return StatePlaceholder.loading();
                 }
                 if (controller.status.value == 'error') {
-                 return StatePlaceholder.error(
+                  return StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadEvenements(),
                   );
                 }
-                if (controller.status.value == 'empty') {
-                 return StatePlaceholder.empty(
+                if (controller.status.value == 'empty' && controller.activeTab.value == 'Liste') {
+                  return StatePlaceholder.empty(
                     title: 'Aucun événement planifié'.tr,
-                   message:
+                    message:
                         'Ajoutez un événement pour organiser le calendrier clinique.',
-                   actionLabel: 'Nouvel événement',
-                   onAction: () => _showAddDialog(context),
+                    actionLabel: 'Nouvel événement',
+                    onAction: () => _showAddDialog(context),
                   );
                 }
 
-                return ListView.builder(
-                  padding: const EdgeInsets.only(top: 8, bottom: 120),
-                  itemCount: controller.evenements.length,
-                  itemBuilder: (context, index) {
-                    final ev = controller.evenements[index];
-                    return IosCard(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 6,
-                      ),
-                      children: [
-                        IosCardTile(
-                          leading: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.event_note_rounded,
-                              color: AppColors.primary,
-                              size: 22,
-                            ),
-                          ),
-                          title: ev.titre,
-                          subtitle:
-                              "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' Â· ${ev.description}' : ''}".tr,
-                         trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.edit_outlined,
-                                  size: 20,
-                                  color: AppColors.primary,
-                                ),
-                                onPressed: () => _showAddDialog(context, ev),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete_outline_rounded,
-                                  size: 20,
-                                  color: AppColors.error,
-                                ),
-                                onPressed: () => _confirmDelete(context, ev.id),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
+                if (controller.activeTab.value == 'Liste') {
+                  return _buildListView(context);
+                } else {
+                  return _buildCalendarView(context);
+                }
               }),
             ),
           ],
         ),
+    );
+  }
+
+  Widget _buildListView(BuildContext context) {
+    final list = controller.filteredEvenements;
+    if (list.isEmpty) {
+      return StatePlaceholder.empty(
+        title: 'Aucun événement planifié'.tr,
+        message: 'Ajoutez un événement pour organiser le calendrier clinique.',
+        actionLabel: 'Nouvel événement',
+        onAction: () => _showAddDialog(context),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 8, bottom: 120),
+      itemCount: list.length,
+      itemBuilder: (context, index) {
+        final ev = list[index];
+        return _buildEventCard(context, ev);
+      },
+    );
+  }
+
+  Widget _buildCalendarView(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderLight, width: 0.8),
+            boxShadow: AppColors.cardShadow,
+          ),
+          child: TableCalendar<EvenementCalendrierModel>(
+            firstDay: DateTime(2020),
+            lastDay: DateTime(2030),
+            focusedDay: controller.focusedDay.value,
+            selectedDayPredicate: (day) =>
+                isSameDay(controller.selectedDay.value, day),
+            onDaySelected: (selectedDay, focusedDay) {
+              controller.selectedDay.value = selectedDay;
+              controller.focusedDay.value = focusedDay;
+            },
+            eventLoader: controller.getEventsForDay,
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            headerStyle: HeaderStyle(
+              formatButtonVisible: true,
+              formatButtonShowsNext: false,
+              formatButtonDecoration: BoxDecoration(
+                color: AppColors.primaryLight.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              formatButtonTextStyle: AppTextStyles.iosCaption1.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+              titleCentered: true,
+              titleTextStyle: AppTextStyles.iosSubhead.copyWith(fontWeight: FontWeight.w700),
+            ),
+            calendarStyle: CalendarStyle(
+              selectedDecoration: const BoxDecoration(
+                color: AppColors.primary,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              markerDecoration: const BoxDecoration(
+                color: AppColors.accentCoral,
+                shape: BoxShape.circle,
+              ),
+              markersMaxCount: 3,
+            ),
+          ),
+        ),
+        Expanded(
+          child: _buildSelectedDayEvents(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectedDayEvents(BuildContext context) {
+    final selectedDay = controller.selectedDay.value;
+    if (selectedDay == null) return const SizedBox.shrink();
+
+    final dayEvents = controller.getEventsForDay(selectedDay);
+
+    if (dayEvents.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'Aucun événement pour cette date.'.tr,
+            style: AppTextStyles.iosSubhead.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(top: 8, bottom: 120),
+      itemCount: dayEvents.length,
+      itemBuilder: (context, index) {
+        return _buildEventCard(context, dayEvents[index]);
+      },
+    );
+  }
+
+  Widget _buildEventCard(BuildContext context, EvenementCalendrierModel ev) {
+    return IosCard(
+      margin: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 6,
+      ),
+      children: [
+        IosCardTile(
+          leading: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.event_note_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
+          ),
+          title: ev.titre,
+          subtitle:
+              "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' · ${ev.description}' : ''}".tr,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  size: 20,
+                  color: AppColors.primary,
+                ),
+                onPressed: () => _showAddDialog(context, ev),
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  size: 20,
+                  color: AppColors.error,
+                ),
+                onPressed: () => _confirmDelete(context, ev.id),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

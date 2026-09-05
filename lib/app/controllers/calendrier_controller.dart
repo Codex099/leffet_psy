@@ -16,8 +16,31 @@ class CalendrierController extends GetxController {
  final description = ''.obs;
  final date = ''.obs;
  final notifierJours = 3.obs;
+  final Rx<DateTime> focusedDay = DateTime.now().obs;
+  final Rx<DateTime?> selectedDay = DateTime.now().obs;
+  final RxString searchQuery = ''.obs;
 
   static const _cacheDuration = Duration(minutes: 10);
+
+  DateTime _normalizeDate(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  List<EvenementCalendrierModel> get filteredEvenements {
+    if (searchQuery.value.trim().isEmpty) return evenements;
+    final query = searchQuery.value.trim().toLowerCase();
+    return evenements.where((ev) {
+      return ev.titre.toLowerCase().contains(query) ||
+          (ev.description?.toLowerCase().contains(query) ?? false);
+    }).toList();
+  }
+
+  List<EvenementCalendrierModel> getEventsForDay(DateTime day) {
+    final normalizedDay = _normalizeDate(day);
+    return filteredEvenements.where((ev) {
+      final evDate = DateTime.tryParse(ev.date);
+      if (evDate == null) return false;
+      return _normalizeDate(evDate) == normalizedDay;
+    }).toList();
+  }
 
   @override
   void onInit() {
