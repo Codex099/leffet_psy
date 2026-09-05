@@ -201,7 +201,7 @@ class DetailTacheController extends GetxController {
         if (description.value.trim().isNotEmpty) 'description': description.value.trim(),
         'priorite': priorite.value,
         'statut': statut.value,
-        if (targetAssignee != null) 'assigne_a': targetAssignee,
+        'assigne_a': ?targetAssignee,
         if (patientId.value != null) 'patient_id': patientId.value,
         if (dateEcheance.value.isNotEmpty) 'date_echeance': dateEcheance.value,
       };

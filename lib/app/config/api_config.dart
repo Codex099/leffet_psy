@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Configuration centralisée de l'API backend PsyCare.
 /// TOUTES les URLs et constantes réseau sont définies ici.
 /// Aucune URL ne doit être codée en dur dans les services.
@@ -5,9 +7,34 @@ class ApiConfig {
  ApiConfig._();
 
   // ─── Base URL ──────────────────────────────────────────────────────────────
+  /// URL publique ngrok pour la release et les tests distants
+  static const String ngrokUrl = 'https://jawless-refill-paycheck.ngrok-free.dev';
+
+  /// Surcharge optionnelle via: flutter run/build --dart-define=API_URL=...
+  static const String _customBaseUrl = String.fromEnvironment('API_URL');
+
   /// URL de base du backend FastAPI.
-  /// S'adapte automatiquement selon la plateforme (Émulateur Android vs Windows/Web).
-  static String baseUrl = 'https://jawless-refill-paycheck.ngrok-free.dev';
+  /// S'adapte automatiquement selon l'environnement :
+  /// - Release (`flutter build apk --release`) → Ngrok : https://jawless-refill-paycheck.ngrok-free.dev
+  /// - Debug Émulateur Android (AVD) → http://10.0.2.2:8000 (loopback vers l'hôte)
+  /// - Debug Web / Desktop → http://127.0.0.1:8000 (localhost)
+  /// - Surchargé par `--dart-define=API_URL=...` si spécifié
+  static String get baseUrl {
+    if (_customBaseUrl.isNotEmpty) {
+      return _customBaseUrl;
+    }
+    // En mode release (ex: flutter build apk --split-per-abi --release)
+    if (kReleaseMode) {
+      return ngrokUrl;
+    }
+    // Pour tester sur un appareil physique Android, on utilise l'URL ngrok.
+    // (Pour l'émulateur AVD, vous pouvez utiliser 'http://10.0.2.2:8000')
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return ngrokUrl;
+    }
+    // Web, Windows, macOS
+    return 'http://127.0.0.1:8000';
+  }
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────
   static const int connectTimeoutMs = 20000;

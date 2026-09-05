@@ -272,7 +272,7 @@ class _LoginViewState extends State<LoginView> {
                                     HapticFeedback.selectionClick();
                                     _rememberMe.value = val;
                                   },
-                                  activeColor: Colors.white,
+                                  activeThumbColor: Colors.white,
                                   activeTrackColor: AppColors.primary,
                                   inactiveTrackColor: const Color(0xFFE2E8F0),
                                   inactiveThumbColor: Colors.white,
@@ -461,7 +461,7 @@ class _LoginViewState extends State<LoginView> {
               ),
             ),
           ),
-          if (suffix != null) suffix,
+          ?suffix,
         ],
       ),
     );

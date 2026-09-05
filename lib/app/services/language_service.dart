@@ -50,7 +50,7 @@ class LanguageService {
 
   /// Bascule instantanément entre Arabe et Français, met à jour GetX et persiste le choix.
   static Future<void> toggleLanguage() async {
-    final isArabic = (Get.locale?.languageCode ?? currentLocale.value.languageCode) == 'ar';
+    final isArabic = currentLocale.value.languageCode == 'ar';
     final targetLocale = isArabic
         ? const Locale('fr', 'FR')
         : const Locale('ar', 'DZ');
@@ -65,6 +65,5 @@ class LanguageService {
     Get.updateLocale(targetLocale);
   }
 
-  static bool get isArabic =>
-      (Get.locale?.languageCode ?? currentLocale.value.languageCode) == 'ar';
+  static bool get isArabic => currentLocale.value.languageCode == 'ar';
 }

@@ -272,7 +272,7 @@ class CompteRenduSpecialisteView
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Participants de l\'atelier'.tr + ' (${controller.participants.length})',
+                '${'Participants de l\'atelier'.tr} (${controller.participants.length})',
                style: AppTextStyles.iosHeadline.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
@@ -734,8 +734,9 @@ class CompteRenduSpecialisteView
                                    ),
                                   ],
                                   onChanged: (val) {
-                                    if (val != null)
+                                    if (val != null) {
                                       controller.rappelPriorite.value = val;
+                                    }
                                   },
                                 ),
                               ),

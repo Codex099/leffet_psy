@@ -8,8 +8,8 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/searchable_picker.dart';
-import '../../widgets/app_date_picker.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/app_date_picker.dart';
 
 class CreationSeanceView extends GetView<CreationSeanceController> {
  const CreationSeanceView({super.key});
@@ -27,7 +27,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
         if (controller.status.value == 'loading' &&
             controller.patients.isEmpty) {
           return StatePlaceholder.loading(
-            message: 'Chargement des options de séance...'.tr,
+            message: 'Chargement des options de séance...',
           );
         }
         if (controller.status.value == 'error') {
@@ -55,10 +55,10 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
               ),
                 Obx(
                   () => IosSegmentedControl<String>(
-                    segments: {
-                      'individuelle': 'Individuelle'.tr,
-                      'groupe': 'Collectif (Groupe)'.tr,
-                    },
+                    segments: const {
+                      'individuelle': 'Individuelle',
+                     'groupe': 'Collectif (Groupe)',
+                   },
                     selectedValue: controller.typeSeance.value,
                     onValueChanged: (t) => controller.typeSeance.value = t,
                   ),
@@ -69,10 +69,10 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                 Obx(() {
                   final isIndiv = controller.typeSeance.value == 'individuelle';
                  return IosCard(
-                    title: isIndiv ? 'Patient'.tr : 'Groupe Clinique'.tr,
+                    title: isIndiv ? 'Patient' : 'Groupe Clinique',
                    subtitle: isIndiv
-                        ? 'Recherchez et sélectionnez le patient suivi'.tr
-                       : 'Recherchez et sélectionnez le groupe concerné'.tr,
+                        ? 'Recherchez et sélectionnez le patient suivi'
+                       : 'Recherchez et sélectionnez le groupe concerné',
                    children: [
                       Padding(
                         padding: const EdgeInsets.all(16),
@@ -85,45 +85,47 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
                 }),
 
                 // ── Date et Horaires ──
-                IosCard(
-                  title: 'Date & Horaires'.tr,
-                 children: [
-                    IosCardTile(
-                      leading: const Icon(
-                        Icons.calendar_today_rounded,
-                        color: AppColors.primary,
-                        size: 20,
+                Obx(
+                  () => IosCard(
+                    title: 'Date & Horaires'.tr,
+                    children: [
+                      IosCardTile(
+                        leading: const Icon(
+                          Icons.calendar_today_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        title: 'Date de la séance'.tr,
+                        subtitle: controller.date.value.isEmpty
+                            ? 'Sélectionner'
+                            : controller.date.value,
+                        showChevron: true,
+                        onTap: () => _pickDate(context),
                       ),
-                      title: 'Date de la séance'.tr,
-                     subtitle: controller.date.value.isEmpty
-                          ? 'Sélectionner'.tr
-                         : controller.date.value,
-                      showChevron: true,
-                      onTap: () => _pickDate(context),
-                    ),
-                    IosCardTile(
-                      leading: const Icon(
-                        Icons.access_time_rounded,
-                        color: AppColors.primary,
-                        size: 20,
+                      IosCardTile(
+                        leading: const Icon(
+                          Icons.access_time_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        title: 'Horaire de début'.tr,
+                        subtitle: controller.heureDebut.value,
+                        showChevron: true,
+                        onTap: () => _pickTime(context, isStart: true),
                       ),
-                      title: 'Horaire de début'.tr,
-                     subtitle: controller.heureDebut.value,
-                      showChevron: true,
-                      onTap: () => _pickTime(context, isStart: true),
-                    ),
-                    IosCardTile(
-                      leading: const Icon(
-                        Icons.timer_outlined,
-                        color: AppColors.primary,
-                        size: 20,
+                      IosCardTile(
+                        leading: const Icon(
+                          Icons.timer_outlined,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        title: 'Horaire de fin'.tr,
+                        subtitle: controller.heureFin.value,
+                        showChevron: true,
+                        onTap: () => _pickTime(context, isStart: false),
                       ),
-                      title: 'Horaire de fin'.tr,
-                     subtitle: controller.heureFin.value,
-                      showChevron: true,
-                      onTap: () => _pickTime(context, isStart: false),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
                 // ── Psychologues / Praticiens assignés ──
@@ -240,16 +242,17 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
 
   Future<void> _pickDate(BuildContext context) async {
     final initial = DateTime.tryParse(controller.date.value) ?? DateTime.now();
-    final picked = await AppDatePicker.show(
+    final picked = await AppDatePicker.showWheelPicker(
       context: context,
       initialDate: initial,
       firstDate: DateTime.now().subtract(const Duration(days: 30)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      title: 'Date de la séance'.tr,
     );
     if (picked != null) {
       controller.date.value =
           "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
-   }
+    }
   }
 
   Future<void> _pickTime(BuildContext context, {required bool isStart}) async {

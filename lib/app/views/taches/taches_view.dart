@@ -84,8 +84,9 @@ class TachesView extends GetView<TachesController> {
                    actionLabel: 'Nouvelle tâche'.tr,
                    onAction: () async {
                       final res = await Get.toNamed(AppRoutes.detailTache);
-                      if (res == true)
+                      if (res == true) {
                         controller.loadTaches(forceRefresh: true);
+                      }
                     },
                   );
                 }

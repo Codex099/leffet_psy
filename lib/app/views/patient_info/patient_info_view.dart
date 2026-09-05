@@ -107,8 +107,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                           AppRoutes.editPatient,
                                           arguments: controller.patientId,
                                         );
-                                        if (res == true)
+                                        if (res == true) {
                                           controller.loadPatientInfo();
+                                        }
                                       },
                                     ),
                                     IconButton(

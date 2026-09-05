@@ -10,6 +10,7 @@ import '../../widgets/searchable_picker.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_section_header.dart';
 import '../../widgets/patient_avatar.dart';
+import '../../widgets/app_date_picker.dart';
 
 class EditPatientView extends GetView<EditPatientController> {
  const EditPatientView({super.key});
@@ -216,11 +217,12 @@ class EditPatientView extends GetView<EditPatientController> {
                     final initial =
                         DateTime.tryParse(controller.dateNaissance.value) ??
                         DateTime(2018, 1, 1);
-                    final picked = await showDatePicker(
+                    final picked = await AppDatePicker.showWheelPicker(
                       context: context,
                       initialDate: initial,
                       firstDate: DateTime(1950),
                       lastDate: DateTime.now(),
+                      title: 'Date de naissance'.tr,
                     );
                     if (picked != null) {
                       controller.dateNaissance.value =
@@ -242,7 +244,7 @@ class EditPatientView extends GetView<EditPatientController> {
                       children: [
                         Text(
                           controller.dateNaissance.value.isEmpty
-                              ? 'Sélectionner la date de naissance'
+                              ? 'Sélectionner la date de naissance'.tr
                              : controller.dateNaissance.value,
                           style: AppTextStyles.bodyMedium,
                         ),
@@ -365,11 +367,12 @@ class EditPatientView extends GetView<EditPatientController> {
                         ? DateTime.tryParse(controller.dateCas.value) ??
                               DateTime.now()
                         : DateTime.now();
-                    final picked = await showDatePicker(
+                    final picked = await AppDatePicker.showWheelPicker(
                       context: context,
                       initialDate: initial,
                       firstDate: DateTime(2000),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
+                      title: 'Date du cas'.tr,
                     );
                     if (picked != null) {
                       controller.dateCas.value =
@@ -391,7 +394,7 @@ class EditPatientView extends GetView<EditPatientController> {
                       children: [
                         Text(
                           controller.dateCas.value.isEmpty
-                              ? 'Sélectionner la date du cas'
+                              ? 'Sélectionner la date du cas'.tr
                              : controller.dateCas.value,
                           style: AppTextStyles.bodyMedium.copyWith(
                             color: controller.dateCas.value.isEmpty
