@@ -5,7 +5,7 @@ import 'package:leffet_psy/app/config/api_config.dart';
 void main() {
   group('ApiConfig Base URL & Media Resolution Tests', () {
     test('ngrokUrl is configured properly', () {
-      expect(ApiConfig.ngrokUrl, 'https://jawless-refill-paycheck.ngrok-free.dev');
+      expect(ApiConfig.ngrokUrl, 'https://leffetpsy.vercel.app');
     });
 
     test('baseUrl returns a valid URL', () {

@@ -5,7 +5,7 @@ import 'app/services/language_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Optimisation de la mémoire cache d'images (Pro Dev Best Practice)
   // Évite les fuites de mémoire et les micro-saccades lors du défilement des listes avec photos
   PaintingBinding.instance.imageCache.maximumSizeBytes = 64 * 1024 * 1024; // 64 MB
@@ -20,3 +20,4 @@ void main() async {
 
   runApp(PsyCareApp(initialLocale: initialLocale));
 }
+
