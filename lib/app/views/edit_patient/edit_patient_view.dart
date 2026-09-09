@@ -22,9 +22,34 @@ class EditPatientView extends GetView<EditPatientController> {
       appBar: CreativeAppBar(
         title: controller.patientId == null
             ? 'Nouveau Patient'.tr
-           : 'Édition Patient'.tr,
-       subtitle: 'Dossier Clinique'.tr,
-       showBackButton: true,
+            : 'Édition Patient'.tr,
+        subtitle: 'Dossier Clinique'.tr,
+        showBackButton: true,
+        actions: [
+          Obx(
+            () => IconButton(
+              icon: controller.status.value == 'loading'
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.check_circle_rounded,
+                      color: AppColors.primary,
+                      size: 26,
+                    ),
+              tooltip: 'Enregistrer le dossier'.tr,
+              onPressed: controller.status.value == 'loading'
+                  ? null
+                  : () => controller.finishWizard(),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
@@ -686,35 +711,69 @@ class EditPatientView extends GetView<EditPatientController> {
     );
   }
 
-  // Helper: step tab chip
+  // Helper: step tab chip — cliquable pour naviguer directement entre les 4 étapes
   Widget _buildStepTab(String label, int step) {
     final isActive = controller.currentStep.value == step;
     final isDone = controller.currentStep.value > step;
+
     return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 3),
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive
-              ? AppColors.primary
-              : isDone
-              ? AppColors.secondary
-              : AppColors.fieldBackground,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => controller.goToStep(step),
           borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            label.tr,
-            style: AppTextStyles.badge.copyWith(
-              color: (isActive || isDone)
-                  ? Colors.white
-                  : AppColors.textSecondary,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOut,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            padding: const EdgeInsets.symmetric(vertical: 9),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? AppColors.primary
+                  : isDone
+                      ? AppColors.primary.withValues(alpha: 0.12)
+                      : AppColors.fieldBackground,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isActive
+                    ? AppColors.primary
+                    : isDone
+                        ? AppColors.primary.withValues(alpha: 0.35)
+                        : AppColors.border.withValues(alpha: 0.6),
+                width: isActive ? 1.5 : 1,
+              ),
+              boxShadow: isActive
+                  ? [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.28),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(
+              child: Text(
+                label.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.badge.copyWith(
+                  color: isActive
+                      ? Colors.white
+                      : isDone
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                  fontSize: 11,
+                ),
+              ),
             ),
           ),
         ),
       ),
     );
   }
+
 
   Widget _buildGenderTile(String value) {
     final isSelected = controller.sexe.value == value;

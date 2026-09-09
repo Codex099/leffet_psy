@@ -23,23 +23,26 @@ class GroupesListeView extends GetView<GroupesListeController> {
        subtitle: 'Ateliers & Séances'.tr,
        showBackButton: true,
         actions: [
-          BouncyTap(
-            onTap: () => Get.toNamed(AppRoutes.editGroupe),
-            child: Container(
-              padding: const EdgeInsets.all(9),
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                gradient: AppColors.groupHeaderGradient,
-                shape: BoxShape.circle,
-                boxShadow: AppColors.softShadow,
+          Obx(() {
+            if (!controller.isAdmin.value) return const SizedBox.shrink();
+            return BouncyTap(
+              onTap: () => Get.toNamed(AppRoutes.editGroupe),
+              child: Container(
+                padding: const EdgeInsets.all(9),
+                margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(
+                  gradient: AppColors.groupHeaderGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: AppColors.softShadow,
+                ),
+                child: const Icon(
+                  Icons.group_add_rounded,
+                  size: 19,
+                  color: Colors.white,
+                ),
               ),
-              child: const Icon(
-                Icons.group_add_rounded,
-                size: 19,
-                color: Colors.white,
-              ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
       body: Column(
@@ -95,10 +98,11 @@ class GroupesListeView extends GetView<GroupesListeController> {
                 if (controller.groupes.isEmpty) {
                   return StatePlaceholder.empty(
                     title: 'Aucun groupe thérapeutique'.tr,
-                   message:
-                        'Créez un groupe pour planifier des ateliers cliniques collectifs.'.tr,
-                   actionLabel: 'Créer un groupe'.tr,
-                   onAction: () => Get.toNamed(AppRoutes.editGroupe),
+                    message: controller.isAdmin.value
+                        ? 'Créez un groupe pour planifier des ateliers cliniques collectifs.'.tr
+                        : 'Aucun groupe ne vous est actuellement assigné.'.tr,
+                    actionLabel: controller.isAdmin.value ? 'Créer un groupe'.tr : null,
+                    onAction: controller.isAdmin.value ? () => Get.toNamed(AppRoutes.editGroupe) : null,
                   );
                 }
 

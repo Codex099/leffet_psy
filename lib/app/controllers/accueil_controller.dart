@@ -1,19 +1,23 @@
 import 'package:get/get.dart';
 import '../models/agenda_session_item.dart';
 import '../models/employee_model.dart';
+import '../models/patient_model.dart';
 import '../models/seance_model.dart';
 import '../models/seance_groupe_model.dart';
 import '../services/auth_service.dart';
 import '../services/cache_manager.dart';
+import '../services/persistent_cache_service.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 import '../services/patient_service.dart';
+import '../services/tache_service.dart';
 
 class AccueilController extends GetxController {
- final AuthService _authService = AuthService();
+  final AuthService _authService = AuthService();
   final SeanceService _seanceService = SeanceService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
   final PatientService _patientService = PatientService();
+  final TacheService _tacheService = TacheService();
 
   final Rx<EmployeeModel?> currentUser = Rx<EmployeeModel?>(null);
   final RxList<AgendaSessionItem> prochainesSeances = <AgendaSessionItem>[].obs;
@@ -22,15 +26,22 @@ class AccueilController extends GetxController {
   final RxInt alertesCount = 0.obs;
 
   final RxString status = 'loading'.obs;
- final RxString errorMessage = ''.obs;
+  final RxString errorMessage = ''.obs;
 
- static const _cacheDuration = Duration(minutes: 2);
+  /// Vrai quand les données affichées viennent du cache persistant (mode offline).
+  final RxBool isOfflineData = false.obs;
+
+  /// Label humanisé de l'ancienneté du cache offline (ex: "il y a 2h").
+  final RxnString offlineSavedLabel = RxnString();
+
+  static const _cacheDuration = Duration(minutes: 2);
 
   @override
   void onInit() {
     super.onInit();
-    _loadFromCache();
-    loadDashboard();
+    _loadFromPersistentCache(); // 1. Persistant (disque) — instantané
+    _loadFromRamCache();        // 2. RAM cache — instantané
+    loadDashboard();            // 3. Réseau en arrière-plan
   }
 
   @override
@@ -41,7 +52,46 @@ class AccueilController extends GetxController {
     }
   }
 
-  void _loadFromCache() async {
+  // ─── Cache disque (hors-ligne) ────────────────────────────────────────────
+
+  void _loadFromPersistentCache() {
+    try {
+      final raw = PersistentCacheService.get(PersistentCacheService.dashboard);
+      if (raw == null) return;
+
+      final map = raw as Map<String, dynamic>;
+
+      if (map['user'] != null) {
+        currentUser.value = EmployeeModel.fromJson(
+          Map<String, dynamic>.from(map['user'] as Map),
+        );
+      }
+      if (map['seances'] != null) {
+        final list = (map['seances'] as List)
+            .map((e) => AgendaSessionItem.fromJsonCache(Map<String, dynamic>.from(e as Map)))
+            .toList();
+        prochainesSeances.value = list;
+        seancesPrevuesCount.value = list.length;
+      }
+      if (map['totalPatients'] != null) {
+        totalPatients.value = map['totalPatients'] as int? ?? 0;
+      }
+
+      if (prochainesSeances.isNotEmpty || currentUser.value != null) {
+        status.value = 'success';
+        isOfflineData.value = true;
+        offlineSavedLabel.value = PersistentCacheService.lastSavedLabel(
+          PersistentCacheService.dashboard,
+        );
+      }
+    } catch (_) {
+      // Ne jamais bloquer sur une erreur de cache
+    }
+  }
+
+  // ─── Cache RAM ────────────────────────────────────────────────────────────
+
+  void _loadFromRamCache() async {
     final secureUser = await _authService.getCachedUser();
     if (secureUser != null && currentUser.value == null) {
       currentUser.value = secureUser;
@@ -64,8 +114,11 @@ class AccueilController extends GetxController {
         totalPatients.value = cached['totalPatients'] as int;
       }
       status.value = 'success';
+      isOfflineData.value = false; // Données RAM = OK (session en cours)
     }
   }
+
+  // ─── Chargement réseau ────────────────────────────────────────────────────
 
   Future<void> loadDashboard({bool forceRefresh = false}) async {
     // Si la donnée est fraîche et qu'on ne force pas, pas besoin d'appel réseau
@@ -79,31 +132,50 @@ class AccueilController extends GetxController {
     }
 
     try {
-      final userFuture = _authService.getMe();
       final todayStr = DateTime.now().toIso8601String().split('T').first;
-      final results = await Future.wait([
-        userFuture,
-        _seanceService.getSeances(date: todayStr),
-        _seanceGroupeService.getSeancesGroupe(date: todayStr),
-        _patientService.getPatients(actif: true),
-      ]);
 
-      final user = results[0] as EmployeeModel;
-      List<SeanceModel> indList = results[1] as List<SeanceModel>;
-      List<SeanceGroupeModel> grpList = results[2] as List<SeanceGroupeModel>;
-      final patients = results[3] as List<dynamic>;
+      // 1. Récupération de l'utilisateur (avec fallback cache)
+      EmployeeModel? user;
+      try {
+        user = await _authService.getMe();
+      } catch (_) {
+        user = await _authService.getCachedUser() ?? currentUser.value;
+      }
+      if (user != null) {
+        currentUser.value = user;
+      }
 
-      final currentUserId = user.id.toString();
-      final role = user.role.toLowerCase();
+      final currentUserId = (user ?? currentUser.value)?.id?.toString() ?? '';
+      final role = (user ?? currentUser.value)?.role.toLowerCase() ?? 'admin';
       final isAdminOrManager = role == 'admin' ||
           role == 'directeur' ||
           role == 'directrice' ||
           role == 'secretaire' ||
           role == 'coordinateur';
 
-      // Pour les admins / direction / secrétariat : vue globale de toutes les séances du jour
-      // Pour les praticiens : séances assignées ou séances ouvertes des patients qu'ils suivent
-      if (!isAdminOrManager) {
+      // 2. Séances individuelles et de groupe (appels résilients et indépendants)
+      List<SeanceModel> indList = [];
+      try {
+        indList = await _seanceService.getSeances(date: todayStr);
+      } catch (_) {}
+
+      List<SeanceGroupeModel> grpList = [];
+      try {
+        grpList = await _seanceGroupeService.getSeancesGroupe(date: todayStr);
+      } catch (_) {}
+
+      // 3. Patients (avec fallback cache en cas de cold-start Vercel)
+      List<dynamic> patients = [];
+      try {
+        patients = await _patientService.getPatients(actif: true);
+      } catch (_) {
+        final cached = AppCacheManager.get<List<PatientModel>>(CacheKeys.patientsList);
+        if (cached != null) {
+          patients = cached;
+        }
+      }
+
+      if (!isAdminOrManager && currentUserId.isNotEmpty) {
         indList = indList.where((s) {
           if (s.employeIds.isEmpty) return true;
           return s.employeIds.map((e) => e.toString()).contains(currentUserId);
@@ -120,36 +192,61 @@ class AccueilController extends GetxController {
         ...grpList.map(AgendaSessionItem.fromGroupe),
       ];
 
-      // Filtrer explicitement sur la date du jour
       final todaySessions = unified.where((s) => s.date == todayStr).toList();
-
-      // Tri chronologique par heure de début
       todaySessions.sort((a, b) => a.heureDebut.compareTo(b.heureDebut));
 
-      currentUser.value = user;
+      int patientCount = patients.length;
+      if (!isAdminOrManager && currentUserId.isNotEmpty) {
+        try {
+          final myTasks = await _tacheService.getTaches(assigneesAMoi: true);
+          final knownIds = patients
+              .map((p) => p is PatientModel
+                  ? p.id.toString()
+                  : (p is Map ? p['id']?.toString() : p.toString()))
+              .toSet();
+          for (final t in myTasks) {
+            if (t.patientId != null && !knownIds.contains(t.patientId.toString())) {
+              knownIds.add(t.patientId.toString());
+              patientCount++;
+            }
+          }
+        } catch (_) {}
+      }
+
       prochainesSeances.value = todaySessions;
       seancesPrevuesCount.value = todaySessions.length;
-      totalPatients.value = patients.length;
+      totalPatients.value = patientCount;
       alertesCount.value = 0;
+      isOfflineData.value = false;
 
-      // Sauvegarde dans le cache global
-      AppCacheManager.set<Map<String, dynamic>>(
-        CacheKeys.dashboard,
-        {
-          'user': user,
-          'seances': todaySessions,
-          'totalPatients': patients.length,
-        },
-        ttl: _cacheDuration,
-        tags: {CacheTags.dashboard, CacheTags.seances, CacheTags.patients},
-      );
+      // ── Sauvegarder dans le cache RAM ──────────────────────────────────
+      if (user != null) {
+        AppCacheManager.set<Map<String, dynamic>>(
+          CacheKeys.dashboard,
+          {
+            'user': user,
+            'seances': todaySessions,
+            'totalPatients': patientCount,
+          },
+          ttl: _cacheDuration,
+          tags: {CacheTags.dashboard, CacheTags.seances, CacheTags.patients},
+        );
+
+        // ── Sauvegarder dans le cache persistant (offline) ─────────────────
+        await PersistentCacheService.set(PersistentCacheService.dashboard, {
+          'user': user.toJson(),
+          'seances': todaySessions.map((s) => s.toJson()).toList(),
+          'totalPatients': patientCount,
+        });
+      }
 
       status.value = 'success';
     } catch (e) {
-      // Si on avait déjà des données en cache, on ne bloque pas l'écran
-      if (prochainesSeances.isEmpty) {
+      if (currentUser.value == null && prochainesSeances.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
+      } else {
+        status.value = 'success';
       }
     }
   }

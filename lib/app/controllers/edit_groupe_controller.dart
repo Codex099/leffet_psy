@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../models/employee_model.dart';
 import '../models/groupe_model.dart';
 import '../models/patient_model.dart';
+import '../services/auth_service.dart';
 import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../services/groupe_service.dart';
@@ -13,7 +14,7 @@ import 'agenda_controller.dart';
 
 /// Un créneau horaire pour un jour donné
 class DaySlot {
- final String day;
+  final String day;
   final String heureDebut;
   final String heureFin;
 
@@ -31,6 +32,9 @@ class EditGroupeController extends GetxController {
   final EmployeeService _employeeService = EmployeeService();
   final PatientService _patientService = PatientService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
+  final AuthService _authService = AuthService();
+
+  final RxBool isAdmin = false.obs;
 
   // Current groupe being edited (null = create mode)
   dynamic groupeId;
@@ -97,6 +101,23 @@ class EditGroupeController extends GetxController {
   void onInit() {
     super.onInit();
     groupeId = extractIdParam(Get.arguments, Get.parameters);
+    _checkAdminAndInit();
+  }
+
+  Future<void> _checkAdminAndInit() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+      if (!isAdmin.value) {
+        Get.back();
+        Get.snackbar(
+          'Accès restreint'.tr,
+          'Seul l\'administrateur peut créer ou modifier un groupe thérapeutique.'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+    } catch (_) {}
     _loadEmployees();
     _loadAllPatients();
     if (groupeId != null) {
@@ -360,12 +381,15 @@ class EditGroupeController extends GetxController {
     }
     try {
       status.value = 'loading';
-     final data = {
+      final data = {
         'nom': nom.value.trim(),
-       'description': description.value.trim().isEmpty ? null : description.value.trim(),
-       'type_planning': typePlanning.value,
-       if (selectedEmployeeIds.isNotEmpty) 'employee_ids': selectedEmployeeIds.toList(),
-     };
+        'description': description.value.trim().isEmpty ? null : description.value.trim(),
+        'type_planning': typePlanning.value,
+        if (selectedEmployeeIds.isNotEmpty) ...{
+          'employee_ids': selectedEmployeeIds.toList(),
+          'employe_ids': selectedEmployeeIds.toList(),
+        },
+      };
 
       final bool isNewGroup = (groupeId == null);
       GroupeModel saved;

@@ -24,40 +24,43 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
       backgroundColor: AppColors.scaffold,
       appBar: CreativeAppBar(
         title: 'Séances Individuelles'.tr,
-       subtitle: 'Consultations & Créneaux Récurrents'.tr,
-       showBackButton: true,
+        subtitle: 'Consultations & Créneaux Récurrents'.tr,
+        showBackButton: true,
         actions: [
-          // Bouton Créer Créneau Récurrent (Style Groupe)
-          BouncyTap(
-            onTap: () => _openNouveauCreneauModal(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-              margin: const EdgeInsets.only(right: 6),
-              decoration: BoxDecoration(
-                gradient: AppColors.oceanGradient,
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: AppColors.softShadow,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.repeat_rounded,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '+ Créneau'.tr,
-                   style: AppTextStyles.iosCaption1.copyWith(
+          // Bouton Créer Créneau Récurrent (Style Groupe) - réservé à l'Admin
+          Obx(() {
+            if (!controller.isAdmin.value) return const SizedBox.shrink();
+            return BouncyTap(
+              onTap: () => _openNouveauCreneauModal(context),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                margin: const EdgeInsets.only(right: 6),
+                decoration: BoxDecoration(
+                  gradient: AppColors.oceanGradient,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: AppColors.softShadow,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.repeat_rounded,
+                      size: 16,
                       color: Colors.white,
-                      fontWeight: FontWeight.w700,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Text(
+                      '+ Créneau'.tr,
+                      style: AppTextStyles.iosCaption1.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          }),
 
           // Bouton Planifier Séance Ponctuelle
           BouncyTap(
@@ -155,8 +158,18 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                    message: controller.activeTab.value == 'a_venir'
                        ? 'Aucune consultation n\'est programmée pour les prochains jours.'.tr
                        : 'Aucune séance trouvée.'.tr,
-                   actionLabel: 'Planifier un créneau'.tr,
-                   onAction: () => _openNouveauCreneauModal(context),
+                    actionLabel: controller.isAdmin.value
+                        ? 'Planifier un créneau'.tr
+                        : 'Planifier une séance'.tr,
+                    onAction: controller.isAdmin.value
+                        ? () => _openNouveauCreneauModal(context)
+                        : () async {
+                            final res =
+                                await Get.toNamed(AppRoutes.creationSeance);
+                            if (res == true) {
+                              controller.loadData(forceRefresh: true);
+                            }
+                          },
                   );
                 }
 
@@ -302,47 +315,49 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
               ),
               const SizedBox(height: 12),
 
-              // Bouton Créer un nouveau créneau pour ce patient
-              BouncyTap(
-                onTap: () {
-                  Navigator.pop(ctx);
-                  controller.selectedPatientId.value = group.patientId;
-                  _openNouveauCreneauModal(context);
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.20),
+              // Bouton Créer un nouveau créneau pour ce patient (Admin seulement)
+              if (controller.isAdmin.value) ...[
+                BouncyTap(
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    controller.selectedPatientId.value = group.patientId;
+                    _openNouveauCreneauModal(context);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.20),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.add_circle_outline_rounded,
+                          size: 18,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Configurer un nouveau créneau'.tr,
+                          style: AppTextStyles.iosSubhead.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.add_circle_outline_rounded,
-                        size: 18,
-                        color: AppColors.primary,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Configurer un nouveau créneau'.tr,
-                       style: AppTextStyles.iosSubhead.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
 
               Text(
                 '${'RENDEZ-VOUS PROGRAMMÉS'.tr} (${group.seances.length})',

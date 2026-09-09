@@ -9,6 +9,8 @@ class EmployeeModel {
   final String username;
   final String role; // 'admin' | 'psychologue' | 'educatrice'
  final List<dynamic>? patientsAssignesIds;
+  /// Permission de créer et assigner des tâches (accordée par l'admin)
+  final bool peutCreerTaches;
 
   EmployeeModel({
     required this.id,
@@ -18,6 +20,7 @@ class EmployeeModel {
     required this.username,
     required this.role,
     this.patientsAssignesIds,
+    this.peutCreerTaches = false,
   });
 
   factory EmployeeModel.fromJson(Map<String, dynamic> json) {
@@ -28,21 +31,26 @@ class EmployeeModel {
      telephone: json['telephone'] as String?,
      username: json['username'] as String? ?? '',
      role: json['role'] as String? ?? 'psychologue',
-     patientsAssignesIds: (json['patients_assignes_ids'] as List<dynamic>?)
-         ?.map((e) => parseId(e))
+      patientsAssignesIds: parseList(json['patients_assignes_ids'])
+          ?.map((e) => parseId(e))
           .toList(),
+      peutCreerTaches: json['peut_creer_taches'] as bool? ?? false,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'nom': nom,
-     'prenom': prenom,
-     if (telephone != null) 'telephone': telephone,
-     'username': username,
-     'role': role,
-   };
+      'prenom': prenom,
+      if (telephone != null) 'telephone': telephone,
+      'username': username,
+      'role': role,
+      if (patientsAssignesIds != null) 'patients_assignes_ids': patientsAssignesIds,
+      'peut_creer_taches': peutCreerTaches,
+    };
   }
+
 
   String get fullName => '$prenom $nom';
 
@@ -79,4 +87,6 @@ class EmployeeModel {
   bool get isAdmin => role == 'admin';
  bool get isPsychologue => role == 'psychologue';
  bool get isEducatrice => role == 'educatrice';
+  /// Vrai si l'employé peut créer et assigner des tâches à d'autres
+  bool get canAssignTasks => isAdmin || peutCreerTaches;
 }

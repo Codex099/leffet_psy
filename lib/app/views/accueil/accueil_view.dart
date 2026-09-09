@@ -11,6 +11,7 @@ import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/patient_avatar.dart';
+import '../../widgets/offline_banner.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
@@ -57,6 +58,12 @@ class AccueilView extends GetView<AccueilController> {
               children: [
                 // ── Header Hero ──────────────────────────────────────────────
                 _buildHeader(context),
+
+                // ── Bannière hors-ligne ───────────────────────────────────────
+                Obx(() {
+                  if (!controller.isOfflineData.value) return const SizedBox.shrink();
+                  return OfflineBanner(savedLabel: controller.offlineSavedLabel.value);
+                }),
                 const SizedBox(height: 16),
 
                 // ── Quick Actions ────────────────────────────────────────────
@@ -101,14 +108,17 @@ class AccueilView extends GetView<AccueilController> {
 
   // ─── Header Hero ────────────────────────────────────────────────────────────
   Widget _buildHeader(BuildContext context) {
-    final user = controller.currentUser.value;
     final today = DateTime.now();
     final String langCode = Get.locale?.languageCode ?? 'fr';
-   final formattedDate = DateFormat('EEEE d MMMM', langCode).format(today);
+    final formattedDate = DateFormat('EEEE d MMMM', langCode).format(today);
 
-   return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Container(
+    // Obx pour réagir dynamiquement au chargement de l'utilisateur
+    return Obx(() {
+      final user = controller.currentUser.value;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Container(
         decoration: BoxDecoration(
           gradient: AppColors.headerGradient,
           borderRadius: BorderRadius.circular(32),
@@ -156,7 +166,7 @@ class AccueilView extends GetView<AccueilController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top row : Date badge à gauche, Profil à droite
+                    // Top row : Date badge à gauche, Rôle + Profil à droite
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -190,37 +200,70 @@ class AccueilView extends GetView<AccueilController> {
                           ),
                         ),
 
-                        // Avatar profil
-                        BouncyTap(
-                          onTap: () => Get.toNamed(AppRoutes.profil),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 2.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.20),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                        // Badge rôle dynamique + Avatar profil
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Badge rôle — dynamique
+                            if (user != null)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 5,
                                 ),
-                              ],
+                                margin: const EdgeInsets.only(right: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.22),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.35),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Text(
+                                  user.roleLabel,
+                                  style: AppTextStyles.iosCaption2.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 10.5,
+                                    letterSpacing: 0.3,
+                                  ),
+                                ),
+                              ),
+
+                            // Avatar profil
+                            BouncyTap(
+                              onTap: () => Get.toNamed(AppRoutes.profil),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2.5,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.20),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: PatientAvatar(
+                                  initials: user?.initialLetter ?? 'U',
+                                  radius: 19,
+                                ),
+                              ),
                             ),
-                            child: PatientAvatar(
-                              initials: user?.initialLetter ?? 'U',
-                             radius: 19,
-                            ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
                     // Greeting Clinique
                     Text(
-                      'clinique l\'Effet de Papillon 🦋',
-                     style: AppTextStyles.iosLargeTitle.copyWith(
+                      'clinique l\'Effet De Papillon🦋',
+                      style: AppTextStyles.iosLargeTitle.copyWith(
                         color: Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
@@ -228,16 +271,18 @@ class AccueilView extends GetView<AccueilController> {
                       ),
                     ),
                     const SizedBox(height: 4),
+                    // Subtitle dynamique : Bonjour Prénom · Rôle
                     Text(
                       user != null
-                          ? '${'Espace clinique de suivi thérapeutique'.tr} • ${user.prenom}'
-                         : 'Espace clinique de suivi & prise en charge thérapeutique.'.tr,
-                     style: AppTextStyles.iosSubhead.copyWith(
+                          ? '${'Bonjour'.tr}, ${user.fullName} · ${user.roleLabel}'
+                          : 'Espace clinique de suivi & prise en charge thérapeutique.'.tr,
+                      style: AppTextStyles.iosSubhead.copyWith(
                         color: Colors.white.withValues(alpha: 0.88),
                         fontSize: 13.5,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
+
                   ],
                 ),
               ),
@@ -246,88 +291,152 @@ class AccueilView extends GetView<AccueilController> {
         ),
       ),
     ).animate().fadeIn(duration: 700.ms).slideY(begin: -0.08, curve: Curves.easeOut);
+    });
   }
 
   // ─── Quick Actions ───────────────────────────────────────────────────────────
   Widget _buildQuickActions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 10),
-            child: Text(
-              'ACTIONS RAPIDES'.tr,
-             style: AppTextStyles.iosCaption2.copyWith(
-                color: AppColors.textTertiary,
-                letterSpacing: 1.0,
-                fontWeight: FontWeight.w700,
+    return Obx(() {
+      final isAdmin = controller.currentUser.value?.isAdmin ?? false;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 10),
+              child: Text(
+                'ACTIONS RAPIDES'.tr,
+                style: AppTextStyles.iosCaption2.copyWith(
+                  color: AppColors.textTertiary,
+                  letterSpacing: 1.0,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: _quickAction(
-                  label: 'Nouveau Patient'.tr,
-                 icon: Icons.person_add_rounded,
-                  gradient: AppColors.primaryLogoGradient,
-                  glowColor: const Color(0xFF032B45),
-                  onTap: () async {
-                    final res = await Get.toNamed(AppRoutes.editPatient);
-                    if (res == true) controller.loadDashboard();
-                  },
-                ),
+            if (isAdmin) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Nouveau Patient'.tr,
+                      icon: Icons.person_add_rounded,
+                      gradient: AppColors.primaryLogoGradient,
+                      glowColor: const Color(0xFF032B45),
+                      onTap: () async {
+                        final res = await Get.toNamed(AppRoutes.editPatient);
+                        if (res == true) controller.loadDashboard();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Planifier Séance'.tr,
+                      icon: Icons.calendar_month_rounded,
+                      gradient: AppColors.secondaryLogoGradient,
+                      glowColor: const Color(0xFF064973),
+                      onTap: () async {
+                        final res = await Get.toNamed(AppRoutes.creationSeance);
+                        if (res == true) controller.loadDashboard();
+                      },
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _quickAction(
-                  label: 'Planifier Séance'.tr,
-                 icon: Icons.calendar_month_rounded,
-                  gradient: AppColors.secondaryLogoGradient,
-                  glowColor: const Color(0xFF064973),
-                  onTap: () async {
-                    final res = await Get.toNamed(AppRoutes.creationSeance);
-                    if (res == true) controller.loadDashboard();
-                  },
-                ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Nouvelle Tâche'.tr,
+                      icon: Icons.task_alt_rounded,
+                      gradient: AppColors.coralLogoGradient,
+                      glowColor: const Color(0xFFA62929),
+                      onTap: () async {
+                        final res = await Get.toNamed(AppRoutes.detailTache);
+                        if (res == true) controller.loadDashboard();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Nouveau Groupe'.tr,
+                      icon: Icons.groups_rounded,
+                      gradient: AppColors.coralSoftLogoGradient,
+                      glowColor: const Color(0xFFD93636),
+                      onTap: () async {
+                        final res = await Get.toNamed(AppRoutes.editGroupe);
+                        if (res == true) controller.loadDashboard();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Planifier Séance'.tr,
+                      icon: Icons.calendar_month_rounded,
+                      gradient: AppColors.secondaryLogoGradient,
+                      glowColor: const Color(0xFF064973),
+                      onTap: () async {
+                        final res = await Get.toNamed(AppRoutes.creationSeance);
+                        if (res == true) controller.loadDashboard();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Comptes-Rendus'.tr,
+                      icon: Icons.description_rounded,
+                      gradient: AppColors.primaryLogoGradient,
+                      glowColor: const Color(0xFF032B45),
+                      onTap: () async {
+                        final res = await Get.toNamed(AppRoutes.compteRenduHub);
+                        if (res == true) controller.loadDashboard();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Nouvelle Tâche'.tr,
+                      icon: Icons.task_alt_rounded,
+                      gradient: AppColors.coralLogoGradient,
+                      glowColor: const Color(0xFFA62929),
+                      onTap: () async {
+                        final res = await Get.toNamed(AppRoutes.detailTache);
+                        if (res == true) controller.loadDashboard();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _quickAction(
+                      label: 'Mes Patients'.tr,
+                      icon: Icons.people_alt_rounded,
+                      gradient: AppColors.coralSoftLogoGradient,
+                      glowColor: const Color(0xFFD93636),
+                      onTap: () => Get.toNamed(AppRoutes.patientsListe),
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(
-                child: _quickAction(
-                  label: 'Nouvelle Tâche'.tr,
-                 icon: Icons.task_alt_rounded,
-                  gradient: AppColors.coralLogoGradient,
-                  glowColor: const Color(0xFFA62929),
-                  onTap: () async {
-                    final res = await Get.toNamed(AppRoutes.detailTache);
-                    if (res == true) controller.loadDashboard();
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _quickAction(
-                  label: 'Nouveau Groupe'.tr,
-                 icon: Icons.groups_rounded,
-                  gradient: AppColors.coralSoftLogoGradient,
-                  glowColor: const Color(0xFFD93636),
-                  onTap: () async {
-                    final res = await Get.toNamed(AppRoutes.editGroupe);
-                    if (res == true) controller.loadDashboard();
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _quickAction({

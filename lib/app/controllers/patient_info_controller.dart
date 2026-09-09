@@ -50,7 +50,13 @@ class PatientInfoController extends GetxController {
   void onInit() {
     super.onInit();
     _checkAdmin();
-    patientId = extractIdParam(Get.arguments, Get.parameters);
+    final args = Get.arguments;
+    if (args is PatientModel) {
+      patient.value = args;
+      patientId = args.id;
+    } else {
+      patientId = extractIdParam(Get.arguments, Get.parameters);
+    }
     if (patientId == null || patientId.toString().isEmpty) {
       status.value = 'error';
       errorMessage.value = 'Identifiant du patient non spécifié.';

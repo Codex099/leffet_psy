@@ -11,6 +11,7 @@ import '../../widgets/clinical_decorations.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/patient_avatar.dart';
+import '../../widgets/offline_banner.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
 
@@ -28,8 +29,9 @@ class PatientsListeView extends GetView<PatientsListeController> {
             ? 'Tous les dossiers du cabinet'.tr
             : 'Dossiers assignés'.tr,
         actions: [
-          if (controller.isAdmin.value)
-            BouncyTap(
+          Obx(() {
+            if (!controller.isAdmin.value) return const SizedBox.shrink();
+            return BouncyTap(
               onTap: () async {
                 final res = await Get.toNamed(AppRoutes.editPatient);
                 if (res == true) controller.loadPatients();
@@ -48,10 +50,46 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   color: Colors.white,
                 ),
               ),
-            ),
+            );
+          }),
         ],
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+      floatingActionButton: Obx(() {
+        if (!controller.isAdmin.value) return const SizedBox.shrink();
+        return Container(
+          decoration: BoxDecoration(
+            gradient: AppColors.oceanGradient,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.4),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            onPressed: () async {
+              final res = await Get.toNamed(AppRoutes.editPatient);
+              if (res == true) controller.loadPatients();
+            },
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            tooltip: 'Nouveau patient'.tr,
+            child: const Icon(
+              Icons.add_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+        ).animate().scale(
+              begin: const Offset(0, 0),
+              duration: 400.ms,
+              curve: Curves.elasticOut,
+            );
+      }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: RefreshIndicator(
         onRefresh: () async => controller.loadPatients(),
         color: AppColors.primary,
@@ -96,7 +134,13 @@ class PatientsListeView extends GetView<PatientsListeController> {
               ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
             ),
 
-              // ── Filtres Segmented ──────────────────────────────────────────
+              // ── Bannière hors-ligne ────────────────────────────────────
+              Obx(() {
+                if (!controller.isOfflineData.value) return const SizedBox.shrink();
+                return OfflineBanner(savedLabel: controller.offlineSavedLabel.value);
+              }),
+
+              // ── Filtres Segmented ──────────────────────────────────────
               Obx(() {
                 int selectedIndex = 0;
                 if (controller.actifFilter.value == true) selectedIndex = 1;

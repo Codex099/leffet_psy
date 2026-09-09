@@ -26,31 +26,34 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
        subtitle: 'Atelier Clinique Collectif'.tr,
        showBackButton: true,
         actions: [
-          BouncyTap(
-            onTap: () async {
-              final res = await Get.toNamed(
-                AppRoutes.editGroupe,
-                arguments: controller.groupeId,
-              );
-              if (res == true) {
-                controller.loadGroupe();
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(9),
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                gradient: AppColors.oceanGradient,
-                shape: BoxShape.circle,
-                boxShadow: AppColors.softShadow,
+          Obx(() {
+            if (!controller.isAdmin.value) return const SizedBox.shrink();
+            return BouncyTap(
+              onTap: () async {
+                final res = await Get.toNamed(
+                  AppRoutes.editGroupe,
+                  arguments: controller.groupeId,
+                );
+                if (res == true) {
+                  controller.loadGroupe();
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.all(9),
+                margin: const EdgeInsets.only(right: 10),
+                decoration: BoxDecoration(
+                  gradient: AppColors.oceanGradient,
+                  shape: BoxShape.circle,
+                  boxShadow: AppColors.softShadow,
+                ),
+                child: const Icon(
+                  Icons.edit_rounded,
+                  size: 19,
+                  color: Colors.white,
+                ),
               ),
-              child: const Icon(
-                Icons.edit_rounded,
-                size: 19,
-                color: Colors.white,
-              ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
       body: Obx(() {
@@ -229,37 +232,41 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                 ),
                 child: Column(
                   children: [
-                    AppButton(
-                      label: 'Gérer les membres et créneaux'.tr,
-                     icon: Icons.edit_rounded,
-                      isSecondary: true,
-                      onPressed: () => Get.toNamed(
-                        AppRoutes.editGroupe,
-                        arguments: controller.groupeId,
+                    if (controller.isAdmin.value) ...[
+                      AppButton(
+                        label: 'Gérer les membres et créneaux'.tr,
+                        icon: Icons.edit_rounded,
+                        isSecondary: true,
+                        onPressed: () => Get.toNamed(
+                          AppRoutes.editGroupe,
+                          arguments: controller.groupeId,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 10),
+                    ],
                     AppButton(
                       label: 'Compte-rendu de séance collective'.tr,
-                     icon: Icons.assignment_outlined,
+                      icon: Icons.assignment_outlined,
                       onPressed: () => Get.toNamed(
                         AppRoutes.compteRenduGroupe,
                         arguments: controller.groupeId,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    TextButton.icon(
-                      onPressed: () => _confirmDeleteGroup(context),
-                      icon: const Icon(
-                        Icons.delete_outline_rounded,
-                        color: AppColors.error,
-                        size: 20,
+                    if (controller.isAdmin.value) ...[
+                      const SizedBox(height: 16),
+                      TextButton.icon(
+                        onPressed: () => _confirmDeleteGroup(context),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          color: AppColors.error,
+                          size: 20,
+                        ),
+                        label: Text(
+                          'Supprimer ce groupe'.tr,
+                          style: AppTextStyles.buttonDestructive,
+                        ),
                       ),
-                      label: Text(
-                        'Supprimer ce groupe'.tr,
-                       style: AppTextStyles.buttonDestructive,
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ),

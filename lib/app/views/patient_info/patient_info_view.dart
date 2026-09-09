@@ -96,22 +96,23 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 ),
                                 Row(
                                   children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.edit_rounded,
-                                        color: Colors.white,
-                                        size: 22,
+                                    if (controller.isAdmin.value)
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.edit_rounded,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
+                                        onPressed: () async {
+                                          final res = await Get.toNamed(
+                                            AppRoutes.editPatient,
+                                            arguments: controller.patientId,
+                                          );
+                                          if (res == true) {
+                                            controller.loadPatientInfo();
+                                          }
+                                        },
                                       ),
-                                      onPressed: () async {
-                                        final res = await Get.toNamed(
-                                          AppRoutes.editPatient,
-                                          arguments: controller.patientId,
-                                        );
-                                        if (res == true) {
-                                          controller.loadPatientInfo();
-                                        }
-                                      },
-                                    ),
                                     IconButton(
                                       icon: const Icon(
                                         Icons.medical_services_outlined,
@@ -682,67 +683,68 @@ class PatientInfoView extends GetView<PatientInfoController> {
                               }).toList(),
                             ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Planning récurrent toggle section
-                    _buildSectionCard(
-                      title: 'Planning récurrent'.tr,
-                     icon: Icons.sync_rounded,
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Créneaux automatiques'.tr,
-                                   style: AppTextStyles.bodyMedium,
-                                  ),
-                                  Text(
-                                    'Planification de séances individuelles'.tr,
-                                   style: AppTextStyles.bodySmall,
-                                  ),
-                                ],
-                              ),
-                              Switch(value: true, onChanged: (v) {}),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              await Get.toNamed(
-                                AppRoutes.planningRecurrent,
-                                arguments: controller.patientId,
-                              );
-                              controller.loadPatientInfo();
-                            },
-                            icon: const Icon(Icons.tune_rounded),
-                            label: Text('Définir les créneaux'.tr),
-                           style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.secondary,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(double.infinity, 44),
+                    if (controller.isAdmin.value) ...[
+                      const SizedBox(height: 16),
+                      // Planning récurrent toggle section
+                      _buildSectionCard(
+                        title: 'Planning récurrent'.tr,
+                        icon: Icons.sync_rounded,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Créneaux automatiques'.tr,
+                                      style: AppTextStyles.bodyMedium,
+                                    ),
+                                    Text(
+                                      'Planification de séances individuelles'.tr,
+                                      style: AppTextStyles.bodySmall,
+                                    ),
+                                  ],
+                                ),
+                                Switch(value: true, onChanged: (v) {}),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 12),
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                await Get.toNamed(
+                                  AppRoutes.planningRecurrent,
+                                  arguments: controller.patientId,
+                                );
+                                controller.loadPatientInfo();
+                              },
+                              icon: const Icon(Icons.tune_rounded),
+                              label: Text('Définir les créneaux'.tr),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.secondary,
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size(double.infinity, 44),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // Supprimer le patient Action Button
-                    TextButton.icon(
-                      onPressed: () => _confirmDeletePatient(context),
-                      icon: const Icon(
-                        Icons.delete_outline_rounded,
-                        color: AppColors.error,
+                      // Supprimer le patient Action Button
+                      TextButton.icon(
+                        onPressed: () => _confirmDeletePatient(context),
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          color: AppColors.error,
+                        ),
+                        label: Text(
+                          'Supprimer le patient'.tr,
+                          style: AppTextStyles.buttonDestructive,
+                        ),
                       ),
-                      label: Text(
-                        'Supprimer le patient'.tr,
-                       style: AppTextStyles.buttonDestructive,
-                      ),
-                    ),
+                    ],
                   ],
                 ),
               ),

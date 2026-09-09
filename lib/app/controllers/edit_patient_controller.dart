@@ -108,6 +108,7 @@ class EditPatientController extends GetxController {
     final args = Get.arguments;
     patientId = extractIdParam(args, Get.parameters);
     if (patientId != null) {
+      _savedPatientId = patientId;
       _loadPatient(patientId!);
     }
     _loadParents();
@@ -118,7 +119,13 @@ class EditPatientController extends GetxController {
       final me = await _authService.getCachedUser() ?? await _authService.getMe();
       isAdmin.value = me.role.toLowerCase() == 'admin';
       if (!isAdmin.value) {
-        addPlanTherapeutique.value = false;
+        Get.back();
+        Get.snackbar(
+          'Accès restreint'.tr,
+          'Seul l\'administrateur peut ajouter ou modifier les dossiers patients.'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
       }
     } catch (_) {}
   }
@@ -378,11 +385,28 @@ class EditPatientController extends GetxController {
     }
   }
 
+  void goToStep(int step) {
+    if (step < 1 || step > 4) return;
+    if (step == currentStep.value) return;
+
+    // Si on quitte l'étape 1 et que nom et prénom sont renseignés,
+    // on peut tenter de pré-créer ou mettre à jour le patient en arrière-plan
+    if (currentStep.value == 1 && (_savedPatientId == null && patientId == null)) {
+      final prenomText = prenomController.text.trim();
+      final nomText = nomController.text.trim();
+      if (prenomText.isNotEmpty && nomText.isNotEmpty) {
+        _saveStep1(advance: false, silent: true);
+      }
+    }
+
+    currentStep.value = step;
+  }
+
   void nextStep() {
     if (currentStep.value < 4) {
       _saveCurrentStep();
     } else {
-      _finishWizard();
+      finishWizard();
     }
   }
 
@@ -395,25 +419,30 @@ class EditPatientController extends GetxController {
   Future<void> _saveCurrentStep() async {
     switch (currentStep.value) {
       case 1:
-        await _saveStep1();
+        await _saveStep1(advance: true);
         break;
       case 2:
-        await _saveStep2();
+        await _saveStep2(advance: true);
         break;
       case 3:
-        await _saveStep3();
+        await _saveStep3(advance: true);
         break;
     }
   }
 
   // Step 1: Create or update patient basic info
-  Future<void> _saveStep1() async {
+  Future<bool> _saveStep1({bool advance = true, bool silent = false}) async {
     final prenomText = prenomController.text.trim();
     final nomText = nomController.text.trim();
     if (prenomText.isEmpty || nomText.isEmpty) {
-      Get.snackbar('Champs requis', 'Prénom et nom sont obligatoires.',
-         snackPosition: SnackPosition.BOTTOM);
-      return;
+      if (!silent) {
+        Get.snackbar(
+          'Champs requis'.tr,
+          'Prénom et nom sont obligatoires.'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+      return false;
     }
     try {
       // ── Upload photo d'abord si sélectionnée et non encore uploadée ──
@@ -424,94 +453,109 @@ class EditPatientController extends GetxController {
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
+      final isFeminin = sexe.value == 'Fille' ||
+          sexe.value == 'Féminin' ||
+          sexe.value.toLowerCase() == 'feminin';
+
       final data = <String, dynamic>{
         'nom': nomText,
-       'prenom': prenomText,
-       if (dateNaissance.value.isNotEmpty) 'date_naissance': dateNaissance.value,
-        'sexe': sexe.value == 'Fille' ? 'feminin' : 'masculin',
+        'prenom': prenomText,
+        if (dateNaissance.value.isNotEmpty) 'date_naissance': dateNaissance.value,
+        'sexe': isFeminin ? 'feminin' : 'masculin',
         if (photoUrl.value.isNotEmpty) ...{
           'photo': photoUrl.value,
           'photo_url': photoUrl.value,
         },
         if (nombreFreresSoeursController.text.trim().isNotEmpty)
           'nombre_freres_soeurs': int.tryParse(nombreFreresSoeursController.text.trim()),
-       if (ordreNaissanceController.text.trim().isNotEmpty)
+        if (ordreNaissanceController.text.trim().isNotEmpty)
           'ordre_naissance': int.tryParse(ordreNaissanceController.text.trim()),
-     };
+      };
 
       PatientModel saved;
-      if (_savedPatientId != null) {
-        saved = await _patientService.updatePatient(_savedPatientId!, data);
+      final targetId = _savedPatientId ?? patientId;
+      if (targetId != null) {
+        saved = await _patientService.updatePatient(targetId, data);
       } else {
         saved = await _patientService.createPatient(data);
         _savedPatientId = saved.id;
       }
       status.value = 'success';
-     currentStep.value = 2;
+      if (advance) {
+        currentStep.value = 2;
+      }
+      return true;
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-     Get.snackbar('Erreur', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
-   }
+      if (!silent) {
+        Get.snackbar('Erreur'.tr, errorMessage.value, snackPosition: SnackPosition.BOTTOM);
+      }
+      return false;
+    }
   }
 
   // Step 2: Update dossier médical (toutes les informations médicales)
-  Future<void> _saveStep2() async {
-    if (_savedPatientId == null) {
-      currentStep.value = 3;
-      return;
+  Future<bool> _saveStep2({bool advance = true, bool silent = false}) async {
+    final targetId = _savedPatientId ?? patientId;
+    if (targetId == null) {
+      if (advance) currentStep.value = 3;
+      return true;
     }
     try {
-      status.value = 'loading';
-     final payload = <String, dynamic>{
+      if (!silent) status.value = 'loading';
+      final payload = <String, dynamic>{
         if (antecedentsMedicauxController.text.trim().isNotEmpty)
           'antecedents_medicaux': antecedentsMedicauxController.text.trim(),
-       if (medicamentsPrisController.text.trim().isNotEmpty)
+        if (medicamentsPrisController.text.trim().isNotEmpty)
           'medicaments_pris': medicamentsPrisController.text.trim(),
-       if (dateCas.value.trim().isNotEmpty)
+        if (dateCas.value.trim().isNotEmpty)
           'date_cas': dateCas.value.trim(),
-       if (naissanceController.text.trim().isNotEmpty)
+        if (naissanceController.text.trim().isNotEmpty)
           'naissance': naissanceController.text.trim(),
-       if (developpementPsychomoteurController.text.trim().isNotEmpty)
+        if (developpementPsychomoteurController.text.trim().isNotEmpty)
           'developpement_psychomoteur': developpementPsychomoteurController.text.trim(),
-       if (comportementAuditifController.text.trim().isNotEmpty)
+        if (comportementAuditifController.text.trim().isNotEmpty)
           'comportement_auditif': comportementAuditifController.text.trim(),
-       if (developpementLangagierController.text.trim().isNotEmpty)
+        if (developpementLangagierController.text.trim().isNotEmpty)
           'developpement_langagier': developpementLangagierController.text.trim(),
-       if (adaptationSocialeController.text.trim().isNotEmpty)
+        if (adaptationSocialeController.text.trim().isNotEmpty)
           'adaptation_sociale': adaptationSocialeController.text.trim(),
-       if (autonomieController.text.trim().isNotEmpty)
+        if (autonomieController.text.trim().isNotEmpty)
           'autonomie': autonomieController.text.trim(),
-       if (aspectSanitaireController.text.trim().isNotEmpty)
+        if (aspectSanitaireController.text.trim().isNotEmpty)
           'aspect_sanitaire': aspectSanitaireController.text.trim(),
-       if (stadeScolarisationController.text.trim().isNotEmpty)
+        if (stadeScolarisationController.text.trim().isNotEmpty)
           'stade_scolarisation': stadeScolarisationController.text.trim(),
-     };
+      };
 
       if (payload.isNotEmpty) {
-        await _patientService.updateDossierMedical(_savedPatientId!, payload);
+        await _patientService.updateDossierMedical(targetId, payload);
       }
       status.value = 'success';
-     currentStep.value = 3;
+      if (advance) currentStep.value = 3;
+      return true;
     } catch (e) {
       status.value = 'success';
-     currentStep.value = 3;
+      if (advance) currentStep.value = 3;
+      return false;
     }
   }
 
   // Step 3: Link parent/tuteur (Multi-parents support)
-  Future<void> _saveStep3() async {
-    if (_savedPatientId == null) {
-      currentStep.value = 4;
-      return;
+  Future<bool> _saveStep3({bool advance = true, bool silent = false}) async {
+    final targetId = _savedPatientId ?? patientId;
+    if (targetId == null) {
+      if (advance) currentStep.value = 4;
+      return true;
     }
     try {
-      status.value = 'loading';
+      if (!silent) status.value = 'loading';
       if (selectedParents.isNotEmpty) {
         for (final sp in selectedParents) {
           try {
             await _patientService.addParentToPatient(
-              _savedPatientId!,
+              targetId,
               parentId: sp.parentId,
               role: sp.role,
             );
@@ -519,52 +563,90 @@ class EditPatientController extends GetxController {
         }
       } else if (selectedParentId.value != null) {
         await _patientService.addParentToPatient(
-          _savedPatientId!,
+          targetId,
           parentId: selectedParentId.value!,
           role: roleParent.value,
         );
       }
       status.value = 'success';
-      currentStep.value = 4;
+      if (advance) currentStep.value = 4;
+      return true;
     } catch (e) {
       status.value = 'success';
-      currentStep.value = 4;
+      if (advance) currentStep.value = 4;
+      return false;
     }
   }
 
-  Future<void> _finishWizard() async {
-    AppCacheManager.invalidateTag(CacheTags.patients);
-    AppCacheManager.invalidateTag(CacheTags.dashboard);
-    if (_savedPatientId != null) {
-      AppCacheManager.invalidate(CacheKeys.patientInfo(_savedPatientId));
-    }
-    if (patientId != null) {
-      AppCacheManager.invalidate(CacheKeys.patientInfo(patientId));
+  Future<void> finishWizard() async {
+    final prenomText = prenomController.text.trim();
+    final nomText = nomController.text.trim();
+
+    // Vérifier l'étape 1 obligatoire (nom et prénom)
+    if (prenomText.isEmpty || nomText.isEmpty) {
+      currentStep.value = 1;
+      Get.snackbar(
+        'Champs requis'.tr,
+        'Prénom et nom sont obligatoires (Étape 1 - Identité).'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
     }
 
     try {
-      if (Get.isRegistered<PatientsListeController>()) {
-        Get.find<PatientsListeController>().loadPatients(forceRefresh: true);
-      }
-    } catch (_) {}
-    try {
-      if (Get.isRegistered<PatientInfoController>()) {
-        Get.find<PatientInfoController>().loadPatientInfo(forceRefresh: true);
-      }
-    } catch (_) {}
-    try {
-      if (Get.isRegistered<AccueilController>()) {
-        Get.find<AccueilController>().loadDashboard(forceRefresh: true);
-      }
-    } catch (_) {}
+      status.value = 'loading';
 
-    Get.back(result: true);
-    Get.snackbar(
-      'Succès',
-     patientId != null
-          ? 'Patient mis à jour avec succès.'
-         : 'Nouveau patient créé avec succès.',
-      snackPosition: SnackPosition.BOTTOM,
-    );
+      // 1. Sauvegarder l'étape 1
+      final ok1 = await _saveStep1(advance: false, silent: false);
+      if (!ok1) {
+        status.value = 'error';
+        return;
+      }
+
+      final targetId = _savedPatientId ?? patientId;
+      if (targetId != null) {
+        // 2. Sauvegarder l'étape 2 (Dossier médical)
+        await _saveStep2(advance: false, silent: true);
+
+        // 3. Sauvegarder l'étape 3 (Parents / Tuteurs)
+        await _saveStep3(advance: false, silent: true);
+      }
+
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      AppCacheManager.invalidateTag(CacheTags.dashboard);
+      if (targetId != null) {
+        AppCacheManager.invalidate(CacheKeys.patientInfo(targetId));
+      }
+
+      try {
+        if (Get.isRegistered<PatientsListeController>()) {
+          Get.find<PatientsListeController>().loadPatients(forceRefresh: true);
+        }
+      } catch (_) {}
+      try {
+        if (Get.isRegistered<PatientInfoController>()) {
+          Get.find<PatientInfoController>().loadPatientInfo(forceRefresh: true);
+        }
+      } catch (_) {}
+      try {
+        if (Get.isRegistered<AccueilController>()) {
+          Get.find<AccueilController>().loadDashboard(forceRefresh: true);
+        }
+      } catch (_) {}
+
+      status.value = 'success';
+      Get.back(result: true);
+      Get.snackbar(
+        'Succès'.tr,
+        patientId != null
+            ? 'Patient mis à jour avec succès.'.tr
+            : 'Nouveau patient créé avec succès.'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      status.value = 'error';
+      Get.snackbar('Erreur'.tr, e.toString(), snackPosition: SnackPosition.BOTTOM);
+    }
   }
 }
+

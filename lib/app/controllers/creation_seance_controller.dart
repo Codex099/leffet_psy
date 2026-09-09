@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../models/patient_model.dart';
 import '../models/groupe_model.dart';
 import '../models/employee_model.dart';
+import '../services/auth_service.dart';
 import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../services/groupe_service.dart';
@@ -15,15 +16,16 @@ import 'accueil_controller.dart';
 import 'agenda_controller.dart';
 
 class CreationSeanceController extends GetxController {
- final SeanceService _seanceService = SeanceService();
+  final SeanceService _seanceService = SeanceService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
   final PatientService _patientService = PatientService();
   final GroupeService _groupeService = GroupeService();
   final EmployeeService _employeeService = EmployeeService();
   final TacheService _tacheService = TacheService();
+  final AuthService _authService = AuthService();
 
   final typeSeance = 'individuelle'.obs; // 'individuelle' | 'groupe'
- final patients = <PatientModel>[].obs;
+  final patients = <PatientModel>[].obs;
   final groupes = <GroupeModel>[].obs;
   final employees = <EmployeeModel>[].obs;
 
@@ -32,18 +34,30 @@ class CreationSeanceController extends GetxController {
   final selectedEmployeeIds = <dynamic>[].obs;
 
   final date = ''.obs;
- final heureDebut = '10:00'.obs;
- final heureFin = '10:45'.obs;
+  final heureDebut = '10:00'.obs;
+  final heureFin = '10:45'.obs;
 
- final RxString status = 'loading'.obs;
- final RxString errorMessage = ''.obs;
+  final RxString status = 'loading'.obs;
+  final RxString errorMessage = ''.obs;
 
- @override
+  final RxBool isAdmin = false.obs;
+  final RxString currentUserId = ''.obs;
+
+  @override
   void onInit() {
     super.onInit();
     final now = DateTime.now();
     date.value = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-   _loadFromCache();
+    _initUserAndLoad();
+  }
+
+  Future<void> _initUserAndLoad() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+      currentUserId.value = me.id.toString();
+    } catch (_) {}
+    _loadFromCache();
     loadOptions();
   }
 
@@ -68,30 +82,84 @@ class CreationSeanceController extends GetxController {
     }
     if (patients.isNotEmpty || groupes.isNotEmpty) {
       status.value = 'success';
-   }
+    }
   }
 
   Future<void> loadOptions() async {
     try {
       if (patients.isEmpty && groupes.isEmpty) {
         status.value = 'loading';
-     }
-      final fetchedPatients = await _patientService.getPatients(actif: true);
-      final fetchedGroupes = await _groupeService.getGroupes();
+      }
+      if (currentUserId.value.isEmpty) {
+        final me = await _authService.getCachedUser() ?? await _authService.getMe();
+        isAdmin.value = me.role.toLowerCase() == 'admin';
+        currentUserId.value = me.id.toString();
+      }
+
+      var fetchedPatients = await _patientService.getPatients(actif: true);
+      var fetchedGroupes = await _groupeService.getGroupes();
       final fetchedEmployees = await _employeeService.getEmployees();
+
+      // Pour les employés non-admins : filtrer uniquement les patients et groupes autorisés
+      if (!isAdmin.value && currentUserId.value.isNotEmpty) {
+        final myUid = currentUserId.value;
+
+        // 1. Ajouter les patients issus des tâches assignées s'ils ne sont pas déjà dans la liste
+        final seenPatientIds = fetchedPatients.map((p) => p.id.toString()).toSet();
+        try {
+          final myTaches = await _tacheService.getTaches(assigneesAMoi: true);
+          for (final t in myTaches) {
+            if (t.patientId != null && !seenPatientIds.contains(t.patientId.toString())) {
+              try {
+                final p = await _patientService.getPatient(t.patientId);
+                if (p.estActif) {
+                  seenPatientIds.add(p.id.toString());
+                  fetchedPatients.add(p);
+                }
+              } catch (_) {}
+            }
+          }
+        } catch (_) {}
+
+        // 2. Filtrer les groupes assignés à cet employé
+        final Set<String> assignedGroupeIds = {};
+        try {
+          final mySeances = await _seanceGroupeService.getSeancesGroupe(
+            employeId: myUid,
+          );
+          for (final s in mySeances) {
+            final gid = s.groupeId?.toString();
+            if (gid != null) assignedGroupeIds.add(gid);
+          }
+        } catch (_) {}
+
+        fetchedGroupes = fetchedGroupes.where((g) {
+          final gid = g.id?.toString();
+          if (gid != null && assignedGroupeIds.contains(gid)) return true;
+          return g.isEmployeeAssigned(myUid);
+        }).toList();
+      }
 
       patients.value = fetchedPatients;
       groupes.value = fetchedGroupes;
       employees.value = fetchedEmployees;
 
-      if (patients.isNotEmpty && selectedPatientId.value == null) selectedPatientId.value = patients.first.id;
-      if (groupes.isNotEmpty && selectedGroupeId.value == null) selectedGroupeId.value = groupes.first.id;
+      if (patients.isNotEmpty &&
+          (selectedPatientId.value == null ||
+              !patients.any((p) => p.id == selectedPatientId.value))) {
+        selectedPatientId.value = patients.first.id;
+      }
+      if (groupes.isNotEmpty &&
+          (selectedGroupeId.value == null ||
+              !groupes.any((g) => g.id == selectedGroupeId.value))) {
+        selectedGroupeId.value = groupes.first.id;
+      }
       status.value = 'success';
-   } catch (e) {
+    } catch (e) {
       if (patients.isEmpty && groupes.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-     }
+      }
     }
   }
 

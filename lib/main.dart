@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'app.dart';
 import 'app/services/language_service.dart';
+import 'app/services/persistent_cache_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,9 +16,13 @@ void main() async {
   await initializeDateFormatting('ar_DZ', null);
   await initializeDateFormatting('ar', null);
 
+  // Initialiser le cache persistant (SharedPreferences) avant tout
+  await PersistentCacheService.init();
+
   // Charger la langue stockée en mémoire persistante
   final initialLocale = await LanguageService.getSavedLocale();
 
   runApp(PsyCareApp(initialLocale: initialLocale));
 }
+
 

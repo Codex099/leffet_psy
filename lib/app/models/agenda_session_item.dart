@@ -103,4 +103,44 @@ class AgendaSessionItem {
       rawGroupe: seance.groupe,
     );
   }
+
+  // ─── Sérialisation pour PersistentCacheService ──────────────────────────
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'isGroupe': isGroupe,
+        'title': title,
+        'subtitle': subtitle,
+        'date': date,
+        'heureDebut': heureDebut,
+        'heureFin': heureFin,
+        'duree': duree,
+        'statut': statut,
+        'statutLabel': statutLabel,
+        'initials': initials,
+        'assignedEmployee': assignedEmployee,
+        if (photoUrl != null) 'photoUrl': photoUrl,
+        if (patientId != null) 'patientId': patientId,
+        if (groupeId != null) 'groupeId': groupeId,
+      };
+
+  factory AgendaSessionItem.fromJsonCache(Map<String, dynamic> json) {
+    return AgendaSessionItem(
+      id: json['id'],
+      isGroupe: json['isGroupe'] as bool? ?? false,
+      title: json['title'] as String? ?? '',
+      subtitle: json['subtitle'] as String? ?? '',
+      date: json['date'] as String? ?? '',
+      heureDebut: json['heureDebut'] as String? ?? '',
+      heureFin: json['heureFin'] as String? ?? '',
+      duree: json['duree'] as String? ?? '',
+      statut: json['statut'] as String? ?? '',
+      statutLabel: json['statutLabel'] as String? ?? '',
+      initials: json['initials'] as String? ?? '',
+      assignedEmployee: json['assignedEmployee'] as String? ?? '',
+      photoUrl: json['photoUrl'] as String?,
+      patientId: json['patientId'],
+      groupeId: json['groupeId'],
+    );
+  }
 }

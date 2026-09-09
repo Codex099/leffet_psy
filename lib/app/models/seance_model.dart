@@ -38,26 +38,27 @@ class SeanceModel {
   factory SeanceModel.fromJson(Map<String, dynamic> json) {
     return SeanceModel(
       id: parseId(json['id']),
-     patientId: parseId(json['patient_id']),
-     employeIds: (json['employe_ids'] as List<dynamic>?)
-             ?.map((e) => parseId(e))
+      patientId: parseId(json['patient_id']),
+      employeIds: parseList(json['employe_ids'])
+              ?.map((e) => parseId(e))
+              .whereType<dynamic>()
               .toList() ??
           [],
       date: json['date'] as String? ?? '',
-     heureDebut: json['heure_debut'] as String? ?? '',
-     heureFin: json['heure_fin'] as String? ?? '',
-     statut: json['statut'] as String? ?? 'planifiee',
-     motifStatut: json['motif_statut'] as String?,
-     statutPresence: json['statut_presence'] as String?,
-     reponsesQuestionnaire: json['reponses_questionnaire'] is Map
-         ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
-         : null,
-      medias: (json['medias'] as List<dynamic>?)
-         ?.map((e) => e.toString())
+      heureDebut: json['heure_debut'] as String? ?? '',
+      heureFin: json['heure_fin'] as String? ?? '',
+      statut: json['statut'] as String? ?? 'planifiee',
+      motifStatut: json['motif_statut'] as String?,
+      statutPresence: json['statut_presence'] as String?,
+      reponsesQuestionnaire: json['reponses_questionnaire'] is Map
+          ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
+          : null,
+      medias: parseList(json['medias'])
+          ?.map((e) => e.toString())
           .toList(),
       patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
-     employe: json['employe'] is Map ? Map<String, dynamic>.from(json['employe'] as Map) : null,
-   );
+      employe: json['employe'] is Map ? Map<String, dynamic>.from(json['employe'] as Map) : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -165,22 +166,21 @@ class PatientPlanningRecurrentModel {
   factory PatientPlanningRecurrentModel.fromJson(Map<String, dynamic> json) {
     return PatientPlanningRecurrentModel(
       id: parseId(json['id']),
-     patientId: parseId(json['patient_id']),
-     joursSemaine: (json['jours_semaine'] as List<dynamic>?)
-             ?.map((e) => e as String)
+      patientId: parseId(json['patient_id']),
+      joursSemaine: parseList(json['jours_semaine'])
+              ?.map((e) => e.toString())
               .toList() ??
           [],
       heureDebut: json['heure_debut'] as String? ?? '',
-     heureFin: json['heure_fin'] as String? ?? '',
-     dateDebut: json['date_debut'] as String?,
-     dateFin: json['date_fin'] as String?,
-     employeId: parseId(json['employe_id']),
-     employeIds: json['employe_ids'] != null
-         ? (json['employe_ids'] as List).map((e) => parseId(e)).toList()
-         : (json['employe_id'] != null ? [parseId(json['employe_id'])] : []),
-     modeGeneration: json['mode_generation'] as String?,
-     horizonJours: parseNullableInt(json['horizon_jours']),
-   );
+      heureFin: json['heure_fin'] as String? ?? '',
+      dateDebut: json['date_debut'] as String?,
+      dateFin: json['date_fin'] as String?,
+      employeId: parseId(json['employe_id']),
+      employeIds: parseList(json['employe_ids'])?.map((e) => parseId(e)).toList() ??
+          (json['employe_id'] != null ? [parseId(json['employe_id'])] : []),
+      modeGeneration: json['mode_generation'] as String?,
+      horizonJours: parseNullableInt(json['horizon_jours']),
+    );
   }
 
   Map<String, dynamic> toJson() {

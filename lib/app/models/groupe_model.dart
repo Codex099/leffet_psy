@@ -20,29 +20,100 @@ class GroupeModel {
   });
 
   factory GroupeModel.fromJson(Map<String, dynamic> json) {
+    final Set<dynamic> ids = {};
+
+    void extractIds(dynamic raw) {
+      if (raw == null) return;
+      final parsedList = parseList(raw);
+      if (parsedList != null) {
+        for (final item in parsedList) {
+          if (item is Map) {
+            final parsed = parseId(item['id'] ?? item['employe_id'] ?? item['employee_id']);
+            if (parsed != null) ids.add(parsed);
+          } else {
+            final parsed = parseId(item);
+            if (parsed != null) ids.add(parsed);
+          }
+        }
+      } else if (raw is Map) {
+        final parsed = parseId(raw['id'] ?? raw['employe_id'] ?? raw['employee_id']);
+        if (parsed != null) ids.add(parsed);
+      } else {
+        final parsed = parseId(raw);
+        if (parsed != null) ids.add(parsed);
+      }
+    }
+
+    extractIds(json['employees']);
+    extractIds(json['employes']);
+    extractIds(json['employee_ids']);
+    extractIds(json['employe_ids']);
+    extractIds(json['intervenants']);
+    extractIds(json['intervenant_ids']);
+    extractIds(json['employe_id']);
+    extractIds(json['employee_id']);
+
+    final planning = parseList(json['planning_recurrent']);
+    if (planning != null) {
+      for (final slot in planning) {
+        if (slot is Map) {
+          extractIds(slot['employe_id']);
+          extractIds(slot['employee_id']);
+          extractIds(slot['employe_ids']);
+          extractIds(slot['employee_ids']);
+          extractIds(slot['employees']);
+          extractIds(slot['employes']);
+        }
+      }
+    }
+
+    final seances = parseList(json['seances'] ?? json['seances_groupe']);
+    if (seances != null) {
+      for (final s in seances) {
+        if (s is Map) {
+          extractIds(s['employe_id']);
+          extractIds(s['employee_id']);
+          extractIds(s['employe_ids']);
+          extractIds(s['employee_ids']);
+        }
+      }
+    }
+
     return GroupeModel(
       id: parseId(json['id']),
-     nom: json['nom'] as String? ?? '',
-     typePlanning: json['type_planning'] as String? ?? 'ponctuel',
-     description: json['description'] as String?,
-     patients: (json['patients'] as List<dynamic>?)
-         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+      nom: json['nom'] as String? ?? '',
+      typePlanning: json['type_planning'] as String? ?? 'ponctuel',
+      description: json['description'] as String?,
+      patients: parseList(json['patients'])
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
-      planningRecurrent: (json['planning_recurrent'] as List<dynamic>?)
-         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+      planningRecurrent: parseList(json['planning_recurrent'])
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
-      employeeIds: (json['employees'] as List<dynamic>?)
-         ?.map((e) => parseId(e is Map ? e['id'] : e))
-         .toList(),
+      employeeIds: ids.isNotEmpty ? ids.toList() : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'nom': nom,
-     'type_planning': typePlanning,
-     if (description != null) 'description': description,
-   };
+      'type_planning': typePlanning,
+      if (description != null) 'description': description,
+      if (employeeIds != null && employeeIds!.isNotEmpty) 'employee_ids': employeeIds,
+    };
+  }
+
+  /// Vérifie si un employé est assigné à ce groupe
+  bool isEmployeeAssigned(dynamic employeeId) {
+    if (employeeId == null) return false;
+    final target = employeeId.toString().trim();
+    if (employeeIds != null) {
+      for (final id in employeeIds!) {
+        if (id != null && id.toString().trim() == target) return true;
+      }
+    }
+    return false;
   }
 
   bool get isFixe => typePlanning == 'fixe';

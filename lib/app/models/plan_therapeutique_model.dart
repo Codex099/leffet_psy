@@ -31,8 +31,8 @@ class PlanTherapeutiqueModel {
      dateDebut: json['date_debut'] as String?,
      dateFin: json['date_fin'] as String?,
      creePar: parseNullableInt(json['cree_par']),
-     etapes: (json['etapes'] as List<dynamic>?)
-         ?.map((e) => EtapePlanTherapeutiqueModel.fromJson(
+     etapes: parseList(json['etapes'])
+          ?.map((e) => EtapePlanTherapeutiqueModel.fromJson(
               e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{}))
           .toList(),
     );
@@ -182,8 +182,8 @@ class NotePatientModel {
      seanceId: parseId(json['seance_id']),
      seanceGroupeId: parseId(json['seance_groupe_id']),
      contenu: json['contenu'] as String? ?? '',
-     medias: (json['medias'] as List<dynamic>?)
-         ?.map((e) => e.toString())
+     medias: parseList(json['medias'])
+          ?.map((e) => e.toString())
           .toList(),
       dateCreation: json['date_creation'] as String?,
      auteur: json['auteur'] is Map ? Map<String, dynamic>.from(json['auteur'] as Map) : null,

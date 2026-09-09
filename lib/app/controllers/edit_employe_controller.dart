@@ -22,6 +22,8 @@ class EditEmployeController extends GetxController {
  final username = ''.obs;
  final password = ''.obs; // Required for creation
  final role = 'psychologue'.obs;
+  /// Permission accordée par l'admin pour créer et assigner des tâches
+  final peutCreerTaches = false.obs;
 
  // Patient assignment
   final RxList<PatientModel> allPatients = <PatientModel>[].obs;
@@ -55,6 +57,7 @@ class EditEmployeController extends GetxController {
       telephone.value = emp.telephone ?? '';
      username.value = emp.username;
       role.value = emp.role;
+      peutCreerTaches.value = emp.peutCreerTaches;
       if (emp.patientsAssignesIds != null) {
         selectedPatientIds.value = List<dynamic>.from(emp.patientsAssignesIds!);
       }
@@ -122,6 +125,7 @@ class EditEmployeController extends GetxController {
         'username': username.value.trim(),
         'role': role.value,
         'telephone': cleanTel,
+        'peut_creer_taches': peutCreerTaches.value,
         // Password: only sent on create, or on update if non-empty
         if (employeId == null) 'password': password.value.trim(),
         if (employeId != null && password.value.trim().isNotEmpty)

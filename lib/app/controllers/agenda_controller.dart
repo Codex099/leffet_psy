@@ -2,13 +2,15 @@ import 'package:get/get.dart';
 import '../models/agenda_session_item.dart';
 import '../models/seance_model.dart';
 import '../models/seance_groupe_model.dart';
+import '../services/auth_service.dart';
 import '../services/cache_manager.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 
 class AgendaController extends GetxController {
- final SeanceService _seanceService = SeanceService();
+  final SeanceService _seanceService = SeanceService();
   final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
+  final AuthService _authService = AuthService();
 
   /// Toutes les séances chargées
   final RxList<AgendaSessionItem> allSessions = <AgendaSessionItem>[].obs;
@@ -17,15 +19,30 @@ class AgendaController extends GetxController {
   List<AgendaSessionItem> get seances => allSessions;
 
   final RxString status = 'loading'.obs;
- final RxString errorMessage = ''.obs;
- final RxString activeMode = 'Jour'.obs; // 'Jour' | 'Semaine'
- final Rx<DateTime> selectedDate = DateTime.now().obs;
+  final RxString errorMessage = ''.obs;
+  final RxString activeMode = 'Jour'.obs; // 'Jour' | 'Semaine'
+  final Rx<DateTime> selectedDate = DateTime.now().obs;
+
+  final RxBool isAdmin = false.obs;
+  final RxString currentUserId = ''.obs;
 
   static const _cacheDuration = Duration(minutes: 2);
+
+  String get _userCacheKey =>
+      isAdmin.value ? CacheKeys.agendaAll : '${CacheKeys.agendaAll}_${currentUserId.value}';
 
   @override
   void onInit() {
     super.onInit();
+    _initUserAndLoad();
+  }
+
+  Future<void> _initUserAndLoad() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+      currentUserId.value = me.id.toString();
+    } catch (_) {}
     _loadFromCache();
     loadAgenda();
   }
@@ -33,32 +50,42 @@ class AgendaController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    if (!AppCacheManager.isFresh(CacheKeys.agendaAll)) {
+    if (!AppCacheManager.isFresh(_userCacheKey)) {
       loadAgenda();
     }
   }
 
   void _loadFromCache() {
-    final cached = AppCacheManager.get<List<AgendaSessionItem>>(CacheKeys.agendaAll);
+    final cached = AppCacheManager.get<List<AgendaSessionItem>>(_userCacheKey);
     if (cached != null && cached.isNotEmpty) {
       allSessions.value = cached;
       status.value = 'success';
-   }
+    }
   }
 
   Future<void> loadAgenda({bool forceRefresh = false}) async {
-    if (AppCacheManager.isFresh(CacheKeys.agendaAll) && !forceRefresh && allSessions.isNotEmpty) {
+    if (AppCacheManager.isFresh(_userCacheKey) && !forceRefresh && allSessions.isNotEmpty) {
       return;
     }
 
     if (allSessions.isEmpty) {
       status.value = 'loading';
-   }
+    }
 
     try {
+      if (currentUserId.value.isEmpty) {
+        final me = await _authService.getCachedUser() ?? await _authService.getMe();
+        isAdmin.value = me.role.toLowerCase() == 'admin';
+        currentUserId.value = me.id.toString();
+      }
+
+      final empFilter = !isAdmin.value && currentUserId.value.isNotEmpty
+          ? currentUserId.value
+          : null;
+
       final results = await Future.wait([
-        _seanceService.getSeances(),
-        _seanceGroupeService.getSeancesGroupe(),
+        _seanceService.getSeances(employeId: empFilter),
+        _seanceGroupeService.getSeancesGroupe(employeId: empFilter),
       ]);
 
       final indList = results[0] as List<SeanceModel>;
@@ -78,7 +105,7 @@ class AgendaController extends GetxController {
 
       allSessions.value = unified;
       AppCacheManager.set<List<AgendaSessionItem>>(
-        CacheKeys.agendaAll,
+        _userCacheKey,
         unified,
         ttl: _cacheDuration,
         tags: {CacheTags.seances, CacheTags.dashboard},

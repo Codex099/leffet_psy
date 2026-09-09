@@ -712,6 +712,7 @@ class AppTranslations extends Translations {
           'Cette tâche vous est assignée personnellement': 'هذه المهمة مخصصة لك شخصياً',
           'Assignée à vous-même': 'مخصصة لك',
           'Seul l\'administrateur peut assigner des tâches à d\'autres membres.': 'المسؤول فقط هو المخول بتكليف المهام لأعضاء آخرين.',
+          'Prénom et nom sont obligatoires (Étape 1 - Identité).': 'الاسم واللقب إلزاميان (المرحلة 1 - الهوية).',
         }
   };
 }

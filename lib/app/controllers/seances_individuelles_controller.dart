@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/patient_model.dart';
 import '../models/seance_model.dart';
+import '../services/auth_service.dart';
 import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../services/seance_service.dart';
@@ -38,9 +39,11 @@ class SeancesIndividuellesController extends GetxController {
   final SeanceService _seanceService = SeanceService();
   final PatientService _patientService = PatientService();
   final PlanningRecurrentService _planningService = PlanningRecurrentService();
+  final AuthService _authService = AuthService();
 
   final RxList<SeanceModel> allSeances = <SeanceModel>[].obs;
   final RxList<PatientModel> allPatients = <PatientModel>[].obs;
+  final RxBool isAdmin = false.obs;
 
   final RxString status = 'loading'.obs;
  final RxString errorMessage = ''.obs;
@@ -87,8 +90,16 @@ class SeancesIndividuellesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _checkAdmin();
     _loadFromCache();
     loadData();
+  }
+
+  Future<void> _checkAdmin() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+    } catch (_) {}
   }
 
   @override

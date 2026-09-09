@@ -40,6 +40,7 @@ class DioClient {
     dio.interceptors.addAll([
       _PutToPatchInterceptor(),
       _AuthInterceptor(_storage),
+      _RetryInterceptor(dio),
       _ErrorInterceptor(),
       if (const bool.fromEnvironment('dart.vm.product') == false)
        LogInterceptor(
@@ -106,6 +107,37 @@ class _AuthInterceptor extends Interceptor {
     DioClient.reset();
     // Redirige vers login en effaçant toute la pile de navigation
     Get.offAllNamed(AppRoutes.login);
+  }
+}
+
+/// Intercepteur de retry automatique pour les cold starts (Vercel serverless sleep).
+/// Si une requête GET échoue avec un code >= 500 ou un timeout, réessaye une fois après 800ms.
+class _RetryInterceptor extends Interceptor {
+  final Dio _dio;
+  _RetryInterceptor(this._dio);
+
+  @override
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+    final isGet = err.requestOptions.method.toUpperCase() == 'GET';
+    final isServerOrTimeout = err.type == DioExceptionType.connectionTimeout ||
+        err.type == DioExceptionType.receiveTimeout ||
+        (err.response?.statusCode != null && err.response!.statusCode! >= 500);
+
+    final alreadyRetried = err.requestOptions.extra['retried'] == true;
+
+    if (isGet && isServerOrTimeout && !alreadyRetried) {
+      err.requestOptions.extra['retried'] = true;
+      try {
+        await Future.delayed(const Duration(milliseconds: 800));
+        final response = await _dio.fetch(err.requestOptions);
+        return handler.resolve(response);
+      } catch (e) {
+        if (e is DioException) {
+          return handler.next(e);
+        }
+      }
+    }
+    handler.next(err);
   }
 }
 

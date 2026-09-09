@@ -4,6 +4,8 @@ import '../controllers/agenda_controller.dart';
 class AgendaBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<AgendaController>(() => AgendaController(), fenix: true);
+    if (!Get.isRegistered<AgendaController>()) {
+      Get.put<AgendaController>(AgendaController(), permanent: true);
+    }
   }
 }

@@ -52,31 +52,33 @@ class PatientModel {
      dateDesactivation: json['date_desactivation'] as String?,
      dateReactivation: json['date_reactivation'] as String?,
      sexe: json['sexe'] as String?,
-      parents: (json['parents'] as List<dynamic>?)
-         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+      parents: parseList(json['parents'])
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
-      employesAssignes: (json['employes_assignes'] as List<dynamic>?)
-         ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
+      employesAssignes: parseList(json['employes_assignes'])
+          ?.map((e) => e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{})
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'nom': nom,
-     'prenom': prenom,
+      'prenom': prenom,
       if (dateNaissance != null) 'date_naissance': dateNaissance,
       if (photo != null) 'photo': photo,
       if (photo != null) 'photo_url': photo,
       if (nombreFreresSoeurs != null)
         'nombre_freres_soeurs': nombreFreresSoeurs,
-     if (ordreNaissance != null) 'ordre_naissance': ordreNaissance,
-     'est_actif': estActif,
-     if (dateDesactivation != null) 'date_desactivation': dateDesactivation,
-     if (dateReactivation != null) 'date_reactivation': dateReactivation,
-     if (sexe != null) 'sexe': sexe,
-   };
+      if (ordreNaissance != null) 'ordre_naissance': ordreNaissance,
+      'est_actif': estActif,
+      if (dateDesactivation != null) 'date_desactivation': dateDesactivation,
+      if (dateReactivation != null) 'date_reactivation': dateReactivation,
+      if (sexe != null) 'sexe': sexe,
+    };
   }
+
 
   String get fullName => '$prenom $nom';
 

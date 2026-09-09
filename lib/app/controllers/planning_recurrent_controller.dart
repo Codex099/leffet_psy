@@ -5,18 +5,21 @@ import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../services/seance_service.dart';
 
+import '../services/auth_service.dart';
 import '../utils/json_utils.dart';
 import 'accueil_controller.dart';
 import 'agenda_controller.dart';
 
 class PlanningRecurrentController extends GetxController {
- final PlanningRecurrentService _planningService = PlanningRecurrentService();
+  final PlanningRecurrentService _planningService = PlanningRecurrentService();
   final EmployeeService _employeeService = EmployeeService();
+  final AuthService _authService = AuthService();
 
   final Rx<PatientPlanningRecurrentModel?> planning = Rx<PatientPlanningRecurrentModel?>(null);
   final RxString status = 'loading'.obs;
- final RxString errorMessage = ''.obs;
- final selectedDays = <String>[].obs;
+  final RxString errorMessage = ''.obs;
+  final RxBool isAdmin = false.obs;
+  final selectedDays = <String>[].obs;
   final RxString modeCreneaux = 'fixe'.obs;
   final heureDebut = '09:00'.obs;
   final heureFin = '09:45'.obs;
@@ -34,39 +37,57 @@ class PlanningRecurrentController extends GetxController {
 
   static const Map<String, String> dayToFull = {
     'lun': 'lundi',
-   'mar': 'mardi',
-   'mer': 'mercredi',
-   'jeu': 'jeudi',
-   'ven': 'vendredi',
-   'sam': 'samedi',
-   'dim': 'dimanche',
-   'lundi': 'lundi',
-   'mardi': 'mardi',
-   'mercredi': 'mercredi',
-   'jeudi': 'jeudi',
-   'vendredi': 'vendredi',
-   'samedi': 'samedi',
-   'dimanche': 'dimanche',
- };
+    'mar': 'mardi',
+    'mer': 'mercredi',
+    'jeu': 'jeudi',
+    'ven': 'vendredi',
+    'sam': 'samedi',
+    'dim': 'dimanche',
+    'lundi': 'lundi',
+    'mardi': 'mardi',
+    'mercredi': 'mercredi',
+    'jeudi': 'jeudi',
+    'vendredi': 'vendredi',
+    'samedi': 'samedi',
+    'dimanche': 'dimanche',
+  };
 
   static const Map<String, String> fullToShort = {
     'lundi': 'Lun',
-   'mardi': 'Mar',
-   'mercredi': 'Mer',
-   'jeudi': 'Jeu',
-   'vendredi': 'Ven',
-   'samedi': 'Sam',
-   'dimanche': 'Dim',
- };
+    'mardi': 'Mar',
+    'mercredi': 'Mer',
+    'jeudi': 'Jeu',
+    'vendredi': 'Ven',
+    'samedi': 'Sam',
+    'dimanche': 'Dim',
+  };
 
   @override
   void onInit() {
     super.onInit();
+    _checkAdminAndLoad();
+  }
+
+  Future<void> _checkAdminAndLoad() async {
+    try {
+      final me = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = me.role.toLowerCase() == 'admin';
+      if (!isAdmin.value) {
+        Get.back();
+        Get.snackbar(
+          'Accès restreint'.tr,
+          'Seul l\'administrateur peut configurer les créneaux récurrents.'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+    } catch (_) {}
+
     patientId = extractIdParam(Get.arguments, Get.parameters);
     if (patientId == null) {
       status.value = 'error';
-     errorMessage.value = 'Identifiant du patient non spécifié.';
-   } else {
+      errorMessage.value = 'Identifiant du patient non spécifié.';
+    } else {
       _loadFromCache();
       loadPlanning();
       loadEmployees();

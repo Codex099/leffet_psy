@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 int parseInt(dynamic val, [int defaultValue = 0]) {
   if (val == null) return defaultValue;
   if (val is int) return val;
@@ -52,6 +54,31 @@ dynamic extractIdParam([dynamic arguments, Map<String, dynamic>? parameters]) {
   }
   if (parameters != null && parameters.containsKey('id')) {
    return parseId(parameters['id']);
+  }
+  return null;
+}
+
+/// Safely parse a list from dynamic which can be a List or a JSON-encoded String (e.g. "[]", "[\"item\"]", or "1,2").
+List<dynamic>? parseList(dynamic val) {
+  if (val == null) return null;
+  if (val is List) return val;
+  if (val is String) {
+    final trimmed = val.trim();
+    if (trimmed.isEmpty || trimmed == 'null') return [];
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        final decoded = json.decode(trimmed);
+        if (decoded is List) return decoded;
+      } catch (_) {}
+    }
+    if (trimmed.contains(',')) {
+      return trimmed
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+    return [trimmed];
   }
   return null;
 }

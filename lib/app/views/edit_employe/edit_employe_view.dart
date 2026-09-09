@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/edit_employe_controller.dart';
@@ -178,6 +179,61 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                            obscureText: true,
                             controller: _passwordCtrl,
                             onChanged: (v) => controller.password.value = v,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                // ── Permissions & Droits ──
+                IosCard(
+                  title: 'Permissions'.tr,
+                  subtitle: 'Gestion des droits accordés à cet employé'.tr,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.assignment_turned_in_outlined,
+                                color: AppColors.primary, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Créer et assigner des tâches'.tr,
+                                  style: AppTextStyles.bodyMedium
+                                      .copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Permet de créer des tâches pour d\'autres employés'.tr,
+                                  style: AppTextStyles.bodySmall
+                                      .copyWith(color: AppColors.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Obx(
+                            () => CupertinoSwitch(
+                              activeTrackColor: AppColors.primary,
+                              value: controller.role.value == 'admin'
+                                  ? true
+                                  : controller.peutCreerTaches.value,
+                              onChanged: controller.role.value == 'admin'
+                                  ? null
+                                  : (val) => controller.peutCreerTaches.value = val,
+                            ),
                           ),
                         ],
                       ),

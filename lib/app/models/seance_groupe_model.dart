@@ -37,8 +37,8 @@ class SeanceGroupeModel {
      statut: json['statut'] as String? ?? 'planifiee',
      groupe: json['groupe'] is Map ? Map<String, dynamic>.from(json['groupe'] as Map) : null,
      employe: json['employe'] is Map ? Map<String, dynamic>.from(json['employe'] as Map) : null,
-     participants: (json['participants'] as List<dynamic>?)
-         ?.map((e) => SeanceGroupeParticipantModel.fromJson(
+     participants: parseList(json['participants'])
+          ?.map((e) => SeanceGroupeParticipantModel.fromJson(
               e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{}))
           .toList(),
     );
@@ -91,8 +91,8 @@ class SeanceGroupeParticipantModel {
          ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
          : null,
       redigePar: json['redige_par'] as String?,
-     medias: (json['medias'] as List<dynamic>?)
-         ?.map((e) => e.toString())
+      medias: parseList(json['medias'])
+          ?.map((e) => e.toString())
           .toList(),
       patient: json['patient'] is Map ? Map<String, dynamic>.from(json['patient'] as Map) : null,
    );
