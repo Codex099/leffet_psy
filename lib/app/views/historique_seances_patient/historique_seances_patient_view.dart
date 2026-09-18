@@ -6,6 +6,7 @@ import '../../theme/app_text_styles.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../models/seance_model.dart';
+import '../../routes/app_routes.dart';
 
 class HistoriqueSeancesPatientView
    extends GetView<HistoriqueSeancesPatientController> {
@@ -172,69 +173,91 @@ class HistoriqueSeancesPatientView
         statutLabel = 'Planifiée';
    }
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(14),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: statutColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(statutIcon, color: statutColor, size: 22),
+        onTap: () async {
+          final res = await Get.toNamed(
+            AppRoutes.compteRenduSpecialiste,
+            arguments: {
+              'seance_id': s.id,
+              'is_groupe': false,
+            },
+          );
+          if (res == true) controller.loadHistorique();
+        },
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: AppColors.cardShadow,
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Séance individuelle'.tr,
-                 style: AppTextStyles.bodyMedium.copyWith(
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: statutColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(statutIcon, color: statutColor, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Séance individuelle'.tr,
+                     style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$date  ·  $heureDebut - $heureFin',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                    if (s.statutPresence != null)
+                      Text(
+                        s.statutPresence == 'present'
+                            ? 'Présent'.tr
+                            : 'Absent'.tr,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: s.statutPresence == 'present'
+                              ? AppColors.statusPresent
+                              : AppColors.error,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statutColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  statutLabel,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: statutColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '$date  ·  $heureDebut - $heureFin',
-                  style: AppTextStyles.bodySmall,
-                ),
-                if (s.statutPresence != null)
-                  Text(
-                    s.statutPresence == 'present'
-                        ? 'Présent'.tr
-                        : 'Absent'.tr,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: s.statutPresence == 'present'
-                          ? AppColors.statusPresent
-                          : AppColors.error,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: statutColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              statutLabel,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: statutColor,
-                fontWeight: FontWeight.w600,
               ),
-            ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -263,61 +286,83 @@ class HistoriqueSeancesPatientView
         statutLabel = 'Planifiée';
    }
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(14),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.groups_rounded,
-              color: AppColors.secondary,
-              size: 22,
-            ),
+        onTap: () async {
+          final res = await Get.toNamed(
+            AppRoutes.compteRenduSpecialiste,
+            arguments: {
+              'seance_id': s['id'],
+              'is_groupe': true,
+            },
+          );
+          if (res == true) controller.loadHistorique();
+        },
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: AppColors.cardShadow,
           ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  groupeNom,
-                  style: AppTextStyles.bodyMedium.copyWith(
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.groups_rounded,
+                  color: AppColors.secondary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      groupeNom,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$date  ·  $heureDebut — $heureFin',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statutColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  statutLabel,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: statutColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '$date  Â·  $heureDebut "“ $heureFin'.tr,
-                  style: AppTextStyles.bodySmall,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: statutColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              statutLabel,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: statutColor,
-                fontWeight: FontWeight.w600,
               ),
-            ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -91,22 +91,37 @@ class _AuthInterceptor extends Interceptor {
     handler.next(options);
   }
 
+  static bool _isHandlingUnauthorized = false;
+
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (err.response?.statusCode == 401) {
-      // Token expiré ou invalide : déconnexion automatique
+    final isLoginRequest = err.requestOptions.path.contains(ApiConfig.authLogin);
+    if (err.response?.statusCode == 401 && !isLoginRequest) {
+      // Token expiré ou invalide : déconnexion automatique sécurisée sans boucle
       _handleUnauthorized();
     }
     handler.next(err);
   }
 
   Future<void> _handleUnauthorized() async {
-    await _storage.delete(key: ApiConfig.secureKeyToken);
-    await _storage.delete(key: ApiConfig.secureKeyUser);
-    AppCacheManager.clearAll();
-    DioClient.reset();
-    // Redirige vers login en effaçant toute la pile de navigation
-    Get.offAllNamed(AppRoutes.login);
+    // Si déjà sur la page de login ou si une redirection est déjà en cours, ignorer
+    if (_isHandlingUnauthorized || Get.currentRoute == AppRoutes.login) {
+      return;
+    }
+    _isHandlingUnauthorized = true;
+    try {
+      await _storage.delete(key: ApiConfig.secureKeyToken);
+      await _storage.delete(key: ApiConfig.secureKeyUser);
+      AppCacheManager.clearAll();
+      DioClient.reset();
+      if (Get.currentRoute != AppRoutes.login) {
+        Get.offAllNamed(AppRoutes.login);
+      }
+    } finally {
+      Future.delayed(const Duration(seconds: 2), () {
+        _isHandlingUnauthorized = false;
+      });
+    }
   }
 }
 

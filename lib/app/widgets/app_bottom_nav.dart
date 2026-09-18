@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../routes/app_routes.dart';
+import '../services/language_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -237,7 +238,12 @@ class _AppBottomNavState extends State<AppBottomNav>
                                                     : FontWeight.w500,
                                                 fontSize: 10,
                                               ),
-                                          child: Text(item.label.tr),
+                                          child: Obx(
+                                            () {
+                                              LanguageService.currentLocale.value;
+                                              return Text(item.label.tr);
+                                            },
+                                          ),
                                         ),
                                       ],
                                     ),

@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../theme/app_colors.dart';
 import '../models/agenda_session_item.dart';
 import '../models/employee_model.dart';
 import '../models/patient_model.dart';
@@ -27,6 +30,7 @@ class AccueilController extends GetxController {
 
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
+  final RxBool isRefreshing = false.obs;
 
   /// Vrai quand les données affichées viennent du cache persistant (mode offline).
   final RxBool isOfflineData = false.obs;
@@ -251,6 +255,45 @@ class AccueilController extends GetxController {
     }
   }
 
-  /// Forcer un refresh (ex: pull-to-refresh)
-  Future<void> refreshData() => loadDashboard(forceRefresh: true);
+  /// Forcer un refresh (ex: pull-to-refresh ou bouton refresh dans l'AppBar)
+  Future<void> refreshData() async {
+    if (isRefreshing.value) return;
+    isRefreshing.value = true;
+    HapticFeedback.mediumImpact();
+    try {
+      await loadDashboard(forceRefresh: true);
+      Get.snackbar(
+        'Actualisation réussie'.tr,
+        'Données du cabinet à jour'.tr,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        colorText: AppColors.textPrimary,
+        margin: const EdgeInsets.fromLTRB(16, 75, 16, 0),
+        borderRadius: 16,
+        icon: const Icon(Icons.check_circle_rounded, color: AppColors.success),
+        boxShadows: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      );
+    } catch (_) {
+      Get.snackbar(
+        'Erreur'.tr,
+        'Impossible d\'actualiser les données'.tr,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.white.withValues(alpha: 0.95),
+        colorText: AppColors.error,
+        margin: const EdgeInsets.fromLTRB(16, 75, 16, 0),
+        borderRadius: 16,
+        icon: const Icon(Icons.error_outline_rounded, color: AppColors.error),
+      );
+    } finally {
+      isRefreshing.value = false;
+    }
+  }
 }

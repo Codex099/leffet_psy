@@ -15,10 +15,11 @@ class InitialBinding extends Bindings {
     // Services centraux
     Get.put<AuthService>(AuthService(), permanent: true);
 
-    // Contrôleurs des 4 onglets principaux — permanent = jamais détruit
-    Get.put<AccueilController>(AccueilController(), permanent: true);
-    Get.put<PatientsListeController>(PatientsListeController(), permanent: true);
-    Get.put<AgendaController>(AgendaController(), permanent: true);
-    Get.put<ProfilController>(ProfilController(), permanent: true);
+    // Contrôleurs des 4 onglets principaux — enregistrés en lazyPut (fenix: true)
+    // pour ne se charger que lorsque l'utilisateur est connecté et accède à la vue
+    Get.lazyPut<AccueilController>(() => AccueilController(), fenix: true);
+    Get.lazyPut<PatientsListeController>(() => PatientsListeController(), fenix: true);
+    Get.lazyPut<AgendaController>(() => AgendaController(), fenix: true);
+    Get.lazyPut<ProfilController>(() => ProfilController(), fenix: true);
   }
 }

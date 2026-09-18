@@ -28,7 +28,7 @@ class CreativeAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => Size.fromHeight(subtitle != null ? 70.0 : 60.0);
+  Size get preferredSize => Size.fromHeight(subtitle != null ? 76.0 : 66.0);
 
   @override
   Widget build(BuildContext context) {
@@ -76,63 +76,68 @@ class _GradientAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: AppColors.headerGradient,
-            borderRadius: BorderRadius.circular(50),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.25),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            child: Row(
-              children: [
-                if (showBackButton) _BackButton(isOnDark: true) else ?leading,
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (subtitle != null)
-                        Text(
-                          subtitle!.toUpperCase(),
-                          style: AppTextStyles.iosCaption2.copyWith(
-                            color: Colors.white.withValues(alpha: 0.75),
-                            letterSpacing: 0.9,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 10,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      Text(
-                        title,
-                        style: AppTextStyles.iosTitle3.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 17,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: AppColors.headerGradient,
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.28),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
                   ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                child: Row(
+                  children: [
+                    if (showBackButton) _BackButton(isOnDark: true) else ?leading,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (subtitle != null)
+                            Text(
+                              subtitle!.toUpperCase(),
+                              style: AppTextStyles.iosCaption2.copyWith(
+                                color: Colors.white.withValues(alpha: 0.78),
+                                letterSpacing: 0.9,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 10,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          Text(
+                            title,
+                            style: AppTextStyles.iosTitle3.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 17,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    ...?actions,
+                  ],
                 ),
-                ...?actions,
-              ],
+              ),
             ),
           ),
         ),
@@ -165,67 +170,82 @@ class _FrostedAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 26,
-                offset: const Offset(0, 8),
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(50),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: backgroundColor ?? Colors.white.withValues(alpha: 0.94),
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.95),
-                    width: 1.2,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.07),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 6,
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 2),
                   ),
-                  child: Row(
-                    children: [
-                      if (showBackButton)
-                        _BackButton(isOnDark: false)
-                      else
-                        ?leading,
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: subtitle != null
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    subtitle!.toUpperCase(),
-                                    style: AppTextStyles.iosCaption2.copyWith(
-                                      color: AppColors.secondary,
-                                      letterSpacing: 0.9,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 10,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: backgroundColor ?? Colors.white.withValues(alpha: 0.94),
+                      borderRadius: BorderRadius.circular(50),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        width: 1.2,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
+                      child: Row(
+                        children: [
+                          if (showBackButton)
+                            _BackButton(isOnDark: false)
+                          else
+                            ?leading,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: subtitle != null
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        subtitle!.toUpperCase(),
+                                        style: AppTextStyles.iosCaption2.copyWith(
+                                          color: AppColors.secondary,
+                                          letterSpacing: 0.9,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 10,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        title,
+                                        style: AppTextStyles.iosTitle3.copyWith(
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 17,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  )
+                                : Text(
                                     title,
                                     style: AppTextStyles.iosTitle3.copyWith(
                                       color: AppColors.textPrimary,
@@ -235,21 +255,11 @@ class _FrostedAppBar extends StatelessWidget {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                ],
-                              )
-                            : Text(
-                                title,
-                                style: AppTextStyles.iosTitle3.copyWith(
-                                  color: AppColors.textPrimary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 17,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                          ),
+                          ...?actions,
+                        ],
                       ),
-                      ...?actions,
-                    ],
+                    ),
                   ),
                 ),
               ),

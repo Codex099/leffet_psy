@@ -6,8 +6,12 @@ class AppTranslations extends Translations {
         'fr_FR': {
           // Ce dictionnaire restera vide car nous utilisons les clés françaises comme valeurs par défaut
         },
-        'ar_DZ': {
-          'Tous': 'الكل',
+        'ar_DZ': _ar,
+        'ar': _ar,
+      };
+
+  static const Map<String, String> _ar = {
+    'Tous': 'الكل',
           'Calendrier': 'التقويم',
           'Erreur': 'خطأ',
           'Succès': 'نجاح',
@@ -40,7 +44,17 @@ class AppTranslations extends Translations {
           'ans': '',
           'Né(e) le': 'مولود(ة) في',
           'Fille': 'بنت',
+          'fille': 'بنت',
           'Garçon': 'ولد',
+          'garçon': 'ولد',
+          'Garcon': 'ولد',
+          'garcon': 'ولد',
+          'Masculin': 'ولد',
+          'masculin': 'ولد',
+          'Féminin': 'بنت',
+          'feminin': 'بنت',
+          'féminin': 'بنت',
+          'Sexe :': 'الجنس :',
           'Édition Patient': 'تعديل بيانات المريض',
           '1. Identité': '1. الهوية',
           '2. Médical': '2. الملف الطبي',
@@ -372,6 +386,14 @@ class AppTranslations extends Translations {
           'Horaires communs pour tous les jours sélectionnés': 'أوقات مشتركة لجميع الأيام المحددة',
           'Vocabulaire, compréhension...': 'المفردات، الفهم...',
           'Mon Profil': 'ملفي الشخصي',
+          'Compte & Paramètres': 'الحساب والإعدادات',
+          'Bonjour': 'مرحباً',
+          'Comptes-Rendus': 'التقارير',
+          'Mes Patients': 'مرضاي',
+          'Tableau de bord clinique': 'لوحة التحكم السريرية',
+          'Mode Édition': 'وضع التعديل',
+          'Dossier Médical': 'الملف الطبي',
+          'Fiche Clinique': 'الاستمارة السريرية',
           'Comportement & Social': 'السلوك والاجتماعي',
           'Intervenants': 'المتدخلون',
           'Rechercher...': 'بحث...',
@@ -713,6 +735,5 @@ class AppTranslations extends Translations {
           'Assignée à vous-même': 'مخصصة لك',
           'Seul l\'administrateur peut assigner des tâches à d\'autres membres.': 'المسؤول فقط هو المخول بتكليف المهام لأعضاء آخرين.',
           'Prénom et nom sont obligatoires (Étape 1 - Identité).': 'الاسم واللقب إلزاميان (المرحلة 1 - الهوية).',
-        }
   };
 }

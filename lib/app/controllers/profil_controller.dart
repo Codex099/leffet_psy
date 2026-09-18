@@ -4,6 +4,9 @@ import '../services/auth_service.dart';
 import '../services/cache_manager.dart';
 import '../services/employee_service.dart';
 import '../routes/app_routes.dart';
+import 'accueil_controller.dart';
+import 'agenda_controller.dart';
+import 'patients_liste_controller.dart';
 
 class ProfilController extends GetxController {
  final AuthService _authService = AuthService();
@@ -97,6 +100,15 @@ class ProfilController extends GetxController {
   }
 
   Future<void> logout() async {
+    if (Get.isRegistered<AccueilController>()) {
+      Get.delete<AccueilController>(force: true);
+    }
+    if (Get.isRegistered<PatientsListeController>()) {
+      Get.delete<PatientsListeController>(force: true);
+    }
+    if (Get.isRegistered<AgendaController>()) {
+      Get.delete<AgendaController>(force: true);
+    }
     await _authService.logout();
     Get.offAllNamed(AppRoutes.login);
   }

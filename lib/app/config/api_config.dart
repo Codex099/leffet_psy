@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 /// Configuration centralisée de l'API backend PsyCare.
 /// TOUTES les URLs et constantes réseau sont définies ici.
@@ -41,17 +40,8 @@ class ApiConfig {
     if (_customBaseUrl.isNotEmpty) {
       return _customBaseUrl;
     }
-    // En mode release (ex: flutter build apk --split-per-abi --release)
-    if (kReleaseMode) {
-      return ngrokUrl;
-    }
-    // Pour tester sur un appareil physique Android, on utilise l'URL ngrok.
-    // (Pour l'émulateur AVD, vous pouvez utiliser 'http://10.0.2.2:8000')
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return ngrokUrl;
-    }
-    // Web, Windows, macOS
-    return 'http://127.0.0.1:8000';
+    // Backend Vercel en production pour toutes les plateformes (Android, iOS, Windows, Web)
+    return ngrokUrl;
   }
 
   // ─── Timeouts ──────────────────────────────────────────────────────────────

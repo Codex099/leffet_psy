@@ -206,7 +206,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
           value: p.id,
           label: p.fullName,
           subtitle:
-              '${p.age != null ? "${p.age} ${'ans'.tr} \u200E•\u200E " : ""}${p.isFille ? "Fille".tr : "Garçon".tr}',
+              '${p.ageFormatted != null ? "${p.ageFormatted} \u200E•\u200E " : (p.age != null ? "${p.age} ${'ans'.tr} \u200E•\u200E " : "")}${p.sexeLabel.isNotEmpty ? p.sexeLabel : (p.isFille ? "Fille".tr : "Garçon".tr)}',
          initials: p.initials,
         );
       }).toList(),

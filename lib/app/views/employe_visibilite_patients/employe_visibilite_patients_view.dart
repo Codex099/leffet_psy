@@ -480,7 +480,9 @@ class EmployeVisibilitePatientsView
               children: [
                 if (patient.sexe != null) ...[
                   Text(
-                    patient.sexe == 'masculin' ? 'Garçon'.tr : 'Fille'.tr,
+                    patient.sexeLabel.isNotEmpty
+                        ? patient.sexeLabel
+                        : (patient.isFille ? 'Fille'.tr : 'Garçon'.tr),
                     style: AppTextStyles.iosCaption2.copyWith(
                       color: AppColors.textSecondary,
                     ),

@@ -82,37 +82,46 @@ class PatientModel {
 
   String get fullName => '$prenom $nom';
 
- bool get isGarcon {
+  bool get isGarcon {
     if (sexe == null || sexe!.trim().isEmpty) return false;
     final s = sexe!.trim().toLowerCase();
     return s == 'masculin' ||
-       s == 'garçon' ||
-       s == 'garcon' ||
-       s == 'm' ||
-       s == 'male' ||
-       s.startsWith('masc') ||
-       s.startsWith('garç') ||
-       s.startsWith('garc');
- }
+        s == 'garçon' ||
+        s == 'garcon' ||
+        s == 'm' ||
+        s == 'male' ||
+        s == 'boy' ||
+        s == 'ولد' ||
+        s == 'ذكر' ||
+        s.startsWith('masc') ||
+        s.startsWith('garç') ||
+        s.startsWith('garc');
+  }
 
   bool get isFille {
     if (sexe == null || sexe!.trim().isEmpty) return false;
     final s = sexe!.trim().toLowerCase();
     return s == 'feminin' ||
-       s == 'féminin' ||
-       s == 'fille' ||
-       s == 'f' ||
-       s == 'female' ||
-       s.startsWith('fém') ||
-       s.startsWith('fem') ||
-       s.startsWith('fill');
- }
+        s == 'féminin' ||
+        s == 'fille' ||
+        s == 'f' ||
+        s == 'female' ||
+        s == 'girl' ||
+        s == 'بنت' ||
+        s == 'أنثى' ||
+        s == 'انثى' ||
+        s.startsWith('fém') ||
+        s.startsWith('fem') ||
+        s.startsWith('fill');
+  }
 
   String get sexeLabel {
     if (isGarcon) return 'Garçon'.tr;
-   if (isFille) return 'Fille'.tr;
-   return (sexe ?? '').tr;
- }
+    if (isFille) return 'Fille'.tr;
+    final s = (sexe ?? '').trim();
+    if (s.isEmpty) return '';
+    return s.tr;
+  }
 
   String get backendSexe {
     if (isFille) return 'feminin';
@@ -150,16 +159,16 @@ class PatientModel {
 
   String get statutLabel => estActif ? 'Actif'.tr : 'Inactif';
 
- String? get ageFormatted {
+  String? get ageFormatted {
     final a = age;
     if (a == null) return null;
-    final lang = Get.locale?.languageCode ?? 'fr';
-   if (lang == 'ar') {
-     if (a >= 3 && a <= 10) {
+    final isAr = (Get.locale?.languageCode == 'ar');
+    if (isAr) {
+      if (a >= 3 && a <= 10) {
         return '$a سنوات';
-     } else {
+      } else {
         return '$a سنة';
-     }
+      }
     }
     return '$a ans';
   }

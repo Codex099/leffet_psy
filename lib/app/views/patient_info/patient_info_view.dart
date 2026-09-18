@@ -10,6 +10,8 @@ import '../../widgets/searchable_picker.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_media_viewer.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../services/language_service.dart';
 import '../../models/plan_therapeutique_model.dart';
 
 class PatientInfoView extends GetView<PatientInfoController> {
@@ -19,15 +21,81 @@ class PatientInfoView extends GetView<PatientInfoController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
+      extendBody: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(76.0),
+        child: Obx(
+          () {
+            LanguageService.currentLocale.value;
+            final p = controller.patient.value;
+            return CreativeAppBar(
+              title: p != null ? '${p.prenom} ${p.nom}' : 'Dossier Patient'.tr,
+              subtitle: 'Dossier Clinique'.tr,
+              showBackButton: true,
+              actions: [
+                if (controller.isAdmin.value)
+                  BouncyTap(
+                    onTap: () async {
+                      final res = await Get.toNamed(
+                        AppRoutes.editPatient,
+                        arguments: controller.patientId,
+                      );
+                      if (res == true) {
+                        controller.loadPatientInfo();
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(9),
+                      margin: const EdgeInsets.only(right: 6),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.oceanGradient,
+                        shape: BoxShape.circle,
+                        boxShadow: AppColors.softShadow,
+                      ),
+                      child: const Icon(
+                        Icons.edit_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                BouncyTap(
+                  onTap: () async {
+                    await Get.toNamed(
+                      AppRoutes.dossierMedical,
+                      arguments: controller.patientId,
+                    );
+                    controller.loadPatientInfo();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(9),
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.accentGradient,
+                      shape: BoxShape.circle,
+                      boxShadow: AppColors.accentShadow,
+                    ),
+                    child: const Icon(
+                      Icons.medical_services_outlined,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
       body: Obx(() {
         if (controller.status.value == 'loading') {
-         return const Scaffold(
-            body: StatePlaceholder(type: StatePlaceholderType.loading),
+          return const SafeArea(
+            child: StatePlaceholder(type: StatePlaceholderType.loading),
           );
         }
         if (controller.status.value == 'error') {
-         return Scaffold(
-            body: StatePlaceholder.error(
+          return SafeArea(
+            child: StatePlaceholder.error(
               message: controller.errorMessage.value,
               onAction: () => controller.loadPatientInfo(),
             ),
@@ -43,17 +111,14 @@ class PatientInfoView extends GetView<PatientInfoController> {
               // Hero Zen Wave Header (#064973 -> #75AABF)
               Container(
                 width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(16, 6, 16, 12),
                 decoration: BoxDecoration(
                   gradient: AppColors.oceanGradient,
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(32),
-                  ),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: AppColors.heroShadow,
                 ),
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(32),
-                  ),
+                  borderRadius: BorderRadius.circular(24),
                   child: Stack(
                     children: [
                       Positioned.fill(
@@ -69,69 +134,9 @@ class PatientInfoView extends GetView<PatientInfoController> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(
-                          top: 50,
-                          left: 16,
-                          right: 16,
-                          bottom: 24,
-                        ),
+                        padding: const EdgeInsets.fromLTRB(18, 18, 18, 20),
                         child: Column(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.arrow_back_ios_new_rounded,
-                                    color: Colors.white,
-                                    size: 22,
-                                  ),
-                                  onPressed: () => Get.back(),
-                                ),
-                                Text(
-                                  'Dossier Patient'.tr,
-                                 style: AppTextStyles.iosHeadline.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    if (controller.isAdmin.value)
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.edit_rounded,
-                                          color: Colors.white,
-                                          size: 22,
-                                        ),
-                                        onPressed: () async {
-                                          final res = await Get.toNamed(
-                                            AppRoutes.editPatient,
-                                            arguments: controller.patientId,
-                                          );
-                                          if (res == true) {
-                                            controller.loadPatientInfo();
-                                          }
-                                        },
-                                      ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.medical_services_outlined,
-                                        color: Colors.white,
-                                        size: 22,
-                                      ),
-                                      onPressed: () async {
-                                        await Get.toNamed(
-                                          AppRoutes.dossierMedical,
-                                          arguments: controller.patientId,
-                                        );
-                                        controller.loadPatientInfo();
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
                             Row(
                               children: [
                                 Container(
@@ -226,17 +231,22 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                         ),
                                       ),
                                       const SizedBox(height: 3),
-                                      Text(
-                                        p?.ageFormatted != null
-                                            ? '${p!.ageFormatted} \u200E•\u200E ${'Né(e) le'.tr} ${p.dateNaissance ?? ""}'
-                                           : '${'Né(e) le'.tr} ${p?.dateNaissance ?? ""}',
-                                       style: AppTextStyles.iosFootnote
-                                            .copyWith(
-                                              color: Colors.white.withValues(
-                                                alpha: 0.85,
-                                              ),
+                                      () {
+                                        final parts = <String>[];
+                                        if (p?.ageFormatted != null) parts.add(p!.ageFormatted!);
+                                        if (p != null && p.sexeLabel.isNotEmpty) parts.add(p.sexeLabel);
+                                        if (p?.dateNaissance != null && p!.dateNaissance!.isNotEmpty) {
+                                          parts.add('${'Né(e) le'.tr} ${p.dateNaissance}');
+                                        }
+                                        return Text(
+                                          parts.join(' \u200E•\u200E '),
+                                          style: AppTextStyles.iosFootnote.copyWith(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.85,
                                             ),
-                                      ),
+                                          ),
+                                        );
+                                      }(),
                                       const SizedBox(height: 8),
                                       InkWell(
                                         onTap: () => _showStatusDialog(

@@ -11,9 +11,10 @@ import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/clinical_decorations.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/patient_avatar.dart';
-import '../../widgets/offline_banner.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/status_badge.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../services/language_service.dart';
 
 class AccueilView extends GetView<AccueilController> {
  const AccueilView({super.key});
@@ -23,6 +24,47 @@ class AccueilView extends GetView<AccueilController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       extendBody: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(76.0),
+        child: Obx(() {
+          LanguageService.currentLocale.value;
+          final isRefreshing = controller.isRefreshing.value;
+          return CreativeAppBar(
+            title: 'Cabinet PsyCare'.tr,
+            subtitle: 'Tableau de bord clinique'.tr,
+            showBackButton: false,
+            actions: [
+              BouncyTap(
+                onTap: isRefreshing ? null : () => controller.refreshData(),
+                child: Container(
+                  padding: const EdgeInsets.all(9),
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.oceanGradient,
+                    shape: BoxShape.circle,
+                    boxShadow: AppColors.softShadow,
+                  ),
+                  child: isRefreshing
+                      ? const SizedBox(
+                          width: 19,
+                          height: 19,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.refresh_rounded,
+                          size: 19,
+                          color: Colors.white,
+                        ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 0),
       body: SafeArea(
         bottom: false,
@@ -58,12 +100,6 @@ class AccueilView extends GetView<AccueilController> {
               children: [
                 // ── Header Hero ──────────────────────────────────────────────
                 _buildHeader(context),
-
-                // ── Bannière hors-ligne ───────────────────────────────────────
-                Obx(() {
-                  if (!controller.isOfflineData.value) return const SizedBox.shrink();
-                  return OfflineBanner(savedLabel: controller.offlineSavedLabel.value);
-                }),
                 const SizedBox(height: 16),
 
                 // ── Quick Actions ────────────────────────────────────────────
@@ -117,7 +153,7 @@ class AccueilView extends GetView<AccueilController> {
       final user = controller.currentUser.value;
 
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
         child: Container(
         decoration: BoxDecoration(
           gradient: AppColors.headerGradient,
@@ -200,62 +236,29 @@ class AccueilView extends GetView<AccueilController> {
                           ),
                         ),
 
-                        // Badge rôle dynamique + Avatar profil
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Badge rôle — dynamique
-                            if (user != null)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 5,
-                                ),
-                                margin: const EdgeInsets.only(right: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.22),
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.35),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Text(
-                                  user.roleLabel,
-                                  style: AppTextStyles.iosCaption2.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 10.5,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
+                        // Avatar profil
+                        BouncyTap(
+                          onTap: () => Get.toNamed(AppRoutes.profil),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.5,
                               ),
-
-                            // Avatar profil
-                            BouncyTap(
-                              onTap: () => Get.toNamed(AppRoutes.profil),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2.5,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.20),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.20),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                                child: PatientAvatar(
-                                  initials: user?.initialLetter ?? 'U',
-                                  radius: 19,
-                                ),
-                              ),
+                              ],
                             ),
-                          ],
+                            child: PatientAvatar(
+                              initials: user?.initialLetter ?? 'U',
+                              radius: 19,
+                            ),
+                          ),
                         ),
                       ],
                     ),

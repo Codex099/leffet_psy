@@ -8,6 +8,9 @@ import '../../widgets/app_button.dart';
 import '../../widgets/app_date_picker.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../widgets/creative_app_bar.dart';
+import '../../widgets/clinical_decorations.dart';
+import '../../services/language_service.dart';
 
 class DossierMedicalView extends GetView<DossierMedicalController> {
  const DossierMedicalView({super.key});
@@ -16,6 +19,61 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
+      extendBody: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(76.0),
+        child: Obx(
+          () {
+            LanguageService.currentLocale.value;
+            final isEdit = controller.isEditing.value;
+            return CreativeAppBar(
+              title: 'Dossier Médical'.tr,
+              subtitle: isEdit ? 'Mode Édition'.tr : 'Fiche Clinique'.tr,
+              showBackButton: true,
+              actions: [
+                if (!isEdit)
+                  BouncyTap(
+                    onTap: () => controller.isEditing.value = true,
+                    child: Container(
+                      padding: const EdgeInsets.all(9),
+                      margin: const EdgeInsets.only(right: 10),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.oceanGradient,
+                        shape: BoxShape.circle,
+                        boxShadow: AppColors.softShadow,
+                      ),
+                      child: const Icon(
+                        Icons.edit_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                else
+                  BouncyTap(
+                    onTap: () {
+                      controller.isEditing.value = false;
+                      controller.loadDossier();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(9),
+                      margin: const EdgeInsets.only(right: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ),
       body: Obx(() {
         if (controller.status.value == 'loading') {
          return const SafeArea(
@@ -46,103 +104,59 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Hero Header
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(gradient: AppColors.headerGradient),
-            padding: const EdgeInsets.only(
-              top: 50,
-              left: 16,
-              right: 16,
-              bottom: 24,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_rounded,
-                        color: Colors.white,
-                      ),
-                      onPressed: () => Get.back(),
+          // Banner Fiche Médicale
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 14,
+              ),
+              decoration: BoxDecoration(
+                gradient: AppColors.oceanGradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: AppColors.softShadow,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    Column(
+                    child: const Icon(
+                      Icons.medical_information_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'FICHE CLINIQUE'.tr,
-                         style: AppTextStyles.sectionKicker.copyWith(
-                            color: Colors.white.withValues(alpha: 0.7),
-                          ),
-                        ),
-                        Text(
-                          'Dossier médical'.tr,
-                         style: AppTextStyles.screenTitleMedium.copyWith(
+                          'Informations médicales complètes'.tr,
+                          style: AppTextStyles.iosSubhead.copyWith(
                             color: Colors.white,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
+                        if (d?.dateMaj != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            'Dernière mise à jour : ${d!.dateMaj}'.tr,
+                            style: AppTextStyles.iosFootnote.copyWith(
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.edit_rounded, color: Colors.white),
-                      tooltip: 'Modifier'.tr,
-                     onPressed: () => controller.isEditing.value = true,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.medical_information_rounded,
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Informations médicales complètes'.tr,
-                             style: AppTextStyles.bodyMedium.copyWith(
-                                color: Colors.white,
-                              ),
-                            ),
-                            if (d?.dateMaj != null)
-                              Text(
-                                'Mis à jour le ${d!.dateMaj}${d.misAJourPar != null ? " par ${d.misAJourPar}" : ""}'.tr,
-                               style: AppTextStyles.bodySmall.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                              )
-                            else
-                              Text(
-                                'Aucune mise à jour enregistrée'.tr,
-                               style: AppTextStyles.bodySmall.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -390,47 +404,6 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Header édition
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(gradient: AppColors.headerGradient),
-            padding: const EdgeInsets.only(
-              top: 50,
-              left: 16,
-              right: 16,
-              bottom: 24,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.close_rounded, color: Colors.white),
-                  onPressed: () {
-                    controller.isEditing.value = false;
-                    controller.loadDossier();
-                  },
-                ),
-                Column(
-                  children: [
-                    Text(
-                      'MODIFICATION'.tr,
-                     style: AppTextStyles.sectionKicker.copyWith(
-                        color: Colors.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    Text(
-                      'Dossier médical'.tr,
-                     style: AppTextStyles.screenTitleMedium.copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 48),
-              ],
-            ),
-          ),
-
           // Formulaire
           Padding(
             padding: const EdgeInsets.all(20.0),

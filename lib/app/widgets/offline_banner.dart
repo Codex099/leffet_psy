@@ -22,50 +22,8 @@ class OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E6),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFFFFCC02).withValues(alpha: 0.6),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFCC02).withValues(alpha: 0.10),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.cloud_off_rounded,
-            size: 16,
-            color: Color(0xFFB07A00),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              savedLabel != null
-                  ? 'Mode hors-ligne · Données sauvegardées $savedLabel'
-                  : 'Mode hors-ligne · Dernières données disponibles',
-              style: AppTextStyles.iosCaption2.copyWith(
-                color: const Color(0xFF7A5500),
-                fontWeight: FontWeight.w600,
-                fontSize: 11.5,
-              ),
-            ),
-          ),
-        ],
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: -0.3, curve: Curves.easeOut);
+    // Bande de mode hors-ligne désactivée selon les spécifications utilisateur.
+    return const SizedBox.shrink();
   }
 }
 

@@ -503,18 +503,14 @@ class AgendaView extends GetView<AgendaController> {
           showChevron: true,
           trailing: StatusBadge.active(label: session.statutLabel.tr),
           onTap: () async {
-            if (session.isGroupe) {
-              await Get.toNamed(
-                AppRoutes.compteRenduGroupe,
-                arguments: session.id,
-              );
-            } else {
-              await Get.toNamed(
-                AppRoutes.compteRenduSeance,
-                arguments: session.id,
-              );
-            }
-            controller.loadAgenda(forceRefresh: true);
+            final res = await Get.toNamed(
+              AppRoutes.compteRenduSpecialiste,
+              arguments: {
+                'seance_id': session.id,
+                'is_groupe': session.isGroupe,
+              },
+            );
+            if (res == true) controller.loadAgenda(forceRefresh: true);
           },
         ),
       ],

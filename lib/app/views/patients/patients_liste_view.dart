@@ -147,7 +147,11 @@ class PatientsListeView extends GetView<PatientsListeController> {
                 if (controller.actifFilter.value == false) selectedIndex = 2;
 
                 return IosSegmentedControl<int>(
-                  segments: const {0: 'Tous', 1: 'Suivi actif', 2: 'Inactifs'},
+                  segments: {
+                    0: 'Tous'.tr,
+                    1: 'Suivi actif'.tr,
+                    2: 'Inactifs'.tr,
+                  },
                  selectedValue: selectedIndex,
                   onValueChanged: (idx) {
                     if (idx == 0) controller.setActifFilter(null);

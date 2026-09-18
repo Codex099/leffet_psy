@@ -21,7 +21,9 @@ class _LoginViewState extends State<LoginView> {
   final controller = Get.find<AuthController>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _storage = const FlutterSecureStorage();
+  static const FlutterSecureStorage _storage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   final _obscurePassword = true.obs;
   final _rememberMe = false.obs;
@@ -44,11 +46,13 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Future<void> _loadSavedUsername() async {
-    final savedUsername = await _storage.read(key: 'saved_username');
-   if (savedUsername != null && savedUsername.isNotEmpty) {
-      _usernameController.text = savedUsername;
-      _rememberMe.value = true;
-    }
+    try {
+      final savedUsername = await _storage.read(key: 'saved_username');
+      if (savedUsername != null && savedUsername.isNotEmpty) {
+        _usernameController.text = savedUsername;
+        _rememberMe.value = true;
+      }
+    } catch (_) {}
   }
 
   @override
@@ -78,11 +82,13 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    if (_rememberMe.value) {
-      await _storage.write(key: 'saved_username', value: username);
-   } else {
-      await _storage.delete(key: 'saved_username');
-   }
+    try {
+      if (_rememberMe.value) {
+        await _storage.write(key: 'saved_username', value: username);
+      } else {
+        await _storage.delete(key: 'saved_username');
+      }
+    } catch (_) {}
 
     controller.login(username, password);
   }
@@ -252,35 +258,43 @@ class _LoginViewState extends State<LoginView> {
                         const SizedBox(height: 20),
 
                         // ── 5. Remember Me Switch ───────────────────────────────────────
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Se souvenir de moi'.tr,
-                             style: AppTextStyles.iosFootnote.copyWith(
-                                color: const Color(0xFF1E293B),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                              ),
-                            ),
-                            Obx(
-                              () => Transform.scale(
-                                scale: 0.8,
-                                child: Switch(
-                                  value: _rememberMe.value,
-                                  onChanged: (val) {
-                                    HapticFeedback.selectionClick();
-                                    _rememberMe.value = val;
-                                  },
-                                  activeThumbColor: Colors.white,
-                                  activeTrackColor: AppColors.primary,
-                                  inactiveTrackColor: const Color(0xFFE2E8F0),
-                                  inactiveThumbColor: Colors.white,
-                                  trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            _rememberMe.value = !_rememberMe.value;
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Se souvenir de moi'.tr,
+                                style: AppTextStyles.iosFootnote.copyWith(
+                                  color: const Color(0xFF1E293B),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
                                 ),
                               ),
-                            ),
-                          ],
+                              Obx(
+                                () => Transform.scale(
+                                  scale: 0.8,
+                                  child: Switch(
+                                    value: _rememberMe.value,
+                                    onChanged: (val) {
+                                      HapticFeedback.selectionClick();
+                                      _rememberMe.value = val;
+                                    },
+                                    activeThumbColor: Colors.white,
+                                    activeTrackColor: AppColors.primary,
+                                    inactiveTrackColor: const Color(0xFFE2E8F0),
+                                    inactiveThumbColor: Colors.white,
+                                    trackOutlineColor:
+                                        WidgetStateProperty.all(Colors.transparent),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ).animate().fadeIn(duration: 500.ms, delay: 400.ms),
 
                         // Error Message

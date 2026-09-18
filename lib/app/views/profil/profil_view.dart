@@ -23,13 +23,22 @@ class ProfilView extends GetView<ProfilController> {
     return Scaffold(
       backgroundColor: AppColors.scaffold,
       extendBody: true,
-      appBar: CreativeAppBar(
-        title: 'Mon Profil'.tr,
-        subtitle: 'Compte & Paramètres'.tr,
-        showBackButton: false,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(76.0),
+        child: Obx(
+          () {
+            LanguageService.currentLocale.value;
+            return CreativeAppBar(
+              title: 'Mon Profil'.tr,
+              subtitle: 'Compte & Paramètres'.tr,
+              showBackButton: false,
+            );
+          },
+        ),
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: Obx(() {
+        LanguageService.currentLocale.value;
         if (controller.status.value == 'loading') {
          return const SafeArea(
             child: StatePlaceholder(type: StatePlaceholderType.loading),

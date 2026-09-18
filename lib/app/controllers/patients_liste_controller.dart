@@ -211,9 +211,9 @@ class PatientsListeController extends GetxController {
       // Sexe filter
       if (sexeFilter.value != null && sexeFilter.value!.isNotEmpty) {
         final sf = sexeFilter.value!.toLowerCase();
-        if (sf == 'garçon' || sf == 'garcon') {
+        if (sf == 'garçon' || sf == 'garcon' || sf == 'ولد' || sf == 'masculin' || sf == 'ذكر') {
           if (!p.isGarcon) return false;
-        } else if (sf == 'fille') {
+        } else if (sf == 'fille' || sf == 'بنت' || sf == 'feminin' || sf == 'féminin' || sf == 'أنثى') {
           if (!p.isFille) return false;
         } else {
           if ((p.sexe ?? '').toLowerCase() != sf) return false;

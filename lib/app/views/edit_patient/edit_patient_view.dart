@@ -13,7 +13,7 @@ import '../../widgets/patient_avatar.dart';
 import '../../widgets/app_date_picker.dart';
 
 class EditPatientView extends GetView<EditPatientController> {
- const EditPatientView({super.key});
+  const EditPatientView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -641,7 +641,15 @@ class EditPatientView extends GetView<EditPatientController> {
                           : '"”',
                    ),
                     const Divider(),
-                    _recapRow('Sexe'.tr, controller.sexe.value),
+                    _recapRow(
+                      'Sexe'.tr,
+                      (controller.sexe.value.toLowerCase() == 'fille' ||
+                              controller.sexe.value.toLowerCase() == 'feminin' ||
+                              controller.sexe.value.toLowerCase() == 'féminin' ||
+                              controller.sexe.value == 'بنت')
+                          ? 'Fille'.tr
+                          : 'Garçon'.tr,
+                    ),
                    const Divider(),
                     _recapRow(
                       'Photo',
@@ -776,7 +784,19 @@ class EditPatientView extends GetView<EditPatientController> {
 
 
   Widget _buildGenderTile(String value) {
-    final isSelected = controller.sexe.value == value;
+    final isGarcon = value == 'Garçon';
+    final current = controller.sexe.value.trim().toLowerCase();
+    final isSelected = isGarcon
+        ? (current == 'garçon' ||
+            current == 'garcon' ||
+            current == 'masculin' ||
+            current == 'ولد' ||
+            current == 'ذكر')
+        : (current == 'fille' ||
+            current == 'feminin' ||
+            current == 'féminin' ||
+            current == 'بنت' ||
+            current == 'أنثى');
     return InkWell(
       onTap: () => controller.sexe.value = value,
       borderRadius: BorderRadius.circular(12),
@@ -793,7 +813,7 @@ class EditPatientView extends GetView<EditPatientController> {
         ),
         child: Center(
           child: Text(
-            value,
+            value.tr,
             style: AppTextStyles.bodyMedium.copyWith(
               color: isSelected ? AppColors.primary : AppColors.textSecondary,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

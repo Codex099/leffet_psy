@@ -45,7 +45,7 @@ class EditPatientController extends GetxController {
   final prenomController = TextEditingController();
   final nomController = TextEditingController();
   final dateNaissance = ''.obs;
-  final sexe = 'Masculin'.obs;
+  final sexe = 'Garçon'.obs;
   final photoUrl = ''.obs;
   final Rx<File?> pickedPhoto = Rx<File?>(null);
   final isUploadingPhoto = false.obs;
@@ -97,8 +97,8 @@ class EditPatientController extends GetxController {
   ];
 
   static List<Map<String, String>> sexeChoices = [
-    {'value': 'Masculin', 'label': 'Masculin'.tr},
-    {'value': 'Féminin', 'label': 'Féminin'.tr},
+    {'value': 'Garçon', 'label': 'Garçon'.tr},
+    {'value': 'Fille', 'label': 'Fille'.tr},
   ];
 
   @override
@@ -156,7 +156,7 @@ class EditPatientController extends GetxController {
       prenomController.text = patient.prenom;
       nomController.text = patient.nom;
       dateNaissance.value = patient.dateNaissance ?? '';
-      sexe.value = patient.sexe == 'feminin' ? 'Féminin' : 'Masculin';
+      sexe.value = patient.isFille ? 'Fille' : 'Garçon';
       photoUrl.value = patient.photo ?? '';
 
       // Charger le dossier médical si disponible
@@ -455,7 +455,9 @@ class EditPatientController extends GetxController {
 
       final isFeminin = sexe.value == 'Fille' ||
           sexe.value == 'Féminin' ||
-          sexe.value.toLowerCase() == 'feminin';
+          sexe.value == 'بنت' ||
+          sexe.value.toLowerCase() == 'feminin' ||
+          sexe.value.toLowerCase() == 'fille';
 
       final data = <String, dynamic>{
         'nom': nomText,
