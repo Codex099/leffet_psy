@@ -278,7 +278,7 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
   }
 
   Widget _buildSessionCard(AgendaSessionItem session) {
-    final bool isDone = session.statut == 'faite';
+    final bool isDone = session.hasReport;
 
    return IosCard(
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -335,14 +335,26 @@ class CompteRenduHubView extends GetView<CompteRenduHubController> {
             ),
           ),
           onTap: () async {
-            final res = await Get.toNamed(
-              AppRoutes.compteRenduSpecialiste,
-              arguments: {
-                'seance_id': session.id,
-               'is_groupe': session.isGroupe,
-              },
-            );
-            if (res == true) controller.loadData(forceRefresh: true);
+            if (isDone) {
+              // Séance validée → page de consultation propre (lecture seule)
+              await Get.toNamed(
+                AppRoutes.compteRenduConsultation,
+                arguments: {
+                  'seance_id': session.id,
+                 'is_groupe': session.isGroupe,
+                },
+              );
+            } else {
+              // Séance non rédigée → page de rédaction
+              final res = await Get.toNamed(
+                AppRoutes.compteRenduSpecialiste,
+                arguments: {
+                  'seance_id': session.id,
+                 'is_groupe': session.isGroupe,
+                },
+              );
+              if (res == true) controller.loadData(forceRefresh: true);
+            }
           },
         ),
       ],

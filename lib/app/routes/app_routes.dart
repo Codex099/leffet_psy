@@ -37,6 +37,7 @@ abstract class AppRoutes {
   static const seancesIndividuelles = '/seances-individuelles';
  static const compteRenduHub = '/comptes-rendus';
  static const compteRenduSpecialiste = '/comptes-rendus/redaction';
+ static const compteRenduConsultation = '/comptes-rendus/consultation';
  static const compteRenduSeance = '/seances/compte-rendu';
  static const compteRenduGroupe = '/seances-groupe/compte-rendu';
  static const creationSeance = '/seances/creation';

@@ -22,6 +22,11 @@ class AgendaSessionItem {
   final Map<String, dynamic>? rawPatient;
   final Map<String, dynamic>? rawGroupe;
   final String assignedEmployee;
+  final String? descriptionEtat;
+
+  bool get hasReport =>
+      statut == 'faite' ||
+      (descriptionEtat != null && descriptionEtat!.trim().isNotEmpty);
 
   AgendaSessionItem({
     required this.id,
@@ -36,6 +41,7 @@ class AgendaSessionItem {
     required this.statutLabel,
     required this.initials,
     required this.assignedEmployee,
+    this.descriptionEtat,
     this.photoUrl,
     this.patientId,
     this.groupeId,
@@ -71,6 +77,7 @@ class AgendaSessionItem {
       photoUrl: seance.photoUrl,
       patientId: seance.patientId,
       rawPatient: seance.patient,
+      descriptionEtat: seance.descriptionEtat,
     );
   }
 
@@ -119,6 +126,7 @@ class AgendaSessionItem {
         'statutLabel': statutLabel,
         'initials': initials,
         'assignedEmployee': assignedEmployee,
+        if (descriptionEtat != null) 'descriptionEtat': descriptionEtat,
         if (photoUrl != null) 'photoUrl': photoUrl,
         if (patientId != null) 'patientId': patientId,
         if (groupeId != null) 'groupeId': groupeId,
@@ -138,6 +146,7 @@ class AgendaSessionItem {
       statutLabel: json['statutLabel'] as String? ?? '',
       initials: json['initials'] as String? ?? '',
       assignedEmployee: json['assignedEmployee'] as String? ?? '',
+      descriptionEtat: json['descriptionEtat'] as String?,
       photoUrl: json['photoUrl'] as String?,
       patientId: json['patientId'],
       groupeId: json['groupeId'],

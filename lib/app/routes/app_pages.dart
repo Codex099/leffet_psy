@@ -33,6 +33,7 @@ import '../bindings/taches_binding.dart';
 import '../views/accueil/accueil_view.dart';
 import '../views/agenda/agenda_view.dart';
 import '../views/calendrier/calendrier_view.dart';
+import '../views/compte_rendu_consultation/compte_rendu_consultation_view.dart';
 import '../views/compte_rendu_hub/compte_rendu_hub_view.dart';
 import '../views/compte_rendu_specialiste/compte_rendu_specialiste_view.dart';
 import '../views/creation_seance/creation_seance_view.dart';
@@ -181,6 +182,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.compteRenduSpecialiste,
       page: () => const CompteRenduSpecialisteView(),
+      binding: CompteRenduSpecialisteBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.compteRenduConsultation,
+      page: () => const CompteRenduConsultationView(),
       binding: CompteRenduSpecialisteBinding(),
     ),
     GetPage(

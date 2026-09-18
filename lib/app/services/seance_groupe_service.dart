@@ -11,11 +11,13 @@ class SeanceGroupeService {
     String? date,
     dynamic groupeId,
     dynamic employeId,
+    dynamic patientId,
   }) async {
     final queryParams = <String, dynamic>{};
     if (date != null) queryParams['date'] = date;
-   if (groupeId != null) queryParams['groupe_id'] = groupeId;
-   if (employeId != null) queryParams['employe_id'] = employeId;
+    if (groupeId != null) queryParams['groupe_id'] = groupeId;
+    if (employeId != null) queryParams['employe_id'] = employeId;
+    if (patientId != null) queryParams['patient_id'] = patientId;
 
    final response = await _dio.get(
       ApiConfig.seancesGroupe,

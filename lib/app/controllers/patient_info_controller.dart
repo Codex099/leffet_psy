@@ -5,29 +5,62 @@ import '../models/patient_model.dart';
 import '../models/parent_model.dart';
 import '../models/patient_statut_historique_model.dart';
 import '../models/plan_therapeutique_model.dart';
-import '../models/employee_model.dart';
+import '../models/seance_model.dart';
+import '../models/seance_groupe_model.dart';
 import '../services/cache_manager.dart';
 import '../services/patient_service.dart';
 import '../services/parent_service.dart';
 import '../services/plan_therapeutique_service.dart';
 import '../services/note_patient_service.dart';
-import '../services/employee_service.dart';
 import '../services/tache_service.dart';
 import '../services/upload_service.dart';
 import '../services/auth_service.dart';
+import '../services/seance_service.dart';
+import '../services/seance_groupe_service.dart';
 import '../utils/json_utils.dart';
 import 'accueil_controller.dart';
 import 'patients_liste_controller.dart';
+
+class PatientCompteRenduItem {
+  final dynamic seanceId;
+  final bool isGroupe;
+  final String date;
+  final String heureDebut;
+  final String heureFin;
+  final String? praticienNom;
+  final String? observations;
+  final String statut; // 'faite' | 'prevue'
+  final String? presence; // 'present' | 'absent' | 'excuse'
+  final String typeLabel; // 'Individuelle' | 'Atelier Groupe'
+  final String? groupeNom;
+
+  PatientCompteRenduItem({
+    required this.seanceId,
+    required this.isGroupe,
+    required this.date,
+    required this.heureDebut,
+    required this.heureFin,
+    this.praticienNom,
+    this.observations,
+    required this.statut,
+    this.presence,
+    required this.typeLabel,
+    this.groupeNom,
+  });
+
+  bool get isRedige => statut == 'faite' || (observations != null && observations!.trim().isNotEmpty);
+}
 
 class PatientInfoController extends GetxController {
   final PatientService _patientService = PatientService();
   final PlanTherapeutiqueService _planService = PlanTherapeutiqueService();
   final NoteService _noteService = NoteService();
   final ParentService _parentService = ParentService();
-  final EmployeeService _employeeService = EmployeeService();
   final TacheService _tacheService = TacheService();
   final UploadService _uploadService = UploadService();
   final AuthService _authService = AuthService();
+  final SeanceService _seanceService = SeanceService();
+  final SeanceGroupeService _seanceGroupeService = SeanceGroupeService();
   final ImagePicker _picker = ImagePicker();
 
   final Rx<PatientModel?> patient = Rx<PatientModel?>(null);
@@ -36,7 +69,9 @@ class PatientInfoController extends GetxController {
   final RxList<NotePatientModel> notes = <NotePatientModel>[].obs;
   final RxList<PatientStatutHistoriqueModel> statutHistorique = <PatientStatutHistoriqueModel>[].obs;
   final RxList<ParentModel> availableParents = <ParentModel>[].obs;
-  final RxList<EmployeeModel> availableEmployees = <EmployeeModel>[].obs;
+  final RxList<PatientCompteRenduItem> comptesRendus = <PatientCompteRenduItem>[].obs;
+  final RxBool loadingComptesRendus = false.obs;
+  final RxBool showAllComptesRendus = false.obs;
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
   final RxBool isAdmin = false.obs;
@@ -54,6 +89,7 @@ class PatientInfoController extends GetxController {
     if (args is PatientModel) {
       patient.value = args;
       patientId = args.id;
+      status.value = 'success';
     } else {
       patientId = extractIdParam(Get.arguments, Get.parameters);
     }
@@ -92,6 +128,9 @@ class PatientInfoController extends GetxController {
       if (cached['statutHistorique'] is List<PatientStatutHistoriqueModel>) {
         statutHistorique.value = cached['statutHistorique'] as List<PatientStatutHistoriqueModel>;
       }
+      if (cached['comptesRendus'] is List<PatientCompteRenduItem>) {
+        comptesRendus.value = cached['comptesRendus'] as List<PatientCompteRenduItem>;
+      }
       status.value = 'success';
     }
   }
@@ -110,19 +149,23 @@ class PatientInfoController extends GetxController {
     }
 
     try {
-      // Appel principal essentiel : données du patient
-      final loadedPatient = await _patientService.getPatient(id);
-      patient.value = loadedPatient;
+      // Exécuter l'appel principal et toutes les sous-ressources en parallèle direct
+      final patientFuture = _patientService.getPatient(id).then((loadedPatient) {
+        patient.value = loadedPatient;
+        status.value = 'success';
+        return loadedPatient;
+      });
 
-      // Sous-ressources chargées en parallèle
-      await Future.wait([
+      final subResourcesFuture = Future.wait([
         _loadParents(id),
         _loadPlans(id),
         _loadNotes(id),
         _loadStatutHistorique(id),
-        _loadAvailableParents(),
-        _loadAvailableEmployees(),
+        _loadComptesRendus(id),
       ]);
+
+      final results = await Future.wait([patientFuture, subResourcesFuture]);
+      final loadedPatient = results[0] as PatientModel;
 
       // Sauvegarde dans le cache
       AppCacheManager.set<Map<String, dynamic>>(
@@ -133,6 +176,7 @@ class PatientInfoController extends GetxController {
           'plans': plans.toList(),
           'notes': notes.toList(),
           'statutHistorique': statutHistorique.toList(),
+          'comptesRendus': comptesRendus.toList(),
         },
         ttl: _cacheDuration,
         tags: {CacheTags.patients},
@@ -186,7 +230,7 @@ class PatientInfoController extends GetxController {
     }
   }
 
-  Future<void> _loadAvailableParents() async {
+  Future<void> loadAvailableParents() async {
     try {
       availableParents.value = await _parentService.getParents();
     } catch (_) {
@@ -194,11 +238,89 @@ class PatientInfoController extends GetxController {
     }
   }
 
-  Future<void> _loadAvailableEmployees() async {
+  Future<void> _loadComptesRendus(dynamic id) async {
+    loadingComptesRendus.value = true;
     try {
-      final emps = await _employeeService.getEmployees();
-      availableEmployees.value = emps;
-    } catch (_) {}
+      final results = await Future.wait([
+        _seanceService.getSeances(patientId: id),
+        _seanceGroupeService.getSeancesGroupe(patientId: id),
+      ]);
+      final indivList = results[0] as List<SeanceModel>;
+      final groupeList = results[1] as List<SeanceGroupeModel>;
+      final items = <PatientCompteRenduItem>[];
+
+      for (final s in indivList) {
+        final hasReport = s.statut == 'faite' ||
+            (s.descriptionEtat != null && s.descriptionEtat!.trim().isNotEmpty);
+        if (hasReport) {
+          String? empNom;
+          if (s.employe != null) {
+            final p = s.employe!['prenom'] ?? '';
+            final n = s.employe!['nom'] ?? '';
+            empNom = '$p $n'.trim();
+          }
+          items.add(PatientCompteRenduItem(
+            seanceId: s.id,
+            isGroupe: false,
+            date: s.date,
+            heureDebut: s.heureDebut,
+            heureFin: s.heureFin,
+            praticienNom: empNom?.isNotEmpty == true ? empNom : null,
+            observations: s.descriptionEtat,
+            statut: s.statut,
+            presence: s.statutPresence,
+            typeLabel: 'Consultation Individuelle'.tr,
+          ));
+        }
+      }
+
+      for (final g in groupeList) {
+        SeanceGroupeParticipantModel? part;
+        if (g.participants != null) {
+          for (final p in g.participants!) {
+            if (p.patientId?.toString() == id.toString()) {
+              part = p;
+              break;
+            }
+          }
+        }
+        final hasReport = g.statut == 'faite' ||
+            (part?.descriptionEtat != null && part!.descriptionEtat!.trim().isNotEmpty);
+        if (hasReport) {
+          String? empNom;
+          if (g.employe != null) {
+            final p = g.employe!['prenom'] ?? '';
+            final n = g.employe!['nom'] ?? '';
+            empNom = '$p $n'.trim();
+          }
+          items.add(PatientCompteRenduItem(
+            seanceId: g.id,
+            isGroupe: true,
+            date: g.date,
+            heureDebut: g.heureDebut,
+            heureFin: g.heureFin,
+            praticienNom: empNom?.isNotEmpty == true ? empNom : null,
+            observations: part?.descriptionEtat,
+            statut: g.statut,
+            presence: part?.statutPresence,
+            typeLabel: 'Atelier Groupe'.tr,
+            groupeNom: g.groupeName.isNotEmpty ? g.groupeName : null,
+          ));
+        }
+      }
+
+      items.sort((a, b) {
+        final cmp = b.date.compareTo(a.date);
+        if (cmp != 0) return cmp;
+        return b.heureDebut.compareTo(a.heureDebut);
+      });
+
+      comptesRendus.value = items;
+    } catch (_) {
+      comptesRendus.value = [];
+    } finally {
+      loadingComptesRendus.value = false;
+    }
   }
 
   /// Assigner une ou plusieurs étapes d'un plan thérapeutique à un employé sous forme de tâches

@@ -137,16 +137,16 @@ class CompteRenduHubController extends GetxController {
 
     // 1. Filtrage par onglet de statut
     if (selectedTab.value == 'en_attente') {
-     list = list.where((s) => s.statut != 'faite').toList();
-   } else if (selectedTab.value == 'rediges') {
-     list = list.where((s) => s.statut == 'faite').toList();
-   }
+      list = list.where((s) => !s.hasReport).toList();
+    } else if (selectedTab.value == 'rediges') {
+      list = list.where((s) => s.hasReport).toList();
+    }
 
     // 2. Filtrage par type
     if (filterType.value == 'indiv') {
-     list = list.where((s) => !s.isGroupe).toList();
+      list = list.where((s) => !s.isGroupe).toList();
     } else if (filterType.value == 'groupe') {
-     list = list.where((s) => s.isGroupe).toList();
+      list = list.where((s) => s.isGroupe).toList();
     }
 
     // 3. Filtrage par praticien
@@ -167,6 +167,6 @@ class CompteRenduHubController extends GetxController {
     return list;
   }
 
-  int get enAttenteCount => allSessions.where((s) => s.statut != 'faite').length;
- int get redigesCount => allSessions.where((s) => s.statut == 'faite').length;
+  int get enAttenteCount => allSessions.where((s) => !s.hasReport).length;
+  int get redigesCount => allSessions.where((s) => s.hasReport).length;
 }

@@ -11,6 +11,14 @@ class AppTranslations extends Translations {
       };
 
   static const Map<String, String> _ar = {
+    'Comptes-rendus rédigés': 'التقارير المكتوبة',
+    'compte(s)-rendu(s)': 'تقرير',
+    'Réduire': 'تصغير',
+    'Aucun compte-rendu rédigé pour le moment.': 'لا يوجد أي تقرير مكتوب حالياً.',
+    'Consulter': 'عرض',
+    'Atelier Groupe': 'ورشة جماعية',
+    'Séance effectuée (Compte-rendu disponible)': 'تمت الجلسة (التقرير متاح)',
+    'Rédigé par': 'محرر من طرف',
     'Tous': 'الكل',
           'Calendrier': 'التقويم',
           'Erreur': 'خطأ',

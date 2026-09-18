@@ -242,7 +242,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                 onTap: () async {
                   await Get.toNamed(
                     AppRoutes.patientInfo,
-                    arguments: patient.id,
+                    arguments: patient,
                   );
                   controller.loadPatients();
                 },

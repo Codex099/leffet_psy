@@ -496,6 +496,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       const SizedBox(height: 16),
                     ],
 
+                    // Comptes-rendus cliniques card
+                    _buildComptesRendusCard(context, controller),
+                    const SizedBox(height: 16),
+
                     // Historique des séances card
                     _buildSectionCard(
                       title: 'Historique des séances'.tr,
@@ -867,6 +871,270 @@ class PatientInfoView extends GetView<PatientInfoController> {
     );
   }
 
+  Widget _buildComptesRendusCard(
+    BuildContext context,
+    PatientInfoController controller,
+  ) {
+    return Obx(() {
+      final list = controller.comptesRendus;
+      final isLoading = controller.loadingComptesRendus.value;
+      final showAll = controller.showAllComptesRendus.value;
+      final displayList = showAll ? list : list.take(3).toList();
+
+      return _buildSectionCard(
+        title: 'Comptes-rendus rédigés'.tr,
+        subtitle: list.isEmpty
+            ? null
+            : '${list.length} compte(s)-rendu(s)'.tr,
+        icon: Icons.assignment_turned_in_rounded,
+        actionLabel: list.length > 3
+            ? (showAll ? 'Réduire'.tr : 'Voir tout (${list.length})'.tr)
+            : null,
+        onActionTap: () => controller.showAllComptesRendus.toggle(),
+        child: isLoading
+            ? const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              )
+            : list.isEmpty
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.fieldBackground,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.description_outlined,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Aucun compte-rendu rédigé pour le moment.'.tr,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
+                    children: [
+                      ...displayList.map((cr) {
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.fieldBackground,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.border.withValues(alpha: 0.6),
+                              width: 1,
+                            ),
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () async {
+                                await Get.toNamed(
+                                  AppRoutes.compteRenduConsultation,
+                                  arguments: {
+                                    'seance_id': cr.seanceId,
+                                    'is_groupe': cr.isGroupe,
+                                  },
+                                );
+                                controller.loadPatientInfo(forceRefresh: true);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: cr.isGroupe
+                                                ? AppColors.secondary
+                                                    .withValues(alpha: 0.12)
+                                                : AppColors.primary
+                                                    .withValues(alpha: 0.12),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                cr.isGroupe
+                                                    ? Icons.groups_rounded
+                                                    : Icons
+                                                        .person_outline_rounded,
+                                                size: 13,
+                                                color: cr.isGroupe
+                                                    ? AppColors.secondary
+                                                    : AppColors.primary,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                cr.isGroupe
+                                                    ? (cr.groupeNom ??
+                                                        'Atelier Groupe'.tr)
+                                                    : 'Individuelle'.tr,
+                                                style: AppTextStyles.iosCaption2
+                                                    .copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: cr.isGroupe
+                                                      ? AppColors.secondary
+                                                      : AppColors.primary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        if (cr.presence != null) ...[
+                                          StatusBadge.custom(
+                                            label: cr.presence == 'present'
+                                                ? 'Présent'.tr
+                                                : cr.presence == 'absent'
+                                                    ? 'Absent'.tr
+                                                    : 'Excusé'.tr,
+                                            color: cr.presence == 'present'
+                                                ? AppColors.statusPresent
+                                                : cr.presence == 'absent'
+                                                    ? AppColors.statusAbsent
+                                                    : AppColors.secondary,
+                                          ),
+                                        ],
+                                        const Spacer(),
+                                        Text(
+                                          '${cr.date} • ${cr.heureDebut.length >= 5 ? cr.heureDebut.substring(0, 5) : cr.heureDebut}',
+                                          style:
+                                              AppTextStyles.iosCaption2.copyWith(
+                                            color: AppColors.textSecondary,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (cr.praticienNom != null) ...[
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.badge_outlined,
+                                            size: 13,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${'Rédigé par'.tr} : ${cr.praticienNom}',
+                                            style: AppTextStyles.iosCaption2
+                                                .copyWith(
+                                              color: AppColors.textSecondary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                    ],
+                                    if (cr.observations != null &&
+                                        cr.observations!.trim().isNotEmpty) ...[
+                                      Container(
+                                        width: double.infinity,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.surface,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: AppColors.borderLight,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          cr.observations!.trim(),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style:
+                                              AppTextStyles.bodySmall.copyWith(
+                                            height: 1.3,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ] else ...[
+                                      Text(
+                                        'Séance effectuée (Compte-rendu disponible)'
+                                            .tr,
+                                        style: AppTextStyles.bodySmall.copyWith(
+                                          fontStyle: FontStyle.italic,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'Consulter'.tr,
+                                          style: AppTextStyles.iosCaption2
+                                              .copyWith(
+                                            color: AppColors.primary,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 2),
+                                        const Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 10,
+                                          color: AppColors.primary,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+      );
+    });
+  }
+
   Widget _buildSeanceTypeItem({
     required IconData icon,
     required String label,
@@ -959,7 +1227,11 @@ class PatientInfoView extends GetView<PatientInfoController> {
     );
   }
 
-  void _showAssociateParentDialog(BuildContext context) {
+  void _showAssociateParentDialog(BuildContext context) async {
+    if (controller.availableParents.isEmpty) {
+      await controller.loadAvailableParents();
+    }
+    if (!context.mounted) return;
     if (controller.availableParents.isEmpty) {
       Get.snackbar(
         'Info'.tr,

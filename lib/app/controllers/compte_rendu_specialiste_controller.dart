@@ -220,22 +220,31 @@ class CompteRenduSpecialisteController extends GetxController {
       selectedResponsableId.value = me.id;
     }
 
-    final bool userIsAuthor = me != null &&
-        (s.employeIds.any((id) => id.toString() == me.id.toString()) ||
-            (s.employe != null && s.employe!['id']?.toString() == me.id.toString()) ||
-            (s.employeIds.isEmpty && selectedResponsableId.value?.toString() == me.id.toString()));
+    final String? myId = me?.id?.toString();
+    final bool hasAssignedInSession = s.employeIds.isNotEmpty;
+    final bool matchesEmployeIds = s.employeIds.any((id) => id.toString() == myId);
+    final bool matchesEmployeMap = s.employe != null && s.employe!['id']?.toString() == myId;
+    final bool matchesSelected = selectedResponsableId.value != null && selectedResponsableId.value.toString() == myId;
+
+    bool userIsAuthor = false;
+    if (me != null) {
+      if (matchesEmployeIds || matchesEmployeMap) {
+        userIsAuthor = true;
+      } else if (!hasAssignedInSession) {
+        // Aucune attribution préalable : l'utilisateur qui rédige est l'auteur
+        userIsAuthor = true;
+        selectedResponsableId.value = me.id;
+      } else if (matchesSelected) {
+        userIsAuthor = true;
+      }
+    }
 
     isAuthor.value = userIsAuthor;
 
-    // Règle 3 : Autorisations de modification :
-    // - L'auteur a le droit de modifier (canEdit = true)
-    // - L'administrateur N'A PAS le droit de modifier (canEdit = false) -> lecture seule
-    // - Un utilisateur non-auteur n'a pas le droit de modifier
-    if (me != null && me.isAdmin) {
-      canEdit.value = false;
-    } else {
-      canEdit.value = userIsAuthor;
-    }
+    // Règle d'accès en modification :
+    // - En tant qu'auteur : on peut TOUJOURS modifier son compte-rendu (canEdit = true)
+    // - Si on n'est PAS l'auteur (ex: administrateur supervisant un autre praticien) : lecture seule (canEdit = false)
+    canEdit.value = userIsAuthor;
 
     // Données de séance
     descriptionEtat.value = s.descriptionEtat ?? '';
@@ -289,11 +298,7 @@ class CompteRenduSpecialisteController extends GetxController {
 
     isAuthor.value = userIsAuthor;
 
-    if (me != null && me.isAdmin) {
-      canEdit.value = false;
-    } else {
-      canEdit.value = userIsAuthor;
-    }
+    canEdit.value = userIsAuthor;
 
     final parts = <ParticipantPresenceNote>[];
     if (s.participants != null && s.participants!.isNotEmpty) {
@@ -376,18 +381,23 @@ class CompteRenduSpecialisteController extends GetxController {
           try {
             await _seanceGroupeService.updateParticipant(seanceId, part.patientId, {
               'statut_presence': part.statutPresence.value,
+              'description_etat': part.noteController.text.trim(),
               'note_individuelle': part.noteController.text.trim(),
             });
           } catch (_) {}
         }
       } else {
         // Mise à jour de la séance individuelle
+        final respId = selectedResponsableId.value ?? currentUser.value?.id;
         final payload = <String, dynamic>{
           'description_etat': descriptionEtat.value,
           'statut_presence': statutPresence.value,
           'statut': cloturer ? 'faite' : 'prevue',
           if (etapePlanId.value != null) 'etape_plan_id': etapePlanId.value,
-          if (selectedResponsableId.value != null) 'employe_id': selectedResponsableId.value,
+          if (respId != null) ...{
+            'employe_id': respId.toString(),
+            'employe_ids': [respId.toString()],
+          },
           'medias': medias.toList(),
         };
         await _seanceService.updateSeance(seanceId, payload);
