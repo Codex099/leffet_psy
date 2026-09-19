@@ -195,23 +195,7 @@ class CompteRenduSpecialisteController extends GetxController {
     // Statut de validation
     isAlreadyValidated.value = s.statut == 'faite';
 
-    // Règle 1 : Vérifier si l'employé est concerné par ce patient
-    if (me != null && !me.isAdmin) {
-      final assignedPatients = me.patientsAssignesIds?.map((id) => id.toString()).toList() ?? [];
-      final pIdStr = s.patientId?.toString();
-      final bool hasPatientAccess = pIdStr != null && assignedPatients.contains(pIdStr);
-      final bool isAssignedInSession = s.employeIds.any((id) => id.toString() == me.id.toString()) ||
-          (s.employe != null && s.employe!['id']?.toString() == me.id.toString());
-
-      if (!hasPatientAccess && !isAssignedInSession) {
-        status.value = 'unauthorized';
-        errorMessage.value =
-            "Vous n'êtes pas assigné(e) à ce patient. Vous ne pouvez pas consulter ce compte-rendu médical.".tr;
-        return;
-      }
-    }
-
-    // Règle 2 : Déterminer si l'utilisateur est l'auteur
+    // Déterminer le praticien référent de la séance
     if (s.employeIds.isNotEmpty) {
       selectedResponsableId.value = s.employeIds.first;
     } else if (s.employe != null && s.employe!['id'] != null) {
@@ -221,29 +205,30 @@ class CompteRenduSpecialisteController extends GetxController {
     }
 
     final String? myId = me?.id?.toString();
-    final bool hasAssignedInSession = s.employeIds.isNotEmpty;
+    final bool hasAssignedInSession = s.employeIds.isNotEmpty || (s.employe != null && s.employe!['id'] != null);
     final bool matchesEmployeIds = s.employeIds.any((id) => id.toString() == myId);
     final bool matchesEmployeMap = s.employe != null && s.employe!['id']?.toString() == myId;
     final bool matchesSelected = selectedResponsableId.value != null && selectedResponsableId.value.toString() == myId;
 
     bool userIsAuthor = false;
     if (me != null) {
-      if (matchesEmployeIds || matchesEmployeMap) {
-        userIsAuthor = true;
-      } else if (!hasAssignedInSession) {
-        // Aucune attribution préalable : l'utilisateur qui rédige est l'auteur
-        userIsAuthor = true;
-        selectedResponsableId.value = me.id;
-      } else if (matchesSelected) {
-        userIsAuthor = true;
+      if (me.isAdmin) {
+        // L'admin est en lecture seule sauf s'il est lui-même assigné à la séance
+        userIsAuthor = matchesEmployeIds || matchesEmployeMap;
+      } else {
+        if (matchesEmployeIds || matchesEmployeMap) {
+          userIsAuthor = true;
+        } else if (!hasAssignedInSession) {
+          // Séance non encore attribuée : le spécialiste qui la traite en est l'auteur
+          userIsAuthor = true;
+          selectedResponsableId.value = me.id;
+        } else if (matchesSelected) {
+          userIsAuthor = true;
+        }
       }
     }
 
     isAuthor.value = userIsAuthor;
-
-    // Règle d'accès en modification :
-    // - En tant qu'auteur : on peut TOUJOURS modifier son compte-rendu (canEdit = true)
-    // - Si on n'est PAS l'auteur (ex: administrateur supervisant un autre praticien) : lecture seule (canEdit = false)
     canEdit.value = userIsAuthor;
 
     // Données de séance
@@ -268,23 +253,8 @@ class CompteRenduSpecialisteController extends GetxController {
     final s = await _seanceGroupeService.getSeanceGroupe(seanceId);
     seanceGroupe.value = s;
 
+    // Statut de validation
     isAlreadyValidated.value = s.statut == 'faite';
-
-    // Règle 1 : Vérifier si l'employé est concerné par ce groupe
-    if (me != null && !me.isAdmin) {
-      final isSessionAnimator = s.employeId != null && s.employeId.toString() == me.id.toString();
-      final assignedPatients = me.patientsAssignesIds?.map((id) => id.toString()).toList() ?? [];
-      final bool hasParticipantAccess = (s.participants ?? []).any(
-        (p) => assignedPatients.contains(p.patientId?.toString()),
-      );
-
-      if (!isSessionAnimator && !hasParticipantAccess) {
-        status.value = 'unauthorized';
-        errorMessage.value =
-            "Vous n'êtes pas concerné(e) par cette séance de groupe. Vous ne pouvez pas consulter ce compte-rendu.".tr;
-        return;
-      }
-    }
 
     if (s.employeId != null) {
       selectedResponsableId.value = s.employeId;

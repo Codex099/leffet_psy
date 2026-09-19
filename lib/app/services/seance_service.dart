@@ -94,7 +94,7 @@ class PlanningRecurrentService {
   }
 
   /// POST /api/patients/{id}/planning-recurrent/generer — Génération manuelle
-  Future<void> genererSeances(
+  Future<Map<String, dynamic>> genererSeances(
     dynamic patientId, {
     String? dateDebut,
     String? dateFin,
@@ -104,12 +104,16 @@ class PlanningRecurrentService {
     final dFin = dateFin ??
         now.add(const Duration(days: 28)).toIso8601String().split('T').first;
 
-    await _dio.post(
+    final response = await _dio.post(
       ApiConfig.patientPlanningRecurrentGenerer(patientId),
       data: {
         'date_debut': dDebut,
         'date_fin': dFin,
       },
     );
+    if (response.data is Map) {
+      return Map<String, dynamic>.from(response.data as Map);
+    }
+    return {};
   }
 }

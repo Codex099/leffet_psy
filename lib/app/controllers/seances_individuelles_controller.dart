@@ -9,6 +9,9 @@ import '../services/patient_service.dart';
 import '../services/seance_service.dart';
 import 'accueil_controller.dart';
 import 'agenda_controller.dart';
+import 'package:dio/dio.dart';
+import '../utils/conflict_dialog.dart';
+import '../utils/time_utils.dart';
 
 /// Regroupement de toutes les séances et créneaux par Patient
 class PatientSeancesGroup {
@@ -355,10 +358,15 @@ class SeancesIndividuellesController extends GetxController {
 
   void updateSlotForDay(String day, {String? debut, String? fin}) {
     final cur = daySlotsMap[day] ?? {'debut': heureDebut.value, 'fin': heureFin.value};
-   daySlotsMap[day] = {
-      'debut': debut ?? cur['debut'] ?? heureDebut.value,
-     'fin': fin ?? cur['fin'] ?? heureFin.value,
-   };
+    final d = debut ?? cur['debut'] ?? heureDebut.value;
+    var f = fin ?? cur['fin'] ?? heureFin.value;
+    if (debut != null && fin == null) {
+      f = TimeUtils.ajusterHeureFin(d, f);
+    }
+    daySlotsMap[day] = {
+      'debut': d,
+      'fin': f,
+    };
     daySlotsMap.refresh();
   }
 
@@ -367,11 +375,32 @@ class SeancesIndividuellesController extends GetxController {
   Future<bool> enregistrerCreneauRecurrent() async {
     if (selectedPatientId.value == null) {
       Get.snackbar('Erreur', 'Veuillez sélectionner un patient.', snackPosition: SnackPosition.BOTTOM);
-     return false;
+      return false;
     }
     if (selectedDays.isEmpty) {
       Get.snackbar('Erreur', 'Veuillez sélectionner au moins un jour.', snackPosition: SnackPosition.BOTTOM);
-     return false;
+      return false;
+    }
+
+    if (modeCreneaux.value == 'fixe') {
+      final valErr =
+          TimeUtils.validerHoraires(heureDebut.value, heureFin.value);
+      if (valErr != null) {
+        Get.snackbar('Horaires non valides'.tr, valErr.tr,
+            snackPosition: SnackPosition.BOTTOM);
+        return false;
+      }
+    } else {
+      for (final day in selectedDays) {
+        final start = getSlotStartForDay(day);
+        final end = getSlotEndForDay(day);
+        final valErr = TimeUtils.validerHoraires(start, end);
+        if (valErr != null) {
+          Get.snackbar('Horaires non valides ($day)'.tr, valErr.tr,
+              snackPosition: SnackPosition.BOTTOM);
+          return false;
+        }
+      }
     }
 
     try {
@@ -382,10 +411,18 @@ class SeancesIndividuellesController extends GetxController {
           'jours_semaine': fullDays,
          'heure_debut': heureDebut.value,
          'heure_fin': heureFin.value,
-       });
+        });
 
         try {
-          await _planningService.genererSeances(selectedPatientId.value);
+          final res = await _planningService.genererSeances(selectedPatientId.value);
+          final conflicts = res['conflicts'] as List<dynamic>?;
+          final createdCount = res['created'] as int? ?? 0;
+          if (conflicts != null && conflicts.isNotEmpty) {
+            ConflictDialog.showBatchConflicts(
+              createdCount: createdCount,
+              conflicts: conflicts,
+            );
+          }
         } catch (_) {}
       } else {
         for (final day in selectedDays) {
@@ -400,7 +437,15 @@ class SeancesIndividuellesController extends GetxController {
          });
 
           try {
-            await _planningService.genererSeances(selectedPatientId.value);
+            final res = await _planningService.genererSeances(selectedPatientId.value);
+            final conflicts = res['conflicts'] as List<dynamic>?;
+            final createdCount = res['created'] as int? ?? 0;
+            if (conflicts != null && conflicts.isNotEmpty) {
+              ConflictDialog.showBatchConflicts(
+                createdCount: createdCount,
+                conflicts: conflicts,
+              );
+            }
           } catch (_) {}
         }
       }
@@ -431,8 +476,25 @@ class SeancesIndividuellesController extends GetxController {
 
       return true;
     } catch (e) {
-      Get.snackbar('Erreur', 'Impossible d\'enregistrer le créneau : $e', snackPosition: SnackPosition.BOTTOM);
-     return false;
+      String errorMsg = e.toString();
+      if (e is DioException) {
+        final detail = e.response?.data is Map ? e.response?.data['detail'] : null;
+        if (detail is String) {
+          errorMsg = detail;
+        } else if (e.message != null && e.message!.isNotEmpty) {
+          errorMsg = e.message!;
+        }
+      }
+      if (errorMsg.contains('Conflit d\'horaires')) {
+        ConflictDialog.show(
+          title: 'Créneau indisponible'.tr,
+          message: errorMsg,
+        );
+      } else {
+        Get.snackbar('Erreur', 'Impossible d\'enregistrer le créneau : $errorMsg',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+      return false;
     }
   }
 
@@ -443,25 +505,20 @@ class SeancesIndividuellesController extends GetxController {
     required String newHeureFin,
     required String statut,
   }) async {
+    final valErr = TimeUtils.validerHoraires(newHeureDebut, newHeureFin);
+    if (valErr != null) {
+      Get.snackbar('Horaires non valides'.tr, valErr.tr,
+          snackPosition: SnackPosition.BOTTOM);
+      return false;
+    }
+
     try {
-      if (newDate == seance.date) {
-        await _seanceService.updateSeance(seance.id, {
-          'heure_debut': newHeureDebut,
-         'heure_fin': newHeureFin,
-         'statut': statut,
-       });
-      } else {
-        await _seanceService.deleteSeance(seance.id);
-        await _seanceService.createSeance({
-          'patient_id': seance.patientId,
-         'date': newDate,
-         'heure_debut': newHeureDebut,
-         'heure_fin': newHeureFin,
-         'statut': statut,
-         'employe_ids': seance.employeIds,
-         if (seance.descriptionEtat != null) 'description_etat': seance.descriptionEtat,
-       });
-      }
+      await _seanceService.updateSeance(seance.id, {
+        'date': newDate,
+        'heure_debut': newHeureDebut,
+        'heure_fin': newHeureFin,
+        'statut': statut,
+      });
 
       AppCacheManager.invalidateTag(CacheTags.seances);
       AppCacheManager.invalidateTag(CacheTags.dashboard);
@@ -488,8 +545,25 @@ class SeancesIndividuellesController extends GetxController {
       );
       return true;
     } catch (e) {
-      Get.snackbar('Erreur', 'Impossible de modifier le rendez-vous : $e', snackPosition: SnackPosition.BOTTOM);
-     return false;
+      String errorMsg = e.toString();
+      if (e is DioException) {
+        final detail = e.response?.data is Map ? e.response?.data['detail'] : null;
+        if (detail is String) {
+          errorMsg = detail;
+        } else if (e.message != null && e.message!.isNotEmpty) {
+          errorMsg = e.message!;
+        }
+      }
+      if (errorMsg.contains('Conflit d\'horaires')) {
+        ConflictDialog.show(
+          title: 'Créneau indisponible'.tr,
+          message: errorMsg,
+        );
+      } else {
+        Get.snackbar('Erreur', 'Impossible de modifier le rendez-vous : $errorMsg',
+            snackPosition: SnackPosition.BOTTOM);
+      }
+      return false;
     }
   }
 

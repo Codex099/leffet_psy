@@ -256,7 +256,7 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                                     text: controller.heureDebut.value,
                                   ),
                                   onChanged: (v) =>
-                                      controller.heureDebut.value = v,
+                                      controller.updateHeureDebut(v),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -268,7 +268,7 @@ class PlanningRecurrentView extends GetView<PlanningRecurrentController> {
                                     text: controller.heureFin.value,
                                   ),
                                   onChanged: (v) =>
-                                      controller.heureFin.value = v,
+                                      controller.updateHeureFin(v),
                                 ),
                               ),
                             ],

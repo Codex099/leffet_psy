@@ -14,6 +14,7 @@ import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
+import '../../utils/time_utils.dart';
 
 class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
  const SeancesIndividuellesView({super.key});
@@ -670,22 +671,21 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           const SizedBox(height: 6),
                           InkWell(
                             onTap: () async {
-                              final parts = selectedDebut.value.split(':');
-                             final picked = await showTimePicker(
+                              final initialTime =
+                                  TimeUtils.parseTimeOfDay(selectedDebut.value);
+                              final picked = await showTimePicker(
                                 context: context,
-                                initialTime: TimeOfDay(
-                                  hour: int.tryParse(parts[0]) ?? 10,
-                                  minute:
-                                      int.tryParse(
-                                        parts.length > 1 ? parts[1] : '0',
-                                     ) ??
-                                      0,
-                                ),
+                                initialTime: initialTime,
                               );
                               if (picked != null) {
-                                selectedDebut.value =
-                                    '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                             }
+                                final formatted =
+                                    TimeUtils.formatTimeOfDay(picked);
+                                selectedDebut.value = formatted;
+                                selectedFin.value = TimeUtils.ajusterHeureFin(
+                                  formatted,
+                                  selectedFin.value,
+                                );
+                              }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -738,22 +738,28 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                           const SizedBox(height: 6),
                           InkWell(
                             onTap: () async {
-                              final parts = selectedFin.value.split(':');
-                             final picked = await showTimePicker(
+                              final initialTime =
+                                  TimeUtils.parseTimeOfDay(selectedFin.value);
+                              final picked = await showTimePicker(
                                 context: context,
-                                initialTime: TimeOfDay(
-                                  hour: int.tryParse(parts[0]) ?? 10,
-                                  minute:
-                                      int.tryParse(
-                                        parts.length > 1 ? parts[1] : '45',
-                                     ) ??
-                                      45,
-                                ),
+                                initialTime: initialTime,
                               );
                               if (picked != null) {
-                                selectedFin.value =
-                                    '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                             }
+                                final formatted =
+                                    TimeUtils.formatTimeOfDay(picked);
+                                if (!TimeUtils.isHeureApres(
+                                    selectedDebut.value, formatted)) {
+                                  Get.snackbar(
+                                    'Horaires non valides'.tr,
+                                    'L\'heure de fin doit être postérieure à l\'heure de début (${selectedDebut.value}).'.tr,
+                                    snackPosition: SnackPosition.BOTTOM,
+                                  );
+                                  selectedFin.value = TimeUtils.ajouterMinutes(
+                                      selectedDebut.value);
+                                } else {
+                                  selectedFin.value = formatted;
+                                }
+                              }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -1261,23 +1267,22 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                               const SizedBox(height: 6),
                               InkWell(
                                 onTap: () async {
-                                  final parts = controller.heureDebut.value
-                                      .split(':');
-                                 final picked = await showTimePicker(
+                                  final initialTime = TimeUtils.parseTimeOfDay(
+                                      controller.heureDebut.value);
+                                  final picked = await showTimePicker(
                                     context: context,
-                                    initialTime: TimeOfDay(
-                                      hour: int.tryParse(parts[0]) ?? 10,
-                                      minute:
-                                          int.tryParse(
-                                            parts.length > 1 ? parts[1] : '0',
-                                         ) ??
-                                          0,
-                                    ),
+                                    initialTime: initialTime,
                                   );
                                   if (picked != null) {
-                                    controller.heureDebut.value =
-                                        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                 }
+                                    final formatted =
+                                        TimeUtils.formatTimeOfDay(picked);
+                                    controller.heureDebut.value = formatted;
+                                    controller.heureFin.value =
+                                        TimeUtils.ajusterHeureFin(
+                                      formatted,
+                                      controller.heureFin.value,
+                                    );
+                                  }
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -1327,24 +1332,30 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                               const SizedBox(height: 6),
                               InkWell(
                                 onTap: () async {
-                                  final parts = controller.heureFin.value.split(
-                                    ':',
-                                 );
+                                  final initialTime = TimeUtils.parseTimeOfDay(
+                                      controller.heureFin.value);
                                   final picked = await showTimePicker(
                                     context: context,
-                                    initialTime: TimeOfDay(
-                                      hour: int.tryParse(parts[0]) ?? 10,
-                                      minute:
-                                          int.tryParse(
-                                            parts.length > 1 ? parts[1] : '45',
-                                         ) ??
-                                          45,
-                                    ),
+                                    initialTime: initialTime,
                                   );
                                   if (picked != null) {
-                                    controller.heureFin.value =
-                                        '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                 }
+                                    final formatted =
+                                        TimeUtils.formatTimeOfDay(picked);
+                                    if (!TimeUtils.isHeureApres(
+                                        controller.heureDebut.value,
+                                        formatted)) {
+                                      Get.snackbar(
+                                        'Horaires non valides'.tr,
+                                        'L\'heure de fin doit être postérieure à l\'heure de début (${controller.heureDebut.value}).'.tr,
+                                        snackPosition: SnackPosition.BOTTOM,
+                                      );
+                                      controller.heureFin.value =
+                                          TimeUtils.ajouterMinutes(
+                                              controller.heureDebut.value);
+                                    } else {
+                                      controller.heureFin.value = formatted;
+                                    }
+                                  }
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -1449,26 +1460,24 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                   Expanded(
                                     child: InkWell(
                                       onTap: () async {
-                                        final parts = start.split(':');
-                                       final picked = await showTimePicker(
+                                        final initialTime =
+                                            TimeUtils.parseTimeOfDay(start);
+                                        final picked = await showTimePicker(
                                           context: context,
-                                          initialTime: TimeOfDay(
-                                            hour: int.tryParse(parts[0]) ?? 10,
-                                            minute:
-                                                int.tryParse(
-                                                  parts.length > 1
-                                                      ? parts[1]
-                                                      : '0',
-                                               ) ??
-                                                0,
-                                          ),
+                                          initialTime: initialTime,
                                         );
                                         if (picked != null) {
                                           final newStart =
-                                              '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                         controller.updateSlotForDay(
+                                              TimeUtils.formatTimeOfDay(picked);
+                                          final adjustedFin =
+                                              TimeUtils.ajusterHeureFin(
+                                            newStart,
+                                            end,
+                                          );
+                                          controller.updateSlotForDay(
                                             d,
                                             debut: newStart,
+                                            fin: adjustedFin,
                                           );
                                         }
                                       },
@@ -1510,27 +1519,35 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                   Expanded(
                                     child: InkWell(
                                       onTap: () async {
-                                        final parts = end.split(':');
-                                       final picked = await showTimePicker(
+                                        final initialTime =
+                                            TimeUtils.parseTimeOfDay(end);
+                                        final picked = await showTimePicker(
                                           context: context,
-                                          initialTime: TimeOfDay(
-                                            hour: int.tryParse(parts[0]) ?? 10,
-                                            minute:
-                                                int.tryParse(
-                                                  parts.length > 1
-                                                      ? parts[1]
-                                                      : '45',
-                                               ) ??
-                                                45,
-                                          ),
+                                          initialTime: initialTime,
                                         );
                                         if (picked != null) {
                                           final newEnd =
-                                              '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-                                         controller.updateSlotForDay(
-                                            d,
-                                            fin: newEnd,
-                                          );
+                                              TimeUtils.formatTimeOfDay(picked);
+                                          if (!TimeUtils.isHeureApres(
+                                              start, newEnd)) {
+                                            Get.snackbar(
+                                              'Horaires non valides'.tr,
+                                              'L\'heure de fin doit être postérieure à l\'heure de début ($start).'
+                                                  .tr,
+                                              snackPosition:
+                                                  SnackPosition.BOTTOM,
+                                            );
+                                            controller.updateSlotForDay(
+                                              d,
+                                              fin: TimeUtils.ajouterMinutes(
+                                                  start),
+                                            );
+                                          } else {
+                                            controller.updateSlotForDay(
+                                              d,
+                                              fin: newEnd,
+                                            );
+                                          }
                                         }
                                       },
                                       child: Container(

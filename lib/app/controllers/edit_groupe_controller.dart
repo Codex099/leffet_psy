@@ -9,6 +9,7 @@ import '../services/groupe_service.dart';
 import '../services/patient_service.dart';
 import '../services/seance_groupe_service.dart';
 import '../utils/json_utils.dart';
+import '../utils/time_utils.dart';
 import 'accueil_controller.dart';
 import 'agenda_controller.dart';
 
@@ -235,19 +236,35 @@ class EditGroupeController extends GetxController {
 
   void updateGlobalStart(String val) {
     globalHeureDebut.value = val;
+    globalHeureFin.value =
+        TimeUtils.ajusterHeureFin(val, globalHeureFin.value);
     if (modeCreneaux.value == 'fixe') {
-     for (int i = 0; i < daySlots.length; i++) {
-        daySlots[i] = daySlots[i].copyWith(heureDebut: val);
+      for (int i = 0; i < daySlots.length; i++) {
+        daySlots[i] = daySlots[i].copyWith(
+          heureDebut: val,
+          heureFin: globalHeureFin.value,
+        );
       }
       daySlots.refresh();
     }
   }
 
   void updateGlobalEnd(String val) {
-    globalHeureFin.value = val;
+    if (!TimeUtils.isHeureApres(globalHeureDebut.value, val)) {
+      Get.snackbar(
+        'Horaires non valides'.tr,
+        'L\'heure de fin doit être postérieure à l\'heure de début (${globalHeureDebut.value}).'
+            .tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      globalHeureFin.value =
+          TimeUtils.ajouterMinutes(globalHeureDebut.value);
+    } else {
+      globalHeureFin.value = val;
+    }
     if (modeCreneaux.value == 'fixe') {
-     for (int i = 0; i < daySlots.length; i++) {
-        daySlots[i] = daySlots[i].copyWith(heureFin: val);
+      for (int i = 0; i < daySlots.length; i++) {
+        daySlots[i] = daySlots[i].copyWith(heureFin: globalHeureFin.value);
       }
       daySlots.refresh();
     }
@@ -258,16 +275,18 @@ class EditGroupeController extends GetxController {
     if (isDayActive(day)) {
       daySlots.removeWhere((s) => s.day == day);
     } else {
-      final start = modeCreneaux.value == 'fixe' ? globalHeureDebut.value : '09:00';
-     final end = modeCreneaux.value == 'fixe' ? globalHeureFin.value : '09:45';
-     daySlots.add(DaySlot(day: day, heureDebut: start, heureFin: end));
+      final start =
+          modeCreneaux.value == 'fixe' ? globalHeureDebut.value : '09:00';
+      final end =
+          modeCreneaux.value == 'fixe' ? globalHeureFin.value : '09:45';
+      daySlots.add(DaySlot(day: day, heureDebut: start, heureFin: end));
     }
     daySlots.refresh();
   }
 
   void addSlotForDay(String day) {
     daySlots.add(DaySlot(day: day, heureDebut: '09:00', heureFin: '09:45'));
-   daySlots.refresh();
+    daySlots.refresh();
   }
 
   void removeSlot(DaySlot slot) {
@@ -376,8 +395,18 @@ class EditGroupeController extends GetxController {
   Future<void> saveGroupe() async {
     if (nom.value.trim().isEmpty) {
       Get.snackbar('Champ requis', 'Le nom du groupe est obligatoire.',
-         snackPosition: SnackPosition.BOTTOM);
+          snackPosition: SnackPosition.BOTTOM);
       return;
+    }
+
+    for (final slot in daySlots) {
+      final valErr =
+          TimeUtils.validerHoraires(slot.heureDebut, slot.heureFin);
+      if (valErr != null) {
+        Get.snackbar('Horaires non valides (${slot.day})'.tr, valErr.tr,
+            snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
     }
     try {
       status.value = 'loading';

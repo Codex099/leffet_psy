@@ -11,7 +11,10 @@ import '../services/employee_service.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 import '../services/tache_service.dart';
+import 'package:dio/dio.dart';
+import '../utils/conflict_dialog.dart';
 import '../utils/json_utils.dart';
+import '../utils/time_utils.dart';
 import 'accueil_controller.dart';
 import 'agenda_controller.dart';
 
@@ -175,7 +178,15 @@ class CreationSeanceController extends GetxController {
   Future<void> createSeance() async {
     if (date.value.isEmpty || heureDebut.value.isEmpty || heureFin.value.isEmpty) {
       Get.snackbar('Champs requis', 'Veuillez renseigner la date et les horaires de la séance.', snackPosition: SnackPosition.BOTTOM);
-     return;
+      return;
+    }
+
+    final validationHoraires =
+        TimeUtils.validerHoraires(heureDebut.value, heureFin.value);
+    if (validationHoraires != null) {
+      Get.snackbar('Horaires non valides'.tr, validationHoraires.tr,
+          snackPosition: SnackPosition.BOTTOM);
+      return;
     }
 
     try {
@@ -275,9 +286,32 @@ class CreationSeanceController extends GetxController {
 
       Get.back(result: true);
       Get.snackbar('Succès', 'Séance planifiée avec succès', snackPosition: SnackPosition.BOTTOM);
-   } catch (e) {
+    } catch (e) {
       status.value = 'success';
-     Get.snackbar('Erreur', 'Impossible de planifier la séance : $e', snackPosition: SnackPosition.BOTTOM);
+      String errorMsg = e.toString();
+      if (e is DioException) {
+        final detail = e.response?.data is Map
+            ? e.response?.data['detail']
+            : null;
+        if (detail is String) {
+          errorMsg = detail;
+        } else if (e.message != null && e.message!.isNotEmpty) {
+          errorMsg = e.message!;
+        }
+      }
+
+      if (errorMsg.contains('Conflit d\'horaires')) {
+        ConflictDialog.show(
+          title: 'Créneau indisponible'.tr,
+          message: errorMsg,
+        );
+      } else {
+        Get.snackbar(
+          'Erreur'.tr,
+          'Impossible de planifier la séance : $errorMsg',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
     }
   }
 }

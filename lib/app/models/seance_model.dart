@@ -50,6 +50,7 @@ class SeanceModel {
       statut: json['statut'] as String? ?? 'planifiee',
       motifStatut: json['motif_statut'] as String?,
       statutPresence: json['statut_presence'] as String?,
+      descriptionEtat: json['description_etat'] as String?,
       reponsesQuestionnaire: json['reponses_questionnaire'] is Map
           ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
           : null,

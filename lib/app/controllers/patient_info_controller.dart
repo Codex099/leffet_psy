@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/patient_model.dart';
@@ -72,6 +73,10 @@ class PatientInfoController extends GetxController {
   final RxList<PatientCompteRenduItem> comptesRendus = <PatientCompteRenduItem>[].obs;
   final RxBool loadingComptesRendus = false.obs;
   final RxBool showAllComptesRendus = false.obs;
+  final RxBool showAllPlans = false.obs;
+  final RxBool showAllNotes = false.obs;
+  final RxBool showAllParents = false.obs;
+  final RxBool showAllStatuts = false.obs;
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
   final RxBool isAdmin = false.obs;
@@ -140,7 +145,10 @@ class PatientInfoController extends GetxController {
     final id = patientId!;
 
     final cacheKey = CacheKeys.patientInfo(id);
-    if (AppCacheManager.isFresh(cacheKey) && !forceRefresh && patient.value != null) {
+    if (AppCacheManager.isFresh(cacheKey) &&
+        !forceRefresh &&
+        patient.value != null &&
+        comptesRendus.isNotEmpty) {
       return;
     }
 
@@ -241,12 +249,20 @@ class PatientInfoController extends GetxController {
   Future<void> _loadComptesRendus(dynamic id) async {
     loadingComptesRendus.value = true;
     try {
-      final results = await Future.wait([
-        _seanceService.getSeances(patientId: id),
-        _seanceGroupeService.getSeancesGroupe(patientId: id),
-      ]);
-      final indivList = results[0] as List<SeanceModel>;
-      final groupeList = results[1] as List<SeanceGroupeModel>;
+      List<SeanceModel> indivList = [];
+      try {
+        indivList = await _seanceService.getSeances(patientId: id);
+      } catch (e) {
+        debugPrint('[PatientInfo] Erreur séances individuelles: $e');
+      }
+
+      List<SeanceGroupeModel> groupeList = [];
+      try {
+        groupeList = await _seanceGroupeService.getSeancesGroupe(patientId: id);
+      } catch (e) {
+        debugPrint('[PatientInfo] Erreur séances groupe: $e');
+      }
+
       final items = <PatientCompteRenduItem>[];
 
       for (final s in indivList) {
@@ -316,7 +332,8 @@ class PatientInfoController extends GetxController {
       });
 
       comptesRendus.value = items;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[PatientInfo] Erreur globale _loadComptesRendus: $e');
       comptesRendus.value = [];
     } finally {
       loadingComptesRendus.value = false;

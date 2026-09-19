@@ -8,6 +8,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/ios_card.dart';
 import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/searchable_picker.dart';
+import '../../utils/time_utils.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../widgets/app_date_picker.dart';
 
@@ -259,11 +260,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
     final currentStr = isStart
         ? controller.heureDebut.value
         : controller.heureFin.value;
-    final parts = currentStr.split(':');
-   final initialTime = TimeOfDay(
-      hour: parts.isNotEmpty ? (int.tryParse(parts[0]) ?? 10) : 10,
-      minute: parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0,
-    );
+    final initialTime = TimeUtils.parseTimeOfDay(currentStr);
 
     final picked = await showTimePicker(
       context: context,
@@ -271,14 +268,27 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
     );
 
     if (picked != null) {
-      final formatted =
-          "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+      final formatted = TimeUtils.formatTimeOfDay(picked);
       if (isStart) {
         controller.heureDebut.value = formatted;
+        // Ajuster automatiquement l'heure de fin si nécessaire
+        controller.heureFin.value = TimeUtils.ajusterHeureFin(
+          formatted,
+          controller.heureFin.value,
+        );
       } else {
-        controller.heureFin.value = formatted;
+        if (!TimeUtils.isHeureApres(controller.heureDebut.value, formatted)) {
+          Get.snackbar(
+            'Horaires non valides'.tr,
+            'L\'heure de fin doit être postérieure à l\'heure de début (${controller.heureDebut.value}).'.tr,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+          controller.heureFin.value =
+              TimeUtils.ajouterMinutes(controller.heureDebut.value);
+        } else {
+          controller.heureFin.value = formatted;
+        }
       }
     }
   }
 }
-

@@ -86,7 +86,7 @@ class SeanceGroupeParticipantModel {
       seanceGroupeId: parseId(json['seance_groupe_id']),
      patientId: parseId(json['patient_id']),
      statutPresence: json['statut_presence'] as String?,
-     descriptionEtat: json['description_etat'] as String?,
+     descriptionEtat: (json['description_etat'] ?? json['note_individuelle']) as String?,
      reponsesQuestionnaire: json['reponses_questionnaire'] is Map
          ? Map<String, dynamic>.from(json['reponses_questionnaire'] as Map)
          : null,
