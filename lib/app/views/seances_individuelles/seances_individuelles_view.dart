@@ -15,6 +15,7 @@ import '../../widgets/ios_segmented_control.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../utils/time_utils.dart';
+import '../../utils/app_dialogs.dart';
 
 class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
  const SeancesIndividuellesView({super.key});
@@ -501,7 +502,9 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
     final RxString selectedFin = s.heureFin.length >= 5
         ? s.heureFin.substring(0, 5).obs
         : s.heureFin.obs;
-    final RxString selectedStatut = s.statut.obs;
+    // Normaliser le statut pour l'UI : 'prevue' (backend) → 'planifiee' (UI)
+    final String statutInitial = (s.statut == 'prevue') ? 'planifiee' : s.statut;
+    final RxString selectedStatut = statutInitial.obs;
 
     showModalBottomSheet(
       context: context,
@@ -844,6 +847,11 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                 // Bouton Valider le Changement
                 BouncyTap(
                   onTap: () async {
+                    final confirmed = await AppDialogs.confirmModify(
+                      title: 'Modifier le rendez-vous',
+                      message: 'Voulez-vous enregistrer les nouvelles informations pour cette séance ?',
+                    );
+                    if (!confirmed) return;
                     final ok = await controller.modifierRendezVous(
                       seance: s,
                       newDate: selectedDate.value,
@@ -938,28 +946,11 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                       ),
                     ),
                     onPressed: () async {
-                      final confirm = await Get.dialog<bool>(
-                        AlertDialog(
-                          title: Text('Confirmer la suppression'.tr),
-                         content: Text(
-                            'Voulez-vous vraiment supprimer la séance de ${s.patientFullName} ?'.tr,
-                         ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Get.back(result: false),
-                              child: Text('Annuler'.tr),
-                           ),
-                            TextButton(
-                              onPressed: () => Get.back(result: true),
-                              style: TextButton.styleFrom(
-                                foregroundColor: AppColors.error,
-                              ),
-                              child: Text('Supprimer'.tr),
-                           ),
-                          ],
-                        ),
+                      final confirmed = await AppDialogs.confirmDelete(
+                        title: 'Supprimer la séance',
+                        message: 'Voulez-vous vraiment supprimer la séance de ${s.patientFullName} ? Cette action est irréversible.',
                       );
-                      if (confirm == true) {
+                      if (confirmed) {
                         Get.back();
                         await controller.supprimerSeance(s.id);
                       }

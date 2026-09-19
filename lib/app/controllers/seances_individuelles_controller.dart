@@ -498,6 +498,16 @@ class SeancesIndividuellesController extends GetxController {
     }
   }
 
+  /// Mappe les valeurs de statut Flutter → valeurs acceptées par le backend
+  String _mapStatutToBackend(String statut) {
+    const map = {
+      'planifiee': 'prevue',
+      'Planifiée': 'prevue',
+      'Planifie': 'prevue',
+    };
+    return map[statut] ?? statut;
+  }
+
   Future<bool> modifierRendezVous({
     required SeanceModel seance,
     required String newDate,
@@ -512,13 +522,21 @@ class SeancesIndividuellesController extends GetxController {
       return false;
     }
 
+    // Convertir le statut Flutter → statut backend
+    final backendStatut = _mapStatutToBackend(statut);
+
+    // Construire le payload — n'envoyer date que si elle a changé
+    final Map<String, dynamic> payload = {
+      'heure_debut': newHeureDebut,
+      'heure_fin': newHeureFin,
+      'statut': backendStatut,
+    };
+    if (newDate != seance.date) {
+      payload['date'] = newDate;
+    }
+
     try {
-      await _seanceService.updateSeance(seance.id, {
-        'date': newDate,
-        'heure_debut': newHeureDebut,
-        'heure_fin': newHeureFin,
-        'statut': statut,
-      });
+      await _seanceService.updateSeance(seance.id, payload);
 
       AppCacheManager.invalidateTag(CacheTags.seances);
       AppCacheManager.invalidateTag(CacheTags.dashboard);

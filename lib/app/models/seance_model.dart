@@ -132,9 +132,9 @@ class SeanceModel {
   }
 
   bool get isPresent => statutPresence == 'present';
- bool get isPlanifiee => statut == 'planifiee';
- bool get isRealisee => statut == 'faite';
- bool get isAnnulee => statut == 'annulee';
+  bool get isPlanifiee => statut == 'planifiee' || statut == 'prevue';
+  bool get isRealisee => statut == 'faite';
+  bool get isAnnulee => statut == 'annulee';
 }
 
 class PatientPlanningRecurrentModel {
