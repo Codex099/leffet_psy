@@ -99,7 +99,7 @@ class AppDialogs {
 
   static void showSuccess(String message, {String title = 'Succès'}) {
     Get.snackbar(
-      title, message,
+      title.tr, message.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: _success.withValues(alpha: 0.92),
       colorText: Colors.white,
@@ -112,7 +112,7 @@ class AppDialogs {
 
   static void showError(String message, {String title = 'Erreur'}) {
     Get.snackbar(
-      title, message,
+      title.tr, message.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: _danger.withValues(alpha: 0.92),
       colorText: Colors.white,
@@ -125,7 +125,7 @@ class AppDialogs {
 
   static void showInfo(String message, {String title = 'Info'}) {
     Get.snackbar(
-      title, message,
+      title.tr, message.tr,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: _primary.withValues(alpha: 0.92),
       colorText: Colors.white,
@@ -201,7 +201,7 @@ class _ConfirmDialog extends StatelessWidget {
                     const SizedBox(height: 16),
                   ],
                   Text(
-                    title,
+                    title.tr,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,
@@ -212,7 +212,7 @@ class _ConfirmDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    message,
+                    message.tr,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Color(0xFF9CA3AF),
@@ -233,7 +233,7 @@ class _ConfirmDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _DialogButton(
-                      label: cancelLabel,
+                      label: cancelLabel.tr,
                       textColor: const Color(0xFF9CA3AF),
                       onTap: () => Get.back(result: false),
                     ),
@@ -241,7 +241,7 @@ class _ConfirmDialog extends StatelessWidget {
                   Container(width: 1, color: Colors.white.withValues(alpha: 0.07)),
                   Expanded(
                     child: _DialogButton(
-                      label: confirmLabel,
+                      label: confirmLabel.tr,
                       textColor: confirmColor,
                       onTap: () => Get.back(result: true),
                       isBold: true,

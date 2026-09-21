@@ -134,6 +134,13 @@ class AccueilView extends GetView<AccueilController> {
                     .animate(delay: 450.ms)
                     .fadeIn(duration: 500.ms)
                     .slideY(begin: 0.15),
+                const SizedBox(height: 14),
+
+                // ── Assistant IA ─────────────────────────────────────────────
+                _buildAssistantIaBanner()
+                    .animate(delay: 530.ms)
+                    .fadeIn(duration: 500.ms)
+                    .slideY(begin: 0.15),
               ],
             ),
           );
@@ -440,6 +447,94 @@ class AccueilView extends GetView<AccueilController> {
         ),
       );
     });
+  }
+
+  Widget _buildAssistantIaBanner() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: BouncyTap(
+        onTap: () => Get.toNamed(AppRoutes.assistantIa),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF032B45),
+                Color(0xFF064973),
+                Color(0xFF0A5C8F),
+                Color(0xFF1A7CB0),
+              ],
+              stops: [0.0, 0.35, 0.7, 1.0],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF064973).withValues(alpha: 0.35),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.psychology_rounded,
+                  color: Colors.white,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Assistant IA Clinique'.tr,
+                      style: AppTextStyles.iosHeadline.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Analyse • Suggestions • Comptes-rendus'.tr,
+                      style: AppTextStyles.iosCaption1.copyWith(
+                        color: Colors.white.withValues(alpha: 0.75),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _quickAction({

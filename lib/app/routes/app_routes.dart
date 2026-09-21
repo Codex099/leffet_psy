@@ -51,4 +51,7 @@ abstract class AppRoutes {
 
  // ─── Calendrier admin ──────────────────────────────────────────────────────
   static const calendrier = '/calendrier';
+
+  // ─── Assistant IA ─────────────────────────────────────────────────────────
+  static const assistantIa = '/assistant-ia';
 }

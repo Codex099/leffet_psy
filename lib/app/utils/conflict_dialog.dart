@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'error_translator.dart';
 
 class ConflictDialog {
   /// Affiche une boîte de dialogue explicative claire et soignée pour un conflit d'horaires.
@@ -45,7 +46,7 @@ class ConflictDialog {
 
               // Titre principal
               Text(
-                title,
+                title.tr,
                 textAlign: TextAlign.center,
                 style: AppTextStyles.iosTitle3.copyWith(
                   fontWeight: FontWeight.w700,
@@ -88,7 +89,7 @@ class ConflictDialog {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      message,
+                      ErrorTranslator.translate(message),
                       style: AppTextStyles.iosBody.copyWith(
                         color: const Color(0xFF78350F),
                         height: 1.4,
@@ -210,7 +211,7 @@ class ConflictDialog {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                c.toString(),
+                                ErrorTranslator.translate(c.toString()),
                                 style: AppTextStyles.iosCaption1.copyWith(
                                   color: const Color(0xFF991B1B),
                                 ),

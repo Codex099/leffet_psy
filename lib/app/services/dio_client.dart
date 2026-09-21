@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart' hide Response;
 import '../config/api_config.dart';
 import '../routes/app_routes.dart';
+import '../utils/error_translator.dart';
 import 'cache_manager.dart';
 
 /// Client Dio centralisé avec intercepteurs JWT.
@@ -213,6 +214,5 @@ class _ErrorInterceptor extends Interceptor {
 
 /// Extension utilitaire pour extraire un message d'erreur d'une DioException
 extension DioErrorMessage on DioException {
- String get errorMessage =>
-      message ?? 'Une erreur inattendue est survenue.';
+  String get errorMessage => ErrorTranslator.translate(this);
 }

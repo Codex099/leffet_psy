@@ -59,6 +59,8 @@ import '../views/profil/profil_view.dart';
 import '../views/seances_individuelles/seances_individuelles_view.dart';
 import '../views/statut_historique/statut_historique_view.dart';
 import '../views/taches/taches_view.dart';
+import '../views/assistant_ia/assistant_ia_view.dart';
+import '../bindings/assistant_ia_binding.dart';
 
 class AppPages {
   AppPages._();
@@ -228,6 +230,11 @@ class AppPages {
       name: AppRoutes.historiqueSeancesPatient,
       page: () => const HistoriqueSeancesPatientView(),
       binding: HistoriqueSeancesPatientBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.assistantIa,
+      page: () => const AssistantIaView(),
+      binding: AssistantIaBinding(),
     ),
   ];
 }

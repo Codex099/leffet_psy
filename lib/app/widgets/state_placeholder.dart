@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../utils/error_translator.dart';
 import 'app_animations.dart';
 
 /// Composant réutilisable pour les états de chargement, d'erreur et vide.
@@ -59,31 +61,7 @@ class StatePlaceholder extends StatelessWidget {
   }
 
   static String sanitizeErrorMessage(String? raw) {
-    if (raw == null || raw.isEmpty) {
-      return 'Impossible de charger les données pour le moment.';
-   }
-    if (raw.contains('connection timeout') ||
-       raw.contains('receive timeout') ||
-       raw.contains('Délai d\'attente')) {
-     return 'Le délai d\'attente vers le serveur a expiré. Vérifiez votre connexion internet.';
-   }
-    if (raw.contains('connection error') ||
-       raw.contains('Impossible de se connecter') ||
-       raw.contains('SocketException')) {
-     return 'Impossible de joindre le serveur clinique. Vérifiez votre accès réseau.';
-   }
-    if (raw.contains('403') || raw.contains('Accès refusé')) {
-     return 'Accès restreint : vous ne disposez pas des droits nécessaires.';
-   }
-    if (raw.contains('404') || raw.contains('introuvable')) {
-     return 'Les informations demandées n\'ont pas été trouvées.';
-   }
-    final clean = raw
-        .replaceAll(RegExp(r'^DioException\s*\[.*?\]:\s*'), '')
-       .replaceAll(RegExp(r'^Exception:\s*'), '')
-       .replaceAll(RegExp(r'Error:\s*.*$'), '')
-       .trim();
-    return clean.isNotEmpty ? clean : 'Une anomalie réseau est survenue.';
+    return ErrorTranslator.translate(raw);
   }
 
   @override
@@ -147,7 +125,7 @@ class StatePlaceholder extends StatelessWidget {
                   if (title != null) ...[
                     const SizedBox(height: 18),
                     Text(
-                      title!,
+                      title!.tr,
                       style: AppTextStyles.iosTitle3.copyWith(
                         color: isError
                             ? AppColors.textPrimary
@@ -160,7 +138,7 @@ class StatePlaceholder extends StatelessWidget {
                   if (displayMessage != null) ...[
                     const SizedBox(height: 10),
                     Text(
-                      displayMessage,
+                      displayMessage.tr,
                       style: AppTextStyles.iosSubhead.copyWith(
                         color: AppColors.textSecondary,
                         height: 1.5,
@@ -198,7 +176,7 @@ class StatePlaceholder extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                actionLabel!,
+                                actionLabel!.tr,
                                 style: AppTextStyles.iosHeadline.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
