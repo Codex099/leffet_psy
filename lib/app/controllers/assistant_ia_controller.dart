@@ -9,6 +9,7 @@ import "../models/chat_session_model.dart";
 import "../models/patient_model.dart";
 import "../services/assistant_chat_storage_service.dart";
 import "../services/employee_service.dart";
+import "../services/language_service.dart";
 import "../services/note_patient_service.dart";
 import "../services/patient_service.dart";
 import "../services/plan_therapeutique_service.dart";
