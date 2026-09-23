@@ -46,10 +46,16 @@ class AssistantIaController extends GetxController {
   late ChatSession _chat;
   late final stt.SpeechToText _speech;
 
-  static const _defaultWelcome =
-      "Bonjour ! Je suis votre assistant clinique PsyCare. "
-      "Je peux analyser des dossiers, rédiger des comptes-rendus, proposer des techniques thérapeutiques "
-      "ou créer directement des plans de soins pour vos patients. Comment puis-je vous aider ?";
+  static String get _defaultWelcome {
+    final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
+    if (isArabic) {
+      return "مرحباً بك! أنا مساعدك العيادي الذكي PsyCare. "
+          "يمكنني مساعدتك في تحليل الملفات الطبية، صياغة تقارير المتابعة، واقتراح خطط علاجية وتعيين المهام. كيف يمكنني مساعدتك اليوم؟";
+    }
+    return "Bonjour ! Je suis votre assistant clinique PsyCare. "
+        "Je peux analyser des dossiers, rédiger des comptes-rendus, proposer des techniques thérapeutiques "
+        "ou créer directement des plans de soins pour vos patients. Comment puis-je vous aider ?";
+  }
 
   @override
   void onInit() {
@@ -57,6 +63,11 @@ class AssistantIaController extends GetxController {
     _speech = stt.SpeechToText();
     _initGemini();
     _loadHistoryAndInit();
+
+    // Réagir immédiatement si l'utilisateur change la langue de l'application
+    ever(LanguageService.currentLocale, (_) {
+      _initGemini();
+    });
   }
 
   @override
@@ -72,6 +83,23 @@ class AssistantIaController extends GetxController {
   void _initGemini({String? extraContext, String? overrideModel}) {
     _lastExtraContext = extraContext ?? _lastExtraContext;
     String effectivePrompt = GeminiConfig.systemPrompt;
+
+    final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
+    if (isArabic) {
+      effectivePrompt += "\n\n=== RÈGLE ABSOLUE DE LANGUE ===\n"
+          "L'application PsyCare est actuellement configurée en ARABE. "
+          "Tu DOIS IMPÉRATIVEMENT répondre TOUJOURS en ARABE (العربية الفصحى), avec des termes cliniques professionnels et clairs. "
+          "Structure systématiquement tes analyses en arabe avec ces sections exactes :\n"
+          "• الملاحظات\n"
+          "• النقاط الرئيسية\n"
+          "• المقترحات العلاجية\n"
+          "Toute explication, tout compte-rendu ou tout conseil doit être rédigé en ARABE.\n"
+          "IMPORTANT POUR LES ACTIONS : Si tu proposes un plan thérapeutique ou une tâche via le bloc json_action, "
+          "les titres, descriptions et étapes dans le JSON DOIVENT ÉGALEMENT être en ARABE.";
+    } else {
+      effectivePrompt += "\n\n=== LANGUE DE RÉPONSE ===\n"
+          "Détecte automatiquement la langue du message de l'utilisateur et réponds TOUJOURS dans la même langue (Français ou Arabe).";
+    }
 
     if (_lastExtraContext != null && _lastExtraContext!.isNotEmpty) {
       effectivePrompt += "\n\n=== CONTEXTE CLINIQUE DU DOSSIER PATIENT ===\n"
@@ -146,11 +174,14 @@ class AssistantIaController extends GetxController {
   /// Crée une nouvelle discussion
   Future<void> createNewSession({PatientModel? patient}) async {
     final newId = DateTime.now().millisecondsSinceEpoch.toString();
+    final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
     final session = ChatSessionModel(
       id: newId,
       title: patient != null
-          ? "Dossier : ${patient.nom} ${patient.prenom}"
-          : "Nouvelle discussion",
+          ? (isArabic
+              ? "ملف : ${patient.nom} ${patient.prenom}"
+              : "Dossier : ${patient.nom} ${patient.prenom}")
+          : (isArabic ? "محادثة جديدة" : "Nouvelle discussion"),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
       patientId: patient?.id,
@@ -158,8 +189,10 @@ class AssistantIaController extends GetxController {
       messages: [
         ChatMessage(
           text: patient != null
-              ? "Bonjour ! Le dossier de ${patient.prenom} ${patient.nom} est actif. "
-                  "Comment souhaitez-vous orienter son suivi aujourd'hui ?"
+              ? (isArabic
+                  ? "مرحباً بك! ملف المريض ${patient.prenom} ${patient.nom} نشط الآن. كيف تود توجيه المتابعة العلاجية اليوم؟"
+                  : "Bonjour ! Le dossier de ${patient.prenom} ${patient.nom} est actif. "
+                      "Comment souhaitez-vous orienter son suivi aujourd'hui ?")
               : _defaultWelcome,
           role: MessageRole.assistant,
         ),
@@ -219,7 +252,7 @@ class AssistantIaController extends GetxController {
     }
 
     sessions.value = await _storage.getAllSessions();
-    Get.snackbar("Succès", "Discussion renommée",
+    Get.snackbar("Succès".tr, "Discussion renommée".tr,
         snackPosition: SnackPosition.TOP, duration: const Duration(seconds: 2));
   }
 
@@ -236,7 +269,7 @@ class AssistantIaController extends GetxController {
       }
     }
 
-    Get.snackbar("Supprimé", "Discussion supprimée",
+    Get.snackbar("Succès".tr, "Discussion supprimée".tr,
         snackPosition: SnackPosition.TOP, duration: const Duration(seconds: 2));
   }
 
@@ -244,11 +277,14 @@ class AssistantIaController extends GetxController {
   Future<void> selectPatient(PatientModel? patient) async {
     selectedPatient.value = patient;
     final curr = currentSession.value;
+    final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
     if (curr != null) {
       curr.patientId = patient?.id;
       curr.patientName = patient != null ? "${patient.nom} ${patient.prenom}" : null;
-      if (patient != null && curr.title == "Nouvelle discussion") {
-        curr.title = "Dossier : ${patient.nom} ${patient.prenom}";
+      if (patient != null && (curr.title == "Nouvelle discussion" || curr.title == "محادثة جديدة")) {
+        curr.title = isArabic
+            ? "ملف : ${patient.nom} ${patient.prenom}"
+            : "Dossier : ${patient.nom} ${patient.prenom}";
       }
       await _storage.saveSession(curr);
       currentSession.refresh();
@@ -258,22 +294,30 @@ class AssistantIaController extends GetxController {
     if (patient == null) {
       _initGemini();
       messages.add(ChatMessage(
-        text: "ℹ️ Dossier patient détaché. L'assistant est maintenant en mode général.",
+        text: isArabic
+            ? "ℹ️ تم فصل ملف المريض. المساعد الآن في الوضع العام."
+            : "ℹ️ Dossier patient détaché. L'assistant est maintenant en mode général.",
         role: MessageRole.assistant,
       ));
-      _persistActiveMessages();
-      _scrollToBottom();
-      return;
+      if (curr != null) {
+        await _storage.saveSession(curr);
+        sessions.value = await _storage.getAllSessions();
+      }
+    } else {
+      await _enrichGeminiWithPatientData(patient);
+      messages.add(ChatMessage(
+        text: isArabic
+            ? "✅ **تمت مزامنة ملف المريض : ${patient.nom} ${patient.prenom}**.\n"
+                "يمكنك الآن تحليل الملف الطبي، صياغة تقارير المتابعة، أو إنشاء خطة علاجية وتعيين المهام بضغطة زر واحدة."
+            : "✅ **Dossier patient synchronisé : ${patient.nom} ${patient.prenom}**.\n"
+                "Vous pouvez maintenant analyser son dossier, rédiger des synthèses, ou créer un plan thérapeutique en 1 clic.",
+        role: MessageRole.assistant,
+      ));
+      if (curr != null) {
+        await _storage.saveSession(curr);
+        sessions.value = await _storage.getAllSessions();
+      }
     }
-
-    await _enrichGeminiWithPatientData(patient);
-
-    messages.add(ChatMessage(
-      text: "✅ **Dossier patient synchronisé : ${patient.nom} ${patient.prenom}**.\n"
-          "Vous pouvez maintenant analyser son dossier, rédiger des synthèses, ou créer un plan thérapeutique en 1 clic.",
-      role: MessageRole.assistant,
-    ));
-    _persistActiveMessages();
     _scrollToBottom();
   }
 
@@ -359,26 +403,33 @@ class AssistantIaController extends GetxController {
     isLoading.value = true;
     _scrollToBottom();
 
+    final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
+
     // Si premier message utilisateur, renommer automatiquement la discussion si titre par défaut
     final curr = currentSession.value;
-    if (curr != null && (curr.title == "Nouvelle discussion" || curr.title.isEmpty)) {
+    if (curr != null && (curr.title == "Nouvelle discussion" || curr.title == "محادثة جديدة" || curr.title.isEmpty)) {
       final autoTitle = msg.length > 30 ? "${msg.substring(0, 30)}..." : msg;
       curr.title = autoTitle;
       await _storage.saveSession(curr);
       sessions.value = await _storage.getAllSessions();
     }
 
+    // Prompt interne envoyé à Gemini avec consigne stricte de langue si l'application est en arabe
+    final promptForModel = isArabic
+        ? "$msg\n\n[تنبيه إلزامي للنموذج: واجهة التطبيق حالياً باللغة العربية. يجب أن يكون ردك كاملاً باللغة العربية الفصحى السريرية، مع الالتزام التام بالأقسام التالية:\n• الملاحظات\n• النقاط الرئيسية\n• المقترحات العلاجية\nوأي خطة أو مهمة في json_action يجب أن تكون باللغة العربية]."
+        : msg;
+
     try {
       GenerateContentResponse response;
       try {
-        response = await _chat.sendMessage(Content.text(msg));
+        response = await _chat.sendMessage(Content.text(promptForModel));
       } catch (firstErr) {
         final errStr = firstErr.toString().toLowerCase();
         // Si les serveurs Google sont en pic de charge (503 / high demand)
         if (errStr.contains("503") || errStr.contains("high demand") || errStr.contains("unavailable")) {
           // Re-tenter automatiquement avec le modèle rapide et disponible
           _initGemini(overrideModel: "gemini-3.1-flash-lite");
-          response = await _chat.sendMessage(Content.text(msg));
+          response = await _chat.sendMessage(Content.text(promptForModel));
         } else {
           rethrow;
         }
@@ -386,7 +437,7 @@ class AssistantIaController extends GetxController {
 
       messages.removeLast(); // Retire le loading
 
-      final rawReply = response.text ?? "Je n'ai pas pu générer de réponse.";
+      final rawReply = response.text ?? (isArabic ? "لم أتمكن من إنشاء إجابة." : "Je n'ai pas pu générer de réponse.");
       final parsed = _extractActionFromReply(rawReply);
 
       final assistantMsg = ChatMessage(
@@ -402,8 +453,10 @@ class AssistantIaController extends GetxController {
       final errStr = e.toString();
       String userFriendlyError = "Erreur : $errStr";
       if (errStr.contains("503") || errStr.contains("high demand") || errStr.contains("UNAVAILABLE")) {
-        userFriendlyError = "⚠️ Les serveurs de Google subissent une forte affluence temporaire (erreur 503). "
-            "Le modèle réessaie automatiquement, veuillez retaper votre message dans quelques secondes.";
+        userFriendlyError = isArabic
+            ? "⚠️ تشهد خوادم Google ضغطاً كبيراً مؤقتاً (خطأ 503). يقوم النموذج بإعادة المحاولة تلقائياً، يرجى إعادة إرسال رسالتك بعد ثوانٍ قليلة."
+            : "⚠️ Les serveurs de Google subissent une forte affluence temporaire (erreur 503). "
+                "Le modèle réessaie automatiquement, veuillez retaper votre message dans quelques secondes.";
       }
       messages.add(ChatMessage(
         text: userFriendlyError,
@@ -484,18 +537,22 @@ class AssistantIaController extends GetxController {
       messages.refresh();
       await _persistActiveMessages();
 
+      final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
       Get.snackbar(
-        "Plan enregistré ! 🎉",
-        "Le plan « $titre » avec ${etapes.length} étapes a été ajouté au dossier de ${patient.nom}.",
+        "Plan enregistré ! 🎉".tr,
+        isArabic
+            ? "تمت إضافة الخطة « $titre » بنجاح إلى ملف ${patient.nom}."
+            : "Le plan « $titre » avec ${etapes.length} étapes a été ajouté au dossier de ${patient.nom}.",
         snackPosition: SnackPosition.TOP,
         backgroundColor: const Color(0xFF0D9488),
         colorText: Colors.white,
         duration: const Duration(seconds: 4),
       );
     } catch (e) {
+      final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
       Get.snackbar(
-        "Erreur",
-        "Impossible d'enregistrer le plan : $e",
+        "Erreur".tr,
+        isArabic ? "تعذر حفظ الخطة العلاجية : $e" : "Impossible d'enregistrer le plan : $e",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red.shade700,
         colorText: Colors.white,
@@ -552,18 +609,22 @@ class AssistantIaController extends GetxController {
       messages.refresh();
       await _persistActiveMessages();
 
+      final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
       Get.snackbar(
-        "Tâche créée ! 🎉",
-        "La tâche « $titre » a été assignée avec succès à $assigneAffiche.",
+        "Tâche créée ! 🎉".tr,
+        isArabic
+            ? "تم تعيين المهمة « $titre » بنجاح إلى $assigneAffiche."
+            : "La tâche « $titre » a été assignée avec succès à $assigneAffiche.",
         snackPosition: SnackPosition.TOP,
         backgroundColor: const Color(0xFF0D9488),
         colorText: Colors.white,
         duration: const Duration(seconds: 4),
       );
     } catch (e) {
+      final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
       Get.snackbar(
-        "Erreur",
-        "Impossible de créer la tâche : $e",
+        "Erreur".tr,
+        isArabic ? "تعذر إنشاء المهمة : $e" : "Impossible de créer la tâche : $e",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.red.shade700,
         colorText: Colors.white,
@@ -595,13 +656,14 @@ class AssistantIaController extends GetxController {
       onError: (_) => isListening.value = false,
     );
     if (!available) {
-      Get.snackbar("Micro", "Microphone non disponible",
+      Get.snackbar("Micro".tr, "Microphone non disponible".tr,
           snackPosition: SnackPosition.TOP);
       return;
     }
+    final isArabic = (Get.locale?.languageCode == 'ar' || LanguageService.currentLocale.value.languageCode == 'ar');
     isListening.value = true;
     _speech.listen(
-      listenOptions: stt.SpeechListenOptions(localeId: "fr_FR"),
+      listenOptions: stt.SpeechListenOptions(localeId: isArabic ? "ar_DZ" : "fr_FR"),
       onResult: (r) {
         textController.text = r.recognizedWords;
         inputText.value = r.recognizedWords;

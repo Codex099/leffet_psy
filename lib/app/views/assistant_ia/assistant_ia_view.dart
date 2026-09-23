@@ -175,8 +175,8 @@ class _PatientContextHeader extends StatelessWidget {
                     ),
                     Text(
                       loadingData
-                          ? "Synchronisation du dossier en cours..."
-                          : "Dossier médical & antécédents synchronisés",
+                          ? "Synchronisation du dossier en cours...".tr
+                          : "Dossier médical & antécédents synchronisés".tr,
                       style: AppTextStyles.iosCaption2.copyWith(
                         color: AppColors.primary,
                         fontSize: 11,
@@ -189,14 +189,14 @@ class _PatientContextHeader extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.swap_horiz_rounded, size: 20),
                 color: AppColors.primary,
-                tooltip: "Changer de patient",
+                tooltip: "Changer de patient".tr,
                 onPressed: () => _openPatientPicker(context),
               ),
               // Bouton détacher patient
               IconButton(
                 icon: const Icon(Icons.close_rounded, size: 18),
                 color: AppColors.textTertiary,
-                tooltip: "Détacher du dossier",
+                tooltip: "Détacher du dossier".tr,
                 onPressed: () => controller.selectPatient(null),
               ),
             ],
@@ -227,7 +227,7 @@ class _PatientContextHeader extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    "Lier un dossier patient pour des analyses précises",
+                    "Lier un dossier patient pour des analyses précises".tr,
                     style: AppTextStyles.iosCaption1.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
@@ -337,7 +337,7 @@ class _PatientPickerSheetState extends State<_PatientPickerSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Sélectionner un patient",
+                  "Sélectionner un patient".tr,
                   style: AppTextStyles.iosTitle3.copyWith(fontWeight: FontWeight.w700),
                 ),
                 IconButton(
@@ -354,7 +354,7 @@ class _PatientPickerSheetState extends State<_PatientPickerSheet> {
               controller: _searchCtrl,
               onChanged: _filter,
               decoration: InputDecoration(
-                hintText: "Rechercher par nom ou prénom...",
+                hintText: "Rechercher par nom ou prénom...".tr,
                 prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
                 filled: true,
                 fillColor: AppColors.fieldBackground,
@@ -377,7 +377,7 @@ class _PatientPickerSheetState extends State<_PatientPickerSheet> {
                 : _filteredPatients.isEmpty
                     ? Center(
                         child: Text(
-                          "Aucun patient trouvé",
+                          "Aucun patient trouvé".tr,
                           style: AppTextStyles.iosBody.copyWith(color: AppColors.textTertiary),
                         ),
                       )
@@ -403,7 +403,9 @@ class _PatientPickerSheetState extends State<_PatientPickerSheet> {
                               style: AppTextStyles.iosBody.copyWith(fontWeight: FontWeight.w600),
                             ),
                             subtitle: Text(
-                              p.dateNaissance != null ? "Né(e) le ${p.dateNaissance}" : "Dossier actif",
+                              p.dateNaissance != null
+                                  ? "${"Né(e) le".tr} ${p.dateNaissance}"
+                                  : "Dossier actif".tr,
                               style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
                             ),
                             trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
@@ -453,7 +455,7 @@ class _DiscussionsModal extends StatelessWidget {
             child: Row(
               children: [
                 Text(
-                  "Historique des discussions",
+                  "Historique des discussions".tr,
                   style: AppTextStyles.iosTitle3.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const Spacer(),
@@ -491,7 +493,7 @@ class _DiscussionsModal extends StatelessWidget {
                     const Icon(Icons.add_comment_rounded, color: Colors.white, size: 18),
                     const SizedBox(width: 8),
                     Text(
-                      "Nouvelle discussion",
+                      "Nouvelle discussion".tr,
                       style: AppTextStyles.iosBody.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -509,7 +511,7 @@ class _DiscussionsModal extends StatelessWidget {
               if (list.isEmpty) {
                 return Center(
                   child: Text(
-                    "Aucune discussion enregistrée",
+                    "Aucune discussion enregistrée".tr,
                     style: AppTextStyles.iosBody.copyWith(color: AppColors.textTertiary),
                   ),
                 );
@@ -570,7 +572,7 @@ class _DiscussionsModal extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                "Patient : ${session.patientName}",
+                                "${"Patient :".tr} ${session.patientName}",
                                 style: AppTextStyles.iosCaption2.copyWith(
                                   color: AppColors.primary,
                                   fontWeight: FontWeight.w600,
@@ -592,14 +594,14 @@ class _DiscussionsModal extends StatelessWidget {
                           IconButton(
                             icon: const Icon(Icons.edit_outlined, size: 18),
                             color: AppColors.textSecondary,
-                            tooltip: "Renommer",
+                            tooltip: "Renommer".tr,
                             onPressed: () => _showRenameDialog(context, session),
                           ),
                           // Supprimer
                           IconButton(
                             icon: const Icon(Icons.delete_outline_rounded, size: 18),
                             color: AppColors.error,
-                            tooltip: "Supprimer",
+                            tooltip: "Supprimer".tr,
                             onPressed: () => _confirmDelete(context, session),
                           ),
                         ],
@@ -622,7 +624,7 @@ class _DiscussionsModal extends StatelessWidget {
   void _showRenameDialog(BuildContext context, ChatSessionModel session) {
     final textCtrl = TextEditingController(text: session.title);
     Get.defaultDialog(
-      title: "Renommer la discussion",
+      title: "Renommer la discussion".tr,
       titleStyle: AppTextStyles.iosTitle3.copyWith(fontWeight: FontWeight.w700),
       content: Padding(
         padding: const EdgeInsets.all(12),
@@ -630,13 +632,13 @@ class _DiscussionsModal extends StatelessWidget {
           controller: textCtrl,
           autofocus: true,
           decoration: InputDecoration(
-            labelText: "Titre",
+            labelText: "Titre".tr,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ),
-      textConfirm: "Enregistrer",
-      textCancel: "Annuler",
+      textConfirm: "Enregistrer".tr,
+      textCancel: "Annuler".tr,
       confirmTextColor: Colors.white,
       buttonColor: AppColors.primary,
       onConfirm: () {
@@ -648,10 +650,10 @@ class _DiscussionsModal extends StatelessWidget {
 
   void _confirmDelete(BuildContext context, ChatSessionModel session) {
     Get.defaultDialog(
-      title: "Supprimer la discussion ?",
-      middleText: "Voulez-vous vraiment supprimer « ${session.title} » ? Cette action est irréversible.",
-      textConfirm: "Supprimer",
-      textCancel: "Annuler",
+      title: "Supprimer la discussion ?".tr,
+      middleText: "Voulez-vous vraiment supprimer cette discussion ?".tr,
+      textConfirm: "Supprimer".tr,
+      textCancel: "Annuler".tr,
       confirmTextColor: Colors.white,
       buttonColor: AppColors.error,
       onConfirm: () {
@@ -687,7 +689,7 @@ class _SuggestionsBar extends StatelessWidget {
         itemBuilder: (_, i) {
           final (label, icon) = _suggestions[i];
           return BouncyTap(
-            onTap: () => controller.sendMessage(label),
+            onTap: () => controller.sendMessage(label.tr),
             child: Container(
               margin: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
               padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -709,7 +711,7 @@ class _SuggestionsBar extends StatelessWidget {
                   Icon(icon, size: 14, color: AppColors.primary),
                   const SizedBox(width: 6),
                   Text(
-                    label,
+                    label.tr,
                     style: AppTextStyles.iosCaption1.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
@@ -976,7 +978,7 @@ class _PlanActionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "PLAN THÉRAPEUTIQUE SUGGÉRÉ",
+                  "PLAN THÉRAPEUTIQUE SUGGÉRÉ".tr,
                   style: AppTextStyles.iosCaption2.copyWith(
                     letterSpacing: 0.8,
                     fontWeight: FontWeight.w800,
@@ -999,7 +1001,7 @@ class _PlanActionCard extends StatelessWidget {
             ...etapes.asMap().entries.map((entry) {
               final idx = entry.key + 1;
               final e = entry.value;
-              final etapeTitle = e is Map ? e['titre'] ?? 'Étape' : 'Étape';
+              final etapeTitle = e is Map ? e['titre'] ?? 'Étape'.tr : 'Étape'.tr;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(
@@ -1052,14 +1054,14 @@ class _PlanActionCard extends StatelessWidget {
                     color: const Color(0xFF0D9488).withValues(alpha: 0.3),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
-                    SizedBox(width: 6),
+                    const Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
+                    const SizedBox(width: 6),
                     Text(
-                      "Plan enregistré dans le dossier patient",
-                      style: TextStyle(
+                      "Plan enregistré dans le dossier patient".tr,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF0D9488),
@@ -1099,14 +1101,14 @@ class _PlanActionCard extends StatelessWidget {
                           ),
                         ),
                       )
-                    : const Row(
+                    : Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.save_as_rounded, size: 16, color: Colors.white),
-                          SizedBox(width: 6),
+                          const Icon(Icons.save_as_rounded, size: 16, color: Colors.white),
+                          const SizedBox(width: 6),
                           Text(
-                            "Enregistrer ce plan dans le dossier patient",
-                            style: TextStyle(
+                            "Enregistrer ce plan dans le dossier patient".tr,
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -1184,7 +1186,7 @@ class _TacheActionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "TÂCHE CLINIQUE SUGGÉRÉE",
+                  "TÂCHE CLINIQUE SUGGÉRÉE".tr,
                   style: AppTextStyles.iosCaption2.copyWith(
                     letterSpacing: 0.8,
                     fontWeight: FontWeight.w800,
@@ -1229,7 +1231,7 @@ class _TacheActionCard extends StatelessWidget {
                     const Icon(Icons.person_outline_rounded, size: 13, color: AppColors.primary),
                     const SizedBox(width: 4),
                     Text(
-                      "Assigné à : $assigneNom",
+                      "${"Assigné à :".tr} $assigneNom",
                       style: AppTextStyles.iosCaption2.copyWith(
                         color: AppColors.primaryDark,
                         fontWeight: FontWeight.w600,
@@ -1250,7 +1252,7 @@ class _TacheActionCard extends StatelessWidget {
                     const Icon(Icons.flag_outlined, size: 13, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text(
-                      "Priorité : $priorite",
+                      "${"Priorité :".tr} $priorite",
                       style: AppTextStyles.iosCaption2.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w600,
@@ -1277,14 +1279,14 @@ class _TacheActionCard extends StatelessWidget {
                     color: const Color(0xFF0D9488).withValues(alpha: 0.3),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
-                    SizedBox(width: 6),
+                    const Icon(Icons.done_all_rounded, size: 16, color: Color(0xFF0D9488)),
+                    const SizedBox(width: 6),
                     Text(
-                      "Tâche créée et assignée avec succès",
-                      style: TextStyle(
+                      "Tâche créée et assignée avec succès".tr,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF0D9488),
@@ -1330,7 +1332,7 @@ class _TacheActionCard extends StatelessWidget {
                           const Icon(Icons.add_task_rounded, size: 16, color: Colors.white),
                           const SizedBox(width: 6),
                           Text(
-                            "Créer et assigner cette tâche à $assigneNom",
+                            "${"Créer et assigner cette tâche".tr} ($assigneNom)",
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -1464,14 +1466,19 @@ class _InputBar extends StatelessWidget {
                               ]
                             : null,
                       ),
-                      child: Icon(
-                        controller.isListening.value
-                            ? Icons.mic_rounded
-                            : Icons.mic_none_rounded,
-                        size: 20,
-                        color: controller.isListening.value
-                            ? Colors.white
-                            : AppColors.textSecondary,
+                      child: Tooltip(
+                        message: controller.isListening.value
+                            ? "Arrêter l'écoute".tr
+                            : "Dictée vocale".tr,
+                        child: Icon(
+                          controller.isListening.value
+                              ? Icons.mic_rounded
+                              : Icons.mic_none_rounded,
+                          size: 20,
+                          color: controller.isListening.value
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   )),
@@ -1537,22 +1544,25 @@ class _InputBar extends StatelessWidget {
                             ]
                           : null,
                     ),
-                    child: loading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                    child: Tooltip(
+                      message: "Envoyer".tr,
+                      child: loading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Icon(
+                              Icons.arrow_upward_rounded,
+                              size: 20,
+                              color: (hasText && !loading)
+                                  ? Colors.white
+                                  : AppColors.textTertiary,
                             ),
-                          )
-                        : Icon(
-                            Icons.arrow_upward_rounded,
-                            size: 20,
-                            color: (hasText && !loading)
-                                ? Colors.white
-                                : AppColors.textTertiary,
-                          ),
+                    ),
                   ),
                 );
               }),
