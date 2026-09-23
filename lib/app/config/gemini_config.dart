@@ -1,9 +1,11 @@
-﻿// Cle API Gemini - a remplacer depuis https://aistudio.google.com/app/apikey
-// IMPORTANT : Ne pas commiter cette cle dans un depot public !
+// Cle API Gemini - chargee via --dart-define=GEMINI_API_KEY=<votre_cle>
+// IMPORTANT : Ne jamais commiter la cle directement dans le code !
+// Pour lancer : flutter run --dart-define=GEMINI_API_KEY=votre_cle_ici
 class GeminiConfig {
   GeminiConfig._();
 
-  /// Remplacez par votre vraie cle depuis https://aistudio.google.com/app/apikey
+  /// Cle chargee depuis la variable de compilation --dart-define=GEMINI_API_KEY
+  /// Ne jamais ecrire la cle en dur ici !
   static const String apiKey = String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
 
   /// Modele actif, rapide et disponible sans saturation 503
