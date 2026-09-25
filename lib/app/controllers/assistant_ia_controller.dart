@@ -419,6 +419,27 @@ class AssistantIaController extends GetxController {
         ? "$msg\n\n[تنبيه: الرد يجب أن يكون باللغة العربية الفصحى السريرية.]"
         : msg;
 
+    if (!GeminiConfig.isConfigured) {
+      messages.removeLast(); // Retire le loading
+      final missingKeyMsg = isArabic
+          ? "⚠️ **مفتاح Gemini API غير مفعّل أو غير موجود.**\n\n"
+              "لتشغيل المساعد الذكي، يجب تمرير المفتاح عند التشغيل :\n"
+              "```bash\nflutter run --dart-define=GEMINI_API_KEY=votre_cle_ici\n```\n"
+              "احصل على مفتاح مجاني من : https://aistudio.google.com/app/apikey"
+          : "⚠️ **La clé Gemini API n'est pas configurée.**\n\n"
+              "Pour utiliser l'assistant, lancez l'application avec votre clé API :\n"
+              "```bash\nflutter run --dart-define=GEMINI_API_KEY=votre_cle_ici\n```\n"
+              "Vous pouvez obtenir une clé gratuite sur : https://aistudio.google.com/app/apikey";
+      messages.add(ChatMessage(
+        text: missingKeyMsg,
+        role: MessageRole.assistant,
+      ));
+      await _persistActiveMessages();
+      isLoading.value = false;
+      _scrollToBottom();
+      return;
+    }
+
     try {
       // ── Boucle Function Calling ──────────────────────────────────────────
       GenerateContentResponse response;
@@ -429,7 +450,7 @@ class AssistantIaController extends GetxController {
         if (errStr.contains("503") ||
             errStr.contains("high demand") ||
             errStr.contains("unavailable")) {
-          _initGemini(overrideModel: "gemini-3.1-flash-lite");
+          _initGemini(overrideModel: "gemini-1.5-flash");
           response = await _chat.sendMessage(Content.text(promptForModel));
         } else {
           rethrow;
@@ -474,7 +495,17 @@ class AssistantIaController extends GetxController {
       messages.removeLast();
       final errStr = e.toString();
       String userFriendlyError = "Erreur : $errStr";
-      if (errStr.contains("503") ||
+      if (errStr.contains("unregistered callers") ||
+          errStr.contains("API consumer identity") ||
+          errStr.contains("API Key")) {
+        userFriendlyError = isArabic
+            ? "⚠️ **مفتاح Gemini API غير صالح أو غير معرف.**\n\n"
+                "يرجى التأكد من استخدام مفتاح Google AI Studio صالح (يبدأ بـ `AIzaSy...`) عبر :\n"
+                "```bash\nflutter run --dart-define=GEMINI_API_KEY=AIzaSy...\n```"
+            : "⚠️ **Clé API Gemini invalide ou absente.**\n\n"
+                "Veuillez vérifier que vous utilisez une clé API Google AI Studio valide (commençant par `AIzaSy...`) avec :\n"
+                "```bash\nflutter run --dart-define=GEMINI_API_KEY=AIzaSy...\n```";
+      } else if (errStr.contains("503") ||
           errStr.contains("high demand") ||
           errStr.contains("UNAVAILABLE")) {
         userFriendlyError = isArabic
@@ -597,10 +628,11 @@ class AssistantIaController extends GetxController {
       'nom': nom,
       'prenom': prenom,
       'est_actif': true,
-      'sexe': ?sexe,
-      'date_naissance': ?dateNaissance,
-      'nombre_freres_soeurs': ?nombreFreresSoeurs,
-      'ordre_naissance': ?ordreNaissance,
+      if (sexe != null) 'sexe': sexe,
+      if (dateNaissance != null) 'date_naissance': dateNaissance,
+      if (nombreFreresSoeurs != null)
+        'nombre_freres_soeurs': nombreFreresSoeurs,
+      if (ordreNaissance != null) 'ordre_naissance': ordreNaissance,
     };
 
     final created = await _patientService.createPatient(payload);

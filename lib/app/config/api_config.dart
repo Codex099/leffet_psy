@@ -1,9 +1,10 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Configuration centralisée de l'API backend PsyCare.
 /// TOUTES les URLs et constantes réseau sont définies ici.
 /// Aucune URL ne doit être codée en dur dans les services.
 class ApiConfig {
- ApiConfig._();
+  ApiConfig._();
 
   // ─── Base URL ──────────────────────────────────────────────────────────────
   /// URL publique Vercel pour la release et les tests distants
@@ -11,31 +12,47 @@ class ApiConfig {
 
   // ─── Cloudinary Storage ────────────────────────────────────────────────────
   /// Nom du cloud Cloudinary (Dashboard → Cloud name)
-  static const String cloudinaryCloudName = String.fromEnvironment(
-    'CLOUDINARY_CLOUD_NAME',
-    defaultValue: 'dupnlcne9',
-  );
+  static String get cloudinaryCloudName {
+    const defineVal = String.fromEnvironment('CLOUDINARY_CLOUD_NAME');
+    if (defineVal.isNotEmpty) return defineVal;
+    try {
+      final envVal = dotenv.maybeGet('CLOUDINARY_CLOUD_NAME');
+      if (envVal != null && envVal.isNotEmpty) return envVal;
+    } catch (_) {}
+    return 'dupnlcne9';
+  }
 
   /// Upload preset non signé (Settings → Upload → Upload presets → Unsigned)
   /// Permet l'upload depuis mobile sans exposer le secret API.
-  static const String cloudinaryUploadPreset = String.fromEnvironment(
-    'CLOUDINARY_UPLOAD_PRESET',
-    defaultValue: 'psycare_uploads',
-  );
+  static String get cloudinaryUploadPreset {
+    const defineVal = String.fromEnvironment('CLOUDINARY_UPLOAD_PRESET');
+    if (defineVal.isNotEmpty) return defineVal;
+    try {
+      final envVal = dotenv.maybeGet('CLOUDINARY_UPLOAD_PRESET');
+      if (envVal != null && envVal.isNotEmpty) return envVal;
+    } catch (_) {}
+    return 'psycare_uploads';
+  }
 
   /// URL de base de l'API upload Cloudinary
   static String get cloudinaryUploadUrl =>
       'https://api.cloudinary.com/v1_1/$cloudinaryCloudName/auto/upload';
 
-  /// Surcharge optionnelle via: flutter run/build --dart-define=API_URL=...
-  static const String _customBaseUrl = String.fromEnvironment('API_URL');
+  /// Surcharge optionnelle via .env (API_URL=...) ou --dart-define=API_URL=...
+  static String get _customBaseUrl {
+    const defineVal = String.fromEnvironment('API_URL');
+    if (defineVal.isNotEmpty) return defineVal;
+    try {
+      final envVal = dotenv.maybeGet('API_URL');
+      if (envVal != null && envVal.isNotEmpty) return envVal;
+    } catch (_) {}
+    return '';
+  }
 
   /// URL de base du backend FastAPI.
   /// S'adapte automatiquement selon l'environnement :
-  /// - Release (`flutter build apk --release`) → Vercel : https://leffetpsy.vercel.app
-  /// - Debug Émulateur Android (AVD) → http://10.0.2.2:8000 (loopback vers l'hôte)
-  /// - Debug Web / Desktop → http://127.0.0.1:8000 (localhost)
-  /// - Surchargé par `--dart-define=API_URL=...` si spécifié
+  /// - Surchargé par `.env` ou `--dart-define=API_URL=...` si spécifié
+  /// - Par défaut → Vercel : https://leffetpsy.vercel.app
   static String get baseUrl {
     if (_customBaseUrl.isNotEmpty) {
       return _customBaseUrl;

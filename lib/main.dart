@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'app.dart';
 import 'app/services/language_service.dart';
@@ -6,6 +7,13 @@ import 'app/services/persistent_cache_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Charger automatiquement les variables d'environnement depuis .env
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Info: .env non chargé ($e)");
+  }
 
   // Optimisation de la mémoire cache d'images (Pro Dev Best Practice)
   // Évite les fuites de mémoire et les micro-saccades lors du défilement des listes avec photos
