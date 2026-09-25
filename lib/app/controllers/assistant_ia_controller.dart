@@ -387,7 +387,91 @@ class AssistantIaController extends GetxController {
     }
   }
 
-  // ── Envoi de message avec boucle Function Calling ─────────────────────────
+  // ── Envoi et modification de message avec boucle Function Calling ───────────
+
+  /// Copie le texte d'un message dans la zone de saisie principale
+  void copyToInput(String text) {
+    textController.text = text;
+    inputText.value = text;
+    textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: text.length),
+    );
+  }
+
+  /// Modifie un message utilisateur existant.
+  /// - [resend] = true : met à jour le message, retire les réponses postérieures et relance l'IA.
+  /// - [resend] = false : met à jour le texte du message dans l'historique sans relancer l'IA.
+  Future<void> editUserMessage(int messageIndex, String newText, {bool resend = true}) async {
+    if (messageIndex < 0 || messageIndex >= messages.length) return;
+    if (isLoading.value) {
+      if (Get.context != null) {
+        Get.snackbar(
+          "Patientez".tr,
+          "Veuillez attendre la fin de la réponse en cours".tr,
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+      return;
+    }
+
+    final trimmed = newText.trim();
+    if (trimmed.isEmpty) return;
+
+    if (!resend) {
+      final old = messages[messageIndex];
+      messages[messageIndex] = ChatMessage(
+        id: old.id,
+        text: trimmed,
+        role: old.role,
+        time: old.time,
+        action: old.action,
+      );
+      await _persistActiveMessages();
+      if (Get.context != null) {
+        Get.snackbar(
+          "Succès".tr,
+          "Message modifié".tr,
+          snackPosition: SnackPosition.TOP,
+          duration: const Duration(seconds: 2),
+        );
+      }
+      return;
+    }
+
+    // Retirer les réponses et messages qui suivent pour régénérer proprement
+    if (messageIndex < messages.length - 1) {
+      messages.removeRange(messageIndex + 1, messages.length);
+    }
+
+    final old = messages[messageIndex];
+    messages[messageIndex] = ChatMessage(
+      id: old.id,
+      text: trimmed,
+      role: old.role,
+      time: DateTime.now(),
+      action: old.action,
+    );
+
+    // Reconstruire l'historique Gemini précédent ce message
+    final history = <Content>[];
+    for (int j = 0; j < messageIndex; j++) {
+      final m = messages[j];
+      if (m.text.isNotEmpty && !m.isLoading) {
+        if (m.role == MessageRole.user) {
+          history.add(Content.text(m.text));
+        } else {
+          history.add(Content.model([TextPart(m.text)]));
+        }
+      }
+    }
+    _chat = _model.startChat(history: history.isNotEmpty ? history : null);
+
+    messages.add(ChatMessage(text: "", role: MessageRole.assistant, isLoading: true));
+    isLoading.value = true;
+    _scrollToBottom();
+
+    await _executeModelPrompt(trimmed);
+  }
 
   Future<void> sendMessage([String? text]) async {
     final msg = (text ?? textController.text).trim();
@@ -395,9 +479,6 @@ class AssistantIaController extends GetxController {
 
     textController.clear();
     inputText.value = "";
-
-    final isArabic = (Get.locale?.languageCode == 'ar' ||
-        LanguageService.currentLocale.value.languageCode == 'ar');
 
     messages.add(ChatMessage(text: msg, role: MessageRole.user));
     messages.add(ChatMessage(text: "", role: MessageRole.assistant, isLoading: true));
@@ -414,6 +495,13 @@ class AssistantIaController extends GetxController {
       await _storage.saveSession(curr);
       sessions.value = await _storage.getAllSessions();
     }
+
+    await _executeModelPrompt(msg);
+  }
+
+  Future<void> _executeModelPrompt(String msg) async {
+    final isArabic = (Get.locale?.languageCode == 'ar' ||
+        LanguageService.currentLocale.value.languageCode == 'ar');
 
     final promptForModel = isArabic
         ? "$msg\n\n[تنبيه: الرد يجب أن يكون باللغة العربية الفصحى السريرية.]"

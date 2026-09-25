@@ -764,15 +764,72 @@ class _MessageBubble extends StatelessWidget {
               crossAxisAlignment:
                   isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
-                _BubbleContent(message: message, isUser: isUser),
-                const SizedBox(height: 2),
-                Text(
-                  _formatTime(message.time),
-                  style: AppTextStyles.iosCaption2.copyWith(
-                    color: AppColors.textTertiary,
-                    fontSize: 10,
+                if (isUser)
+                  GestureDetector(
+                    onLongPress: () => _showEditMessageModal(context),
+                    child: _BubbleContent(message: message, isUser: isUser),
+                  )
+                else
+                  _BubbleContent(message: message, isUser: isUser),
+                const SizedBox(height: 3),
+                if (isUser)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BouncyTap(
+                        onTap: () => _showEditMessageModal(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.25),
+                              width: 0.6,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.edit_rounded,
+                                size: 10.5,
+                                color: AppColors.primary,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                "Modifier".tr,
+                                style: AppTextStyles.iosCaption2.copyWith(
+                                  color: AppColors.primary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _formatTime(message.time),
+                        style: AppTextStyles.iosCaption2.copyWith(
+                          color: AppColors.textTertiary,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    _formatTime(message.time),
+                    style: AppTextStyles.iosCaption2.copyWith(
+                      color: AppColors.textTertiary,
+                      fontSize: 10,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -785,8 +842,317 @@ class _MessageBubble extends StatelessWidget {
         .slideY(begin: 0.15, end: 0, duration: 250.ms);
   }
 
+  void _showEditMessageModal(BuildContext context) {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _EditMessageSheet(
+        message: message,
+        index: index,
+        controller: controller,
+      ),
+    );
+  }
+
   String _formatTime(DateTime t) =>
       "${t.hour.toString().padLeft(2, "0")}:${t.minute.toString().padLeft(2, "0")}";
+}
+
+// ── Feuille de modification de message utilisateur ────────────────────────────
+class _EditMessageSheet extends StatefulWidget {
+  final ChatMessage message;
+  final int index;
+  final AssistantIaController controller;
+
+  const _EditMessageSheet({
+    required this.message,
+    required this.index,
+    required this.controller,
+  });
+
+  @override
+  State<_EditMessageSheet> createState() => _EditMessageSheetState();
+}
+
+class _EditMessageSheetState extends State<_EditMessageSheet> {
+  late final TextEditingController _textCtrl;
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _textCtrl = TextEditingController(text: widget.message.text);
+    _focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _textCtrl.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(
+        bottom: bottomInset > 0 ? bottomInset + 12 : 24,
+      ),
+      child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Barre de drag
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+
+              // En-tête
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.oceanGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.edit_rounded,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Modifier le message".tr,
+                        style: AppTextStyles.iosTitle3.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Champ d'édition du texte
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceVariant.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border, width: 0.8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: TextField(
+                    controller: _textCtrl,
+                    focusNode: _focusNode,
+                    minLines: 2,
+                    maxLines: 8,
+                    style: AppTextStyles.iosBody.copyWith(
+                      color: AppColors.textPrimary,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Texte du message...".tr,
+                      border: InputBorder.none,
+                      hintStyle: AppTextStyles.iosBody.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Raccourcis Copier / Copier dans la saisie
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          side: BorderSide(color: AppColors.border, width: 0.8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          Clipboard.setData(ClipboardData(text: _textCtrl.text));
+                          Get.snackbar(
+                            "Succès".tr,
+                            "Message copié".tr,
+                            snackPosition: SnackPosition.TOP,
+                            duration: const Duration(seconds: 2),
+                          );
+                        },
+                        icon: const Icon(Icons.copy_rounded, size: 14),
+                        label: Text(
+                          "Copier le message".tr,
+                          style: AppTextStyles.iosCaption1.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          side: BorderSide(
+                            color: AppColors.primary.withValues(alpha: 0.4),
+                            width: 0.8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          widget.controller.copyToInput(_textCtrl.text);
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          Icons.input_rounded,
+                          size: 14,
+                          color: AppColors.primary,
+                        ),
+                        label: Text(
+                          "Copier dans la saisie".tr,
+                          style: AppTextStyles.iosCaption1.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Boutons d'action principaux
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    // Bouton Modifier et renvoyer à l'IA
+                    BouncyTap(
+                      onTap: () {
+                        final newText = _textCtrl.text.trim();
+                        if (newText.isEmpty) return;
+                        HapticFeedback.mediumImpact();
+                        Navigator.pop(context);
+                        widget.controller.editUserMessage(
+                          widget.index,
+                          newText,
+                          resend: true,
+                        );
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        decoration: BoxDecoration(
+                          gradient: AppColors.oceanGradient,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.auto_awesome_rounded,
+                              size: 17,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Modifier et renvoyer".tr,
+                              style: AppTextStyles.iosCallout.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Bouton Enregistrer seulement
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                      onPressed: () {
+                        final newText = _textCtrl.text.trim();
+                        if (newText.isEmpty) return;
+                        HapticFeedback.lightImpact();
+                        Navigator.pop(context);
+                        widget.controller.editUserMessage(
+                          widget.index,
+                          newText,
+                          resend: false,
+                        );
+                      },
+                      child: Text(
+                        "Enregistrer seulement".tr,
+                        style: AppTextStyles.iosSubhead.copyWith(
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _AvatarIA extends StatelessWidget {
