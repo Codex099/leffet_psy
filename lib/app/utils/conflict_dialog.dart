@@ -169,7 +169,7 @@ class ConflictDialog {
               ),
               const SizedBox(height: 6),
               Text(
-                '$createdCount séances générées avec succès.'.tr,
+                '$createdCount ${'séances générées avec succès.'.tr}',
                 style: AppTextStyles.iosBody.copyWith(
                   color: const Color(0xFF16A34A),
                   fontWeight: FontWeight.w600,

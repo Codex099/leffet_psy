@@ -167,7 +167,7 @@ class NotesPatientView extends GetView<NotesPatientController> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${controller.auteurDe(note)} | ${controller.dateDe(note)}'.tr,
+                                    '${controller.auteurDe(note)} | ${controller.dateDe(note)}',
                                    style: AppTextStyles.bodySmall.copyWith(
                                       fontSize: 11,
                                     ),

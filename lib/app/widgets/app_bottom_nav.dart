@@ -75,6 +75,20 @@ class _AppBottomNavState extends State<AppBottomNav>
   }
 
   @override
+  void didUpdateWidget(AppBottomNav oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentIndex != widget.currentIndex) {
+      _currentIndex = widget.currentIndex;
+      _pillPosition = Tween<double>(
+        begin: _currentIndex.toDouble(),
+        end: _currentIndex.toDouble(),
+      ).animate(
+        CurvedAnimation(parent: _pillController, curve: Curves.easeOutCubic),
+      );
+    }
+  }
+
+  @override
   void dispose() {
     _pillController.dispose();
     super.dispose();
@@ -165,8 +179,8 @@ class _AppBottomNavState extends State<AppBottomNav>
                             AnimatedBuilder(
                               animation: _pillPosition,
                               builder: (context, _) {
-                                return Positioned(
-                                  left: _pillPosition.value * itemWidth + 4,
+                                return PositionedDirectional(
+                                  start: _pillPosition.value * itemWidth + 4,
                                   top: 0,
                                   bottom: 0,
                                   width: itemWidth - 8,

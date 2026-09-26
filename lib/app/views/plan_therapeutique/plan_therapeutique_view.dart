@@ -200,7 +200,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                         Text(plan.titre, style: AppTextStyles.sectionTitle),
                         const SizedBox(height: 4),
                         Text(
-                          '${plan.etapesTerminees} / ${plan.totalEtapes} étapes complétées'.tr,
+                          '${plan.etapesTerminees} / ${plan.totalEtapes} ${'étapes complétées'.tr}',
                          style: AppTextStyles.bodySmall,
                         ),
                       ],
@@ -250,7 +250,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
               ),
               const SizedBox(height: 8),
               Text(
-                '${(plan.progression * 100).toInt()}% accompli'.tr,
+                '${(plan.progression * 100).toInt()}% ${'accompli'.tr}',
                style: AppTextStyles.bodySmall.copyWith(
                   color: AppColors.textSecondary,
                 ),
@@ -269,7 +269,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
              padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
             ),
 
-            Text('${etapes.length} étapes'.tr, style: AppTextStyles.bodySmall),
+            Text('${etapes.length} ${'étapes'.tr}', style: AppTextStyles.bodySmall),
          ],
         ),
         const SizedBox(height: 12),
@@ -351,7 +351,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 child: Row(
                   children: [
                     Text(
-                      '${etape.ordre}.'.tr,
+                      '${etape.ordre}.',
                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.bold,

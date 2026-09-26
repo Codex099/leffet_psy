@@ -79,7 +79,7 @@ class ErrorTranslator {
       case 503:
         return 'Service temporairement indisponible.'.tr;
       default:
-        return 'Une erreur est survenue (Code $statusCode).'.tr;
+        return '${'Une erreur est survenue'.tr} (Code $statusCode).';
     }
   }
 

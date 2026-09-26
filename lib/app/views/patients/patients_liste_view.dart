@@ -170,7 +170,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   children: [
                     Obx(
                       () => Text(
-                        '${controller.filteredPatients.length} patient(s)'.tr,
+                        '${controller.filteredPatients.length} ${'patient(s)'.tr}',
                        style: AppTextStyles.iosCaption2.copyWith(
                           color: AppColors.textTertiary,
                           fontWeight: FontWeight.w600,

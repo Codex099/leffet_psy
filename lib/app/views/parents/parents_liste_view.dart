@@ -99,7 +99,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                         ? 'Aucun résultat'.tr
                        : 'Aucun parent enregistré'.tr,
                    message: query.isNotEmpty
-                        ? 'Aucun parent ne correspond à "$query".'.tr
+                        ? '${'Aucun parent ne correspond à'.tr} "$query".'
                        : 'Ajoutez des parents pour les associer aux fiches des patients.'.tr,
                    actionLabel: 'Nouveau parent'.tr,
                    onAction: () => Get.toNamed(AppRoutes.editParent),
@@ -295,7 +295,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              nom.isNotEmpty ? '$nom ($role)'.tr : 'Patient ($role)'.tr,
+                              nom.isNotEmpty ? '$nom (${role.tr})' : '${'Patient'.tr} (${role.tr})',
                               style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
                             ),
                           ),
@@ -371,7 +371,7 @@ class ParentsListeView extends GetView<ParentsListeController> {
            style: AppTextStyles.iosHeadline
                 .copyWith(fontWeight: FontWeight.w800)),
         content: Text(
-          'Voulez-vous vraiment supprimer le parent $name ? Cette action est irréversible.'.tr,
+          '${'Voulez-vous vraiment supprimer le parent'.tr} $name ? ${'Cette action est irréversible.'.tr}',
          style: AppTextStyles.iosSubhead,
         ),
         actions: [

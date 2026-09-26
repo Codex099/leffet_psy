@@ -144,7 +144,7 @@ class GroupesListeView extends GetView<GroupesListeController> {
             ),
           ),
           title: groupe.nom,
-          subtitle: '${groupe.membresCount} participant(s) inscrit(s)'.tr,
+          subtitle: '${groupe.membresCount} ${'participants inscrits'.tr}',
          trailing: StatusBadge.active(label: 'Atelier Actif'.tr),
           showChevron: true,
           onTap: () =>

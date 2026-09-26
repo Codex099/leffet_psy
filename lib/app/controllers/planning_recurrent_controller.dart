@@ -170,7 +170,7 @@ class PlanningRecurrentController extends GetxController {
       if (!TimeUtils.isHeureApres(d, f)) {
         Get.snackbar(
           'Horaire non valide'.tr,
-          'L\'heure de fin doit être après l\'heure de début pour $day.'.tr,
+          '${"L'heure de fin doit être après l'heure de début pour".tr} $day.',
           snackPosition: SnackPosition.BOTTOM,
         );
         f = TimeUtils.ajouterMinutes(d, minutesAAjouter: 45);
@@ -257,7 +257,7 @@ class PlanningRecurrentController extends GetxController {
         final end = getSlotEndForDay(day);
         final valErr = TimeUtils.validerHoraires(start, end);
         if (valErr != null) {
-          Get.snackbar('Horaires non valides ($day)'.tr, valErr.tr,
+          Get.snackbar('${'Horaires non valides'.tr} ($day)', valErr.tr,
               snackPosition: SnackPosition.BOTTOM);
           return;
         }

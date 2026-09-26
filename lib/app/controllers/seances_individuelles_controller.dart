@@ -396,7 +396,7 @@ class SeancesIndividuellesController extends GetxController {
         final end = getSlotEndForDay(day);
         final valErr = TimeUtils.validerHoraires(start, end);
         if (valErr != null) {
-          Get.snackbar('Horaires non valides ($day)'.tr, valErr.tr,
+          Get.snackbar('${'Horaires non valides'.tr} ($day)', valErr.tr,
               snackPosition: SnackPosition.BOTTOM);
           return false;
         }

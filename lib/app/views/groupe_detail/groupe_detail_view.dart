@@ -124,8 +124,8 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                                   StatusBadge.active(label: 'Atelier Clinique'.tr),
                                  const SizedBox(width: 8),
                                   Text(
-                                    '${patientsList.length} membre${patientsList.length > 1 ? '.trs' : ''}',
-                                   style: AppTextStyles.iosFootnote,
+                                    '${patientsList.length} ${patientsList.length > 1 ? 'membres'.tr : 'membre'.tr}',
+                                    style: AppTextStyles.iosFootnote,
                                   ),
                                 ],
                               ),
@@ -177,8 +177,8 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
                           color: AppColors.primary,
                           size: 20,
                         ),
-                        title: 'Tous les ${jour.toUpperCase()}'.tr,
-                       subtitle: '$debut "” $fin'.tr,
+                        title: '${'Tous les'.tr} ${jour.toUpperCase()}',
+                       subtitle: '$debut – $fin',
                      );
                     }),
                 ],
@@ -186,7 +186,7 @@ class GroupeDetailView extends GetView<GroupeDetailController> {
 
               // ── Membres & Participants ──
               IosCard(
-                title: 'Membres Inscrits (${patientsList.length})'.tr,
+                title: '${'Membres Inscrits'.tr} (${patientsList.length})',
                subtitle: 'Patients associés à ce groupe clinique'.tr,
                children: [
                   if (patientsList.isEmpty)

@@ -338,13 +338,13 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       return _buildSectionCard(
                         title: 'Parent lié'.tr,
                         subtitle: parentsList.length > 1
-                            ? '${parentsList.length} parents'.tr
+                            ? '${parentsList.length} ${'parents'.tr}'
                             : null,
                         icon: Icons.phone_outlined,
                         actionLabel: hasMore
                             ? (showAll
                                 ? 'Réduire'.tr
-                                : 'Voir tout (${parentsList.length})'.tr)
+                                : '${'Voir tout'.tr} (${parentsList.length})')
                             : 'Créer nouveau'.tr,
                         onActionTap: hasMore
                             ? () => controller.showAllParents.toggle()
@@ -403,7 +403,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                '$name ($role)'.tr,
+                                                '$name (${role.tr})',
                                                 style: AppTextStyles.bodyMedium
                                                     .copyWith(
                                                       fontWeight:
@@ -500,13 +500,13 @@ class PatientInfoView extends GetView<PatientInfoController> {
                         return _buildSectionCard(
                           title: 'Plan thérapeutique'.tr,
                           subtitle: plansList.isNotEmpty
-                              ? '${plansList.length} plan(s)'.tr
+                              ? '${plansList.length} ${'plans'.tr}'
                               : null,
                           icon: Icons.assignment_rounded,
                           actionLabel: hasMore
                               ? (showAll
                                   ? 'Réduire'.tr
-                                  : 'Voir tout (${plansList.length})'.tr)
+                                  : '${'Voir tout'.tr} (${plansList.length})')
                               : (plansList.isNotEmpty ? 'Gérer'.tr : null),
                           onActionTap: hasMore
                               ? () => controller.showAllPlans.toggle()
@@ -574,8 +574,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                               : '✓',
                                           title: plan.titre,
                                           subtitle:
-                                              '${plan.etapesTerminees}/${plan.totalEtapes} étapes'
-                                                  .tr,
+                                              '${plan.etapesTerminees}/${plan.totalEtapes} ${'étapes'.tr}',
                                           statusLabel: plan.statut == 'actif'
                                               ? 'Actif'.tr
                                               : plan.statut == 'termine'
@@ -692,7 +691,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                         actionLabel: hasMore
                             ? (showAll
                                 ? 'Réduire'.tr
-                                : 'Voir tout (${statusList.length})'.tr)
+                                : '${'Voir tout'.tr} (${statusList.length})')
                             : 'Gérer'.tr,
                         onActionTap: hasMore
                             ? () => controller.showAllStatuts.toggle()
@@ -845,13 +844,13 @@ class PatientInfoView extends GetView<PatientInfoController> {
                       return _buildSectionCard(
                         title: 'Notes & Observations'.tr,
                         subtitle: notesList.isNotEmpty
-                            ? '${notesList.length} note(s)'.tr
+                            ? '${notesList.length} ${'notes'.tr}'
                             : null,
                         icon: Icons.note_alt_outlined,
                         actionLabel: hasMore
                             ? (showAll
                                 ? 'Réduire'.tr
-                                : 'Voir tout (${notesList.length})'.tr)
+                                : '${'Voir tout'.tr} (${notesList.length})')
                             : null,
                         onActionTap: hasMore
                             ? () => controller.showAllNotes.toggle()
@@ -1088,7 +1087,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
             Text(
               isExpanded
                   ? 'Réduire'.tr
-                  : 'Voir tout ($totalCount $itemLabelPlural)'.tr,
+                  : '${'Voir tout'.tr} ($totalCount ${itemLabelPlural.tr})',
               style: AppTextStyles.bodySmall.copyWith(
                 color: isExpanded ? AppColors.textSecondary : AppColors.primary,
                 fontWeight: FontWeight.w600,
@@ -1129,7 +1128,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '$number. $title'.tr,
+                '$number. $title',
                style: AppTextStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -1166,10 +1165,10 @@ class PatientInfoView extends GetView<PatientInfoController> {
         title: 'Comptes-rendus rédigés'.tr,
         subtitle: list.isEmpty
             ? null
-            : '${list.length} compte(s)-rendu(s)'.tr,
+            : '${list.length} ${'comptes-rendus'.tr}',
         icon: Icons.assignment_turned_in_rounded,
         actionLabel: hasMore
-            ? (showAll ? 'Réduire'.tr : 'Voir tout (${list.length})'.tr)
+            ? (showAll ? 'Réduire'.tr : '${'Voir tout'.tr} (${list.length})')
             : null,
         onActionTap: hasMore
             ? () => controller.showAllComptesRendus.toggle()
@@ -1483,7 +1482,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
                 Text(note.contenu, style: AppTextStyles.body),
                 const SizedBox(height: 4),
                 Text(
-                  '${note.auteurNom} | ${note.dateCreation ?? ""}'.tr,
+                  '${note.auteurNom} | ${note.dateCreation ?? ""}',
                   style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                 ),
                 if (noteMedias.isNotEmpty) ...[
@@ -1544,7 +1543,7 @@ class PatientInfoView extends GetView<PatientInfoController> {
           .map(
             (p) => SearchableItem<dynamic>(
               value: p.id,
-              label: '${p.prenom} ${p.nom}'.tr,
+              label: '${p.prenom} ${p.nom}',
              subtitle: p.telephone != null && p.telephone!.isNotEmpty
                   ? p.telephone
                   : 'Parent / Tuteur',

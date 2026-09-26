@@ -313,7 +313,7 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                                     .contains(p.id);
                                 return FilterChip(
                                   selected: isSelected,
-                                  label: Text('${p.prenom} ${p.nom}'.tr),
+                                  label: Text('${p.prenom} ${p.nom}'),
                                  selectedColor: AppColors.primary.withValues(
                                     alpha: 0.15,
                                   ),

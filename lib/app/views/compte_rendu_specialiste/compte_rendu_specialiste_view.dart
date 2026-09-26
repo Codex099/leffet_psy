@@ -354,7 +354,7 @@ class CompteRenduSpecialisteView
                               return DropdownMenuItem<dynamic>(
                                 value: emp.id,
                                 child: Text(
-                                  '${emp.fullName} (${emp.roleLabel})'.tr,
+                                  '${emp.fullName} (${emp.roleLabel})',
                                   style: AppTextStyles.iosSubhead.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textPrimary,
@@ -564,7 +564,7 @@ class CompteRenduSpecialisteView
             style: AppTextStyles.iosBody.copyWith(fontSize: 13),
             decoration: InputDecoration(
               hintText: canEdit
-                  ? 'Note clinique pour ${p.patientPrenom} (comportement, participation, progrès)...'.tr
+                  ? '${'Note clinique pour'.tr} ${p.patientPrenom} (${'comportement, participation, progrès'.tr})...'
                   : (p.noteController.text.isEmpty
                       ? 'Aucune note spécifique rédigée pour ce participant.'.tr
                       : null),

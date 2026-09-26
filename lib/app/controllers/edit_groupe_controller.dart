@@ -253,8 +253,7 @@ class EditGroupeController extends GetxController {
     if (!TimeUtils.isHeureApres(globalHeureDebut.value, val)) {
       Get.snackbar(
         'Horaires non valides'.tr,
-        'L\'heure de fin doit être postérieure à l\'heure de début (${globalHeureDebut.value}).'
-            .tr,
+        '${"L'heure de fin doit être postérieure à l'heure de début".tr} (${globalHeureDebut.value}).',
         snackPosition: SnackPosition.BOTTOM,
       );
       globalHeureFin.value =
@@ -403,7 +402,7 @@ class EditGroupeController extends GetxController {
       final valErr =
           TimeUtils.validerHoraires(slot.heureDebut, slot.heureFin);
       if (valErr != null) {
-        Get.snackbar('Horaires non valides (${slot.day})'.tr, valErr.tr,
+        Get.snackbar('${'Horaires non valides'.tr} (${slot.day})', valErr.tr,
             snackPosition: SnackPosition.BOTTOM);
         return;
       }

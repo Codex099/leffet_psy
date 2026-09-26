@@ -275,7 +275,7 @@ class DetailTacheController extends GetxController {
         Get.back(result: true);
       }
     } catch (e) {
-      Get.snackbar('Erreur'.tr, 'Impossible d\'enregistrer la tâche: $e'.tr,
+      Get.snackbar('Erreur'.tr, '${"Impossible d'enregistrer la tâche".tr}: $e',
           snackPosition: SnackPosition.BOTTOM);
     }
   }

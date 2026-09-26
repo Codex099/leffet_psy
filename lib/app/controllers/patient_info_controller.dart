@@ -382,14 +382,14 @@ class PatientInfoController extends GetxController {
       AppCacheManager.invalidateTag(CacheTags.patients);
       Get.snackbar(
         'Succès'.tr,
-        '${etapes.length} tâche(s) assignée(s) avec succès.'.tr,
+        '${etapes.length} ${'tâches assignées avec succès.'.tr}',
         snackPosition: SnackPosition.BOTTOM,
       );
       return true;
     } catch (e) {
       Get.snackbar(
         'Erreur'.tr,
-        'Échec de l\'assignation des tâches: $e'.tr,
+        '${"Échec de l'assignation des tâches".tr}: $e',
         snackPosition: SnackPosition.BOTTOM,
       );
       return false;
@@ -404,7 +404,7 @@ class PatientInfoController extends GetxController {
       await loadPatientInfo(forceRefresh: true);
       Get.snackbar('Succès'.tr, 'Parent associé avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar('Erreur'.tr, 'Impossible d\'associer le parent : $e'.tr, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Erreur'.tr, '${"Impossible d'associer le parent".tr}: $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -416,7 +416,7 @@ class PatientInfoController extends GetxController {
       await loadPatientInfo(forceRefresh: true);
       Get.snackbar('Succès'.tr, 'Parent dissocié du patient.'.tr, snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar('Erreur'.tr, 'Impossible de dissocier le parent : $e'.tr, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Erreur'.tr, '${"Impossible de dissocier le parent".tr}: $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 
@@ -464,11 +464,11 @@ class PatientInfoController extends GetxController {
       await loadPatientInfo(forceRefresh: true);
       Get.snackbar(
         'Succès'.tr,
-        'Parent associé avec succès (${parent.fullName}).'.tr,
+        '${'Parent associé avec succès'.tr} (${parent.fullName}).',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
-      Get.snackbar('Erreur'.tr, 'Impossible d\'associer le parent : $e'.tr, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Erreur'.tr, '${"Impossible d'associer le parent".tr}: $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 

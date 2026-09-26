@@ -276,7 +276,7 @@ class AgendaView extends GetView<AgendaController> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${day.day}'.tr,
+                                  '${day.day}',
                                  style: AppTextStyles.iosHeadline.copyWith(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
@@ -457,7 +457,7 @@ class AgendaView extends GetView<AgendaController> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '(${sessions.length})'.tr,
+                    '(${sessions.length})',
                    style: AppTextStyles.iosCaption1.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,

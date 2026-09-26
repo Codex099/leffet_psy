@@ -146,7 +146,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                         if (d?.dateMaj != null) ...[
                           const SizedBox(height: 2),
                           Text(
-                            'Dernière mise à jour : ${d!.dateMaj}'.tr,
+                            '${'Dernière mise à jour :'.tr} ${d!.dateMaj}',
                             style: AppTextStyles.iosFootnote.copyWith(
                               color: Colors.white.withValues(alpha: 0.85),
                             ),
@@ -551,7 +551,7 @@ class DossierMedicalView extends GetView<DossierMedicalController> {
                       const SizedBox(height: 16),
                       if (d?.misAJourPar != null)
                         Text(
-                          'Mis à jour par ${d!.misAJourPar} le ${d.dateMaj ?? ""}'.tr,
+                          '${'Mis à jour par'.tr} ${d!.misAJourPar} ${'le'.tr} ${d.dateMaj ?? ""}',
                          style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
                         ),
                     ],

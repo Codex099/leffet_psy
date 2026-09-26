@@ -12,9 +12,9 @@ class LanguageService {
   );
   static const FlutterSecureStorage _fallbackStorage = FlutterSecureStorage();
 
-  static final Rx<Locale> currentLocale = const Locale('fr', 'FR').obs;
+  static final Rx<Locale> currentLocale = const Locale('ar', 'DZ').obs;
 
-  /// Récupère la langue enregistrée avec double sécurité et fallback gracieux.
+  /// Récupère la langue enregistrée avec double sécurité et fallback vers l'arabe.
   static Future<Locale> getSavedLocale() async {
     String? code;
     try {
@@ -27,9 +27,9 @@ class LanguageService {
       } catch (_) {}
     }
 
-    final locale = code == 'ar'
-        ? const Locale('ar', 'DZ')
-        : const Locale('fr', 'FR');
+    final locale = (code == 'fr')
+        ? const Locale('fr', 'FR')
+        : const Locale('ar', 'DZ');
     currentLocale.value = locale;
     return locale;
   }

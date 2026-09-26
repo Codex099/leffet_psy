@@ -280,7 +280,7 @@ class CreationSeanceView extends GetView<CreationSeanceController> {
         if (!TimeUtils.isHeureApres(controller.heureDebut.value, formatted)) {
           Get.snackbar(
             'Horaires non valides'.tr,
-            'L\'heure de fin doit être postérieure à l\'heure de début (${controller.heureDebut.value}).'.tr,
+            '${"L'heure de fin doit être postérieure à l'heure de début".tr} (${controller.heureDebut.value}).',
             snackPosition: SnackPosition.BOTTOM,
           );
           controller.heureFin.value =

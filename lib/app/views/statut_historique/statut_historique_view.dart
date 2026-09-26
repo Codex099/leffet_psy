@@ -100,7 +100,7 @@ class StatutHistoriqueView extends GetView<StatutHistoriqueController> {
                                       item.noteDegradation!.isNotEmpty) ...[
                                     const SizedBox(height: 6),
                                     Text(
-                                      'Note: ${item.noteDegradation}'.tr,
+                                      '${'Note:'.tr} ${item.noteDegradation}',
                                       style: AppTextStyles.bodySmall.copyWith(
                                         color: AppColors.error,
                                       ),

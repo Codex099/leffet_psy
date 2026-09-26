@@ -28,7 +28,7 @@ class GeminiConfig {
   static bool get isConfigured => apiKey.isNotEmpty && apiKey != 'VOTRE_CLE_API_ICI';
 
   /// Modele actif, rapide et supportant nativement le Function Calling
-  static const String model = 'gemini-3.6-flash';
+  static const String model = 'gemini-3.1-flash-lite';
 
   /// Prompt systeme pour PsyCare
   static const String systemPrompt =

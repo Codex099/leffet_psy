@@ -224,7 +224,7 @@ class EditPatientController extends GetxController {
       selectedParents[idx].role = role;
       selectedParents.refresh();
       if (Get.context != null) {
-        Get.snackbar('Mis à jour'.tr, 'Rôle familial mis à jour : ${parent.fullName}'.tr, snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar('Mis à jour'.tr, '${'Rôle familial mis à jour :'.tr} ${parent.fullName}', snackPosition: SnackPosition.BOTTOM);
       }
     } else {
       selectedParents.add(PatientParentSelection(
@@ -233,7 +233,7 @@ class EditPatientController extends GetxController {
         parent: parent,
       ));
       if (Get.context != null) {
-        Get.snackbar('Ajouté'.tr, 'Parent associé : ${parent.fullName}'.tr, snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar('Ajouté'.tr, '${'Parent associé :'.tr} ${parent.fullName}', snackPosition: SnackPosition.BOTTOM);
       }
     }
     selectedParentId.value = selectedParents.first.parentId;
@@ -312,7 +312,7 @@ class EditPatientController extends GetxController {
         if (Get.context != null) {
           Get.snackbar(
             'Parent existant'.tr,
-            'Un parent avec le numéro $finalTel existe déjà (${existingParent.fullName}). Il a été automatiquement sélectionné.'.tr,
+            '${'Un parent avec ce numéro existe déjà'.tr} ($finalTel - ${existingParent.fullName}). ${'Il a été automatiquement sélectionné.'.tr}',
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 4),
           );

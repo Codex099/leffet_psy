@@ -269,7 +269,7 @@ class PlanTherapeutiqueController extends GetxController {
       AppCacheManager.invalidateTag(CacheTags.taches);
       Get.snackbar('Succès'.tr, 'Étape convertie en tâche avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
-      Get.snackbar('Erreur'.tr, 'Impossible de convertir en tâche : $e'.tr, snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Erreur'.tr, '${'Impossible de convertir en tâche'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

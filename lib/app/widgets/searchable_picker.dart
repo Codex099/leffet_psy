@@ -127,7 +127,7 @@ class SearchablePickerField<T> extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '${selectedValues!.length}'.tr,
+                      '${selectedValues!.length}',
                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -695,7 +695,7 @@ class _MultiSelectSheetState<T> extends State<_MultiSelectSheet<T>> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
             child: AppButton(
-              label: 'Confirmer la sélection (${_selected.length})'.tr,
+              label: '${'Confirmer la sélection'.tr} (${_selected.length})',
               onPressed: () => widget.onConfirm(_selected.toList()),
             ),
           ),

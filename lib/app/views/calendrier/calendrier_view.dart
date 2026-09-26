@@ -266,7 +266,7 @@ class CalendrierView extends GetView<CalendrierController> {
           ),
           title: ev.titre,
           subtitle:
-              "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' · ${ev.description}' : ''}".tr,
+              "${ev.date}${ev.description != null && ev.description!.isNotEmpty ? ' · ${ev.description}' : ''}",
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -456,7 +456,7 @@ class CalendrierView extends GetView<CalendrierController> {
                         ),
                         Obx(
                           () => Text(
-                            '${controller.notifierJours.value} j'.tr,
+                            '${controller.notifierJours.value} ${'j'.tr}',
                            style: AppTextStyles.iosHeadline,
                           ),
                         ),

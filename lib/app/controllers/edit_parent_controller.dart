@@ -158,7 +158,7 @@ class EditParentController extends GetxController {
           final field = (first['loc'] as List?)?.last?.toString() ?? '';
           final m = first['msg']?.toString() ?? '';
           if (field.isNotEmpty) {
-            msg = 'Champ invalide ($field) : $m'.tr;
+            msg = '${'Champ invalide'.tr} ($field) : $m';
           }
         }
         errorMessage.value = msg;

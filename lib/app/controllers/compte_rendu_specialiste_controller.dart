@@ -427,7 +427,7 @@ class CompteRenduSpecialisteController extends GetxController {
     } catch (e) {
       errorMessage.value = e.toString();
       status.value = 'error';
-      Get.snackbar('Erreur'.tr, 'Impossible d\'enregistrer le compte-rendu : $e'.tr,
+      Get.snackbar('Erreur'.tr, '${"Impossible d'enregistrer le compte-rendu".tr}: $e',
           snackPosition: SnackPosition.BOTTOM);
     }
   }

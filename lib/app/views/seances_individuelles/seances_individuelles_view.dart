@@ -754,7 +754,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                     selectedDebut.value, formatted)) {
                                   Get.snackbar(
                                     'Horaires non valides'.tr,
-                                    'L\'heure de fin doit être postérieure à l\'heure de début (${selectedDebut.value}).'.tr,
+                                    '${"L'heure de fin doit être postérieure à l'heure de début".tr} (${selectedDebut.value}).',
                                     snackPosition: SnackPosition.BOTTOM,
                                   );
                                   selectedFin.value = TimeUtils.ajouterMinutes(
@@ -1337,7 +1337,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                         formatted)) {
                                       Get.snackbar(
                                         'Horaires non valides'.tr,
-                                        'L\'heure de fin doit être postérieure à l\'heure de début (${controller.heureDebut.value}).'.tr,
+                                        '${"L'heure de fin doit être postérieure à l'heure de début".tr} (${controller.heureDebut.value}).',
                                         snackPosition: SnackPosition.BOTTOM,
                                       );
                                       controller.heureFin.value =
@@ -1495,7 +1495,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              'Début : $start'.tr,
+                                              '${'Début :'.tr} $start',
                                              style: AppTextStyles.iosCaption1
                                                   .copyWith(
                                                     fontWeight: FontWeight.w700,
@@ -1523,8 +1523,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                               start, newEnd)) {
                                             Get.snackbar(
                                               'Horaires non valides'.tr,
-                                              'L\'heure de fin doit être postérieure à l\'heure de début ($start).'
-                                                  .tr,
+                                              '${"L'heure de fin doit être postérieure à l'heure de début".tr} ($start).',
                                               snackPosition:
                                                   SnackPosition.BOTTOM,
                                             );
@@ -1564,7 +1563,7 @@ class SeancesIndividuellesView extends GetView<SeancesIndividuellesController> {
                                             ),
                                             const SizedBox(width: 6),
                                             Text(
-                                              'Fin : $end'.tr,
+                                              '${'Fin :'.tr} $end',
                                              style: AppTextStyles.iosCaption1
                                                   .copyWith(
                                                     fontWeight: FontWeight.w700,

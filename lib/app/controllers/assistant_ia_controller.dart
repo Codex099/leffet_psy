@@ -1,3 +1,4 @@
+// ignore_for_file: use_null_aware_elements
 import "package:flutter/material.dart";
 
 import "package:get/get.dart";
@@ -538,7 +539,7 @@ class AssistantIaController extends GetxController {
         if (errStr.contains("503") ||
             errStr.contains("high demand") ||
             errStr.contains("unavailable")) {
-          _initGemini(overrideModel: "gemini-1.5-flash");
+          _initGemini(overrideModel: "gemini-flash-latest");
           response = await _chat.sendMessage(Content.text(promptForModel));
         } else {
           rethrow;

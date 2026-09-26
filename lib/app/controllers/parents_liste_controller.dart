@@ -103,7 +103,7 @@ class ParentsListeController extends GetxController {
       Get.snackbar('Succès', 'Parent supprimé avec succès.'.tr, snackPosition: SnackPosition.BOTTOM);
    } catch (e) {
       status.value = 'success';
-     Get.snackbar('Erreur', 'Impossible de supprimer le parent : $e'.tr, snackPosition: SnackPosition.BOTTOM);
+     Get.snackbar('Erreur', '${'Impossible de supprimer le parent'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

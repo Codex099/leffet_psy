@@ -136,7 +136,7 @@ class TachesView extends GetView<TachesController> {
     Color dotColor,
   ) {
     return IosCard(
-      title: '$title (${list.length})'.tr,
+      title: '${title.tr} (${list.length})',
       children: list.map((t) => _buildTacheTile(t)).toList(),
     );
   }
