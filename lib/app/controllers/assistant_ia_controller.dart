@@ -12,6 +12,7 @@ import "../services/assistant_chat_storage_service.dart";
 import "../services/calendrier_service.dart";
 import "../services/employee_service.dart";
 import "../services/language_service.dart";
+import "../services/auth_service.dart";
 import "../services/note_patient_service.dart";
 import "../services/patient_service.dart";
 import "../services/plan_therapeutique_service.dart";
@@ -21,6 +22,7 @@ import "../services/tache_service.dart";
 class AssistantIaController extends GetxController {
   // Services
   final _storage = AssistantChatStorageService.instance;
+  final _authService = AuthService();
   final _patientService = PatientService();
   final _noteService = NoteService();
   final _seanceService = SeanceService();
@@ -36,6 +38,11 @@ class AssistantIaController extends GetxController {
   final isLoading = false.obs;
   final isListening = false.obs;
   final inputText = "".obs;
+
+  // RBAC & Auth state
+  final isAdmin = false.obs;
+  final currentUserId = "".obs;
+  final currentUserName = "".obs;
 
   // Patient context
   final selectedPatient = Rxn<PatientModel>();
@@ -56,12 +63,12 @@ class AssistantIaController extends GetxController {
     if (isArabic) {
       return "مرحباً بك! أنا مساعدك العيادي الذكي PsyCare. "
           "يمكنني مساعدتك في تحليل الملفات الطبية، صياغة تقارير المتابعة، "
-          "إنشاء خطط علاجية، إنشاء مهام، إضافة مرضى جدد، والاطلاع على الرزنامة. "
+          "إنشاء خطط علاجية، إدارة المهام، حجز الجلسات، والاطلاع على الرزنامة. "
           "كيف يمكنني مساعدتك اليوم؟";
     }
     return "Bonjour ! Je suis votre assistant clinique PsyCare. "
         "Je peux analyser des dossiers, rédiger des comptes-rendus, "
-        "créer des plans thérapeutiques, des tâches, ajouter des patients "
+        "créer des plans thérapeutiques, des tâches, planifier des séances "
         "et consulter le calendrier. Comment puis-je vous aider ?";
   }
 
@@ -70,11 +77,21 @@ class AssistantIaController extends GetxController {
     super.onInit();
     _speech = stt.SpeechToText();
     _initGemini();
+    _loadCurrentUserAndInit();
     _loadHistoryAndInit();
 
     ever(LanguageService.currentLocale, (_) => _initGemini());
   }
 
+  Future<void> _loadCurrentUserAndInit() async {
+    try {
+      final user = await _authService.getCachedUser() ?? await _authService.getMe();
+      isAdmin.value = (user.role.toLowerCase() == 'admin');
+      currentUserId.value = user.id.toString();
+      currentUserName.value = user.fullName;
+    } catch (_) {}
+    _initGemini();
+  }
 
   @override
   void onClose() {
@@ -86,7 +103,7 @@ class AssistantIaController extends GetxController {
   // ── Initialisation Gemini avec Function Calling ────────────────────────────
 
   /// Initialise le modèle Gemini avec le system prompt, le contexte patient
-  /// et les outils de Function Calling natifs.
+  /// et les outils de Function Calling natifs selon les droits RBAC de l'utilisateur.
   void _initGemini({String? extraContext, String? overrideModel}) {
     _lastExtraContext = extraContext ?? _lastExtraContext;
 
@@ -106,6 +123,23 @@ class AssistantIaController extends GetxController {
           "Détecte la langue du message et réponds TOUJOURS dans la même langue (Français ou Arabe).";
     }
 
+    // Droits et sécurité RBAC
+    if (isAdmin.value) {
+      prompt += "\n\n=== PROFIL & DROITS : ADMINISTRATEUR ===\n"
+          "Tu interagis avec un Administrateur du cabinet. Il dispose des droits de création de patients (creer_patient), "
+          "de supervision globale des séances (obtenir_seances) et des tâches (obtenir_taches_employes).\n"
+          "RÈGLE ABSOLUE : La suppression de données (delete) n'est JAMAIS autorisée via l'assistant.";
+    } else {
+      prompt += "\n\n=== PROFIL & DROITS : PRATICIEN / SPÉCIALISTE (${currentUserName.value.isNotEmpty ? currentUserName.value : 'Employé'}) ===\n"
+          "Tu interagis avec un Praticien/Spécialiste de la structure. Ses droits sont strictement encadrés :\n"
+          "- Séances : Il ne peut consulter QUE ses propres séances (obtenir_seances retourne uniquement son agenda). "
+          "Il n'a JAMAIS accès aux séances des autres praticiens.\n"
+          "- Tâches : Il ne consulte que ses tâches assignées (obtenir_taches_employes).\n"
+          "- Patient : Il travaille sur le patient actuellement actif/sélectionné dans l'application. La création de nouveaux patients (creer_patient) ou la recherche globale ne lui sont pas permises.\n"
+          "- Actions cliniques autorisées : Planifier des séances (creer_seance), ajouter des observations/notes (ajouter_note_patient), créer des tâches (creer_tache), et créer des plans thérapeutiques (creer_plan_therapeutique).\n"
+          "RÈGLE ABSOLUE : La suppression de données (delete) n'est JAMAIS autorisée via l'assistant.";
+    }
+
     // Contexte patient si disponible
     if (_lastExtraContext != null && _lastExtraContext!.isNotEmpty) {
       prompt += "\n\n=== CONTEXTE CLINIQUE DU DOSSIER PATIENT ===\n"
@@ -114,23 +148,28 @@ class AssistantIaController extends GetxController {
     }
 
     // Instructions pour les outils
+    final adminToolLine = isAdmin.value
+        ? "- creer_patient : ajouter un nouveau dossier patient (nom, prénom, sexe requis)\n"
+        : "";
     prompt += "\n\n=== OUTILS DISPONIBLES ===\n"
-        "Tu as accès à des outils pour interagir directement avec le backend PsyCare :\n"
-        "- creer_patient : ajouter un nouveau dossier patient\n"
+        "Tu as accès aux outils autorisés selon le profil utilisateur :\n"
+        "$adminToolLine"
         "- creer_tache : créer et assigner une tâche (demande TOUJOURS date ET heure avant)\n"
         "- creer_plan_therapeutique : créer un plan avec étapes\n"
-        "- obtenir_calendrier : consulter les événements/RDV\n"
-        "- obtenir_taches_employes : voir les tâches des employés\n"
-        "Utilise ces outils dès que l'utilisateur demande une action correspondante. "
-        "Pour creer_tache : TOUJOURS demander la date et l'heure AVANT d'appeler l'outil. "
-        "Pour creer_patient : demander nom, prénom, sexe au minimum. "
-        "Après avoir exécuté un outil, confirme à l'utilisateur ce qui a été fait.";
+        "- obtenir_calendrier : consulter les événements généraux\n"
+        "- obtenir_taches_employes : consulter les tâches en cours\n"
+        "- obtenir_seances : consulter les séances (agenda personnel pour les praticiens)\n"
+        "- creer_seance : planifier une nouvelle séance (date, heure_debut, heure_fin)\n"
+        "- ajouter_note_patient : consigner une note clinique / observation dans le dossier\n"
+        "RÈGLE STRICTE : Si l'utilisateur demande de supprimer quoi que ce soit, refuse poliment en expliquant que la suppression n'est pas autorisée par sécurité.";
+
+    final tools = isAdmin.value ? GeminiTools.adminTools : GeminiTools.employeeTools;
 
     _model = GenerativeModel(
       model: overrideModel ?? GeminiConfig.model,
       apiKey: GeminiConfig.apiKey,
       systemInstruction: Content.system(prompt),
-      tools: GeminiTools.allTools,
+      tools: tools,
     );
 
     // Reconstruire l'historique de chat (texte seulement)
@@ -633,6 +672,9 @@ class AssistantIaController extends GetxController {
       'creer_plan_therapeutique': 'Création du plan thérapeutique',
       'obtenir_calendrier': 'Consultation du calendrier',
       'obtenir_taches_employes': "Récupération des tâches",
+      'obtenir_seances': 'Consultation des séances',
+      'creer_seance': 'Planification de la séance',
+      'ajouter_note_patient': 'Ajout de la note clinique',
     };
     const labelsAr = {
       'creer_patient': 'إنشاء ملف المريض',
@@ -640,6 +682,9 @@ class AssistantIaController extends GetxController {
       'creer_plan_therapeutique': 'إنشاء الخطة العلاجية',
       'obtenir_calendrier': 'استرجاع الرزنامة',
       'obtenir_taches_employes': "استرجاع المهام",
+      'obtenir_seances': 'استرجاع الجلسات',
+      'creer_seance': 'حجز الجلسة',
+      'ajouter_note_patient': 'إضافة ملاحظة سريرية',
     };
     return (isArabic ? labelsAr[name] : labels[name]) ?? name;
   }
@@ -655,6 +700,14 @@ class AssistantIaController extends GetxController {
     try {
       switch (call.name) {
         case 'creer_patient':
+          if (!isAdmin.value) {
+            return {
+              'success': false,
+              'error': isArabic
+                  ? 'عذراً، صلاحية إنشاء المرضى مقتصرة على إدارة العيادة فقط.'
+                  : 'Action non autorisée : la création de patients est réservée aux administrateurs.',
+            };
+          }
           return await _fcCreerPatient(args, isArabic: isArabic);
 
         case 'creer_tache':
@@ -669,8 +722,20 @@ class AssistantIaController extends GetxController {
         case 'obtenir_taches_employes':
           return await _fcObtenirTaches(args);
 
+        case 'obtenir_seances':
+          return await _fcObtenirSeances(args);
+
+        case 'creer_seance':
+          return await _fcCreerSeance(args, isArabic: isArabic);
+
+        case 'ajouter_note_patient':
+          return await _fcAjouterNotePatient(args, isArabic: isArabic);
+
         default:
-          return {'error': 'Outil inconnu : ${call.name}'};
+          return {
+            'error': 'Outil inconnu ou non autorisé : ${call.name}',
+            'success': false,
+          };
       }
     } catch (e) {
       return {'error': e.toString(), 'success': false};
@@ -932,15 +997,27 @@ class AssistantIaController extends GetxController {
     final statut = args['statut'] as String?;
     final patientId = args['patient_id'] as String?;
 
+    // Pour les non-admins : restreindre strictement aux tâches assignées à l'utilisateur connecté
+    final bool? assigneesAMoi = isAdmin.value ? null : true;
+
     List taches;
     if (statut != null) {
       taches = await _tacheService.getTaches(
         statut: statut,
         patientId: patientId,
+        assigneesAMoi: assigneesAMoi,
       );
     } else {
-      final aFaire = await _tacheService.getTaches(statut: 'a_faire');
-      final enCours = await _tacheService.getTaches(statut: 'en_cours');
+      final aFaire = await _tacheService.getTaches(
+        statut: 'a_faire',
+        patientId: patientId,
+        assigneesAMoi: assigneesAMoi,
+      );
+      final enCours = await _tacheService.getTaches(
+        statut: 'en_cours',
+        patientId: patientId,
+        assigneesAMoi: assigneesAMoi,
+      );
       taches = [...aFaire, ...enCours];
     }
 
@@ -968,6 +1045,166 @@ class AssistantIaController extends GetxController {
       'success': true,
       'nombre_taches': result.length,
       'taches': result,
+    };
+  }
+
+  Future<Map<String, Object?>> _fcObtenirSeances(
+    Map<String, Object?> args,
+  ) async {
+    final date = args['date'] as String?;
+    final patientIdArg = args['patient_id'] as String?;
+    final pid = patientIdArg ?? selectedPatient.value?.id?.toString();
+
+    // SÉCURITÉ RBAC ABSOLUE :
+    // Si l'utilisateur n'est pas admin, il ne peut JAMAIS voir les séances des autres employés.
+    // On force strictement son propre ID comme filtre employé.
+    dynamic employeFilter;
+    if (isAdmin.value) {
+      employeFilter = args['employe_id'];
+    } else {
+      employeFilter =
+          currentUserId.value.isNotEmpty ? currentUserId.value : null;
+    }
+
+    final seances = await _seanceService.getSeances(
+      date: (date?.isNotEmpty == true) ? date : null,
+      patientId: pid,
+      employeId: employeFilter,
+    );
+
+    final list = seances.map((s) {
+      final pNom = s.patient != null
+          ? '${s.patient!["nom"] ?? ""} ${s.patient!["prenom"] ?? ""}'.trim()
+          : '';
+      return {
+        'id': s.id.toString(),
+        'date': s.date,
+        'heure_debut': s.heureDebut,
+        'heure_fin': s.heureFin,
+        'statut': s.statut,
+        'patient': pNom.isNotEmpty
+            ? pNom
+            : (selectedPatient.value != null
+                ? '${selectedPatient.value!.nom} ${selectedPatient.value!.prenom}'
+                : 'Patient #${s.patientId}'),
+        'statut_presence': s.statutPresence ?? '',
+        'motif_statut': s.motifStatut ?? '',
+      };
+    }).toList();
+
+    return {
+      'success': true,
+      'nombre_seances': list.length,
+      'filtre_employe_personnel': !isAdmin.value,
+      'seances': list,
+    };
+  }
+
+  Future<Map<String, Object?>> _fcCreerSeance(
+    Map<String, Object?> args, {
+    bool isArabic = false,
+  }) async {
+    final date = (args['date'] as String? ?? '').trim();
+    final heureDebut = (args['heure_debut'] as String? ?? '').trim();
+    final heureFin = (args['heure_fin'] as String? ?? '').trim();
+    final patientIdArg = args['patient_id'] as String?;
+
+    final pid = patientIdArg ?? selectedPatient.value?.id?.toString();
+    if (pid == null || pid.isEmpty) {
+      return {
+        'success': false,
+        'error': isArabic
+            ? 'يرجى تحديد أو فتح ملف مريض أولاً لحجز الجلسة.'
+            : 'Aucun patient actif sélectionné. Veuillez d\'abord sélectionner un dossier patient.',
+      };
+    }
+
+    if (date.isEmpty || heureDebut.isEmpty || heureFin.isEmpty) {
+      return {
+        'success': false,
+        'error': 'La date, l\'heure de début et l\'heure de fin sont obligatoires.',
+      };
+    }
+
+    final employeId =
+        currentUserId.value.isNotEmpty ? currentUserId.value : null;
+
+    final payload = <String, dynamic>{
+      'patient_id': pid,
+      'date': date,
+      'heure_debut': heureDebut,
+      'heure_fin': heureFin,
+      'statut': 'prevue',
+      if (employeId != null) 'employe_ids': [employeId],
+    };
+
+    final created = await _seanceService.createSeance(payload);
+
+    Get.snackbar(
+      'Séance planifiée ! 📅'.tr,
+      isArabic
+          ? 'تم حجز الجلسة بنجاح ليوم $date ($heureDebut - $heureFin)'
+          : 'Séance planifiée le $date de $heureDebut à $heureFin',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: const Color(0xFF0D9488),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 4),
+    );
+
+    return {
+      'success': true,
+      'seance_id': created.id.toString(),
+      'date': created.date,
+      'heure_debut': created.heureDebut,
+      'heure_fin': created.heureFin,
+      'patient_id': pid,
+      'message': 'Séance planifiée avec succès',
+    };
+  }
+
+  Future<Map<String, Object?>> _fcAjouterNotePatient(
+    Map<String, Object?> args, {
+    bool isArabic = false,
+  }) async {
+    final contenu = (args['contenu'] as String? ?? '').trim();
+    final patientIdArg = args['patient_id'] as String?;
+    final pid = patientIdArg ?? selectedPatient.value?.id?.toString();
+
+    if (pid == null || pid.isEmpty) {
+      return {
+        'success': false,
+        'error': isArabic
+            ? 'يرجى تحديد أو فتح ملف مريض أولاً لإضافة ملاحظة سريرية.'
+            : 'Aucun patient actif. Veuillez sélectionner un patient pour consigner une note.',
+      };
+    }
+
+    if (contenu.isEmpty) {
+      return {
+        'success': false,
+        'error': 'Le contenu de la note clinique est obligatoire.',
+      };
+    }
+
+    final res = await _noteService.createNote(pid, {'contenu': contenu});
+
+    Get.snackbar(
+      'Note ajoutée 📝'.tr,
+      isArabic
+          ? 'تمت إضافة الملاحظة السريرية في ملف المريض.'
+          : 'Note clinique consignée avec succès dans le dossier.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: const Color(0xFF0D9488),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 4),
+    );
+
+    return {
+      'success': true,
+      'note_id': res['id']?.toString() ?? '',
+      'patient_id': pid,
+      'contenu': contenu,
+      'message': 'Note ajoutée au dossier avec succès',
     };
   }
 

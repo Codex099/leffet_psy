@@ -13,6 +13,7 @@ import '../../widgets/app_media_viewer.dart';
 import '../../widgets/creative_app_bar.dart';
 import '../../services/language_service.dart';
 import '../../models/plan_therapeutique_model.dart';
+import '../../utils/phone_utils.dart';
 
 class PatientInfoView extends GetView<PatientInfoController> {
  const PatientInfoView({super.key});
@@ -374,6 +375,8 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                 final phone = parent != null
                                     ? (parent.telephone ?? 'Pas de numéro'.tr)
                                     : 'Pas de numéro'.tr;
+                                final hasPhone = parent?.telephone != null &&
+                                    parent!.telephone!.trim().isNotEmpty;
                                 final initials = parent != null
                                     ? parent.initials
                                     : 'P';
@@ -385,19 +388,27 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                     color: AppColors.fieldBackground,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: InkWell(
-                                    onTap: () => Get.toNamed(
-                                      AppRoutes.editParent,
-                                      arguments: pParent.parentId,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        PatientAvatar(
+                                  child: Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: () => Get.toNamed(
+                                          AppRoutes.editParent,
+                                          arguments: pParent.parentId,
+                                        ),
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: PatientAvatar(
                                           initials: initials,
                                           radius: 20,
                                         ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () => Get.toNamed(
+                                            AppRoutes.editParent,
+                                            arguments: pParent.parentId,
+                                          ),
+                                          borderRadius: BorderRadius.circular(8),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -410,20 +421,85 @@ class PatientInfoView extends GetView<PatientInfoController> {
                                                           FontWeight.w600,
                                                     ),
                                               ),
-                                              Text(
-                                                phone,
-                                                style: AppTextStyles.bodySmall,
-                                              ),
+                                              const SizedBox(height: 2),
+                                              if (hasPhone)
+                                                InkWell(
+                                                  onTap: () => PhoneUtils.call(parent.telephone!),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.symmetric(vertical: 2),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(
+                                                          Icons.phone_rounded,
+                                                          size: 13,
+                                                          color: AppColors.primary,
+                                                        ),
+                                                        const SizedBox(width: 4),
+                                                        Text(
+                                                          phone,
+                                                          style: AppTextStyles.bodySmall.copyWith(
+                                                            color: AppColors.primary,
+                                                            fontWeight: FontWeight.w600,
+                                                            decoration: TextDecoration.underline,
+                                                            decorationColor: AppColors.primary.withValues(alpha: 0.5),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )
+                                              else
+                                                Text(
+                                                  phone,
+                                                  style: AppTextStyles.bodySmall,
+                                                ),
                                             ],
                                           ),
                                         ),
-                                        const Icon(
-                                          Icons.edit_rounded,
-                                          color: AppColors.primary,
-                                          size: 16,
+                                      ),
+                                      if (hasPhone) ...[
+                                        Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            onTap: () => PhoneUtils.call(parent.telephone!),
+                                            borderRadius: BorderRadius.circular(20),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.iosGreen.withValues(alpha: 0.12),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.phone_rounded,
+                                                color: AppColors.iosGreen,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
                                         ),
+                                        const SizedBox(width: 6),
                                       ],
-                                    ),
+                                      Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () => Get.toNamed(
+                                            AppRoutes.editParent,
+                                            arguments: pParent.parentId,
+                                          ),
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: const Padding(
+                                            padding: EdgeInsets.all(6),
+                                            child: Icon(
+                                              Icons.edit_rounded,
+                                              color: AppColors.primary,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 );
                               }),

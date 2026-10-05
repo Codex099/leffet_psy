@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/edit_patient_controller.dart';
 import '../../theme/app_colors.dart';
@@ -685,34 +686,6 @@ class EditPatientView extends GetView<EditPatientController> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          _sectionCard(
-            children: [
-              SectionHeader(
-                title: 'Plan thérapeutique'.tr,
-               padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-              ),
-
-              const SizedBox(height: 8),
-              Text(
-                'Souhaitez-vous créer un plan thérapeutique pour ce patient après l\'enregistrement ?'.tr,
-               style: AppTextStyles.bodySmall,
-              ),
-              const SizedBox(height: 12),
-              Obx(
-                () => SwitchListTile(
-                  value: controller.addPlanTherapeutique.value,
-                  onChanged: (v) => controller.addPlanTherapeutique.value = v,
-                  title: Text(
-                    'Créer un plan thérapeutique'.tr,
-                   style: AppTextStyles.bodyMedium,
-                  ),
-                  activeThumbColor: AppColors.primary,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 20),
         ],
       ),
@@ -905,73 +878,154 @@ class EditPatientView extends GetView<EditPatientController> {
   void _showInlineParentDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     String nom = '';
-   String prenom = '';
-   String tel = '';
-   String role = 'pere';
+    String prenom = '';
+    String tel = '';
+    String role = 'pere';
 
-   Get.bottomSheet(
+    Get.bottomSheet(
+      isScrollControlled: true,
       Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
         decoration: const BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionHeader(
-                  title: 'Créer un nouveau parent'.tr,
-                 padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-                ),
+        child: StatefulBuilder(
+          builder: (context, setDialogState) => SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Nouveau Parent / Tuteur'.tr,
+                        style: AppTextStyles.iosTitle2,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+                        onPressed: () => Get.back(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
 
-                const SizedBox(height: 14),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Prénom *'.tr,
-                   border: OutlineInputBorder(),
+                  TextFormField(
+                    style: AppTextStyles.fieldValue,
+                    decoration: InputDecoration(
+                      labelText: 'Prénom *'.tr,
+                      hintText: 'Ex: Mohamed',
+                      prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.primary, size: 20),
+                      filled: true,
+                      fillColor: AppColors.fieldBackground,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    ),
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Prénom requis'.tr : null,
+                    onChanged: (v) => prenom = v,
                   ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Prénom requis' : null,
-                 onChanged: (v) => prenom = v,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Nom *'.tr,
-                   border: OutlineInputBorder(),
+                  const SizedBox(height: 12),
+
+                  TextFormField(
+                    style: AppTextStyles.fieldValue,
+                    decoration: InputDecoration(
+                      labelText: 'Nom *'.tr,
+                      hintText: 'Ex: Benali',
+                      prefixIcon: const Icon(Icons.badge_outlined, color: AppColors.primary, size: 20),
+                      filled: true,
+                      fillColor: AppColors.fieldBackground,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    ),
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Nom requis'.tr : null,
+                    onChanged: (v) => nom = v,
                   ),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Nom requis' : null,
-                 onChanged: (v) => nom = v,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Téléphone'.tr,
-                   border: OutlineInputBorder(),
+                  const SizedBox(height: 12),
+
+                  TextFormField(
+                    style: AppTextStyles.fieldValue,
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9+\s-]')),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Numéro de téléphone *'.tr,
+                      hintText: 'Ex: 0550123456 ou +213550123456',
+                      prefixIcon: const Icon(Icons.phone_outlined, color: AppColors.primary, size: 20),
+                      filled: true,
+                      fillColor: AppColors.fieldBackground,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    ),
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) {
+                        return 'Numéro de téléphone requis'.tr;
+                      }
+                      final digits = v.replaceAll(RegExp(r'[^0-9]'), '');
+                      if (digits.length < 8) {
+                        return 'Numéro invalide (au moins 8 chiffres)'.tr;
+                      }
+                      return null;
+                    },
+                    onChanged: (v) => tel = v,
                   ),
-                  onChanged: (v) => tel = v,
-                ),
-                const SizedBox(height: 16),
-                AppButton(
-                  label: 'Créer et associer'.tr,
-                 onPressed: () async {
-                    if (formKey.currentState?.validate() == true) {
-                      Get.back();
-                      await controller.createParentInline({
-                        'nom': nom.trim(),
-                       'prenom': prenom.trim(),
-                       if (tel.trim().isNotEmpty) 'telephone': tel.trim(),
-                       'role': role,
-                      });
-                    }
-                  },
-                ),
-              ],
+                  const SizedBox(height: 12),
+
+                  // Sélecteur de rôle familial
+                  DropdownButtonFormField<String>(
+                    initialValue: role,
+                    decoration: InputDecoration(
+                      labelText: 'Rôle familial'.tr,
+                      prefixIcon: const Icon(Icons.family_restroom_rounded, color: AppColors.primary, size: 20),
+                      filled: true,
+                      fillColor: AppColors.fieldBackground,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    ),
+                    dropdownColor: AppColors.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    items: EditPatientController.roleChoices
+                        .map(
+                          (item) => DropdownMenuItem<String>(
+                            value: item['value'],
+                            child: Text(item['label']!),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setDialogState(() => role = val);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+
+                  AppButton(
+                    label: 'Créer et associer'.tr,
+                    onPressed: () async {
+                      if (formKey.currentState?.validate() == true) {
+                        Get.back();
+                        await controller.createParentInline({
+                          'nom': nom.trim(),
+                          'prenom': prenom.trim(),
+                          'telephone': tel.trim(),
+                          'role': role,
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/edit_employe_controller.dart';
 import '../../routes/app_routes.dart';
@@ -144,6 +145,9 @@ class _EditEmployeViewState extends State<EditEmployeView> {
                             label: 'Téléphone *'.tr,
                             hintText: '0612345678 ou 0550123456',
                             keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9+\s-]')),
+                            ],
                             controller: _telCtrl,
                             onChanged: (v) => controller.telephone.value = v,
                           ),

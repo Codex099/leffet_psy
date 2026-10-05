@@ -42,17 +42,42 @@ class _LoginViewState extends State<LoginView> {
     _passwordFocus.addListener(() {
       _isPasswordFocused.value = _passwordFocus.hasFocus;
     });
-    _loadSavedUsername();
+    _loadSavedCredentials();
   }
 
-  Future<void> _loadSavedUsername() async {
+  Future<void> _loadSavedCredentials() async {
     try {
+      final rememberMeStr = await _storage.read(key: 'remember_me');
       final savedUsername = await _storage.read(key: 'saved_username');
-      if (savedUsername != null && savedUsername.isNotEmpty) {
-        _usernameController.text = savedUsername;
-        _rememberMe.value = true;
+      final savedPassword = await _storage.read(key: 'saved_password');
+
+      final isRemembered = rememberMeStr == 'true' ||
+          (rememberMeStr == null && savedUsername != null && savedUsername.isNotEmpty);
+
+      _rememberMe.value = isRemembered;
+
+      if (isRemembered) {
+        if (savedUsername != null && savedUsername.isNotEmpty) {
+          _usernameController.text = savedUsername;
+        }
+        if (savedPassword != null && savedPassword.isNotEmpty) {
+          _passwordController.text = savedPassword;
+        }
       }
     } catch (_) {}
+  }
+
+  void _toggleRememberMe([bool? explicitValue]) async {
+    HapticFeedback.selectionClick();
+    final newValue = explicitValue ?? !_rememberMe.value;
+    _rememberMe.value = newValue;
+    if (!newValue) {
+      try {
+        await _storage.write(key: 'remember_me', value: 'false');
+        await _storage.delete(key: 'saved_username');
+        await _storage.delete(key: 'saved_password');
+      } catch (_) {}
+    }
   }
 
   @override
@@ -82,15 +107,20 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    try {
-      if (_rememberMe.value) {
-        await _storage.write(key: 'saved_username', value: username);
-      } else {
-        await _storage.delete(key: 'saved_username');
-      }
-    } catch (_) {}
-
-    controller.login(username, password);
+    final success = await controller.login(username, password);
+    if (success) {
+      try {
+        if (_rememberMe.value) {
+          await _storage.write(key: 'remember_me', value: 'true');
+          await _storage.write(key: 'saved_username', value: username);
+          await _storage.write(key: 'saved_password', value: password);
+        } else {
+          await _storage.write(key: 'remember_me', value: 'false');
+          await _storage.delete(key: 'saved_username');
+          await _storage.delete(key: 'saved_password');
+        }
+      } catch (_) {}
+    }
   }
 
   @override
@@ -258,42 +288,41 @@ class _LoginViewState extends State<LoginView> {
                         const SizedBox(height: 20),
 
                         // ── 5. Remember Me Switch ───────────────────────────────────────
-                        GestureDetector(
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            _rememberMe.value = !_rememberMe.value;
-                          },
-                          behavior: HitTestBehavior.opaque,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Se souvenir de moi'.tr,
-                                style: AppTextStyles.iosFootnote.copyWith(
-                                  color: const Color(0xFF1E293B),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              Obx(
-                                () => Transform.scale(
-                                  scale: 0.8,
-                                  child: Switch(
-                                    value: _rememberMe.value,
-                                    onChanged: (val) {
-                                      HapticFeedback.selectionClick();
-                                      _rememberMe.value = val;
-                                    },
-                                    activeThumbColor: Colors.white,
-                                    activeTrackColor: AppColors.primary,
-                                    inactiveTrackColor: const Color(0xFFE2E8F0),
-                                    inactiveThumbColor: Colors.white,
-                                    trackOutlineColor:
-                                        WidgetStateProperty.all(Colors.transparent),
+                        InkWell(
+                          onTap: () => _toggleRememberMe(),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Se souvenir de moi'.tr,
+                                  style: AppTextStyles.iosFootnote.copyWith(
+                                    color: const Color(0xFF1E293B),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
-                              ),
-                            ],
+                                Obx(
+                                  () => Transform.scale(
+                                    scale: 0.8,
+                                    child: IgnorePointer(
+                                      child: Switch(
+                                        value: _rememberMe.value,
+                                        onChanged: (_) {},
+                                        activeThumbColor: Colors.white,
+                                        activeTrackColor: AppColors.primary,
+                                        inactiveTrackColor: const Color(0xFFE2E8F0),
+                                        inactiveThumbColor: Colors.white,
+                                        trackOutlineColor:
+                                            WidgetStateProperty.all(Colors.transparent),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ).animate().fadeIn(duration: 500.ms, delay: 400.ms),
 

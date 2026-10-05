@@ -12,6 +12,7 @@ import '../../widgets/ios_card.dart';
 import '../../widgets/patient_avatar.dart';
 import '../../widgets/state_placeholder.dart';
 import '../../services/parent_service.dart';
+import '../../utils/phone_utils.dart';
 
 class ParentsListeView extends GetView<ParentsListeController> {
  const ParentsListeView({super.key});
@@ -132,7 +133,10 @@ class ParentsListeView extends GetView<ParentsListeController> {
                           trailing:
                               parent.telephone != null &&
                                   parent.telephone!.isNotEmpty
-                              ? Container(
+                              ? InkWell(
+                                  onTap: () => PhoneUtils.call(parent.telephone!),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
                                     vertical: 4,
@@ -162,7 +166,8 @@ class ParentsListeView extends GetView<ParentsListeController> {
                                       ),
                                     ],
                                   ),
-                                )
+                                ),
+                              )
                               : null,
                           onTap: () => _showParentDetailSheet(context, parent),
                         ),
@@ -239,8 +244,45 @@ class ParentsListeView extends GetView<ParentsListeController> {
                     size: 20,
                   ),
                   title: 'Téléphone'.tr,
-                 subtitle: parent.telephone ?? 'Non renseigné'.tr,
-               ),
+                  subtitle: parent.telephone ?? 'Non renseigné'.tr,
+                  trailing: parent.telephone != null && parent.telephone!.isNotEmpty
+                      ? InkWell(
+                          onTap: () => PhoneUtils.call(parent.telephone!),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.iosGreen.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.phone_rounded,
+                                  size: 14,
+                                  color: AppColors.iosGreen,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Appeler'.tr,
+                                  style: AppTextStyles.iosCaption1.copyWith(
+                                    color: AppColors.iosGreen,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : null,
+                  onTap: parent.telephone != null && parent.telephone!.isNotEmpty
+                      ? () => PhoneUtils.call(parent.telephone!)
+                      : null,
+                ),
                 if (parent.adresse != null && parent.adresse!.isNotEmpty)
                   IosCardTile(
                     leading: const Icon(

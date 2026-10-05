@@ -7,6 +7,7 @@ import "package:get/get.dart";
 import "../../controllers/assistant_ia_controller.dart";
 import "../../models/chat_session_model.dart";
 import "../../models/patient_model.dart";
+import "../../services/language_service.dart";
 import "../../services/patient_service.dart";
 import "../../theme/app_colors.dart";
 import "../../theme/app_text_styles.dart";
@@ -691,7 +692,7 @@ class _SuggestionsBar extends StatelessWidget {
           return BouncyTap(
             onTap: () => controller.sendMessage(label.tr),
             child: Container(
-              margin: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
+              margin: const EdgeInsetsDirectional.only(end: 8, top: 4, bottom: 4),
               padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: AppColors.surfaceCard,
@@ -742,99 +743,115 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = message.role == MessageRole.user;
+    final isArabic = (Get.locale?.languageCode == 'ar' ||
+        LanguageService.currentLocale.value.languageCode == 'ar');
 
-    return Padding(
-      padding: EdgeInsets.only(
-        top: 4,
-        bottom: 4,
-        left: isUser ? 48 : 0,
-        right: isUser ? 0 : 48,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          if (!isUser) ...[
-            _AvatarIA(),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: Column(
-              crossAxisAlignment:
-                  isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                if (isUser)
-                  GestureDetector(
-                    onLongPress: () => _showEditMessageModal(context),
-                    child: _BubbleContent(message: message, isUser: isUser),
-                  )
-                else
-                  _BubbleContent(message: message, isUser: isUser),
-                const SizedBox(height: 3),
-                if (isUser)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      BouncyTap(
-                        onTap: () => _showEditMessageModal(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.25),
-                              width: 0.6,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: 4,
+          bottom: 4,
+          left: isUser ? 48 : 0,
+          right: isUser ? 0 : 48,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment:
+              isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          children: [
+            if (!isUser) ...[
+              _AvatarIA(),
+              const SizedBox(width: 8),
+            ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment:
+                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                children: [
+                  if (isUser)
+                    GestureDetector(
+                      onLongPress: () => _showEditMessageModal(context),
+                      child: _BubbleContent(message: message, isUser: isUser),
+                    )
+                  else
+                    _BubbleContent(message: message, isUser: isUser),
+                  const SizedBox(height: 3),
+                  if (isUser)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BouncyTap(
+                          onTap: () => _showEditMessageModal(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: AppColors.primary.withValues(alpha: 0.25),
+                                width: 0.6,
+                              ),
+                            ),
+                            child: Directionality(
+                              textDirection: isArabic
+                                  ? TextDirection.rtl
+                                  : TextDirection.ltr,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.edit_rounded,
+                                    size: 10.5,
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    "Modifier".tr,
+                                    style: AppTextStyles.iosCaption2.copyWith(
+                                      color: AppColors.primary,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.edit_rounded,
-                                size: 10.5,
-                                color: AppColors.primary,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                "Modifier".tr,
-                                style: AppTextStyles.iosCaption2.copyWith(
-                                  color: AppColors.primary,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                        ),
+                        const SizedBox(width: 6),
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Text(
+                            _formatTime(message.time),
+                            style: AppTextStyles.iosCaption2.copyWith(
+                              color: AppColors.textTertiary,
+                              fontSize: 10,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
+                      ],
+                    )
+                  else
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
                         _formatTime(message.time),
                         style: AppTextStyles.iosCaption2.copyWith(
                           color: AppColors.textTertiary,
                           fontSize: 10,
                         ),
                       ),
-                    ],
-                  )
-                else
-                  Text(
-                    _formatTime(message.time),
-                    style: AppTextStyles.iosCaption2.copyWith(
-                      color: AppColors.textTertiary,
-                      fontSize: 10,
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (isUser) const SizedBox(width: 8),
-        ],
+            if (isUser) const SizedBox(width: 8),
+          ],
+        ),
       ),
     )
         .animate(delay: Duration(milliseconds: index < 10 ? 0 : 100))
@@ -978,6 +995,14 @@ class _EditMessageSheetState extends State<_EditMessageSheet> {
                     focusNode: _focusNode,
                     minLines: 2,
                     maxLines: 8,
+                    textDirection: (Get.locale?.languageCode == 'ar' ||
+                            LanguageService.currentLocale.value.languageCode == 'ar')
+                        ? TextDirection.rtl
+                        : null,
+                    textAlign: (Get.locale?.languageCode == 'ar' ||
+                            LanguageService.currentLocale.value.languageCode == 'ar')
+                        ? TextAlign.right
+                        : TextAlign.start,
                     style: AppTextStyles.iosBody.copyWith(
                       color: AppColors.textPrimary,
                     ),
@@ -1205,6 +1230,11 @@ class _BubbleContent extends StatelessWidget {
       );
     }
 
+    final hasArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(message.text);
+    final isArabic = hasArabic ||
+        (Get.locale?.languageCode == 'ar' ||
+            LanguageService.currentLocale.value.languageCode == 'ar');
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -1228,44 +1258,56 @@ class _BubbleContent extends StatelessWidget {
         ],
       ),
       child: isUser
-          ? Text(
-              message.text,
-              style: AppTextStyles.iosBody.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
+          ? Directionality(
+              textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+              child: Text(
+                message.text,
+                textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                style: AppTextStyles.iosBody.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             )
-          : MarkdownBody(
-              data: message.text,
-              styleSheet: MarkdownStyleSheet(
-                p: AppTextStyles.iosBody.copyWith(
-                  color: AppColors.textPrimary,
-                  height: 1.5,
-                ),
-                h1: AppTextStyles.iosTitle3.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-                h2: AppTextStyles.iosHeadline.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
-                h3: AppTextStyles.iosBody.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
-                strong: AppTextStyles.iosBody.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w700,
-                ),
-                listBullet: AppTextStyles.iosBody.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-                blockquoteDecoration: BoxDecoration(
-                  color: AppColors.primaryUltraLight,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border(
-                    left: BorderSide(color: AppColors.primary, width: 3),
+          : Directionality(
+              textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+              child: MarkdownBody(
+                data: message.text,
+                styleSheet: MarkdownStyleSheet(
+                  p: AppTextStyles.iosBody.copyWith(
+                    color: AppColors.textPrimary,
+                    height: 1.5,
+                  ),
+                  h1: AppTextStyles.iosTitle3.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                  h2: AppTextStyles.iosHeadline.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  h3: AppTextStyles.iosBody.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  strong: AppTextStyles.iosBody.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  listBullet: AppTextStyles.iosBody.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                  blockquoteDecoration: BoxDecoration(
+                    color: AppColors.primaryUltraLight,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border(
+                      left: isArabic
+                          ? BorderSide.none
+                          : const BorderSide(color: AppColors.primary, width: 3),
+                      right: isArabic
+                          ? const BorderSide(color: AppColors.primary, width: 3)
+                          : BorderSide.none,
+                    ),
                   ),
                 ),
               ),
@@ -1422,6 +1464,14 @@ class _InputBar extends StatelessWidget {
                     onChanged: (v) => controller.inputText.value = v,
                     onSubmitted: (_) => controller.sendMessage(),
                     textInputAction: TextInputAction.newline,
+                    textDirection: (Get.locale?.languageCode == 'ar' ||
+                            LanguageService.currentLocale.value.languageCode == 'ar')
+                        ? TextDirection.rtl
+                        : null,
+                    textAlign: (Get.locale?.languageCode == 'ar' ||
+                            LanguageService.currentLocale.value.languageCode == 'ar')
+                        ? TextAlign.right
+                        : TextAlign.start,
                     style: AppTextStyles.iosBody.copyWith(
                       color: AppColors.textPrimary,
                     ),

@@ -129,7 +129,7 @@ class GeminiTools {
   // ── 5. Obtenir les tâches des employés ─────────────────────────────────────
   static final obtenirTachesEmployes = FunctionDeclaration(
     'obtenir_taches_employes',
-    "Récupère les tâches assignées aux employés, avec filtre optionnel par statut.",
+    "Récupère les tâches. Pour un employé, ne retourne que ses tâches assignées. Pour un admin, permet de suivre les tâches du cabinet.",
     Schema.object(
       properties: {
         'statut': Schema.string(
@@ -145,14 +145,95 @@ class GeminiTools {
     ),
   );
 
-  /// Liste complète des outils disponibles pour Gemini
-  static List<Tool> get allTools => [
+  // ── 6. Obtenir les séances (strictement isolé par praticien) ───────────────
+  static final obtenirSeances = FunctionDeclaration(
+    'obtenir_seances',
+    "Récupère les séances de consultation ou de prise en charge pour une date donnée. "
+        "Pour un praticien/employé, retourne strictement ses propres séances. "
+        "Pour un administrateur, permet de voir l'ensemble des séances du cabinet.",
+    Schema.object(
+      properties: {
+        'date': Schema.string(
+          description:
+              "Date des séances au format YYYY-MM-DD (défaut : aujourd'hui).",
+          nullable: true,
+        ),
+      },
+    ),
+  );
+
+  // ── 7. Créer / planifier une séance ────────────────────────────────────────
+  static final creerSeance = FunctionDeclaration(
+    'creer_seance',
+    "Planifie une séance clinique individuelle pour un patient. "
+        "Demande TOUJOURS la date, l'heure de début et l'heure de fin avant d'appeler cet outil. "
+        "Si aucun patient n'est sélectionné, l'indiquer à l'utilisateur.",
+    Schema.object(
+      properties: {
+        'date': Schema.string(
+          description: "Date de la séance au format YYYY-MM-DD",
+        ),
+        'heure_debut': Schema.string(
+          description: "Heure de début au format HH:MM (ex: 09:30)",
+        ),
+        'heure_fin': Schema.string(
+          description: "Heure de fin au format HH:MM (ex: 10:30)",
+        ),
+        'patient_id': Schema.string(
+          description: "ID du patient (optionnel si un patient est déjà actif)",
+          nullable: true,
+        ),
+      },
+      requiredProperties: ['date', 'heure_debut', 'heure_fin'],
+    ),
+  );
+
+  // ── 8. Ajouter une note clinique au dossier patient ────────────────────────
+  static final ajouterNotePatient = FunctionDeclaration(
+    'ajouter_note_patient',
+    "Ajoute une observation clinique ou une note de suivi dans le dossier du patient actif.",
+    Schema.object(
+      properties: {
+        'contenu': Schema.string(
+          description: "Contenu texte de la note clinique ou observation",
+        ),
+        'patient_id': Schema.string(
+          description: "ID du patient (optionnel si un patient est déjà actif)",
+          nullable: true,
+        ),
+      },
+      requiredProperties: ['contenu'],
+    ),
+  );
+
+  /// Outils réservés à l'Administrateur (gestion globale + création patient)
+  static List<Tool> get adminTools => [
         Tool(functionDeclarations: [
           creerPatient,
           creerTache,
           creerPlanTherapeutique,
           obtenirCalendrier,
           obtenirTachesEmployes,
+          obtenirSeances,
+          creerSeance,
+          ajouterNotePatient,
         ]),
       ];
+
+  /// Outils autorisés aux Employés / Spécialistes (aucun accès à creerPatient,
+  /// séances et tâches strictement limitées à leur propre compte).
+  static List<Tool> get employeeTools => [
+        Tool(functionDeclarations: [
+          creerTache,
+          creerPlanTherapeutique,
+          obtenirCalendrier,
+          obtenirTachesEmployes,
+          obtenirSeances,
+          creerSeance,
+          ajouterNotePatient,
+        ]),
+      ];
+
+  /// Liste complète (rétrocompatibilité)
+  static List<Tool> get allTools => adminTools;
 }
