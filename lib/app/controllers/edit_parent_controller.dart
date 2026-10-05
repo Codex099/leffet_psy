@@ -100,11 +100,12 @@ class EditParentController extends GetxController {
       return;
     }
 
-    if (telephone.value.trim().isEmpty) {
+    final cleanTel = telephone.value.replaceAll(RegExp(r'[^\d+]'), '').trim();
+    if (cleanTel.isEmpty || cleanTel.replaceAll('+', '').length < 8) {
       Get.snackbar(
-        'Téléphone requis',
-       'Veuillez renseigner le numéro de téléphone du parent.',
-       snackPosition: SnackPosition.BOTTOM,
+        'Téléphone invalide'.tr,
+        'Veuillez renseigner un numéro de téléphone valide (au moins 8 chiffres).'.tr,
+        snackPosition: SnackPosition.BOTTOM,
       );
       return;
     }
@@ -121,7 +122,6 @@ class EditParentController extends GetxController {
         mappedEtatCivil = 'autre';
       }
 
-      final cleanTel = telephone.value.replaceAll(RegExp(r'[\s\-\.]'), '').trim();
       final data = {
         'nom': nom.value.trim(),
         'prenom': prenom.value.trim(),

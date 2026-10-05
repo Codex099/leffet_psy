@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -17,6 +18,7 @@ class AppTextField extends StatelessWidget {
   final FormFieldValidator<String>? validator;
   final bool readOnly;
   final VoidCallback? onTap;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppTextField({
     super.key,
@@ -33,6 +35,7 @@ class AppTextField extends StatelessWidget {
     this.validator,
     this.readOnly = false,
     this.onTap,
+    this.inputFormatters,
   });
 
   @override
@@ -51,6 +54,7 @@ class AppTextField extends StatelessWidget {
           initialValue: controller == null ? initialValue : null,
           obscureText: obscureText,
           keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
           maxLines: maxLines,
           readOnly: readOnly,
           onTap: onTap,

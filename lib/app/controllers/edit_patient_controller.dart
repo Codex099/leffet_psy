@@ -280,9 +280,15 @@ class EditPatientController extends GetxController {
       finalTel = (telephone ?? '').trim();
     }
 
-    if (finalTel.isEmpty) {
+    final cleanTel = finalTel.replaceAll(RegExp(r'[^\d+]'), '').trim();
+
+    if (cleanTel.isEmpty || cleanTel.replaceAll('+', '').length < 8) {
       if (Get.context != null) {
-        Get.snackbar('Téléphone requis'.tr, 'Veuillez saisir le numéro de téléphone du parent.'.tr, snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Téléphone invalide'.tr,
+          'Veuillez saisir un numéro de téléphone valide (au moins 8 chiffres).'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
       return null;
     }
@@ -292,13 +298,13 @@ class EditPatientController extends GetxController {
 
       // 1. Vérifier si un parent existe déjà avec ce téléphone localement
       ParentModel? existingParent = availableParents.firstWhereOrNull(
-        (p) => p.telephone?.trim() == finalTel,
+        (p) => p.telephone?.trim() == cleanTel,
       );
 
       // 2. Si pas en mémoire, interroger l'API par téléphone
       if (existingParent == null) {
         try {
-          existingParent = await _parentService.getParentByPhone(finalTel);
+          existingParent = await _parentService.getParentByPhone(cleanTel);
         } catch (_) {}
       }
 
@@ -312,7 +318,7 @@ class EditPatientController extends GetxController {
         if (Get.context != null) {
           Get.snackbar(
             'Parent existant'.tr,
-            '${'Un parent avec ce numéro existe déjà'.tr} ($finalTel - ${existingParent.fullName}). ${'Il a été automatiquement sélectionné.'.tr}',
+            '${'Un parent avec ce numéro existe déjà'.tr} ($cleanTel - ${existingParent.fullName}). ${'Il a été automatiquement sélectionné.'.tr}',
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 4),
           );
@@ -334,7 +340,7 @@ class EditPatientController extends GetxController {
       final payload = {
         'nom': finalNom.isNotEmpty ? finalNom : 'Parent',
         'prenom': finalPrenom.isNotEmpty ? finalPrenom : 'Nouveau',
-        'telephone': finalTel,
+        'telephone': cleanTel,
         'etat_civil': mappedEc,
       };
 
@@ -389,13 +395,17 @@ class EditPatientController extends GetxController {
     if (step < 1 || step > 4) return;
     if (step == currentStep.value) return;
 
-    // Si on quitte l'étape 1 et que nom et prénom sont renseignés,
-    // on peut tenter de pré-créer ou mettre à jour le patient en arrière-plan
-    if (currentStep.value == 1 && (_savedPatientId == null && patientId == null)) {
+    // Si on quitte l'étape 1, s'assurer que prénom et nom sont renseignés
+    if (currentStep.value == 1 && step > 1) {
       final prenomText = prenomController.text.trim();
       final nomText = nomController.text.trim();
-      if (prenomText.isNotEmpty && nomText.isNotEmpty) {
-        _saveStep1(advance: false, silent: true);
+      if (prenomText.isEmpty || nomText.isEmpty) {
+        Get.snackbar(
+          'Champs requis'.tr,
+          'Veuillez renseigner le prénom et le nom avant de changer d\'étape.'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
       }
     }
 
@@ -403,8 +413,20 @@ class EditPatientController extends GetxController {
   }
 
   void nextStep() {
-    if (currentStep.value < 4) {
-      _saveCurrentStep();
+    if (currentStep.value == 1) {
+      final prenomText = prenomController.text.trim();
+      final nomText = nomController.text.trim();
+      if (prenomText.isEmpty || nomText.isEmpty) {
+        Get.snackbar(
+          'Champs requis'.tr,
+          'Prénom et nom sont obligatoires.'.tr,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+      currentStep.value = 2;
+    } else if (currentStep.value < 4) {
+      currentStep.value++;
     } else {
       finishWizard();
     }
@@ -413,20 +435,6 @@ class EditPatientController extends GetxController {
   void previousStep() {
     if (currentStep.value > 1) {
       currentStep.value--;
-    }
-  }
-
-  Future<void> _saveCurrentStep() async {
-    switch (currentStep.value) {
-      case 1:
-        await _saveStep1(advance: true);
-        break;
-      case 2:
-        await _saveStep2(advance: true);
-        break;
-      case 3:
-        await _saveStep3(advance: true);
-        break;
     }
   }
 

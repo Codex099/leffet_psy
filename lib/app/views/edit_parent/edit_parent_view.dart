@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import '../../controllers/edit_parent_controller.dart';
 import '../../theme/app_colors.dart';
@@ -99,9 +100,22 @@ class EditParentView extends GetView<EditParentController> {
                       ),
                       const SizedBox(height: 14),
                       AppTextField(
-                        label: 'Téléphone'.tr,
+                        label: 'Téléphone *'.tr,
                         hintText: 'Ex: 0758123456 ou 0550123456',
                         keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9+\s-]')),
+                        ],
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Numéro de téléphone requis'.tr;
+                          }
+                          final digits = v.replaceAll(RegExp(r'[^0-9]'), '');
+                          if (digits.length < 8) {
+                            return 'Numéro invalide (au moins 8 chiffres)'.tr;
+                          }
+                          return null;
+                        },
                         initialValue: controller.telephone.value,
                         onChanged: (v) => controller.telephone.value = v,
                       ),
