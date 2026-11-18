@@ -56,6 +56,23 @@ class PlanTherapeutiqueService {
     await _dio.delete(ApiConfig.planTherapeutique(planId));
   }
 
+  /// POST /api/plans-therapeutiques/{plan_id}/assigner
+  Future<PlanTherapeutiqueModel> assignPlan(
+    dynamic planId,
+    dynamic employeeId, {
+    bool propager = false,
+  }) async {
+    final response = await _dio.post(
+      ApiConfig.planAssigner(planId),
+      data: {
+        'employee_id': employeeId?.toString(),
+        'propager': propager,
+      },
+    );
+    return PlanTherapeutiqueModel.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
   /// GET /api/plans-therapeutiques/{plan_id}/etapes
   Future<List<EtapePlanTherapeutiqueModel>> getEtapes(dynamic planId) async {
     final response = await _dio.get(ApiConfig.planEtapes(planId));
@@ -93,6 +110,79 @@ class PlanTherapeutiqueService {
   /// DELETE /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}
   Future<void> deleteEtape(dynamic planId, dynamic etapeId) async {
     await _dio.delete(ApiConfig.planEtape(planId, etapeId));
+  }
+
+  /// POST /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/assigner
+  Future<EtapePlanTherapeutiqueModel> assignEtape(
+    dynamic planId,
+    dynamic etapeId,
+    dynamic employeeId, {
+    bool propager = false,
+  }) async {
+    final response = await _dio.post(
+      ApiConfig.planEtapeAssigner(planId, etapeId),
+      data: {
+        'employee_id': employeeId?.toString(),
+        'propager': propager,
+      },
+    );
+    return EtapePlanTherapeutiqueModel.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  /// POST /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/sous-etapes
+  Future<SousEtapePlanTherapeutiqueModel> createSousEtape(
+    dynamic planId,
+    dynamic etapeId,
+    Map<String, dynamic> data,
+  ) async {
+    final response = await _dio.post(
+      ApiConfig.planSousEtapes(planId, etapeId),
+      data: data,
+    );
+    return SousEtapePlanTherapeutiqueModel.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  /// PUT /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/sous-etapes/{sous_etape_id}
+  Future<SousEtapePlanTherapeutiqueModel> updateSousEtape(
+    dynamic planId,
+    dynamic etapeId,
+    dynamic sousEtapeId,
+    Map<String, dynamic> data,
+  ) async {
+    final response = await _dio.put(
+      ApiConfig.planSousEtape(planId, etapeId, sousEtapeId),
+      data: data,
+    );
+    return SousEtapePlanTherapeutiqueModel.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
+  }
+
+  /// DELETE /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/sous-etapes/{sous_etape_id}
+  Future<void> deleteSousEtape(
+    dynamic planId,
+    dynamic etapeId,
+    dynamic sousEtapeId,
+  ) async {
+    await _dio.delete(ApiConfig.planSousEtape(planId, etapeId, sousEtapeId));
+  }
+
+  /// POST /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/sous-etapes/{sous_etape_id}/assigner
+  Future<SousEtapePlanTherapeutiqueModel> assignSousEtape(
+    dynamic planId,
+    dynamic etapeId,
+    dynamic sousEtapeId,
+    dynamic employeeId,
+  ) async {
+    final response = await _dio.post(
+      ApiConfig.planSousEtapeAssigner(planId, etapeId, sousEtapeId),
+      data: {
+        'employee_id': employeeId?.toString(),
+      },
+    );
+    return SousEtapePlanTherapeutiqueModel.fromJson(
+        Map<String, dynamic>.from(response.data as Map));
   }
 
   /// POST /api/plans-therapeutiques/{plan_id}/etapes/{etape_id}/creer-tache

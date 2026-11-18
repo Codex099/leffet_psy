@@ -13,6 +13,7 @@ class SectionHeader extends StatelessWidget {
   final Color? iconBg;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final Widget? trailing;
   final EdgeInsetsGeometry padding;
   final bool showAccentLine;
 
@@ -24,6 +25,7 @@ class SectionHeader extends StatelessWidget {
     this.iconBg,
     this.actionLabel,
     this.onAction,
+    this.trailing,
     this.padding = const EdgeInsets.fromLTRB(20, 20, 16, 8),
     this.showAccentLine = false,
   });
@@ -76,7 +78,12 @@ class SectionHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (actionLabel != null && onAction != null)
+          if (trailing != null)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: trailing!,
+            )
+          else if (actionLabel != null && onAction != null)
             GestureDetector(
               onTap: onAction,
               child: Padding(

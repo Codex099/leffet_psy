@@ -21,18 +21,27 @@ class PlanTherapeutiqueController extends GetxController {
   final RxString status = 'loading'.obs;
   final RxString errorMessage = ''.obs;
   final RxBool isAdmin = false.obs;
+  final RxSet<dynamic> expandedEtapeIds = <dynamic>{}.obs;
   dynamic patientId;
 
   // Form controllers for creating plan
   final TextEditingController titreController = TextEditingController();
   final RxString statutPlan = 'actif'.obs;
+  final Rx<dynamic> assignePlanEmployeeId = Rx<dynamic>(null);
 
- // Form controllers for adding step
+  // Form controllers for adding step
   final TextEditingController etapeTitreController = TextEditingController();
   final TextEditingController etapeDescController = TextEditingController();
   final RxString statutEtape = 'a_faire'.obs;
+  final Rx<dynamic> assigneEtapeEmployeeId = Rx<dynamic>(null);
 
- static const _cacheDuration = Duration(minutes: 5);
+  // Form controllers for adding sub-step (séance)
+  final TextEditingController sousEtapeTitreController = TextEditingController();
+  final TextEditingController sousEtapeDescController = TextEditingController();
+  final RxString statutSousEtape = 'a_faire'.obs;
+  final Rx<dynamic> assigneSousEtapeEmployeeId = Rx<dynamic>(null);
+
+  static const _cacheDuration = Duration(minutes: 5);
 
   @override
   void onInit() {
@@ -40,8 +49,8 @@ class PlanTherapeutiqueController extends GetxController {
     patientId = extractIdParam(Get.arguments, Get.parameters);
     if (patientId == null) {
       status.value = 'error';
-     errorMessage.value = 'Identifiant du patient non spécifié.';
-   } else {
+      errorMessage.value = 'Identifiant du patient non spécifié.'.tr;
+    } else {
       _checkAdminAndLoad();
     }
   }
@@ -51,12 +60,6 @@ class PlanTherapeutiqueController extends GetxController {
       final me = await _authService.getCachedUser() ?? await _authService.getMe();
       isAdmin.value = me.role.toLowerCase() == 'admin';
     } catch (_) {}
-
-    if (!isAdmin.value) {
-      status.value = 'error';
-      errorMessage.value = 'Accès réservé aux administrateurs.';
-      return;
-    }
 
     _loadFromCache();
     loadPlan();
@@ -68,7 +71,17 @@ class PlanTherapeutiqueController extends GetxController {
     titreController.dispose();
     etapeTitreController.dispose();
     etapeDescController.dispose();
+    sousEtapeTitreController.dispose();
+    sousEtapeDescController.dispose();
     super.onClose();
+  }
+
+  void toggleEtapeExpanded(dynamic etapeId) {
+    if (expandedEtapeIds.contains(etapeId)) {
+      expandedEtapeIds.remove(etapeId);
+    } else {
+      expandedEtapeIds.add(etapeId);
+    }
   }
 
   void _loadFromCache() {
@@ -77,8 +90,17 @@ class PlanTherapeutiqueController extends GetxController {
     if (cached != null && cached.isNotEmpty) {
       plans.value = cached;
       selectedPlan.value = cached.first;
+      _expandAllEtapes(cached.first);
       status.value = 'success';
-   }
+    }
+  }
+
+  void _expandAllEtapes(PlanTherapeutiqueModel? plan) {
+    if (plan?.etapes != null) {
+      for (final e in plan!.etapes!) {
+        expandedEtapeIds.add(e.id);
+      }
+    }
   }
 
   Future<void> loadPlan({bool forceRefresh = false}) async {
@@ -91,30 +113,17 @@ class PlanTherapeutiqueController extends GetxController {
 
     if (plans.isEmpty) {
       status.value = 'loading';
-   }
+    }
 
     try {
       final fetchedPlans = await _planService.getPlansPatient(patientId!);
       
       final updatedPlans = <PlanTherapeutiqueModel>[];
       for (final p in fetchedPlans) {
-        if (p.etapes == null || p.etapes!.isEmpty) {
-          try {
-            final etapes = await _planService.getEtapes(p.id);
-            updatedPlans.add(PlanTherapeutiqueModel(
-              id: p.id,
-              patientId: p.patientId,
-              titre: p.titre,
-              statut: p.statut,
-              dateDebut: p.dateDebut,
-              dateFin: p.dateFin,
-              creePar: p.creePar,
-              etapes: etapes,
-            ));
-          } catch (_) {
-            updatedPlans.add(p);
-          }
-        } else {
+        try {
+          final fullPlan = await _planService.getPlan(p.id);
+          updatedPlans.add(fullPlan);
+        } catch (_) {
           updatedPlans.add(p);
         }
       }
@@ -134,16 +143,17 @@ class PlanTherapeutiqueController extends GetxController {
         } else {
           selectedPlan.value = plans.first;
         }
+        _expandAllEtapes(selectedPlan.value);
         status.value = 'success';
-     } else {
+      } else {
         selectedPlan.value = null;
         status.value = 'empty';
-     }
+      }
     } catch (e) {
       if (plans.isEmpty) {
         errorMessage.value = e.toString();
         status.value = 'error';
-     }
+      }
     }
   }
 
@@ -151,82 +161,237 @@ class PlanTherapeutiqueController extends GetxController {
 
   void selectPlan(PlanTherapeutiqueModel plan) {
     selectedPlan.value = plan;
+    _expandAllEtapes(plan);
   }
+
+  // ─── Plan CRUD & Assignation ───────────────────────────────────────────────
 
   Future<void> createPlan() async {
     if (patientId == null || titreController.text.trim().isEmpty) return;
     try {
       status.value = 'loading';
-     await _planService.createPlan(patientId!, {
+      await _planService.createPlan(patientId!, {
         'titre': titreController.text.trim(),
-       'statut': statutPlan.value,
-     });
+        'statut': statutPlan.value,
+        if (assignePlanEmployeeId.value != null)
+          'assigne_a': assignePlanEmployeeId.value.toString(),
+      });
       titreController.clear();
+      assignePlanEmployeeId.value = null;
       AppCacheManager.invalidateTag(CacheTags.patients);
-      Get.snackbar('Succès', 'Plan créé avec succès', snackPosition: SnackPosition.BOTTOM);
-     await loadPlan(forceRefresh: true);
+      Get.snackbar('Succès'.tr, 'Plan créé avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
     } catch (e) {
-      Get.snackbar('Erreur', 'Impossible de créer le plan: $e', snackPosition: SnackPosition.BOTTOM);
-     status.value = 'error';
-     errorMessage.value = e.toString();
+      Get.snackbar('Erreur'.tr, '${'Impossible de créer le plan'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+      status.value = 'error';
+      errorMessage.value = e.toString();
     }
   }
 
   Future<void> updatePlanStatut(dynamic planId, String newStatut) async {
     try {
       await _planService.updatePlan(planId, {'statut': newStatut});
-     AppCacheManager.invalidateTag(CacheTags.patients);
-      Get.snackbar('Succès', 'Statut du plan mis à jour', snackPosition: SnackPosition.BOTTOM);
-     await loadPlan(forceRefresh: true);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Statut du plan mis à jour'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
     } catch (e) {
-      Get.snackbar('Erreur', 'Impossible de modifier le statut du plan: $e', snackPosition: SnackPosition.BOTTOM);
-   }
+      Get.snackbar('Erreur'.tr, '${'Impossible de modifier le statut'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
   }
+
+  Future<void> deletePlan(dynamic planId) async {
+    try {
+      await _planService.deletePlan(planId);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Plan supprimé avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible de supprimer le plan'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> assignPlan(dynamic planId, dynamic employeeId, {bool propager = false}) async {
+    try {
+      await _planService.assignPlan(planId, employeeId, propager: propager);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar(
+        'Succès'.tr,
+        propager
+            ? 'Plan et ensemble des étapes/séances assignés avec succès'.tr
+            : 'Plan assigné avec succès'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible d\'assigner le plan'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  // ─── Étapes CRUD & Assignation ─────────────────────────────────────────────
 
   Future<void> addEtape() async {
     if (selectedPlan.value == null || etapeTitreController.text.trim().isEmpty) return;
     try {
       final currentEtapes = selectedPlan.value!.etapes ?? [];
       final statutVal = statutEtape.value == 'termine' ? 'fait' : statutEtape.value;
-     await _planService.createEtape(selectedPlan.value!.id, {
+      await _planService.createEtape(selectedPlan.value!.id, {
         'titre': etapeTitreController.text.trim(),
-       'description': etapeDescController.text.trim(),
-       'statut': statutVal,
-       'ordre': currentEtapes.length + 1,
-     });
+        'description': etapeDescController.text.trim(),
+        'statut': statutVal,
+        'ordre': currentEtapes.length + 1,
+        if (assigneEtapeEmployeeId.value != null)
+          'assigne_a': assigneEtapeEmployeeId.value.toString(),
+      });
       etapeTitreController.clear();
       etapeDescController.clear();
       statutEtape.value = 'a_faire';
-     AppCacheManager.invalidateTag(CacheTags.patients);
-      Get.snackbar('Succès', 'Étape ajoutée', snackPosition: SnackPosition.BOTTOM);
-     await loadPlan(forceRefresh: true);
+      assigneEtapeEmployeeId.value = null;
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Étape ajoutée avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
     } catch (e) {
-      Get.snackbar('Erreur', 'Impossible d\'ajouter l\'étape: $e', snackPosition: SnackPosition.BOTTOM);
-   }
+      Get.snackbar('Erreur'.tr, '${'Impossible d\'ajouter l\'étape'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   Future<void> updateEtapeStatut(dynamic planId, dynamic etapeId, String newStatut) async {
     try {
       final statutVal = newStatut == 'termine' ? 'fait' : newStatut;
-     await _planService.updateEtape(planId, etapeId, {'statut': statutVal});
-     AppCacheManager.invalidateTag(CacheTags.patients);
-      Get.snackbar('Succès', 'Statut de l\'étape mis à jour', snackPosition: SnackPosition.BOTTOM);
-     await loadPlan(forceRefresh: true);
+      await _planService.updateEtape(planId, etapeId, {'statut': statutVal});
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Statut de l\'étape mis à jour'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
     } catch (e) {
-      Get.snackbar('Erreur', 'Impossible de mettre à jour le statut: $e', snackPosition: SnackPosition.BOTTOM);
-   }
+      Get.snackbar('Erreur'.tr, '${'Impossible de mettre à jour le statut'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
   Future<void> deleteEtape(dynamic planId, dynamic etapeId) async {
     try {
       await _planService.deleteEtape(planId, etapeId);
       AppCacheManager.invalidateTag(CacheTags.patients);
-      Get.snackbar('Succès', 'Étape supprimée', snackPosition: SnackPosition.BOTTOM);
-     await loadPlan(forceRefresh: true);
+      Get.snackbar('Succès'.tr, 'Étape supprimée'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
     } catch (e) {
-      Get.snackbar('Erreur', 'Impossible de supprimer l\'étape', snackPosition: SnackPosition.BOTTOM);
-   }
+      Get.snackbar('Erreur'.tr, '${'Impossible de supprimer l\'étape'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
   }
+
+  Future<void> assignEtape(dynamic planId, dynamic etapeId, dynamic employeeId, {bool propager = false}) async {
+    try {
+      await _planService.assignEtape(planId, etapeId, employeeId, propager: propager);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar(
+        'Succès'.tr,
+        propager
+            ? 'Étape et ses séances assignées avec succès'.tr
+            : 'Étape assignée avec succès'.tr,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible d\'assigner l\'étape'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  // ─── Sous-Étapes (Séances) CRUD & Assignation ──────────────────────────────
+
+  Future<void> addSousEtape(dynamic planId, dynamic etapeId) async {
+    if (sousEtapeTitreController.text.trim().isEmpty) return;
+    try {
+      final etape = selectedPlan.value?.etapes?.firstWhereOrNull((e) => e.id == etapeId);
+      final currentSousEtapes = etape?.sousEtapes ?? [];
+      final statutVal = statutSousEtape.value == 'termine' ? 'fait' : statutSousEtape.value;
+
+      await _planService.createSousEtape(planId, etapeId, {
+        'titre': sousEtapeTitreController.text.trim(),
+        'description': sousEtapeDescController.text.trim(),
+        'statut': statutVal,
+        'ordre': currentSousEtapes.length + 1,
+        if (assigneSousEtapeEmployeeId.value != null)
+          'assigne_a': assigneSousEtapeEmployeeId.value.toString(),
+      });
+
+      sousEtapeTitreController.clear();
+      sousEtapeDescController.clear();
+      statutSousEtape.value = 'a_faire';
+      assigneSousEtapeEmployeeId.value = null;
+      expandedEtapeIds.add(etapeId);
+
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Séance ajoutée avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible d\'ajouter la séance'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> updateSousEtapeStatut(
+    dynamic planId,
+    dynamic etapeId,
+    dynamic sousEtapeId,
+    String newStatut,
+  ) async {
+    try {
+      final statutVal = newStatut == 'termine' ? 'fait' : newStatut;
+      await _planService.updateSousEtape(planId, etapeId, sousEtapeId, {'statut': statutVal});
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Statut de la séance mis à jour'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible de mettre à jour le statut'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> updateSousEtapeDetails(
+    dynamic planId,
+    dynamic etapeId,
+    dynamic sousEtapeId, {
+    required String titre,
+    String? description,
+    String? statut,
+  }) async {
+    try {
+      final data = <String, dynamic>{'titre': titre};
+      if (description != null) data['description'] = description;
+      if (statut != null) data['statut'] = statut == 'termine' ? 'fait' : statut;
+      await _planService.updateSousEtape(planId, etapeId, sousEtapeId, data);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Séance mise à jour'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible de modifier la séance'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> deleteSousEtape(dynamic planId, dynamic etapeId, dynamic sousEtapeId) async {
+    try {
+      await _planService.deleteSousEtape(planId, etapeId, sousEtapeId);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Séance supprimée'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible de supprimer la séance'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> assignSousEtape(
+    dynamic planId,
+    dynamic etapeId,
+    dynamic sousEtapeId,
+    dynamic employeeId,
+  ) async {
+    try {
+      await _planService.assignSousEtape(planId, etapeId, sousEtapeId, employeeId);
+      AppCacheManager.invalidateTag(CacheTags.patients);
+      Get.snackbar('Succès'.tr, 'Séance assignée avec succès'.tr, snackPosition: SnackPosition.BOTTOM);
+      await loadPlan(forceRefresh: true);
+    } catch (e) {
+      Get.snackbar('Erreur'.tr, '${'Impossible d\'assigner la séance'.tr} : $e', snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  // ─── Employés & Tâches ─────────────────────────────────────────────────────
 
   Future<void> _loadEmployees() async {
     try {

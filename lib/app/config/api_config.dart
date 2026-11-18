@@ -129,11 +129,21 @@ class ApiConfig {
  // ─── Routes Plans thérapeutiques ───────────────────────────────────────────
   static String planTherapeutique(dynamic planId) =>
       '/api/plans-therapeutiques/$planId';
- static String planEtapes(dynamic planId) =>
+  static String planAssigner(dynamic planId) =>
+      '/api/plans-therapeutiques/$planId/assigner';
+  static String planEtapes(dynamic planId) =>
       '/api/plans-therapeutiques/$planId/etapes';
- static String planEtape(dynamic planId, dynamic etapeId) =>
+  static String planEtape(dynamic planId, dynamic etapeId) =>
       '/api/plans-therapeutiques/$planId/etapes/$etapeId';
- static String planEtapeCreerTache(dynamic planId, dynamic etapeId) =>
+  static String planEtapeAssigner(dynamic planId, dynamic etapeId) =>
+      '/api/plans-therapeutiques/$planId/etapes/$etapeId/assigner';
+  static String planSousEtapes(dynamic planId, dynamic etapeId) =>
+      '/api/plans-therapeutiques/$planId/etapes/$etapeId/sous-etapes';
+  static String planSousEtape(dynamic planId, dynamic etapeId, dynamic sousEtapeId) =>
+      '/api/plans-therapeutiques/$planId/etapes/$etapeId/sous-etapes/$sousEtapeId';
+  static String planSousEtapeAssigner(dynamic planId, dynamic etapeId, dynamic sousEtapeId) =>
+      '/api/plans-therapeutiques/$planId/etapes/$etapeId/sous-etapes/$sousEtapeId/assigner';
+  static String planEtapeCreerTache(dynamic planId, dynamic etapeId) =>
       '/api/plans-therapeutiques/$planId/etapes/$etapeId/creer-tache';
 
  // ─── Routes Tâches ─────────────────────────────────────────────────────────

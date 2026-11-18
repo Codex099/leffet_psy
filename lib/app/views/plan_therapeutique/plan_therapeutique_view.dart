@@ -11,7 +11,7 @@ import '../../widgets/creative_app_bar.dart';
 import '../../widgets/app_date_picker.dart';
 
 class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
- const PlanTherapeutiqueView({super.key});
+  const PlanTherapeutiqueView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,41 +26,6 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
         if (controller.status.value == 'loading') {
           return const StatePlaceholder(type: StatePlaceholderType.loading);
         }
-        if (!controller.isAdmin.value) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.lock_rounded,
-                      size: 48,
-                      color: AppColors.error,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Accès réservé'.tr,
-                    style: AppTextStyles.iosHeadline.copyWith(fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Seul l\'administrateur est autorisé à consulter et gérer les plans thérapeutiques.'.tr,
-                    style: AppTextStyles.iosSubhead.copyWith(color: AppColors.textSecondary),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
         if (controller.status.value == 'error') {
           return StatePlaceholder.error(
             message: controller.errorMessage.value,
@@ -68,37 +33,56 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
           );
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Empty state: propose creating a plan
-              if (controller.status.value == 'empty') ...[
-                Center(
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.assignment_outlined,
-                        size: 56,
-                        color: AppColors.textHint,
-                      ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Aucun plan thérapeutique.'.tr,
-                         style: AppTextStyles.bodyMedium,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () => _showCreatePlanDialog(context),
-                          icon: const Icon(Icons.add),
-                          label: Text('Créer un plan'.tr),
-                         style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(200, 48),
+        return RefreshIndicator(
+          onRefresh: () => controller.refreshData(),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Empty state: propose creating a plan
+                if (controller.status.value == 'empty') ...[
+                  const SizedBox(height: 40),
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.assignment_outlined,
+                            size: 56,
+                            color: AppColors.primary,
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Aucun plan thérapeutique.'.tr,
+                          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Définissez les objectifs, étapes et séances du patient.'.tr,
+                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        if (controller.isAdmin.value)
+                          ElevatedButton.icon(
+                            onPressed: () => _showCreatePlanDialog(context),
+                            icon: const Icon(Icons.add),
+                            label: Text('Créer un plan'.tr),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white,
+                              minimumSize: const Size(200, 48),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -107,34 +91,30 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                   if (controller.plans.length > 1) ...[
                     SectionHeader(
                       title: 'Sélectionner un plan'.tr,
-                     padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+                      padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
                     ),
-
-                    const SizedBox(height: 8),
                     SizedBox(
-                      height: 40,
+                      height: 42,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: controller.plans.length,
-                        separatorBuilder: (ctx, idx) =>
-                            const SizedBox(width: 8),
+                        separatorBuilder: (ctx, idx) => const SizedBox(width: 8),
                         itemBuilder: (context, i) {
                           final plan = controller.plans[i];
-                          final isSelected =
-                              controller.selectedPlan.value?.id == plan.id;
+                          final isSelected = controller.selectedPlan.value?.id == plan.id;
                           return ChoiceChip(
                             label: Text(
                               plan.titre,
-                              style: AppTextStyles.bodySmall,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: isSelected ? Colors.white : AppColors.textPrimary,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              ),
                             ),
                             selected: isSelected,
                             onSelected: (_) => controller.selectPlan(plan),
                             selectedColor: AppColors.primary,
-                            labelStyle: TextStyle(
-                              color: isSelected
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
-                            ),
+                            backgroundColor: AppColors.surface,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           );
                         },
                       ),
@@ -142,56 +122,69 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                     const SizedBox(height: 16),
                   ],
 
-                  // Selected plan
+                  // Selected plan card
                   if (controller.selectedPlan.value != null) ...[
                     _buildPlanCard(context, controller.selectedPlan.value!),
                   ],
 
                   const SizedBox(height: 20),
 
-                  // Create new plan button
-                  OutlinedButton.icon(
-                    onPressed: () => _showCreatePlanDialog(context),
-                    icon: const Icon(Icons.add),
-                    label: Text('Nouveau plan'.tr),
-                   style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 44),
-                      side: const BorderSide(color: AppColors.primary),
-                      foregroundColor: AppColors.primary,
+                  // Create new plan button (for admin)
+                  if (controller.isAdmin.value)
+                    OutlinedButton.icon(
+                      onPressed: () => _showCreatePlanDialog(context),
+                      icon: const Icon(Icons.add),
+                      label: Text('Nouveau plan thérapeutique'.tr),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 46),
+                        side: const BorderSide(color: AppColors.primary),
+                        foregroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                     ),
-                  ),
+                  const SizedBox(height: 24),
                 ],
               ],
             ),
-          );
-        }),
+          ),
+        );
+      }),
     );
   }
+
+  // ─── Plan Card ─────────────────────────────────────────────────────────────
 
   Widget _buildPlanCard(BuildContext context, PlanTherapeutiqueModel plan) {
     final etapes = plan.etapes ?? [];
     final Color statutColor = plan.statut == 'actif'
-       ? AppColors.statusPresent
+        ? AppColors.statusPresent
         : plan.statut == 'archive'
-       ? AppColors.textSecondary
-        : AppColors.primary;
+            ? AppColors.textSecondary
+            : AppColors.primary;
+
+    final hasSousEtapes = plan.totalSousEtapes > 0;
+    final progressLabel = hasSousEtapes
+        ? '${plan.sousEtapesTerminees} / ${plan.totalSousEtapes} ${'séances complétées'.tr}'
+        : '${plan.etapesTerminees} / ${plan.totalEtapes} ${'étapes complétées'.tr}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Progress Card
+        // Top Card: Progress & Referent
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(20),
             boxShadow: AppColors.cardShadow,
+            border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Title & Status
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Column(
@@ -200,36 +193,44 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                         Text(plan.titre, style: AppTextStyles.sectionTitle),
                         const SizedBox(height: 4),
                         Text(
-                          '${plan.etapesTerminees} / ${plan.totalEtapes} ${'étapes complétées'.tr}',
-                         style: AppTextStyles.bodySmall,
+                          progressLabel,
+                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
                   ),
                   PopupMenuButton<String>(
-                    onSelected: (val) =>
-                        controller.updatePlanStatut(plan.id, val),
+                    onSelected: (val) {
+                      if (val == 'supprimer') {
+                        _confirmDeletePlan(context, plan);
+                      } else {
+                        controller.updatePlanStatut(plan.id, val);
+                      }
+                    },
                     itemBuilder: (_) => [
                       PopupMenuItem(value: 'actif', child: Text('Actif'.tr)),
-                     PopupMenuItem(
-                        value: 'suspendu',
-                       child: Text('Suspendu'.tr),
-                     ),
-                      PopupMenuItem(
-                        value: 'archive',
-                       child: Text('Archivé'.tr),
-                     ),
+                      PopupMenuItem(value: 'suspendu', child: Text('Suspendu'.tr)),
+                      PopupMenuItem(value: 'archive', child: Text('Archivé'.tr)),
+                      if (controller.isAdmin.value) const PopupMenuDivider(),
+                      if (controller.isAdmin.value)
+                        PopupMenuItem(
+                          value: 'supprimer',
+                          child: Text(
+                            'Supprimer le plan'.tr,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                        ),
                     ],
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         StatusBadge.custom(
                           label: plan.statut == 'actif'
-                             ? 'Actif'.tr
-                             : plan.statut == 'archive'
-                             ? 'Archivé'.tr
-                             : 'Suspendu'.tr,
-                         color: statutColor,
+                              ? 'Actif'.tr
+                              : plan.statut == 'archive'
+                                  ? 'Archivé'.tr
+                                  : 'Suspendu'.tr,
+                          color: statutColor,
                         ),
                         const Icon(
                           Icons.arrow_drop_down,
@@ -242,69 +243,133 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 ],
               ),
               const SizedBox(height: 14),
-              LinearProgressIndicator(
-                value: plan.progression,
-                backgroundColor: AppColors.border,
-                color: AppColors.primary,
+
+              // Progress Bar
+              ClipRRect(
                 borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: plan.progression,
+                  minHeight: 8,
+                  backgroundColor: AppColors.border,
+                  color: AppColors.primary,
+                ),
               ),
               const SizedBox(height: 8),
-              Text(
-                '${(plan.progression * 100).toInt()}% ${'accompli'.tr}',
-               style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${(plan.progression * 100).toInt()}% ${'accompli'.tr}',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (hasSousEtapes)
+                    Text(
+                      '${plan.totalSousEtapes} ${'séances au total'.tr}',
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                    ),
+                ],
+              ),
+              const Divider(height: 24),
+
+              // Plan Referent Employee Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.person_pin_rounded, size: 18, color: AppColors.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Référent du plan :'.tr,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  _buildEmployeeBadge(
+                    name: plan.assigneNom,
+                    role: plan.assigneRole,
+                    emptyLabel: 'Assigner référent'.tr,
+                    onTap: () => _showAssignDialog(
+                      context,
+                      level: 'plan',
+                      planId: plan.id,
+                      targetTitle: plan.titre,
+                      currentAssigneeId: plan.assigneA,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
 
-        // Étapes header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SectionHeader(
-              title: 'Étapes du plan'.tr,
-             padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-            ),
-
-            Text('${etapes.length} ${'étapes'.tr}', style: AppTextStyles.bodySmall),
-         ],
+        // Section Header for Steps & Sessions
+        SectionHeader(
+          title: 'Étapes & Séances du plan'.tr,
+          padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+          trailing: Text(
+            '${etapes.length} ${'étapes'.tr}',
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+          ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
 
-        // Step cards
+        // Step cards list
         if (etapes.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
-            child: Text(
-              'Aucune étape définie.'.tr,
-             style: AppTextStyles.bodySmall,
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  const Icon(Icons.alt_route_rounded, size: 40, color: AppColors.textHint),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Aucune étape définie dans ce plan.'.tr,
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
             ),
           )
         else
           ...etapes.map(
             (etape) => Padding(
-              padding: const EdgeInsets.only(bottom: 12.0),
+              padding: const EdgeInsets.only(bottom: 14.0),
               child: _buildEtapeCard(context, plan, etape),
             ),
           ),
 
+        const SizedBox(height: 6),
+
         // Add step button
         OutlinedButton.icon(
-          onPressed: () => _showAddEtapeDialog(context),
-          icon: const Icon(Icons.add),
+          onPressed: () => _showAddEtapeDialog(context, plan),
+          icon: const Icon(Icons.add, size: 18),
           label: Text('Ajouter une étape'.tr),
-         style: OutlinedButton.styleFrom(
-            minimumSize: const Size(double.infinity, 48),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 46),
             side: const BorderSide(color: AppColors.primary),
             foregroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
       ],
     );
   }
+
+  // ─── Étape Card ────────────────────────────────────────────────────────────
 
   Widget _buildEtapeCard(
     BuildContext context,
@@ -315,12 +380,12 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
     IconData statusIcon;
     switch (etape.statut) {
       case 'fait':
-     case 'termine':
-       statusColor = AppColors.statusPresent;
-        statusIcon = Icons.check_circle_outline_rounded;
+      case 'termine':
+        statusColor = AppColors.statusPresent;
+        statusIcon = Icons.check_circle_rounded;
         break;
       case 'en_cours':
-       statusColor = AppColors.primary;
+        statusColor = AppColors.primary;
         statusIcon = Icons.sync_rounded;
         break;
       default:
@@ -328,118 +393,413 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
         statusIcon = Icons.access_time_rounded;
     }
 
+    final isExpanded = controller.expandedEtapeIds.contains(etape.id);
+    final sousEtapes = etape.sousEtapes ?? [];
+
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppColors.cardShadow,
-        border: etape.statut == 'en_cours'
-           ? Border.all(
-                color: AppColors.primary.withValues(alpha: 0.3),
-                width: 1.5,
-              )
-            : null,
+        border: etape.isEnCours
+            ? Border.all(color: AppColors.primary.withValues(alpha: 0.35), width: 1.5)
+            : Border.all(color: AppColors.border.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Text(
-                      '${etape.ordre}.',
-                     style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        etape.titre,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              StatusBadge.custom(label: etape.statutLabel, color: statusColor),
-            ],
-          ),
-          if (etape.description != null && etape.description!.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(etape.description!, style: AppTextStyles.bodySmall),
-          ],
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Change statut dropdown
-              PopupMenuButton<String>(
-                onSelected: (val) =>
-                    controller.updateEtapeStatut(plan.id, etape.id, val),
-                itemBuilder: (_) => [
-                  PopupMenuItem(value: 'a_faire', child: Text('À faire'.tr)),
-                 PopupMenuItem(
-                    value: 'en_cours',
-                   child: Text('En cours'.tr),
-                 ),
-                  PopupMenuItem(value: 'fait', child: Text('Terminé'.tr)),
-               ],
-                child: Row(
-                  children: [
-                    Icon(statusIcon, size: 14, color: statusColor),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Changer statut'.tr,
-                     style: AppTextStyles.bodySmall.copyWith(
-                        color: statusColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
+          // Step Header (Tap to expand/collapse)
+          InkWell(
+            onTap: () => controller.toggleEtapeExpanded(etape.id),
+            borderRadius: BorderRadius.vertical(
+              top: const Radius.circular(16),
+              bottom: isExpanded ? Radius.zero : const Radius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InkWell(
-                    onTap: () =>
-                        _showAssignTaskDialog(context, plan, etape),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 14,
-                          color: AppColors.primary,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Tâche'.tr,
-                         style: AppTextStyles.bodySmall.copyWith(
+                        child: Text(
+                          '${'Étape'.tr} ${etape.ordre}',
+                          style: const TextStyle(
                             color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          etape.titre,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      StatusBadge.custom(label: etape.statutLabel, color: statusColor),
+                      const SizedBox(width: 4),
+                      Icon(
+                        isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                        color: AppColors.textSecondary,
+                        size: 22,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  InkWell(
-                    onTap: () => controller.deleteEtape(plan.id, etape.id),
-                    child: const Icon(
-                      Icons.delete_outline_rounded,
-                      size: 18,
-                      color: AppColors.error,
+                  if (etape.description != null && etape.description!.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      etape.description!,
+                      style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                     ),
+                  ],
+                  const SizedBox(height: 10),
+
+                  // Step meta row: sessions counter & assigned employee
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.event_note_rounded, size: 15, color: AppColors.primary),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${etape.sousEtapesTerminees} / ${etape.totalSousEtapes} ${'séances'.tr}',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      _buildEmployeeBadge(
+                        name: etape.assigneNom ?? plan.assigneNom,
+                        role: etape.assigneRole ?? plan.assigneRole,
+                        emptyLabel: 'Assigner étape'.tr,
+                        isInherited: etape.assigneNom == null && plan.assigneNom != null,
+                        onTap: () => _showAssignDialog(
+                          context,
+                          level: 'etape',
+                          planId: plan.id,
+                          etapeId: etape.id,
+                          targetTitle: '${'Étape'.tr} ${etape.ordre} : ${etape.titre}',
+                          currentAssigneeId: etape.assigneA,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+            ),
+          ),
+
+          // Divider before action row or sessions
+          const Divider(height: 1),
+
+          // Step action bar: Add session, Change status, Tache, Delete
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Change status dropdown
+                PopupMenuButton<String>(
+                  onSelected: (val) => controller.updateEtapeStatut(plan.id, etape.id, val),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(value: 'a_faire', child: Text('À faire'.tr)),
+                    PopupMenuItem(value: 'en_cours', child: Text('En cours'.tr)),
+                    PopupMenuItem(value: 'fait', child: Text('Terminé'.tr)),
+                  ],
+                  child: Row(
+                    children: [
+                      Icon(statusIcon, size: 14, color: statusColor),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Statut'.tr,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: statusColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const Icon(Icons.arrow_drop_down, size: 16, color: AppColors.textSecondary),
+                    ],
+                  ),
+                ),
+
+                Row(
+                  children: [
+                    // Add session button
+                    TextButton.icon(
+                      onPressed: () => _showAddSousEtapeDialog(context, plan, etape),
+                      icon: const Icon(Icons.add_circle_outline_rounded, size: 15),
+                      label: Text('Séance'.tr),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Convert to Task button
+                    InkWell(
+                      onTap: () => _showAssignTaskDialog(context, plan, etape),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.arrow_forward_rounded, size: 13, color: AppColors.textSecondary),
+                          const SizedBox(width: 3),
+                          Text(
+                            'Tâche'.tr,
+                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Delete step button
+                    InkWell(
+                      onTap: () => controller.deleteEtape(plan.id, etape.id),
+                      child: const Icon(
+                        Icons.delete_outline_rounded,
+                        size: 18,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Expanded Sub-steps (Séances)
+          if (isExpanded) ...[
+            Container(
+              decoration: BoxDecoration(
+                color: AppColors.scaffold.withValues(alpha: 0.6),
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              ),
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'SÉANCES & ACTIONS DE L\'ÉTAPE'.tr,
+                        style: AppTextStyles.labelOverline.copyWith(
+                          color: AppColors.textTertiary,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => _showAddSousEtapeDialog(context, plan, etape),
+                        icon: const Icon(Icons.add, size: 14),
+                        label: Text('Nouvelle séance'.tr),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  if (sousEtapes.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Center(
+                        child: Text(
+                          'Aucune séance définie pour cette étape.'.tr,
+                          style: AppTextStyles.bodySmall.copyWith(color: AppColors.textHint),
+                        ),
+                      ),
+                    )
+                  else
+                    ...sousEtapes.map(
+                      (sousEtape) => _buildSousEtapeTile(context, plan, etape, sousEtape),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ─── Sous-Étape (Séance) Tile ──────────────────────────────────────────────
+
+  Widget _buildSousEtapeTile(
+    BuildContext context,
+    PlanTherapeutiqueModel plan,
+    EtapePlanTherapeutiqueModel etape,
+    SousEtapePlanTherapeutiqueModel sousEtape,
+  ) {
+    Color checkColor;
+    IconData checkIcon;
+    if (sousEtape.isFait) {
+      checkColor = AppColors.statusPresent;
+      checkIcon = Icons.check_circle_rounded;
+    } else if (sousEtape.isEnCours) {
+      checkColor = AppColors.primary;
+      checkIcon = Icons.radio_button_checked_rounded;
+    } else {
+      checkColor = AppColors.textHint;
+      checkIcon = Icons.radio_button_unchecked_rounded;
+    }
+
+    final effectiveAssigneeName = sousEtape.assigneNom ?? etape.assigneNom ?? plan.assigneNom;
+    final effectiveAssigneeRole = sousEtape.assigneRole ?? etape.assigneRole ?? plan.assigneRole;
+    final isInherited = sousEtape.assigneNom == null && (etape.assigneNom != null || plan.assigneNom != null);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: sousEtape.isEnCours
+              ? AppColors.primary.withValues(alpha: 0.3)
+              : AppColors.border.withValues(alpha: 0.6),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: Check/toggle + Title + Actions
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Tap icon to toggle status quickly
+              InkWell(
+                onTap: () {
+                  final nextStatut = sousEtape.isFait
+                      ? 'a_faire'
+                      : (sousEtape.isAFaire ? 'en_cours' : 'fait');
+                  controller.updateSousEtapeStatut(plan.id, etape.id, sousEtape.id, nextStatut);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8, top: 1),
+                  child: Icon(checkIcon, size: 20, color: checkColor),
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sousEtape.titre,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        decoration: sousEtape.isFait ? TextDecoration.lineThrough : null,
+                        color: sousEtape.isFait ? AppColors.textHint : AppColors.textPrimary,
+                      ),
+                    ),
+                    if (sousEtape.datePrevue != null && sousEtape.datePrevue!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.textSecondary),
+                          const SizedBox(width: 4),
+                          Text(
+                            sousEtape.datePrevue!,
+                            style: AppTextStyles.iosCaption2.copyWith(color: AppColors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // Menu actions for session
+              PopupMenuButton<String>(
+                padding: EdgeInsets.zero,
+                iconSize: 18,
+                onSelected: (val) {
+                  if (val == 'modifier') {
+                    _showAddSousEtapeDialog(context, plan, etape, sousEtape);
+                  } else if (val == 'supprimer') {
+                    controller.deleteSousEtape(plan.id, etape.id, sousEtape.id);
+                  } else {
+                    controller.updateSousEtapeStatut(plan.id, etape.id, sousEtape.id, val);
+                  }
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: 'a_faire', child: Text('Marquer : À faire'.tr)),
+                  PopupMenuItem(value: 'en_cours', child: Text('Marquer : En cours'.tr)),
+                  PopupMenuItem(value: 'fait', child: Text('Marquer : Terminé'.tr)),
+                  const PopupMenuDivider(),
+                  PopupMenuItem(value: 'modifier', child: Text('Modifier description'.tr)),
+                  PopupMenuItem(
+                    value: 'supprimer',
+                    child: Text('Supprimer la séance'.tr, style: const TextStyle(color: AppColors.error)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          // Description box ("Ce qu'on doit faire dans chaque séance")
+          if (sousEtape.description != null && sousEtape.description!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.scaffold.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.4)),
+              ),
+              child: Text(
+                sousEtape.description!,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.textSecondary,
+                  height: 1.35,
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+
+          // Bottom Session Row: Employee Badge & Status
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildEmployeeBadge(
+                name: effectiveAssigneeName,
+                role: effectiveAssigneeRole,
+                emptyLabel: 'Assigner séance'.tr,
+                isInherited: isInherited,
+                onTap: () => _showAssignDialog(
+                  context,
+                  level: 'sous_etape',
+                  planId: plan.id,
+                  etapeId: etape.id,
+                  sousEtapeId: sousEtape.id,
+                  targetTitle: sousEtape.titre,
+                  currentAssigneeId: sousEtape.assigneA,
+                ),
+              ),
+              StatusBadge.custom(label: sousEtape.statutLabel, color: checkColor),
             ],
           ),
         ],
@@ -447,40 +807,169 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
     );
   }
 
-  void _showCreatePlanDialog(BuildContext context) {
-    Get.dialog(
-      AlertDialog(
-        title: Text('Créer un plan thérapeutique'.tr),
-       content: Column(
+  // ─── Employee Badge Component ──────────────────────────────────────────────
+
+  Widget _buildEmployeeBadge({
+    required String? name,
+    required String? role,
+    required String emptyLabel,
+    bool isInherited = false,
+    required VoidCallback onTap,
+  }) {
+    if (name == null || name.isEmpty) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.person_add_alt_1_rounded, size: 13, color: AppColors.primary),
+              const SizedBox(width: 4),
+              Text(
+                emptyLabel,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isInherited
+              ? AppColors.textHint.withValues(alpha: 0.1)
+              : AppColors.primaryUltraLight,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isInherited
+                ? AppColors.border
+                : AppColors.primary.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: controller.titreController,
-              decoration: const InputDecoration(
-                labelText: 'Titre du plan *',
-               border: OutlineInputBorder(),
+            CircleAvatar(
+              radius: 9,
+              backgroundColor: isInherited ? AppColors.textSecondary : AppColors.primary,
+              child: Text(
+                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 12),
-            Obx(
-              () => DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'Statut'.tr),
-               initialValue: controller.statutPlan.value,
-                items: [
-                  DropdownMenuItem(value: 'actif', child: Text('Actif'.tr)),
-                 DropdownMenuItem(value: 'suspendu', child: Text('Suspendu'.tr)),
-                 DropdownMenuItem(value: 'archive', child: Text('Archivé'.tr)),
-               ],
-                onChanged: (val) {
-                  if (val != null) controller.statutPlan.value = val;
-                },
+            const SizedBox(width: 6),
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isInherited ? AppColors.textSecondary : AppColors.primary,
               ),
             ),
+            if (role != null && role.isNotEmpty) ...[
+              Text(
+                ' (${role.tr})',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: isInherited ? AppColors.textHint : AppColors.primary.withValues(alpha: 0.8),
+                ),
+              ),
+            ],
+            if (isInherited) ...[
+              const SizedBox(width: 4),
+              Text(
+                '(hérité)'.tr,
+                style: const TextStyle(fontSize: 9, color: AppColors.textHint, fontStyle: FontStyle.italic),
+              ),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Dialogs ───────────────────────────────────────────────────────────────
+
+  void _showCreatePlanDialog(BuildContext context) {
+    controller.titreController.clear();
+    controller.statutPlan.value = 'actif';
+    controller.assignePlanEmployeeId.value = null;
+
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Créer un plan thérapeutique'.tr),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller.titreController,
+                decoration: const InputDecoration(
+                  labelText: 'Titre du plan *',
+                  hintText: 'ex: Plan Orthophonie, Remédiation...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Obx(
+                () => DropdownButtonFormField<String>(
+                  decoration: InputDecoration(labelText: 'Statut'.tr),
+                  initialValue: controller.statutPlan.value,
+                  items: [
+                    DropdownMenuItem(value: 'actif', child: Text('Actif'.tr)),
+                    DropdownMenuItem(value: 'suspendu', child: Text('Suspendu'.tr)),
+                    DropdownMenuItem(value: 'archive', child: Text('Archivé'.tr)),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) controller.statutPlan.value = val;
+                  },
+                ),
+              ),
+              const SizedBox(height: 14),
+              Obx(() => DropdownButtonFormField<dynamic>(
+                    isExpanded: true,
+                    initialValue: controller.assignePlanEmployeeId.value,
+                    decoration: InputDecoration(
+                      labelText: 'Employé référent (optionnel)'.tr,
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text('Aucun référent pour le moment'.tr),
+                      ),
+                      ...controller.availableEmployees.map((emp) {
+                        return DropdownMenuItem<dynamic>(
+                          value: emp.id,
+                          child: Text('${emp.fullName} (${emp.role.tr})', overflow: TextOverflow.ellipsis),
+                        );
+                      }),
+                    ],
+                    onChanged: (val) => controller.assignePlanEmployeeId.value = val,
+                  )),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
-         ElevatedButton(
+          ElevatedButton(
             onPressed: () {
               Get.back();
               controller.createPlan();
@@ -488,57 +977,76 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             child: Text('Créer'.tr),
-         ),
+          ),
         ],
       ),
     );
   }
 
-  void _showAddEtapeDialog(BuildContext context) {
+  void _showAddEtapeDialog(BuildContext context, PlanTherapeutiqueModel plan) {
+    controller.etapeTitreController.clear();
+    controller.etapeDescController.clear();
+    controller.statutEtape.value = 'a_faire';
+    controller.assigneEtapeEmployeeId.value = plan.assigneA;
+
     Get.dialog(
       AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Ajouter une étape'.tr),
-       content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: controller.etapeTitreController,
-              decoration: const InputDecoration(
-                labelText: 'Titre *',
-               border: OutlineInputBorder(),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller.etapeTitreController,
+                decoration: InputDecoration(
+                  labelText: 'Titre de l\'étape *'.tr,
+                  hintText: 'ex: Phase 1 : Attention sélective'.tr,
+                  border: const OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller.etapeDescController,
-              maxLines: 2,
-              decoration: InputDecoration(
-                labelText: 'Description'.tr,
-               border: OutlineInputBorder(),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller.etapeDescController,
+                maxLines: 2,
+                decoration: InputDecoration(
+                  labelText: 'Description / Objectif'.tr,
+                  border: const OutlineInputBorder(),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Obx(
-              () => DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'Statut'.tr),
-               initialValue: controller.statutEtape.value,
-                items: [
-                  DropdownMenuItem(value: 'a_faire', child: Text('À faire'.tr)),
-                 DropdownMenuItem(value: 'en_cours', child: Text('En cours'.tr)),
-                 DropdownMenuItem(value: 'fait', child: Text('Terminé'.tr)),
-               ],
-                onChanged: (val) {
-                  if (val != null) controller.statutEtape.value = val;
-                },
-              ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Obx(() => DropdownButtonFormField<dynamic>(
+                    isExpanded: true,
+                    initialValue: controller.assigneEtapeEmployeeId.value,
+                    decoration: InputDecoration(
+                      labelText: 'Employé assigné'.tr,
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text(plan.assigneNom != null
+                            ? '${'Hériter du plan :'.tr} ${plan.assigneNom}'
+                            : 'Non assigné'.tr),
+                      ),
+                      ...controller.availableEmployees.map((emp) {
+                        return DropdownMenuItem<dynamic>(
+                          value: emp.id,
+                          child: Text('${emp.fullName} (${emp.role.tr})', overflow: TextOverflow.ellipsis),
+                        );
+                      }),
+                    ],
+                    onChanged: (val) => controller.assigneEtapeEmployeeId.value = val,
+                  )),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
-         ElevatedButton(
+          ElevatedButton(
             onPressed: () {
               Get.back();
               controller.addEtape();
@@ -546,8 +1054,263 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             child: Text('Ajouter'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddSousEtapeDialog(
+    BuildContext context,
+    PlanTherapeutiqueModel plan,
+    EtapePlanTherapeutiqueModel etape, [
+    SousEtapePlanTherapeutiqueModel? existing,
+  ]) {
+    final nextOrdre = (etape.sousEtapes?.length ?? 0) + 1;
+    controller.sousEtapeTitreController.text = existing?.titre ?? 'Séance $nextOrdre'.tr;
+    controller.sousEtapeDescController.text = existing?.description ?? '';
+    controller.statutSousEtape.value = existing?.statut ?? 'a_faire';
+    controller.assigneSousEtapeEmployeeId.value = existing?.assigneA ?? etape.assigneA ?? plan.assigneA;
+
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(existing == null ? 'Ajouter une séance'.tr : 'Modifier la séance'.tr),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${'Étape :'.tr} ${etape.titre}',
+                style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller.sousEtapeTitreController,
+                decoration: InputDecoration(
+                  labelText: 'Titre de la séance *'.tr,
+                  hintText: 'ex: Séance 1 : Exercices attentionnels'.tr,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: controller.sousEtapeDescController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  labelText: 'Déroulement de la séance (ce qu\'on doit faire) *'.tr,
+                  hintText: 'Détaillez les activités, consignes, exercices à réaliser lors de cette séance...'.tr,
+                  border: const OutlineInputBorder(),
+                  alignLabelWithHint: true,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Obx(() => DropdownButtonFormField<dynamic>(
+                    isExpanded: true,
+                    initialValue: controller.assigneSousEtapeEmployeeId.value,
+                    decoration: InputDecoration(
+                      labelText: 'Employé en charge de la séance'.tr,
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: [
+                      DropdownMenuItem(
+                        value: null,
+                        child: Text(etape.assigneNom != null
+                            ? '${'Hériter de l\'étape :'.tr} ${etape.assigneNom}'
+                            : 'Non assigné'.tr),
+                      ),
+                      ...controller.availableEmployees.map((emp) {
+                        return DropdownMenuItem<dynamic>(
+                          value: emp.id,
+                          child: Text('${emp.fullName} (${emp.role.tr})', overflow: TextOverflow.ellipsis),
+                        );
+                      }),
+                    ],
+                    onChanged: (val) => controller.assigneSousEtapeEmployeeId.value = val,
+                  )),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              if (existing == null) {
+                controller.addSousEtape(plan.id, etape.id);
+              } else {
+                controller.updateSousEtapeDetails(
+                  plan.id,
+                  etape.id,
+                  existing.id,
+                  titre: controller.sousEtapeTitreController.text.trim(),
+                  description: controller.sousEtapeDescController.text.trim(),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text(existing == null ? 'Ajouter la séance'.tr : 'Enregistrer'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAssignDialog(
+    BuildContext context, {
+    required String level, // 'plan' | 'etape' | 'sous_etape'
+    required dynamic planId,
+    dynamic etapeId,
+    dynamic sousEtapeId,
+    required String targetTitle,
+    dynamic currentAssigneeId,
+  }) {
+    dynamic selectedId = currentAssigneeId;
+    final propager = true.obs;
+
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.person_pin_rounded, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                level == 'plan'
+                    ? 'Assigner le plan complet'.tr
+                    : (level == 'etape' ? 'Assigner l\'étape'.tr : 'Assigner la séance'.tr),
+                style: const TextStyle(fontSize: 17),
+              ),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  targetTitle,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Sélectionnez le spécialiste en charge :'.tr,
+                style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+
+              DropdownButtonFormField<dynamic>(
+                isExpanded: true,
+                initialValue: selectedId,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: null,
+                    child: Text('— Retirer l\'assignation —'.tr, style: const TextStyle(color: AppColors.textHint)),
+                  ),
+                  ...controller.availableEmployees.map((emp) {
+                    return DropdownMenuItem<dynamic>(
+                      value: emp.id,
+                      child: Text(
+                        '${emp.fullName} (${emp.role.tr})',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }),
+                ],
+                onChanged: (val) => selectedId = val,
+              ),
+
+              if (level == 'plan' || level == 'etape') ...[
+                const SizedBox(height: 14),
+                Obx(
+                  () => CheckboxListTile(
+                    value: propager.value,
+                    onChanged: (val) => propager.value = val ?? false,
+                    title: Text(
+                      level == 'plan'
+                          ? 'Appliquer également à toutes les étapes et séances du plan'.tr
+                          : 'Appliquer également à toutes les séances de cette étape'.tr,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              if (level == 'plan') {
+                controller.assignPlan(planId, selectedId, propager: propager.value);
+              } else if (level == 'etape') {
+                controller.assignEtape(planId, etapeId, selectedId, propager: propager.value);
+              } else if (level == 'sous_etape') {
+                controller.assignSousEtape(planId, etapeId, sousEtapeId, selectedId);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text('Confirmer l\'assignation'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeletePlan(BuildContext context, PlanTherapeutiqueModel plan) {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Supprimer le plan ?'.tr),
+        content: Text(
+          'Voulez-vous vraiment supprimer "${plan.titre}" ainsi que toutes ses étapes et séances associées ? Cette action est irréversible.'.tr,
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: Text('Annuler'.tr)),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              controller.deletePlan(plan.id);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text('Supprimer définitivement'.tr),
           ),
         ],
       ),
