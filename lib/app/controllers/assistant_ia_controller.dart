@@ -149,19 +149,26 @@ class AssistantIaController extends GetxController {
 
     // Instructions pour les outils
     final adminToolLine = isAdmin.value
-        ? "- creer_patient : ajouter un nouveau dossier patient (nom, prénom, sexe requis)\n"
+        ? "- creer_patient : Enregistrer un nouveau dossier patient. Exige nom, prénom, sexe (masculin/feminin), et date de naissance.\n"
         : "";
-    prompt += "\n\n=== OUTILS DISPONIBLES ===\n"
-        "Tu as accès aux outils autorisés selon le profil utilisateur :\n"
+    prompt += "\n\n=== GUIDE D'UTILISATION DES OUTILS (FUNCTION CALLING) ===\n"
+        "Tu as accès aux outils PsyCare autorisés pour ce compte. Utilise-les de façon proactive et rigoureuse :\n"
         "$adminToolLine"
-        "- creer_tache : créer et assigner une tâche (demande TOUJOURS date ET heure avant)\n"
-        "- creer_plan_therapeutique : créer un plan avec étapes\n"
-        "- obtenir_calendrier : consulter les événements généraux\n"
-        "- obtenir_taches_employes : consulter les tâches en cours\n"
-        "- obtenir_seances : consulter les séances (agenda personnel pour les praticiens)\n"
-        "- creer_seance : planifier une nouvelle séance (date, heure_debut, heure_fin)\n"
-        "- ajouter_note_patient : consigner une note clinique / observation dans le dossier\n"
-        "RÈGLE STRICTE : Si l'utilisateur demande de supprimer quoi que ce soit, refuse poliment en expliquant que la suppression n'est pas autorisée par sécurité.";
+        "- creer_plan_therapeutique : Structurer un plan thérapeutique clinique à 3 niveaux (Plan > Étapes > Sous-étapes/Séances). "
+        "Pour chaque étape, fournis les sous-étapes représentant les séances avec le déroulement précis (exercices, consignes, matériel) "
+        "et le spécialiste assigné si mentionné.\n"
+        "- obtenir_plans_therapeutiques : Consulter les plans du patient avec l'état d'avancement de toutes leurs étapes et séances.\n"
+        "- ajouter_seance_au_plan : Ajouter une séance (sous-étape) détaillée dans une étape d'un plan thérapeutique existant.\n"
+        "- creer_tache : Créer et assigner une tâche clinique ou administrative (exige TOUJOURS la date d'échéance YYYY-MM-DD).\n"
+        "- obtenir_taches_employes : Consulter les tâches en cours (filtrables par statut ou patient).\n"
+        "- creer_seance : Planifier une consultation individuelle dans l'agenda (date YYYY-MM-DD, heure_debut HH:MM, heure_fin HH:MM, assigne_a_nom optionnel).\n"
+        "- obtenir_seances : Consulter les séances de consultation prévues ou passées pour une date donnée.\n"
+        "- obtenir_calendrier : Consulter les événements, réunions ou ateliers généraux du calendrier.\n"
+        "- ajouter_note_patient : Consigner une observation clinique, un bilan ou une note d'évolution dans le dossier patient.\n\n"
+        "=== RÈGLES DE DÉCISION CLINIQUE ===\n"
+        "1. Lorsque le praticien demande un plan d'intervention ou des propositions de séances, structure un plan complet avec ses étapes et ses séances (sous-étapes avec déroulement), puis appelle creer_plan_therapeutique.\n"
+        "2. Si des informations obligatoires manquent (ex: date/heure pour une séance, nom/prénom pour un patient), demande-les poliment à l'utilisateur avant d'appeler l'outil.\n"
+        "3. RÈGLE STRICTE : La suppression de données (delete) n'est JAMAIS autorisée via l'assistant. Si l'utilisateur demande de supprimer quoi que ce soit, refuse poliment en expliquant que la suppression n'est pas autorisée par sécurité.";
 
     final tools = isAdmin.value ? GeminiTools.adminTools : GeminiTools.employeeTools;
 
@@ -419,6 +426,40 @@ class AssistantIaController extends GetxController {
         }
       } catch (_) {}
 
+      try {
+        final plans = await _planService.getPlansPatient(patient.id);
+        if (plans.isNotEmpty) {
+          buffer.writeln("\n--- PLANS THÉRAPEUTIQUES ACTUELS ---");
+          for (final p in plans.take(3)) {
+            final pAssign = p.assigneNom != null
+                ? " (Assigné à: ${p.assigneNom})"
+                : "";
+            buffer.writeln("Plan #${p.id} : ${p.titre} [Statut: ${p.statut}]$pAssign");
+            final pEtapes = p.etapes;
+            if (pEtapes != null && pEtapes.isNotEmpty) {
+              for (final e in pEtapes) {
+                final eAssign = e.assigneNom != null
+                    ? " (Assigné: ${e.assigneNom})"
+                    : "";
+                buffer.writeln("  - Étape #${e.id}: ${e.titre} [${e.statut}]$eAssign");
+                final pSousEtapes = e.sousEtapes;
+                if (pSousEtapes != null && pSousEtapes.isNotEmpty) {
+                  for (final se in pSousEtapes) {
+                    final seAssign = se.assigneNom != null
+                        ? " [Resp: ${se.assigneNom}]"
+                        : "";
+                    final consignes = (se.description != null && se.description!.isNotEmpty)
+                        ? " - Objectifs: ${se.description}"
+                        : "";
+                    buffer.writeln("    * Séance #${se.id}: ${se.titre}$consignes [${se.statut}]$seAssign");
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch (_) {}
+
       _initGemini(extraContext: buffer.toString());
     } catch (_) {
       _initGemini();
@@ -670,6 +711,8 @@ class AssistantIaController extends GetxController {
       'creer_patient': 'Création du dossier patient',
       'creer_tache': 'Création de la tâche',
       'creer_plan_therapeutique': 'Création du plan thérapeutique',
+      'obtenir_plans_therapeutiques': 'Consultation des plans thérapeutiques',
+      'ajouter_seance_au_plan': 'Ajout d’une séance au plan',
       'obtenir_calendrier': 'Consultation du calendrier',
       'obtenir_taches_employes': "Récupération des tâches",
       'obtenir_seances': 'Consultation des séances',
@@ -680,6 +723,8 @@ class AssistantIaController extends GetxController {
       'creer_patient': 'إنشاء ملف المريض',
       'creer_tache': 'إنشاء المهمة',
       'creer_plan_therapeutique': 'إنشاء الخطة العلاجية',
+      'obtenir_plans_therapeutiques': 'استرجاع الخطط العلاجية',
+      'ajouter_seance_au_plan': 'إضافة جلسة للخطة',
       'obtenir_calendrier': 'استرجاع الرزنامة',
       'obtenir_taches_employes': "استرجاع المهام",
       'obtenir_seances': 'استرجاع الجلسات',
@@ -715,6 +760,12 @@ class AssistantIaController extends GetxController {
 
         case 'creer_plan_therapeutique':
           return await _fcCreerPlan(args, isArabic: isArabic);
+
+        case 'obtenir_plans_therapeutiques':
+          return await _fcObtenirPlansTherapeutiques(args, isArabic: isArabic);
+
+        case 'ajouter_seance_au_plan':
+          return await _fcAjouterSeanceAuPlan(args, isArabic: isArabic);
 
         case 'obtenir_calendrier':
           return await _fcObtenirCalendrier(args);
@@ -812,14 +863,39 @@ class AssistantIaController extends GetxController {
     };
   }
 
+  /// Résout un employé à partir d'un nom ou prénom partiel
+  Future<Map<String, String>?> _resolveEmployee(String? nameQuery) async {
+    if (nameQuery == null || nameQuery.trim().isEmpty) return null;
+    final q = nameQuery.trim().toLowerCase();
+    try {
+      final employees = await _employeeService.getEmployees();
+      final found = employees.firstWhereOrNull((e) {
+        final prenomNom = "${e.prenom} ${e.nom}".toLowerCase();
+        final nomPrenom = "${e.nom} ${e.prenom}".toLowerCase();
+        final nom = e.nom.toLowerCase();
+        final prenom = e.prenom.toLowerCase();
+        return prenomNom.contains(q) ||
+            nomPrenom.contains(q) ||
+            nom.contains(q) ||
+            prenom.contains(q);
+      });
+      if (found != null) {
+        return {
+          'id': found.id.toString(),
+          'nom': "${found.prenom} ${found.nom}".trim(),
+        };
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<Map<String, Object?>> _fcCreerTache(
     Map<String, Object?> args, {
     bool isArabic = false,
   }) async {
     final titre = (args['titre'] as String? ?? 'Tâche clinique').trim();
     final description = args['description'] as String? ?? '';
-    final assigneNomRaw =
-        (args['assigne_a_nom'] as String? ?? '').trim().toLowerCase();
+    final assigneNomRaw = (args['assigne_a_nom'] as String? ?? '').trim();
     final priorite = args['priorite'] as String? ?? 'normale';
     final dateEcheance = args['date_echeance'] as String?;
     final heureEcheance = args['heure_echeance'] as String?;
@@ -827,21 +903,14 @@ class AssistantIaController extends GetxController {
 
     // Résoudre l'employé
     String? assigneId;
-    String assigneAffiche =
-        args['assigne_a_nom'] as String? ?? 'Équipe';
+    String assigneAffiche = assigneNomRaw.isNotEmpty ? assigneNomRaw : 'Équipe';
 
     if (assigneNomRaw.isNotEmpty) {
-      try {
-        final employees = await _employeeService.getEmployees();
-        final found = employees.firstWhereOrNull((e) =>
-            e.nom.toLowerCase().contains(assigneNomRaw) ||
-            e.prenom.toLowerCase().contains(assigneNomRaw) ||
-            "${e.prenom} ${e.nom}".toLowerCase().contains(assigneNomRaw));
-        if (found != null) {
-          assigneId = found.id.toString();
-          assigneAffiche = "${found.prenom} ${found.nom}";
-        }
-      } catch (_) {}
+      final res = await _resolveEmployee(assigneNomRaw);
+      if (res != null) {
+        assigneId = res['id'];
+        assigneAffiche = res['nom']!;
+      }
     }
 
     final payload = <String, dynamic>{
@@ -915,31 +984,131 @@ class AssistantIaController extends GetxController {
       };
     }
 
-    final titre = (args['titre'] as String? ?? 'Plan thérapeutique IA').trim();
+    final titre = (args['titre'] as String? ?? 'Plan thérapeutique').trim();
+    final description = args['description'] as String?;
+    final planAssigneNom = args['assigne_a_nom'] as String?;
     final etapesRaw = args['etapes'] as List<dynamic>? ?? [];
 
-    final createdPlan = await _planService.createPlan(patientId, {
+    String? planEmployeeId;
+    String? planEmployeeNom;
+    if (planAssigneNom != null && planAssigneNom.isNotEmpty) {
+      final res = await _resolveEmployee(planAssigneNom);
+      if (res != null) {
+        planEmployeeId = res['id'];
+        planEmployeeNom = res['nom'];
+      }
+    }
+
+    final planPayload = <String, dynamic>{
       'titre': titre,
       'statut': 'actif',
-    });
+      if (description != null && description.isNotEmpty) 'description': description,
+      if (planEmployeeId != null) 'assigne_a': planEmployeeId,
+    };
+
+    final createdPlan = await _planService.createPlan(patientId, planPayload);
+
+    int totalSousEtapes = 0;
+    final etapesDetails = <Map<String, dynamic>>[];
 
     for (int i = 0; i < etapesRaw.length; i++) {
       final e = etapesRaw[i];
       if (e is Map) {
-        await _planService.createEtape(createdPlan.id, {
-          'titre': e['titre'] ?? 'Étape ${i + 1}',
-          'description': e['description'] ?? '',
-          'ordre': e['ordre'] is int ? e['ordre'] : (i + 1),
+        final etapeTitre = (e['titre'] as String? ?? 'Étape ${i + 1}').trim();
+        final etapeDesc = e['description'] as String? ?? '';
+        final etapeOrdre = e['ordre'] is int ? e['ordre'] as int : (i + 1);
+        final etapeAssigneNom = e['assigne_a_nom'] as String?;
+
+        String? etapeEmployeeId;
+        String? etapeEmployeeNom;
+        if (etapeAssigneNom != null && etapeAssigneNom.isNotEmpty) {
+          final res = await _resolveEmployee(etapeAssigneNom);
+          if (res != null) {
+            etapeEmployeeId = res['id'];
+            etapeEmployeeNom = res['nom'];
+          }
+        }
+
+        final etapePayload = <String, dynamic>{
+          'titre': etapeTitre,
+          if (etapeDesc.isNotEmpty) 'description': etapeDesc,
+          'ordre': etapeOrdre,
           'statut': 'a_faire',
+          if (etapeEmployeeId != null) 'assigne_a': etapeEmployeeId,
+        };
+
+        final createdEtape = await _planService.createEtape(createdPlan.id, etapePayload);
+
+        // Sous-étapes (Séances d'application avec consignes)
+        final sousEtapesRaw = e['sous_etapes'] as List<dynamic>? ?? [];
+        final sousEtapesDetails = <Map<String, dynamic>>[];
+
+        for (int j = 0; j < sousEtapesRaw.length; j++) {
+          final se = sousEtapesRaw[j];
+          if (se is Map) {
+            final seTitre = (se['titre'] as String? ?? 'Séance ${j + 1}').trim();
+            final seDesc = se['description'] as String? ?? '';
+            final seOrdre = se['ordre'] is int ? se['ordre'] as int : (j + 1);
+            final seAssigneNom = se['assigne_a_nom'] as String?;
+            final seDate = se['date_prevue'] as String?;
+            final seHeureDeb = se['heure_debut'] as String?;
+            final seHeureFin = se['heure_fin'] as String?;
+
+            String? seEmployeeId;
+            String? seEmployeeNom;
+            if (seAssigneNom != null && seAssigneNom.isNotEmpty) {
+              final res = await _resolveEmployee(seAssigneNom);
+              if (res != null) {
+                seEmployeeId = res['id'];
+                seEmployeeNom = res['nom'];
+              }
+            }
+
+            final sePayload = <String, dynamic>{
+              'titre': seTitre,
+              if (seDesc.isNotEmpty) 'description': seDesc,
+              'ordre': seOrdre,
+              'statut': 'a_faire',
+              if (seEmployeeId != null) 'assigne_a': seEmployeeId,
+              if (seDate != null && seDate.isNotEmpty) 'date_prevue': seDate,
+              if (seHeureDeb != null && seHeureDeb.isNotEmpty) 'heure_debut': seHeureDeb,
+              if (seHeureFin != null && seHeureFin.isNotEmpty) 'heure_fin': seHeureFin,
+            };
+
+            final createdSousEtape = await _planService.createSousEtape(
+              createdPlan.id,
+              createdEtape.id,
+              sePayload,
+            );
+
+            totalSousEtapes++;
+            sousEtapesDetails.add({
+              'id': createdSousEtape.id.toString(),
+              'titre': createdSousEtape.titre,
+              'description': createdSousEtape.description ?? '',
+              'assigne_a': seEmployeeNom ?? 'Non assigné',
+              'date_prevue': createdSousEtape.datePrevue ?? '',
+            });
+          }
+        }
+
+        etapesDetails.add({
+          'id': createdEtape.id.toString(),
+          'titre': createdEtape.titre,
+          'assigne_a': etapeEmployeeNom ?? 'Non assigné',
+          'nombre_seances': sousEtapesDetails.length,
+          'seances': sousEtapesDetails,
         });
       }
     }
 
+    final summaryMsg = isArabic
+        ? 'تم إنشاء الخطة « $titre » بنجاح وتتضمن ${etapesRaw.length} مراحل و $totalSousEtapes جلسات.'
+        : 'Le plan « $titre » a été enregistré avec ${etapesRaw.length} étapes et $totalSousEtapes séances.';
+
     Get.snackbar(
       'Plan enregistré ! 🎉'.tr,
-      isArabic
-          ? 'تمت إضافة الخطة « $titre » بنجاح.'
-          : 'Le plan « $titre » avec ${etapesRaw.length} étapes a été enregistré.',
+      summaryMsg,
       snackPosition: SnackPosition.TOP,
       backgroundColor: const Color(0xFF0D9488),
       colorText: Colors.white,
@@ -950,8 +1119,154 @@ class AssistantIaController extends GetxController {
       'success': true,
       'plan_id': createdPlan.id.toString(),
       'titre': titre,
+      'assigne_a': planEmployeeNom ?? 'Non assigné',
       'nombre_etapes': etapesRaw.length,
-      'message': 'Plan thérapeutique créé avec succès',
+      'nombre_sous_etapes_seances': totalSousEtapes,
+      'etapes': etapesDetails,
+      'message': 'Plan thérapeutique et ses séances créés avec succès',
+    };
+  }
+
+  Future<Map<String, Object?>> _fcObtenirPlansTherapeutiques(
+    Map<String, Object?> args, {
+    bool isArabic = false,
+  }) async {
+    final patientIdArg = args['patient_id'] as String?;
+    final pid = patientIdArg ?? selectedPatient.value?.id?.toString();
+
+    if (pid == null || pid.isEmpty) {
+      return {
+        'success': false,
+        'error': isArabic
+            ? 'يرجى فتح أو تحديد ملف مريض لعرض الخطط العلاجية.'
+            : 'Aucun patient actif sélectionné. Veuillez sélectionner un patient.',
+      };
+    }
+
+    final plans = await _planService.getPlansPatient(pid);
+
+    final list = plans.map((p) {
+      final assignePlanNom = p.assigneNom;
+
+      final pEtapes = p.etapes;
+      final etapesList = (pEtapes ?? []).map((e) {
+        final assigneEtapeNom = e.assigneNom;
+        final pSousEtapes = e.sousEtapes;
+        final sousEtapesList = (pSousEtapes ?? []).map((se) {
+          final assigneSeanceNom = se.assigneNom;
+          return {
+            'id': se.id.toString(),
+            'titre': se.titre,
+            'description': se.description ?? '',
+            'statut': se.statut,
+            'date_prevue': se.datePrevue ?? '',
+            'assigne_a': assigneSeanceNom ?? 'Non assigné',
+          };
+        }).toList();
+
+        return {
+          'id': e.id.toString(),
+          'titre': e.titre,
+          'description': e.description ?? '',
+          'statut': e.statut,
+          'ordre': e.ordre,
+          'assigne_a': assigneEtapeNom ?? 'Non assigné',
+          'seances_sous_etapes': sousEtapesList,
+        };
+      }).toList();
+
+      return {
+        'id': p.id.toString(),
+        'titre': p.titre,
+        'statut': p.statut,
+        'assigne_a': assignePlanNom ?? 'Non assigné',
+        'nombre_etapes': pEtapes?.length ?? 0,
+        'etapes': etapesList,
+      };
+    }).toList();
+
+    return {
+      'success': true,
+      'patient_id': pid,
+      'nombre_plans': list.length,
+      'plans': list,
+    };
+  }
+
+  Future<Map<String, Object?>> _fcAjouterSeanceAuPlan(
+    Map<String, Object?> args, {
+    bool isArabic = false,
+  }) async {
+    final planId = args['plan_id']?.toString();
+    final etapeId = args['etape_id']?.toString();
+    final titre = (args['titre'] as String? ?? '').trim();
+    final description = args['description'] as String? ?? '';
+    final assigneNom = args['assigne_a_nom'] as String?;
+    final datePrevue = args['date_prevue'] as String?;
+    final heureDebut = args['heure_debut'] as String?;
+    final heureFin = args['heure_fin'] as String?;
+    final ordre = args['ordre'] as int?;
+
+    if (planId == null || planId.isEmpty || etapeId == null || etapeId.isEmpty) {
+      return {
+        'success': false,
+        'error': isArabic
+            ? 'يجب توفير معرف الخطة (plan_id) ومعرف المرحلة (etape_id).'
+            : 'plan_id et etape_id sont requis.',
+      };
+    }
+
+    if (titre.isEmpty) {
+      return {
+        'success': false,
+        'error': isArabic
+            ? 'عنوان الجلسة إلزامي.'
+            : 'Le titre de la séance est obligatoire.',
+      };
+    }
+
+    String? assigneId;
+    String? assigneAffiche;
+    if (assigneNom != null && assigneNom.isNotEmpty) {
+      final res = await _resolveEmployee(assigneNom);
+      if (res != null) {
+        assigneId = res['id'];
+        assigneAffiche = res['nom'];
+      }
+    }
+
+    final payload = <String, dynamic>{
+      'titre': titre,
+      if (description.isNotEmpty) 'description': description,
+      'statut': 'a_faire',
+      if (ordre != null) 'ordre': ordre,
+      if (assigneId != null) 'assigne_a': assigneId,
+      if (datePrevue != null && datePrevue.isNotEmpty) 'date_prevue': datePrevue,
+      if (heureDebut != null && heureDebut.isNotEmpty) 'heure_debut': heureDebut,
+      if (heureFin != null && heureFin.isNotEmpty) 'heure_fin': heureFin,
+    };
+
+    final created = await _planService.createSousEtape(planId, etapeId, payload);
+
+    Get.snackbar(
+      'Séance ajoutée ! 🎯'.tr,
+      isArabic
+          ? 'تمت إضافة الجلسة « $titre » للمرحلة بنجاح.'
+          : 'La séance « $titre » a été ajoutée à l\'étape du plan.',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: const Color(0xFF0D9488),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 4),
+    );
+
+    return {
+      'success': true,
+      'sous_etape_id': created.id.toString(),
+      'titre': created.titre,
+      'description': created.description ?? '',
+      'assigne_a': assigneAffiche ?? 'Non assigné',
+      'date_prevue': created.datePrevue ?? '',
+      'message': 'Séance ajoutée avec succès au plan thérapeutique',
     };
   }
 
@@ -1108,6 +1423,7 @@ class AssistantIaController extends GetxController {
     final heureDebut = (args['heure_debut'] as String? ?? '').trim();
     final heureFin = (args['heure_fin'] as String? ?? '').trim();
     final patientIdArg = args['patient_id'] as String?;
+    final assigneNom = args['assigne_a_nom'] as String?;
 
     final pid = patientIdArg ?? selectedPatient.value?.id?.toString();
     if (pid == null || pid.isEmpty) {
@@ -1126,8 +1442,16 @@ class AssistantIaController extends GetxController {
       };
     }
 
-    final employeId =
-        currentUserId.value.isNotEmpty ? currentUserId.value : null;
+    String? employeId;
+    String? employeNom;
+    if (assigneNom != null && assigneNom.isNotEmpty) {
+      final res = await _resolveEmployee(assigneNom);
+      if (res != null) {
+        employeId = res['id'];
+        employeNom = res['nom'];
+      }
+    }
+    employeId ??= currentUserId.value.isNotEmpty ? currentUserId.value : null;
 
     final payload = <String, dynamic>{
       'patient_id': pid,
@@ -1140,11 +1464,13 @@ class AssistantIaController extends GetxController {
 
     final created = await _seanceService.createSeance(payload);
 
+    final snackMsg = isArabic
+        ? 'تم حجز الجلسة بنجاح ليوم $date ($heureDebut - $heureFin)${employeNom != null ? " مع $employeNom" : ""}'
+        : 'Séance planifiée le $date de $heureDebut à $heureFin${employeNom != null ? " avec $employeNom" : ""}';
+
     Get.snackbar(
       'Séance planifiée ! 📅'.tr,
-      isArabic
-          ? 'تم حجز الجلسة بنجاح ليوم $date ($heureDebut - $heureFin)'
-          : 'Séance planifiée le $date de $heureDebut à $heureFin',
+      snackMsg,
       snackPosition: SnackPosition.TOP,
       backgroundColor: const Color(0xFF0D9488),
       colorText: Colors.white,
@@ -1157,6 +1483,7 @@ class AssistantIaController extends GetxController {
       'date': created.date,
       'heure_debut': created.heureDebut,
       'heure_fin': created.heureFin,
+      'assigne_a': employeNom ?? currentUserName.value,
       'patient_id': pid,
       'message': 'Séance planifiée avec succès',
     };
