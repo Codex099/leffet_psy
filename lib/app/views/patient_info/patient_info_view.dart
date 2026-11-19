@@ -563,141 +563,268 @@ class PatientInfoView extends GetView<PatientInfoController> {
                     }),
                     const SizedBox(height: 16),
 
-                    if (controller.isAdmin.value) ...[
-                      // Plan Thérapeutique preview card (Admin uniquement)
-                      Obx(() {
-                        final plansList = controller.plans;
-                        final showAll = controller.showAllPlans.value;
-                        final hasMore = plansList.length > 2;
-                        final displayPlans = showAll || !hasMore
-                            ? plansList
-                            : plansList.take(2).toList();
+                    // Plan Thérapeutique preview card
+                    Obx(() {
+                      final plansList = controller.plans;
+                      final latestPlan = plansList.isNotEmpty ? plansList.first : null;
+                      final hasMore = plansList.length > 1;
+                      final showAll = controller.showAllPlans.value;
 
-                        return _buildSectionCard(
-                          title: 'Plan thérapeutique'.tr,
-                          subtitle: plansList.isNotEmpty
-                              ? '${plansList.length} ${'plans'.tr}'
-                              : null,
-                          icon: Icons.assignment_rounded,
-                          actionLabel: hasMore
-                              ? (showAll
-                                  ? 'Réduire'.tr
-                                  : '${'Voir tout'.tr} (${plansList.length})')
-                              : (plansList.isNotEmpty ? 'Gérer'.tr : null),
-                          onActionTap: hasMore
-                              ? () => controller.showAllPlans.toggle()
-                              : () async {
-                                  await Get.toNamed(
-                                    AppRoutes.planTherapeutique,
-                                    arguments: controller.patientId,
-                                  );
-                                  controller.loadPatientInfo();
-                                },
-                          onHeaderTap: hasMore
-                              ? () => controller.showAllPlans.toggle()
-                              : null,
-                          child: plansList.isEmpty
-                              ? Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8.0,
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        'Aucun plan thérapeutique.'.tr,
-                                        style: AppTextStyles.bodySmall,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      OutlinedButton.icon(
-                                        onPressed: () async {
-                                          await Get.toNamed(
-                                            AppRoutes.planTherapeutique,
-                                            arguments: controller.patientId,
-                                          );
-                                          controller.loadPatientInfo();
-                                        },
-                                        icon: const Icon(Icons.add, size: 14),
-                                        label: Text('Créer un plan'.tr),
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size(
-                                            double.infinity,
-                                            36,
-                                          ),
-                                          foregroundColor: AppColors.primary,
-                                          side: const BorderSide(
-                                            color: AppColors.primary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : Column(
+                      return _buildSectionCard(
+                        title: 'Plan thérapeutique'.tr,
+                        subtitle: plansList.isNotEmpty
+                            ? '${plansList.length} ${'plans'.tr}'
+                            : null,
+                        icon: Icons.assignment_rounded,
+                        actionLabel: plansList.isNotEmpty ? 'Gérer les plans →'.tr : null,
+                        onActionTap: () async {
+                          await Get.toNamed(
+                            AppRoutes.planTherapeutique,
+                            arguments: controller.patientId,
+                          );
+                          controller.loadPatientInfo(forceRefresh: true);
+                        },
+                        onHeaderTap: () async {
+                          await Get.toNamed(
+                            AppRoutes.planTherapeutique,
+                            arguments: controller.patientId,
+                          );
+                          controller.loadPatientInfo(forceRefresh: true);
+                        },
+                        child: latestPlan == null
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.0,
+                                ),
+                                child: Column(
                                   children: [
-                                    ...displayPlans.map((plan) {
-                                      final Color statColor =
-                                          plan.statut == 'actif'
-                                              ? AppColors.statusPresent
-                                              : plan.statut == 'termine'
-                                                  ? AppColors.primary
-                                                  : AppColors.textSecondary;
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 10.0),
-                                        child: _buildStepTile(
-                                          number: plan.statut == 'actif'
-                                              ? '▶'
-                                              : '✓',
-                                          title: plan.titre,
-                                          subtitle:
-                                              '${plan.etapesTerminees}/${plan.totalEtapes} ${'étapes'.tr}',
-                                          statusLabel: plan.statut == 'actif'
-                                              ? 'Actif'.tr
-                                              : plan.statut == 'termine'
-                                                  ? 'Terminé'.tr
-                                                  : 'Archivé'.tr,
-                                          statusColor: statColor,
-                                          progress: plan.progression,
+                                    Text(
+                                      'Aucun plan thérapeutique.'.tr,
+                                      style: AppTextStyles.bodySmall,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    OutlinedButton.icon(
+                                      onPressed: () async {
+                                        await Get.toNamed(
+                                          AppRoutes.planTherapeutique,
+                                          arguments: controller.patientId,
+                                        );
+                                        controller.loadPatientInfo(forceRefresh: true);
+                                      },
+                                      icon: const Icon(Icons.add, size: 14),
+                                      label: Text('Créer un plan'.tr),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(
+                                          double.infinity,
+                                          36,
                                         ),
-                                      );
-                                    }),
-                                    if (hasMore) ...[
-                                      _buildExpandCollapseFooter(
-                                        isExpanded: showAll,
-                                        totalCount: plansList.length,
-                                        itemLabelPlural: 'plans'.tr,
-                                        onTap: () =>
-                                            controller.showAllPlans.toggle(),
-                                      ),
-                                      const SizedBox(height: 4),
-                                    ],
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: TextButton.icon(
-                                        onPressed: () async {
-                                          await Get.toNamed(
-                                            AppRoutes.planTherapeutique,
-                                            arguments: controller.patientId,
-                                          );
-                                          controller.loadPatientInfo();
-                                        },
-                                        icon: const Icon(
-                                          Icons.open_in_new_rounded,
-                                          size: 14,
-                                        ),
-                                        label: Text('Gérer les plans'.tr),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: AppColors.secondary,
-                                          textStyle: AppTextStyles.bodySmall,
+                                        foregroundColor: AppColors.primary,
+                                        side: const BorderSide(
+                                          color: AppColors.primary,
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                        );
-                      }),
-                      const SizedBox(height: 16),
-                    ],
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Carte cliquable du dernier plan thérapeutique
+                                  InkWell(
+                                    onTap: () async {
+                                      await Get.toNamed(
+                                        AppRoutes.planTherapeutique,
+                                        arguments: controller.patientId,
+                                      );
+                                      controller.loadPatientInfo(forceRefresh: true);
+                                    },
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(14),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.fieldBackground,
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color: latestPlan.isActif
+                                              ? AppColors.primary.withValues(alpha: 0.35)
+                                              : AppColors.border,
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // En-tête : Titre & Statut
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.auto_stories_rounded,
+                                                      size: 18,
+                                                      color: AppColors.primary,
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Expanded(
+                                                      child: Text(
+                                                        latestPlan.titre,
+                                                        style: AppTextStyles.bodyMedium.copyWith(
+                                                          fontWeight: FontWeight.bold,
+                                                          color: AppColors.textPrimary,
+                                                        ),
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              StatusBadge.custom(
+                                                label: latestPlan.isActif
+                                                    ? 'Actif'.tr
+                                                    : (latestPlan.isTermine ? 'Terminé'.tr : 'Archivé'.tr),
+                                                color: latestPlan.isActif
+                                                    ? AppColors.statusPresent
+                                                    : (latestPlan.isTermine
+                                                        ? AppColors.primary
+                                                        : AppColors.textSecondary),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+
+                                          // Progression et compteurs
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                '${(latestPlan.progression * 100).toInt()}% ${'accompli'.tr}',
+                                                style: AppTextStyles.bodySmall.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.primary,
+                                                ),
+                                              ),
+                                              Text(
+                                                '${latestPlan.etapesTerminees} / ${latestPlan.totalEtapes} ${'étapes'.tr} • ${latestPlan.sousEtapesTerminees} / ${latestPlan.totalSousEtapes} ${'séances'.tr}',
+                                                style: AppTextStyles.bodySmall.copyWith(
+                                                  color: AppColors.textSecondary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: LinearProgressIndicator(
+                                              value: latestPlan.progression,
+                                              minHeight: 6,
+                                              backgroundColor: AppColors.border.withValues(alpha: 0.5),
+                                              color: latestPlan.progression >= 1.0
+                                                  ? AppColors.statusPresent
+                                                  : AppColors.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+
+                                          // Référent du plan
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.person_pin_rounded,
+                                                size: 15,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                'Référent :'.tr,
+                                                style: AppTextStyles.bodySmall.copyWith(
+                                                  color: AppColors.textSecondary,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Expanded(
+                                                child: Text(
+                                                  latestPlan.assigneNom ?? 'Non assigné'.tr,
+                                                  style: AppTextStyles.bodySmall.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                    color: latestPlan.assigneNom != null
+                                                        ? AppColors.primary
+                                                        : AppColors.textHint,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_forward_ios_rounded,
+                                                size: 12,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Autres plans si existants
+                                  if (hasMore) ...[
+                                    const SizedBox(height: 10),
+                                    if (showAll) ...[
+                                      ...plansList.skip(1).map((plan) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 8.0),
+                                          child: InkWell(
+                                            onTap: () async {
+                                              await Get.toNamed(
+                                                AppRoutes.planTherapeutique,
+                                                arguments: controller.patientId,
+                                              );
+                                              controller.loadPatientInfo(forceRefresh: true);
+                                            },
+                                            borderRadius: BorderRadius.circular(12),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(10),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.fieldBackground,
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  const Icon(Icons.description_outlined, size: 16, color: AppColors.textSecondary),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      plan.titre,
+                                                      style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${(plan.progression * 100).toInt()}%',
+                                                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                    _buildExpandCollapseFooter(
+                                      isExpanded: showAll,
+                                      totalCount: plansList.length,
+                                      itemLabelPlural: 'plans'.tr,
+                                      onTap: () => controller.showAllPlans.toggle(),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                      );
+                    }),
+                    const SizedBox(height: 16),
 
                     // Comptes-rendus cliniques card
                     _buildComptesRendusCard(context, controller),
@@ -1179,49 +1306,6 @@ class PatientInfoView extends GetView<PatientInfoController> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStepTile({
-    required String number,
-    required String title,
-    required String subtitle,
-    required String statusLabel,
-    required Color statusColor,
-    required double progress,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.fieldBackground,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '$number. $title',
-               style: AppTextStyles.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              StatusBadge.custom(label: statusLabel, color: statusColor),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(subtitle, style: AppTextStyles.bodySmall),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: AppColors.border,
-            color: statusColor,
-            borderRadius: BorderRadius.circular(4),
-          ),
-        ],
       ),
     );
   }

@@ -209,13 +209,18 @@ class PatientInfoController extends GetxController {
     }
   }
 
-  Future<void> _loadPlans(dynamic id) async {
-    if (!isAdmin.value) {
-      plans.value = [];
-      return;
+  PlanTherapeutiqueModel? get dernierPlan => plans.isNotEmpty ? plans.first : null;
+
+  Future<void> reloadPlans() async {
+    if (patientId != null) {
+      await _loadPlans(patientId);
     }
+  }
+
+  Future<void> _loadPlans(dynamic id) async {
     try {
-      plans.value = await _planService.getPlansPatient(id);
+      final list = await _planService.getPlansPatient(id);
+      plans.value = list;
     } catch (_) {
       plans.value = [];
     }

@@ -471,8 +471,9 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.event_note_rounded, size: 15, color: AppColors.primary),
+                          const Icon(Icons.event_note_rounded, size: 15, color: AppColors.primary),
                           const SizedBox(width: 5),
                           Text(
                             '${etape.sousEtapesTerminees} / ${etape.totalSousEtapes} ${'séances'.tr}',
@@ -483,18 +484,21 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                           ),
                         ],
                       ),
-                      _buildEmployeeBadge(
-                        name: etape.assigneNom ?? plan.assigneNom,
-                        role: etape.assigneRole ?? plan.assigneRole,
-                        emptyLabel: 'Assigner étape'.tr,
-                        isInherited: etape.assigneNom == null && plan.assigneNom != null,
-                        onTap: () => _showAssignDialog(
-                          context,
-                          level: 'etape',
-                          planId: plan.id,
-                          etapeId: etape.id,
-                          targetTitle: '${'Étape'.tr} ${etape.ordre} : ${etape.titre}',
-                          currentAssigneeId: etape.assigneA,
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: _buildEmployeeBadge(
+                          name: etape.assigneNom ?? plan.assigneNom,
+                          role: etape.assigneRole ?? plan.assigneRole,
+                          emptyLabel: 'Assigner étape'.tr,
+                          isInherited: etape.assigneNom == null && plan.assigneNom != null,
+                          onTap: () => _showAssignDialog(
+                            context,
+                            level: 'etape',
+                            planId: plan.id,
+                            etapeId: etape.id,
+                            targetTitle: '${'Étape'.tr} ${etape.ordre} : ${etape.titre}',
+                            currentAssigneeId: etape.assigneA,
+                          ),
                         ),
                       ),
                     ],
@@ -507,11 +511,10 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
           // Divider before action row or sessions
           const Divider(height: 1),
 
-          // Step action bar: Add session, Change status, Tache, Delete
+          // Step action bar: Change status, Add session, Task, Delete
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Change status dropdown
                 PopupMenuButton<String>(
@@ -522,6 +525,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                     PopupMenuItem(value: 'fait', child: Text('Terminé'.tr)),
                   ],
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(statusIcon, size: 14, color: statusColor),
                       const SizedBox(width: 4),
@@ -537,48 +541,64 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                   ),
                 ),
 
-                Row(
-                  children: [
-                    // Add session button
-                    TextButton.icon(
-                      onPressed: () => _showAddSousEtapeDialog(context, plan, etape),
-                      icon: const Icon(Icons.add_circle_outline_rounded, size: 15),
-                      label: Text('Séance'.tr),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
+                const Spacer(),
 
-                    // Convert to Task button
-                    InkWell(
-                      onTap: () => _showAssignTaskDialog(context, plan, etape),
+                // Add session quick button
+                TextButton.icon(
+                  onPressed: () => _showAddSousEtapeDialog(context, plan, etape),
+                  icon: const Icon(Icons.add_circle_outline_rounded, size: 14),
+                  label: Text('Séance'.tr),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const SizedBox(width: 6),
+
+                // Convert to Task button
+                Tooltip(
+                  message: 'Créer une tâche'.tr,
+                  child: InkWell(
+                    onTap: () => _showAssignTaskDialog(context, plan, etape),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.arrow_forward_rounded, size: 13, color: AppColors.textSecondary),
-                          const SizedBox(width: 3),
+                          const Icon(Icons.assignment_outlined, size: 14, color: AppColors.textSecondary),
+                          const SizedBox(width: 2),
                           Text(
                             'Tâche'.tr,
-                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
+                  ),
+                ),
+                const SizedBox(width: 6),
 
-                    // Delete step button
-                    InkWell(
-                      onTap: () => controller.deleteEtape(plan.id, etape.id),
-                      child: const Icon(
+                // Delete step button
+                Tooltip(
+                  message: 'Supprimer l\'étape'.tr,
+                  child: InkWell(
+                    onTap: () => controller.deleteEtape(plan.id, etape.id),
+                    borderRadius: BorderRadius.circular(6),
+                    child: const Padding(
+                      padding: EdgeInsets.all(4),
+                      child: Icon(
                         Icons.delete_outline_rounded,
                         size: 18,
                         color: AppColors.error,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -596,22 +616,27 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'SÉANCES & ACTIONS DE L\'ÉTAPE'.tr,
-                        style: AppTextStyles.labelOverline.copyWith(
-                          color: AppColors.textTertiary,
-                          letterSpacing: 1.1,
+                      Expanded(
+                        child: Text(
+                          'SÉANCES & ACTIONS'.tr,
+                          style: AppTextStyles.labelOverline.copyWith(
+                            color: AppColors.textTertiary,
+                            letterSpacing: 0.8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       TextButton.icon(
                         onPressed: () => _showAddSousEtapeDialog(context, plan, etape),
-                        icon: const Icon(Icons.add, size: 14),
+                        icon: const Icon(Icons.add_rounded, size: 15),
                         label: Text('Nouvelle séance'.tr),
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.primary,
-                          padding: EdgeInsets.zero,
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           minimumSize: Size.zero,
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
@@ -784,21 +809,24 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildEmployeeBadge(
-                name: effectiveAssigneeName,
-                role: effectiveAssigneeRole,
-                emptyLabel: 'Assigner séance'.tr,
-                isInherited: isInherited,
-                onTap: () => _showAssignDialog(
-                  context,
-                  level: 'sous_etape',
-                  planId: plan.id,
-                  etapeId: etape.id,
-                  sousEtapeId: sousEtape.id,
-                  targetTitle: sousEtape.titre,
-                  currentAssigneeId: sousEtape.assigneA,
+              Flexible(
+                child: _buildEmployeeBadge(
+                  name: effectiveAssigneeName,
+                  role: effectiveAssigneeRole,
+                  emptyLabel: 'Assigner séance'.tr,
+                  isInherited: isInherited,
+                  onTap: () => _showAssignDialog(
+                    context,
+                    level: 'sous_etape',
+                    planId: plan.id,
+                    etapeId: etape.id,
+                    sousEtapeId: sousEtape.id,
+                    targetTitle: sousEtape.titre,
+                    currentAssigneeId: sousEtape.assigneA,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               StatusBadge.custom(label: sousEtape.statutLabel, color: checkColor),
             ],
           ),
@@ -874,23 +902,18 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
               ),
             ),
             const SizedBox(width: 6),
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isInherited ? AppColors.textSecondary : AppColors.primary,
+            Flexible(
+              child: Text(
+                role != null && role.isNotEmpty ? '$name (${role.tr})' : name,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: isInherited ? AppColors.textSecondary : AppColors.primary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (role != null && role.isNotEmpty) ...[
-              Text(
-                ' (${role.tr})',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: isInherited ? AppColors.textHint : AppColors.primary.withValues(alpha: 0.8),
-                ),
-              ),
-            ],
             if (isInherited) ...[
               const SizedBox(width: 4),
               Text(

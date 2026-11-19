@@ -59,6 +59,7 @@ class PlanTherapeutiqueModel {
   bool get isActif => statut == 'actif';
   bool get isSuspendu => statut == 'suspendu';
   bool get isArchive => statut == 'archive';
+  bool get isTermine => statut == 'termine';
 
   int get totalEtapes => etapes?.length ?? 0;
   int get etapesTerminees =>
