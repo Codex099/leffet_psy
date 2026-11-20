@@ -3,6 +3,7 @@ import '../controllers/accueil_controller.dart';
 import '../controllers/agenda_controller.dart';
 import '../controllers/patients_liste_controller.dart';
 import '../controllers/profil_controller.dart';
+import '../controllers/update_controller.dart';
 import '../services/auth_service.dart';
 
 /// Initial binding configurant les services et contrôleurs vitaux.
@@ -14,6 +15,7 @@ class InitialBinding extends Bindings {
   void dependencies() {
     // Services centraux
     Get.put<AuthService>(AuthService(), permanent: true);
+    Get.put<UpdateController>(UpdateController(), permanent: true);
 
     // Contrôleurs des 4 onglets principaux — enregistrés en lazyPut (fenix: true)
     // pour ne se charger que lorsque l'utilisateur est connecté et accède à la vue

@@ -35,6 +35,11 @@ class SectionHeader extends StatelessWidget {
     final effectiveIconColor = iconColor ?? AppColors.primary;
     final effectiveIconBg = iconBg ?? AppColors.primaryUltraLight;
 
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final isArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(title);
+    final displayTitle = (isRtl || isArabic) ? title : title.toUpperCase();
+    final letterSpacing = (isRtl || isArabic) ? 0.0 : 1.4;
+
     return Padding(
       padding: padding,
       child: Row(
@@ -58,10 +63,10 @@ class SectionHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  title.toUpperCase(),
+                  displayTitle,
                   style: AppTextStyles.labelOverline.copyWith(
                     color: AppColors.textTertiary,
-                    letterSpacing: 1.4,
+                    letterSpacing: letterSpacing,
                   ),
                 ),
                 if (showAccentLine) ...[

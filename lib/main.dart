@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'app.dart';
 import 'app/services/language_service.dart';
 import 'app/services/persistent_cache_service.dart';
+import 'app/services/app_update_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +27,9 @@ void main() async {
 
   // Initialiser le cache persistant (SharedPreferences) avant tout
   await PersistentCacheService.init();
+
+  // Initialiser la version de l'application depuis pubspec.yaml
+  await AppUpdateService.initVersion();
 
   // Charger la langue stockée en mémoire persistante
   final initialLocale = await LanguageService.getSavedLocale();

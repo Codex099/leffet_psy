@@ -164,8 +164,8 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
 
     final hasSousEtapes = plan.totalSousEtapes > 0;
     final progressLabel = hasSousEtapes
-        ? '${plan.sousEtapesTerminees} / ${plan.totalSousEtapes} ${'séances complétées'.tr}'
-        : '${plan.etapesTerminees} / ${plan.totalEtapes} ${'étapes complétées'.tr}';
+        ? '\u202A${plan.sousEtapesTerminees} / ${plan.totalSousEtapes}\u202C ${'séances complétées'.tr}'
+        : '\u202A${plan.etapesTerminees} / ${plan.totalEtapes}\u202C ${'étapes complétées'.tr}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +259,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${(plan.progression * 100).toInt()}% ${'accompli'.tr}',
+                    '\u200E${(plan.progression * 100).toInt()}%\u200E ${'accompli'.tr}',
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
@@ -267,7 +267,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                   ),
                   if (hasSousEtapes)
                     Text(
-                      '${plan.totalSousEtapes} ${'séances au total'.tr}',
+                      '${'séances au total'.tr} : \u200E${plan.totalSousEtapes}\u200E',
                       style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                     ),
                 ],
@@ -315,7 +315,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
           title: 'Étapes & Séances du plan'.tr,
           padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
           trailing: Text(
-            '${etapes.length} ${'étapes'.tr}',
+            '\u200E${etapes.length}\u200E ${'étapes'.tr}',
             style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
           ),
         ),
@@ -476,7 +476,7 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
                           const Icon(Icons.event_note_rounded, size: 15, color: AppColors.primary),
                           const SizedBox(width: 5),
                           Text(
-                            '${etape.sousEtapesTerminees} / ${etape.totalSousEtapes} ${'séances'.tr}',
+                            '\u202A${etape.sousEtapesTerminees} / ${etape.totalSousEtapes}\u202C ${'séances'.tr}',
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w600,
@@ -944,10 +944,10 @@ class PlanTherapeutiqueView extends GetView<PlanTherapeutiqueController> {
             children: [
               TextField(
                 controller: controller.titreController,
-                decoration: const InputDecoration(
-                  labelText: 'Titre du plan *',
-                  hintText: 'ex: Plan Orthophonie, Remédiation...',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Titre du plan *'.tr,
+                  hintText: 'ex: Plan Orthophonie, Remédiation...'.tr,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 14),

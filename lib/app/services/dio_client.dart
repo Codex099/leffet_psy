@@ -44,9 +44,11 @@ class DioClient {
       _RetryInterceptor(dio),
       _ErrorInterceptor(),
       if (const bool.fromEnvironment('dart.vm.product') == false)
-       LogInterceptor(
-          requestBody: true,
-          responseBody: true,
+        LogInterceptor(
+          requestHeader: false,
+          responseHeader: false,
+          requestBody: false,
+          responseBody: false,
           error: true,
         ),
     ]);
@@ -144,7 +146,7 @@ class _RetryInterceptor extends Interceptor {
     if (isGet && isServerOrTimeout && !alreadyRetried) {
       err.requestOptions.extra['retried'] = true;
       try {
-        await Future.delayed(const Duration(milliseconds: 800));
+        await Future.delayed(const Duration(milliseconds: 1500));
         final response = await _dio.fetch(err.requestOptions);
         return handler.resolve(response);
       } catch (e) {

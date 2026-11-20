@@ -145,26 +145,27 @@ class PatientsListeController extends GetxController {
               missingPatientIds.add(t.patientId);
             }
           }
-          for (final pid in missingPatientIds) {
-            try {
-              final p = await _patientService.getPatient(pid);
+          // Paralléliser tous les appels manquants (au lieu d'une boucle séquentielle N+1)
+          if (missingPatientIds.isNotEmpty) {
+            final missingList = missingPatientIds.toList();
+            final futures = missingList.map((pid) =>
+              _patientService.getPatient(pid).then<PatientModel?>((p) => p).catchError((_) {
+                // Fallback : reconstituer depuis la tâche si disponible
+                final tMatch = myTasks.firstWhereOrNull((task) => task.patientId == pid);
+                if (tMatch?.patient != null) {
+                  try { return PatientModel.fromJson(tMatch!.patient!); } catch (_) {}
+                }
+                return null;
+              }),
+            ).toList();
+
+            final results = await Future.wait(futures);
+            for (final p in results) {
+              if (p == null) continue;
               final idStr = p.id.toString();
               if (!seenIds.contains(idStr)) {
                 seenIds.add(idStr);
                 uniquePatients.add(p);
-              }
-            } catch (_) {
-              // Si getPatient échoue, reconstituer depuis t.patient s'il existe
-              final tMatch = myTasks.firstWhereOrNull((task) => task.patientId == pid);
-              if (tMatch?.patient != null) {
-                try {
-                  final p = PatientModel.fromJson(tMatch!.patient!);
-                  final idStr = p.id.toString();
-                  if (!seenIds.contains(idStr)) {
-                    seenIds.add(idStr);
-                    uniquePatients.add(p);
-                  }
-                } catch (_) {}
               }
             }
           }

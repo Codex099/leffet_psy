@@ -95,53 +95,57 @@ class PatientsListeView extends GetView<PatientsListeController> {
         color: AppColors.primary,
         backgroundColor: Colors.white,
         strokeWidth: 2.5,
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: 120),
-          children: [
+        child: CustomScrollView(
+          slivers: [
             // ── Search Bar Premium ─────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight, width: 0.7),
-                  boxShadow: AppColors.softShadow,
-                ),
-                child: TextField(
-                  onChanged: (val) => controller.search(val),
-                  style: AppTextStyles.iosBody.copyWith(
-                    fontWeight: FontWeight.w500,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.borderLight, width: 0.7),
+                    boxShadow: AppColors.softShadow,
                   ),
-                  decoration: InputDecoration(
-                    hintText: 'Rechercher un patient...'.tr,
-                    hintStyle: AppTextStyles.iosSubhead.copyWith(
-                      color: AppColors.textHint,
+                  child: TextField(
+                    onChanged: (val) => controller.search(val),
+                    style: AppTextStyles.iosBody.copyWith(
+                      fontWeight: FontWeight.w500,
                     ),
-                    prefixIcon: const Icon(
-                      Icons.search_rounded,
-                      size: 22,
-                      color: AppColors.secondary,
+                    decoration: InputDecoration(
+                      hintText: 'Rechercher un patient...'.tr,
+                      hintStyle: AppTextStyles.iosSubhead.copyWith(
+                        color: AppColors.textHint,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search_rounded,
+                        size: 22,
+                        color: AppColors.secondary,
+                      ),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      isDense: true,
                     ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    isDense: true,
                   ),
-                ),
-              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
+                ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1),
+              ),
             ),
 
-              // ── Bannière hors-ligne ────────────────────────────────────
-              Obx(() {
+            // ── Bannière hors-ligne ────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Obx(() {
                 if (!controller.isOfflineData.value) return const SizedBox.shrink();
                 return OfflineBanner(savedLabel: controller.offlineSavedLabel.value);
               }),
+            ),
 
-              // ── Filtres Segmented ──────────────────────────────────────
-              Obx(() {
+            // ── Filtres Segmented ──────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Obx(() {
                 int selectedIndex = 0;
                 if (controller.actifFilter.value == true) selectedIndex = 1;
                 if (controller.actifFilter.value == false) selectedIndex = 2;
@@ -152,7 +156,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                     1: 'Suivi actif'.tr,
                     2: 'Inactifs'.tr,
                   },
-                 selectedValue: selectedIndex,
+                  selectedValue: selectedIndex,
                   onValueChanged: (idx) {
                     if (idx == 0) controller.setActifFilter(null);
                     if (idx == 1) controller.setActifFilter(true);
@@ -161,9 +165,11 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 );
               }),
+            ),
 
-              // ── Compteur ──────────────────────────────────────────────────
-              Padding(
+            // ── Compteur ──────────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -171,7 +177,7 @@ class PatientsListeView extends GetView<PatientsListeController> {
                     Obx(
                       () => Text(
                         '${controller.filteredPatients.length} ${'patient(s)'.tr}',
-                       style: AppTextStyles.iosCaption2.copyWith(
+                        style: AppTextStyles.iosCaption2.copyWith(
                           color: AppColors.textTertiary,
                           fontWeight: FontWeight.w600,
                         ),
@@ -180,24 +186,28 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   ],
                 ),
               ),
+            ),
 
-              // ── Liste Patients ─────────────────────────────────────────────
-              Obx(() {
-                if (controller.status.value == 'loading') {
-                 return const ShimmerListLoader(count: 6);
-                }
-                if (controller.status.value == 'error') {
-                 return StatePlaceholder.error(
+            // ── Liste Patients (SliverList — pas de shrinkWrap) ────────────
+            Obx(() {
+              if (controller.status.value == 'loading') {
+                return const SliverToBoxAdapter(child: ShimmerListLoader(count: 6));
+              }
+              if (controller.status.value == 'error') {
+                return SliverToBoxAdapter(
+                  child: StatePlaceholder.error(
                     message: controller.errorMessage.value,
                     onAction: () => controller.loadPatients(),
-                  );
-                }
+                  ),
+                );
+              }
 
-                final list = controller.filteredPatients;
-                if (list.isEmpty) {
-                  final isInactive = controller.actifFilter.value == false;
-                  final canCreate = controller.isAdmin.value;
-                  return StatePlaceholder.empty(
+              final list = controller.filteredPatients;
+              if (list.isEmpty) {
+                final isInactive = controller.actifFilter.value == false;
+                final canCreate = controller.isAdmin.value;
+                return SliverToBoxAdapter(
+                  child: StatePlaceholder.empty(
                     title: isInactive
                         ? 'Aucun patient inactif'.tr
                         : 'Aucun patient trouvé'.tr,
@@ -209,28 +219,27 @@ class PatientsListeView extends GetView<PatientsListeController> {
                     actionLabel: (!isInactive && canCreate) ? 'Créer un dossier'.tr : null,
                     onAction: (!isInactive && canCreate)
                         ? () async {
-                            final res = await Get.toNamed(
-                              AppRoutes.editPatient,
-                            );
+                            final res = await Get.toNamed(AppRoutes.editPatient);
                             if (res == true) controller.loadPatients();
                           }
                         : null,
-                  );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.only(top: 6),
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    return _buildPatientCard(list[index], index);
-                  },
+                  ),
                 );
-              }),
-            ],
-          ),
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.only(top: 6, bottom: 120),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => _buildPatientCard(list[index], index),
+                    childCount: list.length,
+                  ),
+                ),
+              );
+            }),
+          ],
         ),
+      ),
     );
   }
 
@@ -320,9 +329,9 @@ class PatientsListeView extends GetView<PatientsListeController> {
                   ),
                 ),
               )
-              .animate(delay: Duration(milliseconds: 50 * (index % 10)))
-              .fadeIn(duration: 400.ms)
-              .slideX(begin: 0.05, curve: Curves.easeOut),
+              .animate(delay: Duration(milliseconds: 25 * (index % 8)))
+              .fadeIn(duration: 220.ms)
+              .slideX(begin: 0.03, curve: Curves.easeOut),
     );
   }
 }

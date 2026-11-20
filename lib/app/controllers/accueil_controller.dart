@@ -138,16 +138,32 @@ class AccueilController extends GetxController {
     try {
       final todayStr = DateTime.now().toIso8601String().split('T').first;
 
-      // 1. Récupération de l'utilisateur (avec fallback cache)
-      EmployeeModel? user;
-      try {
-        user = await _authService.getMe();
-      } catch (_) {
-        user = await _authService.getCachedUser() ?? currentUser.value;
-      }
+      // 1. Récupération parallèle : Profil + Séances individuelles + Séances groupe + Patients
+      final userFuture = _authService
+          .getMe()
+          .then<EmployeeModel?>((u) => u)
+          .catchError((_) async => (await _authService.getCachedUser()) ?? currentUser.value);
+      final indListFuture = _seanceService.getSeances(date: todayStr).catchError((_) => <SeanceModel>[]);
+      final grpListFuture = _seanceGroupeService.getSeancesGroupe(date: todayStr).catchError((_) => <SeanceGroupeModel>[]);
+      final patientsFuture = _patientService.getPatients(actif: true).catchError((_) {
+        return AppCacheManager.get<List<PatientModel>>(CacheKeys.patientsList) ?? <PatientModel>[];
+      });
+
+      final results = await Future.wait([
+        userFuture,
+        indListFuture,
+        grpListFuture,
+        patientsFuture,
+      ]);
+
+      final user = results[0] as EmployeeModel?;
       if (user != null) {
         currentUser.value = user;
       }
+
+      List<SeanceModel> indList = results[1] as List<SeanceModel>;
+      List<SeanceGroupeModel> grpList = results[2] as List<SeanceGroupeModel>;
+      List<dynamic> patients = results[3] as List<dynamic>;
 
       final currentUserId = (user ?? currentUser.value)?.id?.toString() ?? '';
       final role = (user ?? currentUser.value)?.role.toLowerCase() ?? 'admin';
@@ -156,28 +172,6 @@ class AccueilController extends GetxController {
           role == 'directrice' ||
           role == 'secretaire' ||
           role == 'coordinateur';
-
-      // 2. Séances individuelles et de groupe (appels résilients et indépendants)
-      List<SeanceModel> indList = [];
-      try {
-        indList = await _seanceService.getSeances(date: todayStr);
-      } catch (_) {}
-
-      List<SeanceGroupeModel> grpList = [];
-      try {
-        grpList = await _seanceGroupeService.getSeancesGroupe(date: todayStr);
-      } catch (_) {}
-
-      // 3. Patients (avec fallback cache en cas de cold-start Vercel)
-      List<dynamic> patients = [];
-      try {
-        patients = await _patientService.getPatients(actif: true);
-      } catch (_) {
-        final cached = AppCacheManager.get<List<PatientModel>>(CacheKeys.patientsList);
-        if (cached != null) {
-          patients = cached;
-        }
-      }
 
       if (!isAdminOrManager && currentUserId.isNotEmpty) {
         indList = indList.where((s) {

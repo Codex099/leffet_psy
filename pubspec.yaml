@@ -1,7 +1,7 @@
 name: leffet_psy
 description: "PsyCare — Application mobile de gestion de clinique de psychologie"
 publish_to: "none"
-version: 1.0.0+1
+version: 1.0.0+1 # pour chauque verison en ajoute 1.0.5+5
 
 environment:
   sdk: ^3.10.4
@@ -30,6 +30,9 @@ dependencies:
   speech_to_text: ^7.0.0
   flutter_markdown: ^0.7.7
   flutter_dotenv: ^6.0.1
+  path_provider: ^2.1.6
+  open_filex: ^5.0.0
+  package_info_plus: ^9.0.1
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../services/language_service.dart';
 import '../../controllers/profil_controller.dart';
+import '../../controllers/update_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
@@ -306,14 +307,82 @@ class ProfilView extends GetView<ProfilController> {
                   ),
                   IosCardTile(
                     leading: _tintedIconCircle(
+                      Icons.system_update_rounded,
+                      AppColors.primary,
+                      AppColors.primary.withValues(alpha: 0.1),
+                    ),
+                    title: 'Mise à jour de l\'application'.tr,
+                    subtitle: 'Vérifier les nouvelles versions'.tr,
+                    showChevron: true,
+                    trailing: Builder(
+                      builder: (_) {
+                        final updateCtrl = Get.isRegistered<UpdateController>()
+                            ? Get.find<UpdateController>()
+                            : Get.put(UpdateController(), permanent: true);
+
+                        return Obx(() {
+                          if (updateCtrl.isChecking.value) {
+                            return const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                            );
+                          }
+                          if (updateCtrl.updateAvailable.value) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.error,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                'v${updateCtrl.latestRelease.value?.cleanVersion ?? "nouvelle"} dispo',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }
+                          return Text(
+                            'v${updateCtrl.currentVersion} (${'à jour'.tr})',
+                            style: AppTextStyles.iosFootnote.copyWith(
+                              color: AppColors.success,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      final updateCtrl = Get.isRegistered<UpdateController>()
+                          ? Get.find<UpdateController>()
+                          : Get.put(UpdateController(), permanent: true);
+                      updateCtrl.checkForUpdate(silent: false);
+                    },
+                  ),
+                  IosCardTile(
+                    leading: _tintedIconCircle(
                       Icons.info_outline_rounded,
                       const Color(0xFF2E7D6B),
                       const Color(0xFFE3F4F0),
                     ),
                     title: 'Version de l\'application'.tr,
-                   trailing: Text(
-                      '1.0.0 (Build 2026)',
-                     style: AppTextStyles.iosFootnote,
+                    trailing: Builder(
+                      builder: (_) {
+                        final updateCtrl = Get.isRegistered<UpdateController>()
+                            ? Get.find<UpdateController>()
+                            : Get.put(UpdateController(), permanent: true);
+
+                        return Obx(
+                          () => Text(
+                            '${updateCtrl.currentVersion.value} (Build ${updateCtrl.currentBuildNumber.value})',
+                            style: AppTextStyles.iosFootnote,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],

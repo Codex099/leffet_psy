@@ -19,7 +19,6 @@ import '../services/auth_service.dart';
 import '../services/seance_service.dart';
 import '../services/seance_groupe_service.dart';
 import '../utils/json_utils.dart';
-import 'accueil_controller.dart';
 import 'patients_liste_controller.dart';
 
 class PatientCompteRenduItem {
@@ -601,16 +600,28 @@ class PatientInfoController extends GetxController {
     }
   }
 
+  /// Met à jour localement les contrôleurs globaux sans déclencher d'appel réseau.
+  /// Le cache est invalidé → les contrôleurs rechargeront depuis le réseau
+  /// uniquement lors du prochain accès réel (Stale-While-Revalidate).
   void _notifyGlobalControllers() {
+    // Invalider les caches (force rechargement au prochain accès, pas maintenant)
+    AppCacheManager.invalidateTag(CacheTags.patients);
+    AppCacheManager.invalidateTag(CacheTags.dashboard);
+
+    // Mise à jour optimiste locale : remplace juste ce patient dans la liste
     try {
-      if (Get.isRegistered<PatientsListeController>()) {
-        Get.find<PatientsListeController>().loadPatients(forceRefresh: true);
+      if (Get.isRegistered<PatientsListeController>() && patient.value != null) {
+        final ctrl = Get.find<PatientsListeController>();
+        final idx = ctrl.allPatients.indexWhere(
+          (p) => p.id.toString() == patient.value!.id.toString(),
+        );
+        if (idx != -1) {
+          ctrl.allPatients[idx] = patient.value!;
+        }
+        // Pas de loadPatients() — le cache invalidé suffira au prochain refresh
       }
     } catch (_) {}
-    try {
-      if (Get.isRegistered<AccueilController>()) {
-        Get.find<AccueilController>().loadDashboard(forceRefresh: true);
-      }
-    } catch (_) {}
+    // Dashboard : on ne force pas de rechargement réseau
+    // Il se rechargera seul au prochain onReady() si le cache est expiré
   }
 }
